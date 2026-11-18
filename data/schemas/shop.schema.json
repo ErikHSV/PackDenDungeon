@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "shop.schema.json",
+  "title": "Shop-Angebote",
+  "type": "object",
+  "required": [
+    "angebote"
+  ],
+  "properties": {
+    "angebote": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "artikel",
+          "anzahl",
+          "grundPreis",
+          "gewicht"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "artikel": {
+            "type": "string"
+          },
+          "anzahl": {
+            "type": "integer"
+          },
+          "grundPreis": {
+            "type": "number"
+          },
+          "gewicht": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,13 +1,11 @@
 {
   "name": "packdendungeon",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
-  "description": "Incremental-Tower-Defense mit Booster-Pack-Mechanik (HTML5 + JavaScript, Canvas).",
+  "description": "Incremental-Tower-Defense mit Booster-Packs (HTML5 + JavaScript, Canvas).",
   "scripts": {
     "start": "python3 -m http.server 8080",
-    "validate": "node tools/validate-data.mjs",
-    "simulate": "node tools/simulate.mjs 15 1",
-    "simulate:first": "node tools/simulate.mjs 12 1 --first"
+    "validate": "node tools/validate-data.mjs"
   }
 }

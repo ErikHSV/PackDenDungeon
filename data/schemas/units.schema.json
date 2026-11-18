@@ -1,0 +1,255 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "units.schema.json",
+  "title": "Einheiten (Helden und Beschwörungen)",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "id",
+      "name",
+      "rarity",
+      "rolle",
+      "rollenSymbol",
+      "ki",
+      "beschreibung",
+      "farbe",
+      "sprite",
+      "werte",
+      "trifftLuft",
+      "angriff",
+      "faehigkeiten"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^[a-z0-9_]+$"
+      },
+      "name": {
+        "type": "string"
+      },
+      "rarity": {
+        "$ref": "common.schema.json#/definitions/seltenheit"
+      },
+      "rolle": {
+        "type": "string"
+      },
+      "rollenSymbol": {
+        "enum": [
+          "sword",
+          "shield",
+          "bow",
+          "staff",
+          "heart"
+        ]
+      },
+      "ki": {
+        "enum": [
+          "angreifen",
+          "abstand",
+          "bewachen",
+          "springen",
+          "folgen"
+        ],
+        "description": "angreifen = läuft zum nächsten Gegner, abstand = hält Distanz (Fernkampf), bewachen = bleibt in Turmnähe (Tank), springen = sprintet durch Gruppen, folgen = bleibt bei Verbündeten (Support)"
+      },
+      "beschreibung": {
+        "type": "string"
+      },
+      "farbe": {
+        "$ref": "common.schema.json#/definitions/farbe"
+      },
+      "sprite": {
+        "type": "string"
+      },
+      "nurBeschworen": {
+        "type": "boolean"
+      },
+      "werte": {
+        "type": "object",
+        "required": [
+          "leben",
+          "schaden",
+          "angriffsTempo",
+          "reichweite",
+          "lauftempo",
+          "schadensTyp"
+        ],
+        "properties": {
+          "leben": {
+            "type": "number"
+          },
+          "schaden": {
+            "type": "number"
+          },
+          "angriffsTempo": {
+            "type": "number"
+          },
+          "reichweite": {
+            "type": "number"
+          },
+          "lauftempo": {
+            "type": "number"
+          },
+          "schadensTyp": {
+            "enum": [
+              "physical",
+              "magic"
+            ]
+          }
+        }
+      },
+      "trifftLuft": {
+        "type": "boolean"
+      },
+      "angriff": {
+        "type": "object",
+        "required": [
+          "art"
+        ],
+        "properties": {
+          "art": {
+            "enum": [
+              "nahkampf",
+              "halbkreis",
+              "geschoss",
+              "keiner"
+            ]
+          },
+          "radius": {
+            "type": "number"
+          },
+          "geschossTempo": {
+            "type": "number"
+          },
+          "abpraller": {
+            "type": "integer"
+          },
+          "flaeche": {
+            "type": "object",
+            "properties": {
+              "radius": {
+                "type": "number"
+              },
+              "dauer": {
+                "type": "number"
+              },
+              "schadenProSekunde": {
+                "type": "number"
+              }
+            }
+          },
+          "beiTreffer": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/definitions/status"
+            }
+          },
+          "spiegelung": {
+            "type": "object",
+            "properties": {
+              "radius": {
+                "type": "number"
+              },
+              "anteil": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      },
+      "faehigkeiten": {
+        "type": "object",
+        "propertyNames": {
+          "enum": [
+            "blocken",
+            "sprint",
+            "anfeuern",
+            "wirbelsturm",
+            "glocke",
+            "dimensionssprung",
+            "riss",
+            "bonusMuenzen"
+          ]
+        }
+      },
+      "entwicklung": {
+        "type": "object",
+        "required": [
+          "bedingung",
+          "name",
+          "text"
+        ],
+        "properties": {
+          "bedingung": {
+            "type": "object",
+            "required": [
+              "typ",
+              "anzahl"
+            ],
+            "properties": {
+              "typ": {
+                "enum": [
+                  "kills",
+                  "blocks",
+                  "treffer",
+                  "ueberlebt"
+                ]
+              },
+              "anzahl": {
+                "type": "number"
+              }
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "werteMul": {
+            "type": "object"
+          },
+          "volleHeilung": {
+            "type": "boolean"
+          },
+          "patches": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/definitions/patch"
+            }
+          },
+          "sprite": {
+            "type": "string"
+          }
+        }
+      },
+      "beimTod": {
+        "type": "object",
+        "properties": {
+          "beschwoeren": {
+            "type": "object",
+            "required": [
+              "einheit",
+              "anzahl"
+            ],
+            "properties": {
+              "einheit": {
+                "type": "string"
+              },
+              "anzahl": {
+                "type": "integer"
+              },
+              "dauer": {
+                "type": "number"
+              }
+            }
+          },
+          "text": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

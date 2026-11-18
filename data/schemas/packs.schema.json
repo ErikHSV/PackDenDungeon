@@ -1,20 +1,91 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "packs.schema.json",
-  "title": "Booster-Packs",
+  "title": "Packs, Kisten und Reliktpacks",
   "type": "array",
   "items": {
     "type": "object",
-    "required": ["id", "name", "description", "unlockChapter", "basePrice", "color", "rarityWeights", "pool"],
+    "required": [
+      "id",
+      "name",
+      "art",
+      "beschreibung",
+      "farbe",
+      "freischaltung",
+      "kristalle"
+    ],
     "properties": {
-      "id": { "type": "string" },
-      "name": { "type": "string" },
-      "description": { "type": "string" },
-      "unlockChapter": { "type": "integer", "minimum": 1 },
-      "basePrice": { "type": "number" },
-      "color": { "type": "string" },
-      "rarityWeights": { "type": "object", "description": "Gewichte je Seltenheit; Karte wird danach gleichverteilt aus dem Pool dieser Seltenheit gezogen" },
-      "pool": { "type": "array", "items": { "type": "string" }, "description": "IDs von Helden und Zaubern" }
+      "id": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "art": {
+        "enum": [
+          "pack",
+          "kiste",
+          "relikt"
+        ]
+      },
+      "beschreibung": {
+        "type": "string"
+      },
+      "farbe": {
+        "$ref": "common.schema.json#/definitions/farbe"
+      },
+      "freischaltung": {
+        "type": "object",
+        "required": [
+          "typ"
+        ],
+        "properties": {
+          "typ": {
+            "enum": [
+              "start",
+              "boss",
+              "quest",
+              "sternenkarte"
+            ]
+          },
+          "kapitel": {
+            "type": "integer"
+          }
+        }
+      },
+      "widerstand": {
+        "type": "number"
+      },
+      "kartenProPack": {
+        "type": "integer"
+      },
+      "kristalle": {
+        "type": "number"
+      },
+      "pool": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "IDs aus units.json und tomes.json"
+      },
+      "seltenheitsGewichte": {
+        "type": "object"
+      },
+      "inhalt": {
+        "type": "object",
+        "properties": {
+          "pack": {
+            "type": "string"
+          },
+          "anzahl": {
+            "type": "integer"
+          },
+          "relikte": {
+            "type": "integer"
+          }
+        }
+      }
     }
   }
 }

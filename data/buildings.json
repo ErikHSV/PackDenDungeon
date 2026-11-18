@@ -1,0 +1,46 @@
+[
+  {
+    "id": "taverne",
+    "name": "Taverne",
+    "beschreibung": "Wirft regelmäßig ein Holzpack aufs Feld.",
+    "farbe": "#8b5a2b",
+    "pack": "holzpack",
+    "kiste": "kiste_holz",
+    "position": { "winkel": 200 },
+    "stufen": [
+      { "intervall": 20, "kistenChance": 0 },
+      { "intervall": 17, "kistenChance": 0 },
+      { "intervall": 15, "kistenChance": 0.1 },
+      { "intervall": 13, "kistenChance": 0.2 }
+    ]
+  },
+  {
+    "id": "kaserne",
+    "name": "Kaserne",
+    "beschreibung": "Wirft regelmäßig ein Silberpack aufs Feld.",
+    "farbe": "#b8c4d0",
+    "pack": "silberpack",
+    "kiste": "kiste_silber",
+    "position": { "winkel": 340 },
+    "stufen": [
+      { "intervall": 25, "kistenChance": 0 },
+      { "intervall": 22, "kistenChance": 0 },
+      { "intervall": 19, "kistenChance": 0.1 },
+      { "intervall": 16, "kistenChance": 0.15 }
+    ]
+  },
+  {
+    "id": "sternwarte",
+    "name": "Sternwarte",
+    "beschreibung": "Wirft regelmäßig ein Sternenpack aufs Feld.",
+    "farbe": "#3b2f7a",
+    "pack": "sternenpack",
+    "kiste": null,
+    "position": { "winkel": 90 },
+    "stufen": [
+      { "intervall": 40, "kistenChance": 0 },
+      { "intervall": 34, "kistenChance": 0 },
+      { "intervall": 28, "kistenChance": 0 }
+    ]
+  }
+]

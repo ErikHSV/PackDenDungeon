@@ -1,0 +1,2381 @@
+{
+ "$kommentar": "Sternenkarte (Skill-Tree). Felder laut Spezifikation 6.5. typ: start|klein|gross|schluessel|freischalt. Kosten pro Stufe = basisKosten × kostenFaktor^Stufe (+ splitterKosten). effekt.rechenart: addieren (Wert × Stufe) oder multiplizieren (Faktor^Stufe). voraussetzung.karte = Karte muss gefunden sein.",
+ "groesse": {
+  "breite": 4000,
+  "hoehe": 4000
+ },
+ "start": "start",
+ "aeste": [
+  {
+   "id": "runen",
+   "name": "Runenkreis",
+   "farbe": "#5AA9F0"
+  },
+  {
+   "id": "wirtschaft",
+   "name": "Wirtschaft",
+   "farbe": "#FFD24A"
+  },
+  {
+   "id": "pack",
+   "name": "Packs",
+   "farbe": "#A55CE0"
+  },
+  {
+   "id": "helden",
+   "name": "Helden",
+   "farbe": "#E04848"
+  },
+  {
+   "id": "turm",
+   "name": "Turm",
+   "farbe": "#D8D8E0"
+  },
+  {
+   "id": "zauber",
+   "name": "Zauber",
+   "farbe": "#3ED6C4"
+  },
+  {
+   "id": "start",
+   "name": "Ursprung",
+   "farbe": "#F4EBD9"
+  }
+ ],
+ "knoten": [
+  {
+   "id": "start",
+   "name": "Erwachen",
+   "beschreibung": "Der Ursprung deiner Macht. Von hier aus wächst die Sternenkarte.",
+   "typ": "start",
+   "ast": "start",
+   "position": {
+    "x": 2000,
+    "y": 2000
+   },
+   "verbindungen": [
+    "a_schaerfe",
+    "b_boerse",
+    "c_haendler",
+    "d_kampf",
+    "e_mauern",
+    "f_laden"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 0,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "keiner"
+   }
+  },
+  {
+   "id": "a_schaerfe",
+   "name": "Runenschärfe",
+   "beschreibung": "+1 Schaden des Runenkreises pro Stufe.",
+   "typ": "klein",
+   "ast": "runen",
+   "position": {
+    "x": 2000,
+    "y": 1740
+   },
+   "verbindungen": [
+    "start",
+    "a_kreis"
+   ],
+   "maxStufe": 10,
+   "basisKosten": 2,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "cursorDamage",
+    "wert": 1,
+    "rechenart": "addieren"
+   },
+   "symbol": "rune"
+  },
+  {
+   "id": "a_kreis",
+   "name": "Weiter Kreis",
+   "beschreibung": "+8 % Radius des Runenkreises pro Stufe.",
+   "typ": "klein",
+   "ast": "runen",
+   "position": {
+    "x": 2000,
+    "y": 1530
+   },
+   "verbindungen": [
+    "a_schaerfe",
+    "a_puls",
+    "a_magnet"
+   ],
+   "maxStufe": 8,
+   "basisKosten": 3,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "cursorRadiusMul",
+    "wert": 0.08,
+    "rechenart": "addieren"
+   },
+   "symbol": "rune"
+  },
+  {
+   "id": "a_puls",
+   "name": "Schneller Puls",
+   "beschreibung": "−4 % Abstand zwischen Runen-Treffern pro Stufe.",
+   "typ": "klein",
+   "ast": "runen",
+   "position": {
+    "x": 1905,
+    "y": 1327
+   },
+   "verbindungen": [
+    "a_kreis",
+    "a_glueck",
+    "a_glut"
+   ],
+   "maxStufe": 8,
+   "basisKosten": 3,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "cursorTickMul",
+    "wert": -0.04,
+    "rechenart": "addieren"
+   },
+   "symbol": "rune"
+  },
+  {
+   "id": "a_magnet",
+   "name": "Goldmagnet",
+   "beschreibung": "+15 px Bereich, in dem Münzen eingesammelt werden.",
+   "typ": "klein",
+   "ast": "runen",
+   "position": {
+    "x": 2095,
+    "y": 1327
+   },
+   "verbindungen": [
+    "a_kreis",
+    "a_sammel"
+   ],
+   "maxStufe": 5,
+   "basisKosten": 2,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "magnet",
+    "wert": 15,
+    "rechenart": "addieren"
+   },
+   "symbol": "coin"
+  },
+  {
+   "id": "a_glueck",
+   "name": "Glückstreffer",
+   "beschreibung": "+3 % kritische Chance des Runenkreises (Krit = doppelter Schaden).",
+   "typ": "klein",
+   "ast": "runen",
+   "position": {
+    "x": 1911,
+    "y": 1114
+   },
+   "verbindungen": [
+    "a_puls",
+    "a_funken"
+   ],
+   "maxStufe": 5,
+   "basisKosten": 4,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "cursorCrit",
+    "wert": 0.03,
+    "rechenart": "addieren"
+   },
+   "symbol": "stun"
+  },
+  {
+   "id": "a_funken",
+   "name": "Funkenregen",
+   "beschreibung": "Kritische Runen-Treffer erzeugen Funken, die einen Nachbargegner treffen.",
+   "typ": "gross",
+   "ast": "runen",
+   "position": {
+    "x": 1868,
+    "y": 908
+   },
+   "verbindungen": [
+    "a_glueck",
+    "a_frost",
+    "a_zwilling"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 15,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "flag",
+    "flag": "funkenregen"
+   },
+   "symbol": "burn"
+  },
+  {
+   "id": "a_glut",
+   "name": "Glutkreis",
+   "beschreibung": "Runen-Treffer setzen Gegner in Brand.",
+   "typ": "schluessel",
+   "ast": "runen",
+   "position": {
+    "x": 1683,
+    "y": 1158
+   },
+   "verbindungen": [
+    "a_puls"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 25,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 2,
+   "effekt": {
+    "ziel": "flag",
+    "flag": "glutkreis"
+   },
+   "symbol": "burn"
+  },
+  {
+   "id": "a_frost",
+   "name": "Frostkreis",
+   "beschreibung": "Gegner im Runenkreis werden um 25 % verlangsamt.",
+   "typ": "schluessel",
+   "ast": "runen",
+   "position": {
+    "x": 1974,
+    "y": 680
+   },
+   "verbindungen": [
+    "a_funken"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 30,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 2,
+   "effekt": {
+    "ziel": "flag",
+    "flag": "frostkreis"
+   },
+   "symbol": "slow"
+  },
+  {
+   "id": "a_zwilling",
+   "name": "Zwillingsrune",
+   "beschreibung": "Ein zweiter, kleinerer Kreis umkreist den Cursor und macht 40 % Schaden.",
+   "typ": "schluessel",
+   "ast": "runen",
+   "position": {
+    "x": 1661,
+    "y": 724
+   },
+   "verbindungen": [
+    "a_funken"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 35,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 3,
+   "effekt": {
+    "ziel": "flag",
+    "flag": "zwillingsrune"
+   },
+   "symbol": "rune"
+  },
+  {
+   "id": "a_sammel",
+   "name": "Sammelgeist",
+   "beschreibung": "Liegendes Gold wird nach 2 Sekunden automatisch eingesammelt.",
+   "typ": "schluessel",
+   "ast": "runen",
+   "position": {
+    "x": 2283,
+    "y": 1146
+   },
+   "verbindungen": [
+    "a_magnet"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 20,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 2,
+   "effekt": {
+    "ziel": "flag",
+    "flag": "sammelgeist"
+   },
+   "symbol": "coin"
+  },
+  {
+   "id": "b_boerse",
+   "name": "Prall gefüllte Börse",
+   "beschreibung": "+25 Startgold pro Stufe.",
+   "typ": "klein",
+   "ast": "wirtschaft",
+   "position": {
+    "x": 2225,
+    "y": 1870
+   },
+   "verbindungen": [
+    "start",
+    "b_beute"
+   ],
+   "maxStufe": 10,
+   "basisKosten": 2,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "startGold",
+    "wert": 25,
+    "rechenart": "addieren"
+   },
+   "symbol": "coin"
+  },
+  {
+   "id": "b_beute",
+   "name": "Beutegier",
+   "beschreibung": "+5 % Gold pro besiegtem Gegner.",
+   "typ": "klein",
+   "ast": "wirtschaft",
+   "position": {
+    "x": 2407,
+    "y": 1765
+   },
+   "verbindungen": [
+    "b_boerse",
+    "b_glanz",
+    "b_zinsen"
+   ],
+   "maxStufe": 10,
+   "basisKosten": 3,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "killGoldMul",
+    "wert": 0.05,
+    "rechenart": "addieren"
+   },
+   "symbol": "coin"
+  },
+  {
+   "id": "b_glanz",
+   "name": "Längerer Glanz",
+   "beschreibung": "Münzen bleiben 1 Sekunde länger liegen.",
+   "typ": "klein",
+   "ast": "wirtschaft",
+   "position": {
+    "x": 2540,
+    "y": 1587
+   },
+   "verbindungen": [
+    "b_beute",
+    "b_goldader"
+   ],
+   "maxStufe": 4,
+   "basisKosten": 3,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "coinLifetime",
+    "wert": 1,
+    "rechenart": "addieren"
+   },
+   "symbol": "coin"
+  },
+  {
+   "id": "b_zinsen",
+   "name": "Zinsen",
+   "beschreibung": "Am Ende jeder Welle +2 % deines aktuellen Goldes als Bonus.",
+   "typ": "gross",
+   "ast": "wirtschaft",
+   "position": {
+    "x": 2628,
+    "y": 1739
+   },
+   "verbindungen": [
+    "b_beute",
+    "b_schueler"
+   ],
+   "maxStufe": 3,
+   "basisKosten": 10,
+   "kostenFaktor": 1.8,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "interest",
+    "wert": 0.02,
+    "rechenart": "addieren"
+   },
+   "symbol": "coin"
+  },
+  {
+   "id": "b_schueler",
+   "name": "Meisterschüler",
+   "beschreibung": "+10 % Mastery-Punkte am Ende jedes Runs.",
+   "typ": "gross",
+   "ast": "wirtschaft",
+   "position": {
+    "x": 2811,
+    "y": 1634
+   },
+   "verbindungen": [
+    "b_zinsen",
+    "b_goldader"
+   ],
+   "maxStufe": 3,
+   "basisKosten": 15,
+   "kostenFaktor": 1.8,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "mpBonus",
+    "wert": 0.1,
+    "rechenart": "addieren"
+   },
+   "symbol": "rune"
+  },
+  {
+   "id": "b_goldader",
+   "name": "Goldader",
+   "beschreibung": "Elitegegner lassen einen Goldklumpen fallen, der fünfmal so viel wert ist.",
+   "typ": "schluessel",
+   "ast": "wirtschaft",
+   "position": {
+    "x": 2953,
+    "y": 1450
+   },
+   "verbindungen": [
+    "b_schueler",
+    "b_glanz"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 25,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 2,
+   "effekt": {
+    "ziel": "flag",
+    "flag": "goldader"
+   },
+   "symbol": "coin"
+  },
+  {
+   "id": "c_haendler",
+   "name": "Händlerfreund",
+   "beschreibung": "Packs kosten 3 % weniger.",
+   "typ": "klein",
+   "ast": "pack",
+   "position": {
+    "x": 2225,
+    "y": 2130
+   },
+   "verbindungen": [
+    "start",
+    "c_markt"
+   ],
+   "maxStufe": 8,
+   "basisKosten": 3,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "packPriceMul",
+    "wert": -0.03,
+    "rechenart": "addieren"
+   },
+   "symbol": "chest"
+  },
+  {
+   "id": "c_markt",
+   "name": "Ruhiger Markt",
+   "beschreibung": "Preissteigerung pro Kauf −1 Prozentpunkt.",
+   "typ": "klein",
+   "ast": "pack",
+   "position": {
+    "x": 2407,
+    "y": 2235
+   },
+   "verbindungen": [
+    "c_haendler",
+    "c_haendchen",
+    "c_silber"
+   ],
+   "maxStufe": 5,
+   "basisKosten": 4,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "priceGrowthAdd",
+    "wert": -0.01,
+    "rechenart": "addieren"
+   },
+   "symbol": "chest"
+  },
+  {
+   "id": "c_haendchen",
+   "name": "Glückliches Händchen",
+   "beschreibung": "+2 % Chance pro Karte auf eine Stufe höhere Seltenheit.",
+   "typ": "klein",
+   "ast": "pack",
+   "position": {
+    "x": 2540,
+    "y": 2413
+   },
+   "verbindungen": [
+    "c_markt",
+    "c_vierte"
+   ],
+   "maxStufe": 5,
+   "basisKosten": 4,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "rarityUpChance",
+    "wert": 0.02,
+    "rechenart": "addieren"
+   },
+   "symbol": "stun"
+  },
+  {
+   "id": "c_silber",
+   "name": "Silberkiste früher",
+   "beschreibung": "Die Silberkiste ist schon in Kapitel 1 verfügbar.",
+   "typ": "freischalt",
+   "ast": "pack",
+   "position": {
+    "x": 2628,
+    "y": 2261
+   },
+   "verbindungen": [
+    "c_markt",
+    "c_wahl"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 20,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "packFrueher",
+    "pack": "silberkiste"
+   },
+   "symbol": "lock"
+  },
+  {
+   "id": "c_vierte",
+   "name": "Vierte Karte",
+   "beschreibung": "Jedes Pack enthält 4 statt 3 Karten.",
+   "typ": "schluessel",
+   "ast": "pack",
+   "position": {
+    "x": 2720,
+    "y": 2540
+   },
+   "verbindungen": [
+    "c_haendchen"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 35,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 3,
+   "effekt": {
+    "ziel": "flag",
+    "flag": "vierteKarte"
+   },
+   "symbol": "chest"
+  },
+  {
+   "id": "c_wahl",
+   "name": "Wahl des Glücks",
+   "beschreibung": "Einmal pro Pack darfst du eine Karte neu ziehen.",
+   "typ": "schluessel",
+   "ast": "pack",
+   "position": {
+    "x": 2828,
+    "y": 2353
+   },
+   "verbindungen": [
+    "c_silber"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 25,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 2,
+   "effekt": {
+    "ziel": "flag",
+    "flag": "wahlDesGluecks"
+   },
+   "symbol": "chest"
+  },
+  {
+   "id": "d_kampf",
+   "name": "Kampfgeist",
+   "beschreibung": "+4 % Schaden aller Helden.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 2000,
+    "y": 2260
+   },
+   "verbindungen": [
+    "start",
+    "d_zaeh",
+    "d_eile"
+   ],
+   "maxStufe": 10,
+   "basisKosten": 2,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "damageMul",
+    "wert": 0.04,
+    "rechenart": "addieren"
+   },
+   "symbol": "sword"
+  },
+  {
+   "id": "d_zaeh",
+   "name": "Zähigkeit",
+   "beschreibung": "+5 % Leben aller Helden.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 2072,
+    "y": 2444
+   },
+   "verbindungen": [
+    "d_kampf",
+    "d_slot6"
+   ],
+   "maxStufe": 10,
+   "basisKosten": 2,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "heroHpMul",
+    "wert": 0.05,
+    "rechenart": "addieren"
+   },
+   "symbol": "heart"
+  },
+  {
+   "id": "d_eile",
+   "name": "Eile",
+   "beschreibung": "+3 % Angriffstempo aller Helden.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 1928,
+    "y": 2444
+   },
+   "verbindungen": [
+    "d_kampf",
+    "d_slot6"
+   ],
+   "maxStufe": 8,
+   "basisKosten": 3,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "attackSpeedMul",
+    "wert": 0.03,
+    "rechenart": "addieren"
+   },
+   "symbol": "bow"
+  },
+  {
+   "id": "d_slot6",
+   "name": "Sechster Slot",
+   "beschreibung": "Schaltet einen sechsten Helden-Slot frei.",
+   "typ": "freischalt",
+   "ast": "helden",
+   "position": {
+    "x": 2000,
+    "y": 2620
+   },
+   "verbindungen": [
+    "d_zaeh",
+    "d_eile",
+    "d_rekruten",
+    "d_slot7"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 10,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "extraSlots",
+    "wert": 1,
+    "rechenart": "addieren"
+   },
+   "symbol": "lock"
+  },
+  {
+   "id": "d_rekruten",
+   "name": "Erfahrene Rekruten",
+   "beschreibung": "Neue Helden starten mit 20 % Fortschritt zum nächsten Stern.",
+   "typ": "gross",
+   "ast": "helden",
+   "position": {
+    "x": 2127,
+    "y": 2790
+   },
+   "verbindungen": [
+    "d_slot6",
+    "d_slot8"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 15,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "recruitProgress",
+    "wert": 0.2,
+    "rechenart": "addieren"
+   },
+   "symbol": "sword"
+  },
+  {
+   "id": "d_slot7",
+   "name": "Siebter Slot",
+   "beschreibung": "Schaltet einen siebten Helden-Slot frei.",
+   "typ": "freischalt",
+   "ast": "helden",
+   "position": {
+    "x": 1873,
+    "y": 2790
+   },
+   "verbindungen": [
+    "d_slot6",
+    "d_slot8"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 18,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "extraSlots",
+    "wert": 1,
+    "rechenart": "addieren"
+   },
+   "symbol": "lock"
+  },
+  {
+   "id": "d_slot8",
+   "name": "Achter Slot",
+   "beschreibung": "Schaltet einen achten Helden-Slot frei.",
+   "typ": "freischalt",
+   "ast": "helden",
+   "position": {
+    "x": 2000,
+    "y": 2980
+   },
+   "verbindungen": [
+    "d_slot7",
+    "d_rekruten",
+    "d_sternenfeuer",
+    "d_slot9"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 28,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "extraSlots",
+    "wert": 1,
+    "rechenart": "addieren"
+   },
+   "symbol": "lock"
+  },
+  {
+   "id": "d_sternenfeuer",
+   "name": "Sternenfeuer",
+   "beschreibung": "Steigt ein Held einen Stern auf, entfesselt er eine Schockwelle.",
+   "typ": "schluessel",
+   "ast": "helden",
+   "position": {
+    "x": 2196,
+    "y": 3143
+   },
+   "verbindungen": [
+    "d_slot8",
+    "d_slot10",
+    "spec_torwaechter_1",
+    "spec_schleuderjunge_1",
+    "spec_feldscherin_1"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 30,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 2,
+   "effekt": {
+    "ziel": "flag",
+    "flag": "sternenfeuer"
+   },
+   "symbol": "stun"
+  },
+  {
+   "id": "d_slot9",
+   "name": "Neunter Slot",
+   "beschreibung": "Schaltet einen neunten Helden-Slot frei.",
+   "typ": "freischalt",
+   "ast": "helden",
+   "position": {
+    "x": 1804,
+    "y": 3143
+   },
+   "verbindungen": [
+    "d_slot8",
+    "d_slot10",
+    "spec_sturmruferin_1",
+    "spec_knochenfluesterer_1",
+    "spec_uhrmacher_1"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 40,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "extraSlots",
+    "wert": 1,
+    "rechenart": "addieren"
+   },
+   "symbol": "lock"
+  },
+  {
+   "id": "d_slot10",
+   "name": "Zehnter Slot",
+   "beschreibung": "Schaltet einen zehnten Helden-Slot frei.",
+   "typ": "freischalt",
+   "ast": "helden",
+   "position": {
+    "x": 2000,
+    "y": 3340
+   },
+   "verbindungen": [
+    "d_slot9",
+    "d_sternenfeuer",
+    "spec_kettenschwinger_1",
+    "spec_falknerin_1",
+    "spec_runenschmied_1",
+    "spec_frostweberin_1",
+    "spec_schattenlaeuferin_1",
+    "spec_glockenmoench_1"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 55,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "extraSlots",
+    "wert": 1,
+    "rechenart": "addieren"
+   },
+   "symbol": "lock"
+  },
+  {
+   "id": "e_mauern",
+   "name": "Dicke Mauern",
+   "beschreibung": "+8 % Turm-Leben.",
+   "typ": "klein",
+   "ast": "turm",
+   "position": {
+    "x": 1775,
+    "y": 2130
+   },
+   "verbindungen": [
+    "start",
+    "e_moertel",
+    "e_bogen1"
+   ],
+   "maxStufe": 10,
+   "basisKosten": 2,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "towerHpMul",
+    "wert": 0.08,
+    "rechenart": "addieren"
+   },
+   "symbol": "tower"
+  },
+  {
+   "id": "e_moertel",
+   "name": "Mörtel",
+   "beschreibung": "Der Turm regeneriert 0,5 % seines Lebens pro Sekunde.",
+   "typ": "klein",
+   "ast": "turm",
+   "position": {
+    "x": 1566,
+    "y": 2180
+   },
+   "verbindungen": [
+    "e_mauern",
+    "e_bollwerk"
+   ],
+   "maxStufe": 5,
+   "basisKosten": 3,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "towerRegen",
+    "wert": 0.005,
+    "rechenart": "addieren"
+   },
+   "symbol": "tower"
+  },
+  {
+   "id": "e_bogen1",
+   "name": "Turmbogen: Schaden",
+   "beschreibung": "Der Turm schießt selbst. Jede Stufe erhöht den Schaden.",
+   "typ": "gross",
+   "ast": "turm",
+   "position": {
+    "x": 1627,
+    "y": 2286
+   },
+   "verbindungen": [
+    "e_mauern",
+    "e_bogen2"
+   ],
+   "maxStufe": 3,
+   "basisKosten": 6,
+   "kostenFaktor": 1.8,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "towerBowDamage",
+    "wert": 1,
+    "rechenart": "addieren"
+   },
+   "symbol": "bow"
+  },
+  {
+   "id": "e_bogen2",
+   "name": "Turmbogen: Tempo",
+   "beschreibung": "Der Turm schießt schneller.",
+   "typ": "gross",
+   "ast": "turm",
+   "position": {
+    "x": 1452,
+    "y": 2420
+   },
+   "verbindungen": [
+    "e_bogen1",
+    "e_bogen3"
+   ],
+   "maxStufe": 3,
+   "basisKosten": 10,
+   "kostenFaktor": 1.8,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "towerBowSpeed",
+    "wert": 1,
+    "rechenart": "addieren"
+   },
+   "symbol": "bow"
+  },
+  {
+   "id": "e_bogen3",
+   "name": "Turmbogen: Mehrfachschuss",
+   "beschreibung": "Der Turm trifft ein weiteres Ziel pro Schuss.",
+   "typ": "gross",
+   "ast": "turm",
+   "position": {
+    "x": 1278,
+    "y": 2553
+   },
+   "verbindungen": [
+    "e_bogen2"
+   ],
+   "maxStufe": 3,
+   "basisKosten": 16,
+   "kostenFaktor": 1.8,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "towerBowMulti",
+    "wert": 1,
+    "rechenart": "addieren"
+   },
+   "symbol": "bow"
+  },
+  {
+   "id": "e_bollwerk",
+   "name": "Letztes Bollwerk",
+   "beschreibung": "Einmal pro Run überlebt der Turm einen tödlichen Treffer mit 30 % Leben.",
+   "typ": "schluessel",
+   "ast": "turm",
+   "position": {
+    "x": 1327,
+    "y": 2256
+   },
+   "verbindungen": [
+    "e_moertel"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 30,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 2,
+   "effekt": {
+    "ziel": "flag",
+    "flag": "letztesBollwerk"
+   },
+   "symbol": "shield"
+  },
+  {
+   "id": "f_laden",
+   "name": "Schnelles Aufladen",
+   "beschreibung": "−4 % Abklingzeit aller Zauber.",
+   "typ": "klein",
+   "ast": "zauber",
+   "position": {
+    "x": 1775,
+    "y": 1870
+   },
+   "verbindungen": [
+    "start",
+    "f_magie"
+   ],
+   "maxStufe": 8,
+   "basisKosten": 3,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spellCooldownMul",
+    "wert": -0.04,
+    "rechenart": "addieren"
+   },
+   "symbol": "staff"
+  },
+  {
+   "id": "f_magie",
+   "name": "Verstärkte Magie",
+   "beschreibung": "+6 % Zauberwirkung.",
+   "typ": "klein",
+   "ast": "zauber",
+   "position": {
+    "x": 1593,
+    "y": 1765
+   },
+   "verbindungen": [
+    "f_laden",
+    "f_slot5",
+    "f_echo"
+   ],
+   "maxStufe": 8,
+   "basisKosten": 3,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spellPowerMul",
+    "wert": 0.06,
+    "rechenart": "addieren"
+   },
+   "symbol": "staff"
+  },
+  {
+   "id": "f_slot5",
+   "name": "Fünfter Zauber-Slot",
+   "beschreibung": "Schaltet einen fünften Platz in der Zauberleiste frei.",
+   "typ": "freischalt",
+   "ast": "zauber",
+   "position": {
+    "x": 1452,
+    "y": 1580
+   },
+   "verbindungen": [
+    "f_magie",
+    "spec_eiswand_1",
+    "spec_kriegshorn_1",
+    "spec_fluch_der_schwaeche_1"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 20,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "extraSpellSlots",
+    "wert": 1,
+    "rechenart": "addieren"
+   },
+   "symbol": "lock"
+  },
+  {
+   "id": "f_echo",
+   "name": "Echo",
+   "beschreibung": "15 % Chance, dass ein Zauber kostenlos ein zweites Mal ausgelöst wird.",
+   "typ": "schluessel",
+   "ast": "zauber",
+   "position": {
+    "x": 1363,
+    "y": 1735
+   },
+   "verbindungen": [
+    "f_magie",
+    "spec_steinregen_1",
+    "spec_heilquelle_1",
+    "spec_goldfieber_1"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 30,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 2,
+   "effekt": {
+    "ziel": "flag",
+    "flag": "echo"
+   },
+   "symbol": "staff"
+  },
+  {
+   "id": "spec_torwaechter_1",
+   "name": "Torwächter: Bollwerk",
+   "beschreibung": "Torwächter: blockt 2 Gegner mehr, +30 % Leben.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 2748,
+    "y": 3369
+   },
+   "verbindungen": [
+    "d_sternenfeuer",
+    "spec_torwaechter_2"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 8,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "torwaechter",
+    "patches": [
+     {
+      "path": "abilities.block.count",
+      "op": "add",
+      "value": 2
+     },
+     {
+      "path": "stats.hp",
+      "op": "mul",
+      "value": 1.3
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "torwaechter"
+   },
+   "symbol": "card:torwaechter"
+  },
+  {
+   "id": "spec_torwaechter_2",
+   "name": "Torwächter: Vergeltung",
+   "beschreibung": "Torwächter: +80 % Schaden und +30 % Angriffstempo.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 2839,
+    "y": 3536
+   },
+   "verbindungen": [
+    "spec_torwaechter_1"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 12,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "torwaechter",
+    "patches": [
+     {
+      "path": "stats.damage",
+      "op": "mul",
+      "value": 1.8
+     },
+     {
+      "path": "stats.attackSpeed",
+      "op": "mul",
+      "value": 1.3
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "torwaechter"
+   },
+   "symbol": "card:torwaechter"
+  },
+  {
+   "id": "spec_schleuderjunge_1",
+   "name": "Schleuderjunge: Kieselhagel",
+   "beschreibung": "Schleuderjunge: +40 % Angriffstempo.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 2621,
+    "y": 3431
+   },
+   "verbindungen": [
+    "d_sternenfeuer",
+    "spec_schleuderjunge_2"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 8,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "schleuderjunge",
+    "patches": [
+     {
+      "path": "stats.attackSpeed",
+      "op": "mul",
+      "value": 1.4
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "schleuderjunge"
+   },
+   "symbol": "card:schleuderjunge"
+  },
+  {
+   "id": "spec_schleuderjunge_2",
+   "name": "Schleuderjunge: Glühende Kiesel",
+   "beschreibung": "Schleuderjunge: Treffer lassen Gegner 3 s brennen.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 2696,
+    "y": 3606
+   },
+   "verbindungen": [
+    "spec_schleuderjunge_1"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 12,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "schleuderjunge",
+    "patches": [
+     {
+      "path": "attack.onHit",
+      "op": "set",
+      "value": [
+       {
+        "type": "burn",
+        "dpsFactor": 0.3,
+        "duration": 3
+       }
+      ]
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "schleuderjunge"
+   },
+   "symbol": "card:schleuderjunge"
+  },
+  {
+   "id": "spec_feldscherin_1",
+   "name": "Feldscherin: Feldlazarett",
+   "beschreibung": "Feldscherin: heilt bei jeder Heilung auch den Turm (40).",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 2488,
+    "y": 3482
+   },
+   "verbindungen": [
+    "d_sternenfeuer",
+    "spec_feldscherin_2"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 8,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "feldscherin",
+    "patches": [
+     {
+      "path": "abilities.heal.towerAmount",
+      "op": "set",
+      "value": 40
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "feldscherin"
+   },
+   "symbol": "card:feldscherin"
+  },
+  {
+   "id": "spec_feldscherin_2",
+   "name": "Feldscherin: Notfallkoffer",
+   "beschreibung": "Feldscherin: +60 % Heilung.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 2547,
+    "y": 3662
+   },
+   "verbindungen": [
+    "spec_feldscherin_1"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 12,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "feldscherin",
+    "patches": [
+     {
+      "path": "abilities.heal.amount",
+      "op": "mul",
+      "value": 1.6
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "feldscherin"
+   },
+   "symbol": "card:feldscherin"
+  },
+  {
+   "id": "spec_kettenschwinger_1",
+   "name": "Kettenschwinger: Wirbelwind",
+   "beschreibung": "Kettenschwinger: Halbkreis 50 % größer.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 2352,
+    "y": 3520
+   },
+   "verbindungen": [
+    "d_slot10",
+    "spec_kettenschwinger_2"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 12,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "kettenschwinger",
+    "patches": [
+     {
+      "path": "attack.radius",
+      "op": "mul",
+      "value": 1.5
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "kettenschwinger"
+   },
+   "symbol": "card:kettenschwinger"
+  },
+  {
+   "id": "spec_kettenschwinger_2",
+   "name": "Kettenschwinger: Eiserner Griff",
+   "beschreibung": "Kettenschwinger: hält 2 Gegner mehr auf.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 2394,
+    "y": 3705
+   },
+   "verbindungen": [
+    "spec_kettenschwinger_1"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 16,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "kettenschwinger",
+    "patches": [
+     {
+      "path": "abilities.block.count",
+      "op": "add",
+      "value": 2
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "kettenschwinger"
+   },
+   "symbol": "card:kettenschwinger"
+  },
+  {
+   "id": "spec_falknerin_1",
+   "name": "Falknerin: Zweiter Falke",
+   "beschreibung": "Falknerin: ein zweiter Falke greift ein weiteres Ziel an.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 2212,
+    "y": 3546
+   },
+   "verbindungen": [
+    "d_slot10",
+    "spec_falknerin_2"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 12,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "falknerin",
+    "patches": [
+     {
+      "path": "attack.multishot",
+      "op": "set",
+      "value": 2
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "falknerin"
+   },
+   "symbol": "card:falknerin"
+  },
+  {
+   "id": "spec_falknerin_2",
+   "name": "Falknerin: Sturzflug",
+   "beschreibung": "Falknerin: Getroffene Gegner erleiden 3 s lang +20 % Schaden.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 2238,
+    "y": 3734
+   },
+   "verbindungen": [
+    "spec_falknerin_1"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 16,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "falknerin",
+    "patches": [
+     {
+      "path": "attack.onHit",
+      "op": "set",
+      "value": [
+       {
+        "type": "vulnerable",
+        "amount": 0.2,
+        "duration": 3
+       }
+      ]
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "falknerin"
+   },
+   "symbol": "card:falknerin"
+  },
+  {
+   "id": "spec_runenschmied_1",
+   "name": "Runenschmied: Runenwall",
+   "beschreibung": "Runenschmied: +3 Rüstung, doppelte Turmreparatur.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 2071,
+    "y": 3558
+   },
+   "verbindungen": [
+    "d_slot10",
+    "spec_runenschmied_2"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 12,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "runenschmied",
+    "patches": [
+     {
+      "path": "abilities.armorAura.armor",
+      "op": "add",
+      "value": 3
+     },
+     {
+      "path": "abilities.towerRepair.perSecond",
+      "op": "mul",
+      "value": 2
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "runenschmied"
+   },
+   "symbol": "card:runenschmied"
+  },
+  {
+   "id": "spec_runenschmied_2",
+   "name": "Runenschmied: Runen der Eile",
+   "beschreibung": "Runenschmied: alle Helden +10 % Angriffstempo.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 2080,
+    "y": 3748
+   },
+   "verbindungen": [
+    "spec_runenschmied_1"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 16,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "runenschmied",
+    "patches": [
+     {
+      "path": "abilities.haste.amount",
+      "op": "set",
+      "value": 0.1
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "runenschmied"
+   },
+   "symbol": "card:runenschmied"
+  },
+  {
+   "id": "spec_frostweberin_1",
+   "name": "Frostweberin: Ewiges Eis",
+   "beschreibung": "Frostweberin: Eisfelder bleiben doppelt so lange.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 1929,
+    "y": 3558
+   },
+   "verbindungen": [
+    "d_slot10",
+    "spec_frostweberin_2"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 18,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "frostweberin",
+    "patches": [
+     {
+      "path": "abilities.iceField.duration",
+      "op": "mul",
+      "value": 2
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "frostweberin"
+   },
+   "symbol": "card:frostweberin"
+  },
+  {
+   "id": "spec_frostweberin_2",
+   "name": "Frostweberin: Frostbiss",
+   "beschreibung": "Frostweberin: Eisfelder entstehen 40 % häufiger.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 1920,
+    "y": 3748
+   },
+   "verbindungen": [
+    "spec_frostweberin_1"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 22,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "frostweberin",
+    "patches": [
+     {
+      "path": "abilities.iceField.interval",
+      "op": "mul",
+      "value": 0.6
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "frostweberin"
+   },
+   "symbol": "card:frostweberin"
+  },
+  {
+   "id": "spec_schattenlaeuferin_1",
+   "name": "Schattenläuferin: Giftklinge",
+   "beschreibung": "Schattenläuferin: Treffer lassen Gegner 4 s brennen.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 1788,
+    "y": 3546
+   },
+   "verbindungen": [
+    "d_slot10",
+    "spec_schattenlaeuferin_2"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 18,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "schattenlaeuferin",
+    "patches": [
+     {
+      "path": "attack.onHit",
+      "op": "set",
+      "value": [
+       {
+        "type": "burn",
+        "dpsFactor": 0.25,
+        "duration": 4
+       }
+      ]
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "schattenlaeuferin"
+   },
+   "symbol": "card:schattenlaeuferin"
+  },
+  {
+   "id": "spec_schattenlaeuferin_2",
+   "name": "Schattenläuferin: Schattenschritt",
+   "beschreibung": "Schattenläuferin: +40 % Angriffstempo.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 1762,
+    "y": 3734
+   },
+   "verbindungen": [
+    "spec_schattenlaeuferin_1"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 22,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "schattenlaeuferin",
+    "patches": [
+     {
+      "path": "stats.attackSpeed",
+      "op": "mul",
+      "value": 1.4
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "schattenlaeuferin"
+   },
+   "symbol": "card:schattenlaeuferin"
+  },
+  {
+   "id": "spec_glockenmoench_1",
+   "name": "Glockenmönch: Heilende Glocke",
+   "beschreibung": "Glockenmönch: Die Glocke heilt zusätzlich alle Verbündeten (40).",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 1648,
+    "y": 3520
+   },
+   "verbindungen": [
+    "d_slot10",
+    "spec_glockenmoench_2"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 18,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "glockenmoench",
+    "patches": [
+     {
+      "path": "abilities.bell.heal",
+      "op": "set",
+      "value": 40
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "glockenmoench"
+   },
+   "symbol": "card:glockenmoench"
+  },
+  {
+   "id": "spec_glockenmoench_2",
+   "name": "Glockenmönch: Große Glocke",
+   "beschreibung": "Glockenmönch: Glocke wirkt in 50 % größerem Umkreis.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 1606,
+    "y": 3705
+   },
+   "verbindungen": [
+    "spec_glockenmoench_1"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 22,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "glockenmoench",
+    "patches": [
+     {
+      "path": "abilities.bell.radius",
+      "op": "mul",
+      "value": 1.5
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "glockenmoench"
+   },
+   "symbol": "card:glockenmoench"
+  },
+  {
+   "id": "spec_sturmruferin_1",
+   "name": "Sturmruferin: Gewittersturm",
+   "beschreibung": "Sturmruferin: Kettenblitz springt 3 Ziele weiter.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 1512,
+    "y": 3482
+   },
+   "verbindungen": [
+    "d_slot9",
+    "spec_sturmruferin_2"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 25,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "sturmruferin",
+    "patches": [
+     {
+      "path": "attack.jumps",
+      "op": "add",
+      "value": 3
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "sturmruferin"
+   },
+   "symbol": "card:sturmruferin"
+  },
+  {
+   "id": "spec_sturmruferin_2",
+   "name": "Sturmruferin: Überladung",
+   "beschreibung": "Sturmruferin: Blitze betäuben mit 20 % Chance 0,5 s.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 1453,
+    "y": 3662
+   },
+   "verbindungen": [
+    "spec_sturmruferin_1"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 29,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "sturmruferin",
+    "patches": [
+     {
+      "path": "attack.onHit",
+      "op": "set",
+      "value": [
+       {
+        "type": "stun",
+        "duration": 0.5,
+        "chance": 0.2
+       }
+      ]
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "sturmruferin"
+   },
+   "symbol": "card:sturmruferin"
+  },
+  {
+   "id": "spec_knochenfluesterer_1",
+   "name": "Knochenflüsterer: Knochenarmee",
+   "beschreibung": "Knochenflüsterer: +3 maximale Diener, Diener +50 % Leben.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 1379,
+    "y": 3431
+   },
+   "verbindungen": [
+    "d_slot9",
+    "spec_knochenfluesterer_2"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 25,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "knochenfluesterer",
+    "patches": [
+     {
+      "path": "abilities.raiseDead.maxMinions",
+      "op": "add",
+      "value": 3
+     },
+     {
+      "path": "abilities.raiseDead.hp",
+      "op": "mul",
+      "value": 1.5
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "knochenfluesterer"
+   },
+   "symbol": "card:knochenfluesterer"
+  },
+  {
+   "id": "spec_knochenfluesterer_2",
+   "name": "Knochenflüsterer: Knochenklingen",
+   "beschreibung": "Knochenflüsterer: Diener machen doppelten Schaden.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 1304,
+    "y": 3606
+   },
+   "verbindungen": [
+    "spec_knochenfluesterer_1"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 29,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "knochenfluesterer",
+    "patches": [
+     {
+      "path": "abilities.raiseDead.damage",
+      "op": "mul",
+      "value": 2
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "knochenfluesterer"
+   },
+   "symbol": "card:knochenfluesterer"
+  },
+  {
+   "id": "spec_uhrmacher_1",
+   "name": "Uhrmacher der Äonen: Zeitsprung",
+   "beschreibung": "Uhrmacher: +15 % zusätzliches Angriffstempo für alle.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 1252,
+    "y": 3369
+   },
+   "verbindungen": [
+    "d_slot9",
+    "spec_uhrmacher_2"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 35,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "uhrmacher",
+    "patches": [
+     {
+      "path": "abilities.haste.amount",
+      "op": "add",
+      "value": 0.15
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "uhrmacher"
+   },
+   "symbol": "card:uhrmacher"
+  },
+  {
+   "id": "spec_uhrmacher_2",
+   "name": "Uhrmacher der Äonen: Stillstand",
+   "beschreibung": "Uhrmacher: Bosse zusätzlich 15 % langsamer.",
+   "typ": "klein",
+   "ast": "helden",
+   "position": {
+    "x": 1161,
+    "y": 3536
+   },
+   "verbindungen": [
+    "spec_uhrmacher_1"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 39,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "uhrmacher",
+    "patches": [
+     {
+      "path": "abilities.bossSlow.amount",
+      "op": "add",
+      "value": 0.15
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "uhrmacher"
+   },
+   "symbol": "card:uhrmacher"
+  },
+  {
+   "id": "spec_steinregen_1",
+   "name": "Steinregen: Felslawine",
+   "beschreibung": "Steinregen: Radius +50 %.",
+   "typ": "klein",
+   "ast": "zauber",
+   "position": {
+    "x": 1060,
+    "y": 1806
+   },
+   "verbindungen": [
+    "f_echo",
+    "spec_steinregen_2"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 8,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "steinregen",
+    "patches": [
+     {
+      "path": "effect.radius",
+      "op": "mul",
+      "value": 1.5
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "steinregen"
+   },
+   "symbol": "card:steinregen"
+  },
+  {
+   "id": "spec_steinregen_2",
+   "name": "Steinregen: Splitterhagel",
+   "beschreibung": "Steinregen: +50 % Schaden.",
+   "typ": "klein",
+   "ast": "zauber",
+   "position": {
+    "x": 874,
+    "y": 1767
+   },
+   "verbindungen": [
+    "spec_steinregen_1"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 12,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "steinregen",
+    "patches": [
+     {
+      "path": "effect.damage",
+      "op": "mul",
+      "value": 1.5
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "steinregen"
+   },
+   "symbol": "card:steinregen"
+  },
+  {
+   "id": "spec_heilquelle_1",
+   "name": "Heilquelle: Lebensquell",
+   "beschreibung": "Heilquelle: +60 % Turmheilung.",
+   "typ": "klein",
+   "ast": "zauber",
+   "position": {
+    "x": 1092,
+    "y": 1687
+   },
+   "verbindungen": [
+    "f_echo",
+    "spec_heilquelle_2"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 8,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "heilquelle",
+    "patches": [
+     {
+      "path": "effect.tower",
+      "op": "mul",
+      "value": 1.6
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "heilquelle"
+   },
+   "symbol": "card:heilquelle"
+  },
+  {
+   "id": "spec_heilquelle_2",
+   "name": "Heilquelle: Sprudelnde Quelle",
+   "beschreibung": "Heilquelle: lädt 25 % schneller.",
+   "typ": "klein",
+   "ast": "zauber",
+   "position": {
+    "x": 913,
+    "y": 1626
+   },
+   "verbindungen": [
+    "spec_heilquelle_1"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 12,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "heilquelle",
+    "patches": [
+     {
+      "path": "cooldown",
+      "op": "mul",
+      "value": 0.75
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "heilquelle"
+   },
+   "symbol": "card:heilquelle"
+  },
+  {
+   "id": "spec_goldfieber_1",
+   "name": "Goldfieber: Goldrausch",
+   "beschreibung": "Goldfieber: hält doppelt so lange.",
+   "typ": "klein",
+   "ast": "zauber",
+   "position": {
+    "x": 1140,
+    "y": 1574
+   },
+   "verbindungen": [
+    "f_echo",
+    "spec_goldfieber_2"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 12,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "goldfieber",
+    "patches": [
+     {
+      "path": "effect.duration",
+      "op": "mul",
+      "value": 2
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "goldfieber"
+   },
+   "symbol": "card:goldfieber"
+  },
+  {
+   "id": "spec_goldfieber_2",
+   "name": "Goldfieber: Schatzsucher",
+   "beschreibung": "Goldfieber: +0,5 zusätzlicher Goldmultiplikator.",
+   "typ": "klein",
+   "ast": "zauber",
+   "position": {
+    "x": 969,
+    "y": 1490
+   },
+   "verbindungen": [
+    "spec_goldfieber_1"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 16,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "goldfieber",
+    "patches": [
+     {
+      "path": "effect.multiplier",
+      "op": "add",
+      "value": 0.5
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "goldfieber"
+   },
+   "symbol": "card:goldfieber"
+  },
+  {
+   "id": "spec_eiswand_1",
+   "name": "Eiswand: Frostmauer",
+   "beschreibung": "Eiswand: hält 3 Sekunden länger.",
+   "typ": "klein",
+   "ast": "zauber",
+   "position": {
+    "x": 1201,
+    "y": 1468
+   },
+   "verbindungen": [
+    "f_slot5",
+    "spec_eiswand_2"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 18,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "eiswand",
+    "patches": [
+     {
+      "path": "effect.duration",
+      "op": "add",
+      "value": 3
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "eiswand"
+   },
+   "symbol": "card:eiswand"
+  },
+  {
+   "id": "spec_eiswand_2",
+   "name": "Eiswand: Schnellfrost",
+   "beschreibung": "Eiswand: lädt 30 % schneller.",
+   "typ": "klein",
+   "ast": "zauber",
+   "position": {
+    "x": 1043,
+    "y": 1362
+   },
+   "verbindungen": [
+    "spec_eiswand_1"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 22,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "eiswand",
+    "patches": [
+     {
+      "path": "cooldown",
+      "op": "mul",
+      "value": 0.7
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "eiswand"
+   },
+   "symbol": "card:eiswand"
+  },
+  {
+   "id": "spec_kriegshorn_1",
+   "name": "Kriegshorn: Schlachtruf",
+   "beschreibung": "Kriegshorn: wirkt 50 % länger.",
+   "typ": "klein",
+   "ast": "zauber",
+   "position": {
+    "x": 1275,
+    "y": 1370
+   },
+   "verbindungen": [
+    "f_slot5",
+    "spec_kriegshorn_2"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 18,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "kriegshorn",
+    "patches": [
+     {
+      "path": "effect.duration",
+      "op": "mul",
+      "value": 1.5
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "kriegshorn"
+   },
+   "symbol": "card:kriegshorn"
+  },
+  {
+   "id": "spec_kriegshorn_2",
+   "name": "Kriegshorn: Blutrausch",
+   "beschreibung": "Kriegshorn: +25 % zusätzlicher Schaden.",
+   "typ": "klein",
+   "ast": "zauber",
+   "position": {
+    "x": 1132,
+    "y": 1246
+   },
+   "verbindungen": [
+    "spec_kriegshorn_1"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 22,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "kriegshorn",
+    "patches": [
+     {
+      "path": "effect.amount",
+      "op": "add",
+      "value": 0.25
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "kriegshorn"
+   },
+   "symbol": "card:kriegshorn"
+  },
+  {
+   "id": "spec_fluch_der_schwaeche_1",
+   "name": "Fluch der Schwäche: Tiefer Fluch",
+   "beschreibung": "Fluch der Schwäche: wirkt 50 % länger.",
+   "typ": "klein",
+   "ast": "zauber",
+   "position": {
+    "x": 1362,
+    "y": 1283
+   },
+   "verbindungen": [
+    "f_slot5",
+    "spec_fluch_der_schwaeche_2"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 25,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "fluch_der_schwaeche",
+    "patches": [
+     {
+      "path": "effect.duration",
+      "op": "mul",
+      "value": 1.5
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "fluch_der_schwaeche"
+   },
+   "symbol": "card:fluch_der_schwaeche"
+  },
+  {
+   "id": "spec_fluch_der_schwaeche_2",
+   "name": "Fluch der Schwäche: Schwächung",
+   "beschreibung": "Fluch der Schwäche: +15 % zusätzlich erlittener Schaden.",
+   "typ": "klein",
+   "ast": "zauber",
+   "position": {
+    "x": 1236,
+    "y": 1141
+   },
+   "verbindungen": [
+    "spec_fluch_der_schwaeche_1"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 29,
+   "kostenFaktor": 1.45,
+   "splitterKosten": 0,
+   "effekt": {
+    "ziel": "spec",
+    "karte": "fluch_der_schwaeche",
+    "patches": [
+     {
+      "path": "effect.amount",
+      "op": "add",
+      "value": 0.15
+     }
+    ]
+   },
+   "voraussetzung": {
+    "karte": "fluch_der_schwaeche"
+   },
+   "symbol": "card:fluch_der_schwaeche"
+  }
+ ]
+}

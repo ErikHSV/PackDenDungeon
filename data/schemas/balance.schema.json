@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "balance.schema.json",
+  "title": "Zentrale Balancing-Datei",
+  "type": "object",
+  "required": [
+    "spielTitel",
+    "version",
+    "arena",
+    "turm",
+    "cursor",
+    "run",
+    "karten",
+    "wellen",
+    "belohnungen",
+    "wirtschaft",
+    "shop",
+    "sternenkarte",
+    "relikte"
+  ],
+  "properties": {
+    "arena": {
+      "type": "object",
+      "required": [
+        "mitteX",
+        "mitteY",
+        "radiusX",
+        "radiusY",
+        "neigung",
+        "packLandeRing"
+      ]
+    },
+    "turm": {
+      "type": "object",
+      "required": [
+        "leben",
+        "breite",
+        "hoehe",
+        "kontaktRadius"
+      ]
+    },
+    "cursor": {
+      "type": "object",
+      "required": [
+        "radius",
+        "schaden",
+        "tickAbstand",
+        "touchVersatzY",
+        "infoVerzoegerung"
+      ]
+    },
+    "run": {
+      "type": "object",
+      "required": [
+        "countdown",
+        "geschwindigkeiten"
+      ]
+    },
+    "karten": {
+      "type": "object",
+      "required": [
+        "foilChance",
+        "foil",
+        "grenzgaenger"
+      ]
+    },
+    "wellen": {
+      "type": "object",
+      "required": [
+        "intervall",
+        "grundAnzahl",
+        "anzahlProWelle",
+        "lebenWachstum",
+        "elitewelleAlleSekunden",
+        "elite"
+      ]
+    },
+    "shop": {
+      "type": "object",
+      "required": [
+        "angebotsPlaetzeStart",
+        "angebotsPlaetzeMax",
+        "neuWuerfeln"
+      ]
+    }
+  }
+}

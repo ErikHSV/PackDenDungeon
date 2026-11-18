@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "common.schema.json",
+  "title": "Gemeinsame Definitionen",
+  "definitions": {
+    "rarity": { "enum": ["common", "uncommon", "rare", "epic", "legendary"] },
+    "damageType": { "enum": ["physical", "magic", null] },
+    "patch": {
+      "type": "object",
+      "description": "Ändert einen Wert per Punkt-Pfad, z. B. 'abilities.block.count'.",
+      "required": ["path", "op", "value"],
+      "properties": {
+        "path": { "type": "string" },
+        "op": { "enum": ["set", "add", "mul"] },
+        "value": {}
+      }
+    },
+    "star3": {
+      "type": "object",
+      "description": "Verstärkung ab 3 Sternen.",
+      "required": ["text", "patches"],
+      "properties": {
+        "text": { "type": "string" },
+        "patches": { "type": "array", "items": { "$ref": "#/definitions/patch" } }
+      }
+    },
+    "status": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "enum": ["slow", "stun", "burn", "vulnerable", "knockback"] },
+        "factor": { "type": "number", "description": "slow: Geschwindigkeitsfaktor (0.6 = 40 % langsamer)" },
+        "duration": { "type": "number" },
+        "dpsFactor": { "type": "number", "description": "burn: Schaden/s als Anteil des Trefferschadens" },
+        "amount": { "type": "number", "description": "vulnerable: +Anteil erlittener Schaden" },
+        "distance": { "type": "number", "description": "knockback: Pixel" },
+        "chance": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    }
+  }
+}

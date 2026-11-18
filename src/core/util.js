@@ -8,7 +8,7 @@ export const deepClone = (o) => (o == null ? o : JSON.parse(JSON.stringify(o)));
  * Wendet einen Daten-Patch an, z. B. { path: "abilities.block.count", op: "add", value: 2 }.
  * Fehlende Zwischenobjekte werden angelegt. Zahlen in Pfaden adressieren Array-Indizes.
  */
-export function applyPatch(obj, { path, op = 'set', value }) {
+export function applyPatch(obj, { pfad, path = pfad, op = 'set', wert, value = wert }) {
   const keys = path.split('.');
   let cur = obj;
   for (let i = 0; i < keys.length - 1; i++) {

@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "modifiers.schema.json",
+  "title": "Kapitel-Modifikatoren",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "id",
+      "name",
+      "beschreibung",
+      "abAkt",
+      "effekte",
+      "belohnung"
+    ],
+    "properties": {
+      "id": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "beschreibung": {
+        "type": "string"
+      },
+      "abAkt": {
+        "type": "integer"
+      },
+      "effekte": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "ziel",
+            "op",
+            "wert"
+          ],
+          "properties": {
+            "ziel": {
+              "type": "string"
+            },
+            "op": {
+              "enum": [
+                "set",
+                "add",
+                "mul"
+              ]
+            },
+            "wert": {}
+          }
+        }
+      },
+      "belohnung": {
+        "type": "object",
+        "properties": {
+          "masteryMul": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  }
+}

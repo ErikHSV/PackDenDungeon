@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "tomes.schema.json",
+  "title": "Tomes (Zauberbücher)",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "id",
+      "name",
+      "rarity",
+      "beschreibung",
+      "farbe",
+      "symbol",
+      "effekt"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^[a-z0-9_]+$"
+      },
+      "name": {
+        "type": "string"
+      },
+      "rarity": {
+        "$ref": "common.schema.json#/definitions/seltenheit"
+      },
+      "beschreibung": {
+        "type": "string"
+      },
+      "farbe": {
+        "$ref": "common.schema.json#/definitions/farbe"
+      },
+      "symbol": {
+        "type": "string"
+      },
+      "effekt": {
+        "type": "object",
+        "required": [
+          "typ"
+        ],
+        "properties": {
+          "typ": {
+            "enum": [
+              "hagel",
+              "beschwoeren",
+              "verstaerken",
+              "einfrieren"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

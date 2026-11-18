@@ -1,188 +1,66 @@
 [
   {
-    "id": 1,
-    "name": "Der Moorwald",
-    "intro": "Nebel liegt über dem Moor. Etwas Großes bewegt sich zwischen den Bäumen …",
-    "question": "Kannst du fliegende Gegner treffen?",
-    "waves": 20,
-    "hpMult": 1.5,
-    "hpGrowth": 1.13,
-    "goldMult": 1,
-    "damageMult": 1,
-    "colors": {
-      "sky": "#1f2b25",
-      "skyBottom": "#33463a",
-      "ground": "#3b4a2b"
-    },
-    "enemies": [
-      {
-        "id": "schlammling",
-        "weight": 5
-      },
-      {
-        "id": "moorwolf",
-        "weight": 3,
-        "fromWave": 2
-      },
-      {
-        "id": "kraehe",
-        "weight": 3,
-        "fromWave": 6
-      }
+    "id": 1, "akt": 1, "name": "Trommeln im Moor",
+    "intro": "Aus dem Nebel dröhnt ein dumpfer Rhythmus. Etwas zieht die Kreaturen des Moors zum Turm.",
+    "boden": { "grund": "#3b4a2b", "akzent": "#56684a", "detail": "#2a3420" },
+    "bossNachSekunden": 180,
+    "spawn": { "modus": "ring" },
+    "wellen": { "lebenMul": 1, "muenzenMul": 1, "schadenMul": 1 },
+    "gegner": [
+      { "id": "moorling", "gewicht": 6 },
+      { "id": "sumpfratte", "gewicht": 3, "abSekunde": 15 },
+      { "id": "kraehe", "gewicht": 3, "abSekunde": 45 }
     ],
-    "boss": "borkenkoloss"
+    "boss": "trommler",
+    "gefahren": []
   },
   {
-    "id": 2,
-    "name": "Die versunkene Gruft",
-    "intro": "Unter dem Moor liegt eine alte Gruft. Ihre Toten ruhen nicht.",
-    "question": "Hast du Magie, Einzelschaden und Betäubung?",
-    "waves": 25,
-    "hpMult": 1.8,
-    "hpGrowth": 1.12,
-    "goldMult": 2.5,
-    "damageMult": 1.8,
-    "colors": {
-      "sky": "#1b1d26",
-      "skyBottom": "#2c3040",
-      "ground": "#3a3a44"
-    },
-    "enemies": [
-      {
-        "id": "schlammling",
-        "weight": 2,
-        "toWave": 8
-      },
-      {
-        "id": "knochenritter",
-        "weight": 4
-      },
-      {
-        "id": "irrlicht",
-        "weight": 3,
-        "fromWave": 3
-      },
-      {
-        "id": "grabraeuber",
-        "weight": 2,
-        "fromWave": 5
-      },
-      {
-        "id": "kraehe",
-        "weight": 1,
-        "fromWave": 10
-      }
+    "id": 2, "akt": 1, "name": "Die Gruft der Stillen",
+    "intro": "Unter dem Moor erwachen die Toten einer vergessenen Gruft.",
+    "boden": { "grund": "#3a3a44", "akzent": "#5a6272", "detail": "#2a2a32" },
+    "bossNachSekunden": 210,
+    "spawn": { "modus": "ring" },
+    "wellen": { "lebenMul": 1.8, "muenzenMul": 1.6, "schadenMul": 1.6 },
+    "gegner": [
+      { "id": "moorling", "gewicht": 2, "bisSekunde": 60 },
+      { "id": "knochenritter", "gewicht": 5 },
+      { "id": "irrlicht", "gewicht": 3, "abSekunde": 20 },
+      { "id": "grabraeuber", "gewicht": 2, "abSekunde": 40 }
     ],
-    "boss": "graue_aebtissin"
+    "boss": "graue_aebtissin",
+    "gefahren": []
   },
   {
-    "id": 3,
-    "name": "Die Aschenschmiede",
-    "intro": "Tief im Berg glühen die Essen einer vergessenen Schmiede.",
-    "question": "Hast du Flächenschaden und Verlangsamung?",
-    "waves": 30,
-    "hpMult": 3,
-    "hpGrowth": 1.11,
-    "goldMult": 5,
-    "damageMult": 3,
-    "colors": {
-      "sky": "#2a1612",
-      "skyBottom": "#4a2318",
-      "ground": "#3d2a22"
-    },
-    "enemies": [
-      {
-        "id": "feuerkaefer",
-        "weight": 4
-      },
-      {
-        "id": "schildtraeger",
-        "weight": 3,
-        "fromWave": 4
-      },
-      {
-        "id": "lavaschleim",
-        "weight": 3,
-        "fromWave": 6
-      },
-      {
-        "id": "knochenritter",
-        "weight": 1,
-        "fromWave": 10
-      },
-      {
-        "id": "kraehe",
-        "weight": 1,
-        "fromWave": 12
-      }
+    "id": 3, "akt": 1, "name": "Die Aschenschmiede",
+    "intro": "Glühende Essen tief im Berg. Der Schmied duldet keine Gäste.",
+    "boden": { "grund": "#3d2a22", "akzent": "#6a3a2a", "detail": "#ff7a2a" },
+    "bossNachSekunden": 240,
+    "spawn": { "modus": "portale", "portale": [ { "winkel": 0 }, { "winkel": 120 }, { "winkel": 240 } ] },
+    "wellen": { "lebenMul": 3, "muenzenMul": 2.4, "schadenMul": 2.4 },
+    "gegner": [
+      { "id": "feuerkaefer", "gewicht": 5 },
+      { "id": "schildtraeger", "gewicht": 3, "abSekunde": 30 },
+      { "id": "lavaschleim", "gewicht": 3, "abSekunde": 60 }
     ],
-    "boss": "magmafuerst"
+    "boss": "schmied",
+    "gefahren": []
   },
   {
-    "id": 4,
-    "name": "Der Frostthron",
-    "intro": "Auf dem höchsten Gipfel wartet die Herrscherin des ewigen Winters.",
-    "question": "Ist dein Team bereit für alles?",
-    "waves": 35,
-    "hpMult": 5,
-    "hpGrowth": 1.1,
-    "goldMult": 9,
-    "damageMult": 5,
-    "colors": {
-      "sky": "#152234",
-      "skyBottom": "#2b4566",
-      "ground": "#d9e6f0"
-    },
-    "enemies": [
-      {
-        "id": "schlammling",
-        "weight": 1,
-        "toWave": 10
-      },
-      {
-        "id": "moorwolf",
-        "weight": 2
-      },
-      {
-        "id": "kraehe",
-        "weight": 1
-      },
-      {
-        "id": "knochenritter",
-        "weight": 2,
-        "fromWave": 3
-      },
-      {
-        "id": "irrlicht",
-        "weight": 2,
-        "fromWave": 5
-      },
-      {
-        "id": "grabraeuber",
-        "weight": 1,
-        "fromWave": 7
-      },
-      {
-        "id": "feuerkaefer",
-        "weight": 2,
-        "fromWave": 9
-      },
-      {
-        "id": "schildtraeger",
-        "weight": 2,
-        "fromWave": 12
-      },
-      {
-        "id": "lavaschleim",
-        "weight": 1,
-        "fromWave": 15
-      },
-      {
-        "id": "eisgeist",
-        "weight": 3,
-        "fromWave": 4
-      }
+    "id": 4, "akt": 1, "name": "Die Frostebene",
+    "intro": "Eisiger Wind fegt über die weiße Ebene. Am Horizont glänzt ein Thron aus Eis.",
+    "boden": { "grund": "#d9e6f0", "akzent": "#b0c4d6", "detail": "#ffffff" },
+    "bossNachSekunden": 270,
+    "spawn": { "modus": "portale", "portale": [ { "winkel": 45 }, { "winkel": 135 }, { "winkel": 225 }, { "winkel": 315 } ] },
+    "wellen": { "lebenMul": 4.5, "muenzenMul": 3.2, "schadenMul": 3.2 },
+    "gegner": [
+      { "id": "frostwolf", "gewicht": 4 },
+      { "id": "eisgeist", "gewicht": 3, "abSekunde": 20 },
+      { "id": "knochenritter", "gewicht": 2, "abSekunde": 60 },
+      { "id": "schildtraeger", "gewicht": 2, "abSekunde": 90 }
     ],
-    "boss": "winterkoenigin"
+    "boss": "winterkoenigin",
+    "gefahren": [
+      { "typ": "schneesturm", "abSekunde": 60, "intervall": 45, "dauer": 15, "heldenLebenProSekunde": 0.02, "text": "Schneesturm! Helden verlieren langsam Leben." }
+    ]
   }
 ]

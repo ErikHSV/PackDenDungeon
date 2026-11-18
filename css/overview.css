@@ -1,0 +1,27 @@
+/* Datenübersicht (Entwicklerseite, Phase 1) – Farbpalette laut Spezifikation */
+:root { --panel: #1E1B2E; --frame: #C9A45C; --text: #F4EBD9; --muted: #b3a990; --gold: #FFD24A; --danger: #E04848; --ok: #5ED17A; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #141220; color: var(--text); font-family: 'Nunito', system-ui, sans-serif; font-size: 16px; }
+header { padding: 20px 24px; background: var(--panel); border-bottom: 4px solid var(--frame); }
+h1, h2, h3 { font-family: 'Pixelify Sans', monospace; margin: 0 0 8px; }
+h1 { color: var(--gold); }
+h1 small { font-size: 16px; color: var(--muted); font-weight: 400; }
+h2 { color: var(--gold); margin-top: 28px; }
+a { color: #5AA9F0; }
+.status { margin-top: 10px; padding: 8px 14px; border-radius: 6px; background: #2a2640; font-family: 'Pixelify Sans', monospace; }
+.status.ok { border-left: 6px solid var(--ok); }
+.status.err { border-left: 6px solid var(--danger); white-space: pre-wrap; }
+nav { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+nav a { background: #2a2640; border: 2px solid #4a4266; padding: 4px 10px; border-radius: 4px; text-decoration: none; color: var(--text); font-size: 14px; }
+main { padding: 0 24px 40px; }
+.wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; margin-top: 6px; font-size: 14px; }
+th, td { border: 1px solid #3f3860; padding: 5px 8px; text-align: left; vertical-align: top; }
+th { background: var(--panel); font-family: 'Pixelify Sans', monospace; color: var(--frame); position: sticky; top: 0; }
+tr:nth-child(even) td { background: #1a1828; }
+.rar { display: inline-block; padding: 1px 8px; border-radius: 10px; color: #141220; font-weight: 700; font-size: 12px; }
+.swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 6px; border: 1px solid #000; }
+.muted { color: var(--muted); }
+.note { color: var(--muted); font-size: 14px; max-width: 1100px; }
+canvas { background: #0E0B1A; border: 4px solid var(--frame); border-radius: 6px; max-width: 100%; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 6px 0; font-size: 14px; }

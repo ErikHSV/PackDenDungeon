@@ -1,71 +1,141 @@
-// Bereitet die rohen JSON-Daten auf: baut Nachschlage-Tabellen (Indizes).
-// Wird sowohl im Browser (main.js) als auch in Node (tools/*.mjs) verwendet.
+// Spieldaten: Dateiliste, Aufbereitung (Nachschlage-Tabellen) und Querverweis-Prüfung.
+// Wird im Browser (src/main.js, src/dev/dataOverview.js) und in Node (tools/*.mjs) verwendet.
 
-export const DATA_FILES = ['balance', 'rarities', 'heroes', 'spells', 'enemies', 'packs', 'chapters', 'starmap'];
+/** Alle Datendateien unter data/ (ohne Endung). Neue Dateien hier eintragen. */
+export const DATA_FILES = [
+  'balance', 'rarities', 'units', 'tomes', 'packs', 'shop', 'enemies',
+  'chapters', 'modifiers', 'buildings', 'relics', 'quests', 'starmap',
+];
 
+const byId = (list) => Object.fromEntries(list.map((x) => [x.id, x]));
+
+/** Baut Indizes über die Rohdaten. */
 export function prepareData(raw) {
   const data = { ...raw };
-  data.heroIndex = Object.fromEntries(raw.heroes.map((h) => [h.id, h]));
-  data.spellIndex = Object.fromEntries(raw.spells.map((s) => [s.id, s]));
-  data.enemyIndex = Object.fromEntries(raw.enemies.map((e) => [e.id, e]));
-  data.packIndex = Object.fromEntries(raw.packs.map((p) => [p.id, p]));
-  data.chapterIndex = Object.fromEntries(raw.chapters.map((c) => [c.id, c]));
-  data.starIndex = Object.fromEntries(raw.starmap.knoten.map((n) => [n.id, n]));
-  data.branchIndex = Object.fromEntries(raw.starmap.aeste.map((b) => [b.id, b]));
+  data.unitIndex = byId(raw.units);
+  data.tomeIndex = byId(raw.tomes);
+  data.packIndex = byId(raw.packs);
+  data.offerIndex = byId(raw.shop.angebote);
+  data.enemyIndex = byId(raw.enemies);
+  data.chapterIndex = byId(raw.chapters);
+  data.modifierIndex = byId(raw.modifiers);
+  data.buildingIndex = byId(raw.buildings);
+  data.relicIndex = byId(raw.relics);
+  data.questIndex = byId(raw.quests);
+  data.starIndex = byId(raw.starmap.knoten);
+  data.branchIndex = byId(raw.starmap.aeste);
 
-  // Alle Karten (Helden + Zauber) in einem Index
+  // Karten = ziehbare Einheiten + Tomes (Beschwörungen sind keine Karten)
   data.cardIndex = {};
-  for (const h of raw.heroes) data.cardIndex[h.id] = { kind: 'hero', def: h };
-  for (const s of raw.spells) data.cardIndex[s.id] = { kind: 'spell', def: s };
-  data.allCards = [...raw.heroes, ...raw.spells]
-    .map((d) => d.id)
-    .sort((a, b) =>
-      raw.rarities[data.cardIndex[a].def.rarity].order - raw.rarities[data.cardIndex[b].def.rarity].order);
+  for (const u of raw.units) if (!u.nurBeschworen) data.cardIndex[u.id] = { art: 'einheit', def: u };
+  for (const t of raw.tomes) data.cardIndex[t.id] = { art: 'tome', def: t };
+  const rank = (id) => raw.rarities[data.cardIndex[id].def.rarity].rang;
+  data.allCards = Object.keys(data.cardIndex).sort((a, b) => rank(a) - rank(b));
   return data;
 }
 
-/**
- * Prüft Querverweise in den Daten (Pack-Pools, Kapitel-Gegner, Spezialisierungen …).
- * Gibt eine Liste von Fehlermeldungen zurück (leer = alles ok).
- */
+/** Prüft alle Verweise zwischen den Dateien. Gibt eine Liste von Fehlermeldungen zurück (leer = ok). */
 export function validateReferences(data) {
-  const errors = [];
-  const rarityIds = Object.keys(data.rarities);
-  for (const c of [...data.heroes, ...data.spells]) {
-    if (!rarityIds.includes(c.rarity)) errors.push(`Karte ${c.id}: unbekannte Seltenheit ${c.rarity}`);
+  const e = [];
+  const rarities = Object.keys(data.rarities);
+  const isCard = (id) => !!data.cardIndex[id];
+
+  // Eindeutige IDs über Einheiten und Tomes
+  const seen = new Set();
+  for (const id of [...data.units, ...data.tomes].map((x) => x.id)) {
+    if (seen.has(id)) e.push(`Doppelte ID: ${id}`);
+    seen.add(id);
   }
+  for (const c of [...data.units, ...data.tomes, ...data.relics]) {
+    if (!rarities.includes(c.rarity)) e.push(`${c.id}: unbekannte Seltenheit ${c.rarity}`);
+  }
+
+  // Einheiten
+  for (const u of data.units) {
+    const sum = u.beimTod?.beschwoeren?.einheit;
+    if (sum && !data.unitIndex[sum]) e.push(`Einheit ${u.id}: beimTod beschwört unbekannte Einheit ${sum}`);
+  }
+  // Tomes
+  for (const t of data.tomes) {
+    if (t.effekt.typ === 'beschwoeren' && !data.unitIndex[t.effekt.einheit]) e.push(`Tome ${t.id}: unbekannte Einheit ${t.effekt.einheit}`);
+  }
+  // Packs
   for (const p of data.packs) {
-    for (const id of p.pool) if (!data.cardIndex[id]) errors.push(`Pack ${p.id}: unbekannte Karte ${id}`);
-    for (const r of Object.keys(p.rarityWeights)) {
-      if (!p.pool.some((id) => data.cardIndex[id]?.def.rarity === r)) errors.push(`Pack ${p.id}: keine Karte der Seltenheit ${r} im Pool`);
+    if (p.art === 'pack') {
+      if (!p.pool?.length) e.push(`Pack ${p.id}: leerer Pool`);
+      for (const id of p.pool || []) if (!isCard(id)) e.push(`Pack ${p.id}: Pool enthält unbekannte Karte ${id}`);
+      for (const r of Object.keys(p.seltenheitsGewichte || {})) if (!rarities.includes(r)) e.push(`Pack ${p.id}: unbekannte Seltenheit ${r}`);
+      if (!(p.widerstand > 0)) e.push(`Pack ${p.id}: Widerstand fehlt`);
     }
+    if (p.art === 'kiste' && !data.packIndex[p.inhalt?.pack]) e.push(`Kiste ${p.id}: unbekanntes Pack ${p.inhalt?.pack}`);
+    if (p.freischaltung.typ === 'boss' && !data.chapterIndex[p.freischaltung.kapitel]) e.push(`Pack ${p.id}: Freischaltung durch unbekanntes Kapitel`);
   }
-  for (const ch of data.chapters) {
-    for (const e of ch.enemies) if (!data.enemyIndex[e.id]) errors.push(`Kapitel ${ch.id}: unbekannter Gegner ${e.id}`);
-    if (!data.enemyIndex[ch.boss]?.boss) errors.push(`Kapitel ${ch.id}: Boss ${ch.boss} fehlt oder ist kein Boss`);
+  // Shop
+  for (const a of data.shop.angebote) if (!data.packIndex[a.artikel]) e.push(`Shop ${a.id}: unbekannter Artikel ${a.artikel}`);
+  // Gegner
+  for (const g of data.enemies) {
+    const split = g.eigenschaften?.teiltSichBeimTod?.in;
+    if (split && !data.enemyIndex[split]) e.push(`Gegner ${g.id}: teilt sich in unbekannten Gegner ${split}`);
+    const sum = g.bossFaehigkeiten?.beschwoeren?.gegner;
+    if (sum && !data.enemyIndex[sum]) e.push(`Boss ${g.id}: beschwört unbekannten Gegner ${sum}`);
+    for (const ph of g.phasen || []) for (const s of ph.beschwoeren || []) if (!data.enemyIndex[s.gegner]) e.push(`Boss ${g.id}: Phase beschwört unbekannten Gegner ${s.gegner}`);
   }
-  for (const e of data.enemies) {
-    const split = e.traits?.splitOnDeath;
-    if (split && !data.enemyIndex[split.into]) errors.push(`Gegner ${e.id}: splitOnDeath -> ${split.into} fehlt`);
-    const sum = e.bossAbilities?.summon;
-    if (sum && !data.enemyIndex[sum.enemy]) errors.push(`Boss ${e.id}: summon -> ${sum.enemy} fehlt`);
-    for (const ph of e.phases || []) for (const s of ph.spawn || []) {
-      if (!data.enemyIndex[s.id]) errors.push(`Boss ${e.id}: Phase spawnt unbekannten Gegner ${s.id}`);
-    }
+  // Kapitel
+  for (const k of data.chapters) {
+    for (const g of k.gegner) if (!data.enemyIndex[g.id]) e.push(`Kapitel ${k.id}: unbekannter Gegner ${g.id}`);
+    if (!data.enemyIndex[k.boss]?.boss) e.push(`Kapitel ${k.id}: Boss ${k.boss} fehlt oder ist kein Boss`);
+    if (k.spawn.modus === 'portale' && !k.spawn.portale?.length) e.push(`Kapitel ${k.id}: Portal-Modus ohne Portale`);
   }
-  const branchIds = data.starmap.aeste.map((b) => b.id);
-  const types = ['start', 'klein', 'gross', 'schluessel', 'freischalt'];
+  // Gebäude
+  for (const b of data.buildings) {
+    if (!data.packIndex[b.pack]) e.push(`Gebäude ${b.id}: unbekanntes Pack ${b.pack}`);
+    if (b.kiste && !data.packIndex[b.kiste]) e.push(`Gebäude ${b.id}: unbekannte Kiste ${b.kiste}`);
+  }
+  // Quests
+  for (const q of data.quests) {
+    if (q.ziel.filter?.pack && !data.packIndex[q.ziel.filter.pack]) e.push(`Quest ${q.id}: unbekanntes Pack im Filter`);
+    if (q.ziel.filter?.boss && !data.enemyIndex[q.ziel.filter.boss]) e.push(`Quest ${q.id}: unbekannter Boss im Filter`);
+  }
+  // Sternenkarte
+  const branches = data.starmap.aeste.map((b) => b.id);
+  if (!data.starIndex[data.starmap.start]) e.push('Sternenkarte: Startknoten fehlt');
   for (const n of data.starmap.knoten) {
-    if (!branchIds.includes(n.ast)) errors.push(`Sternenkarte ${n.id}: unbekannter Ast ${n.ast}`);
-    if (!types.includes(n.typ)) errors.push(`Sternenkarte ${n.id}: unbekannter Typ ${n.typ}`);
+    if (!branches.includes(n.ast)) e.push(`Sternenkarte ${n.id}: unbekannter Ast ${n.ast}`);
     for (const v of n.verbindungen) {
-      if (!data.starIndex[v]) errors.push(`Sternenkarte ${n.id}: Verbindung zu unbekanntem Knoten ${v}`);
-      else if (!data.starIndex[v].verbindungen.includes(n.id)) errors.push(`Sternenkarte ${n.id} ↔ ${v}: Verbindung nicht beidseitig`);
+      if (!data.starIndex[v]) e.push(`Sternenkarte ${n.id}: Verbindung zu unbekanntem Knoten ${v}`);
+      else if (!data.starIndex[v].verbindungen.includes(n.id)) e.push(`Sternenkarte ${n.id} ↔ ${v}: Verbindung nicht beidseitig`);
     }
-    if (n.effekt.ziel === 'spec' && !data.cardIndex[n.effekt.karte]) errors.push(`Sternenkarte ${n.id}: unbekannte Karte ${n.effekt.karte}`);
-    if (n.voraussetzung?.karte && !data.cardIndex[n.voraussetzung.karte]) errors.push(`Sternenkarte ${n.id}: Voraussetzung unbekannte Karte`);
-    if (n.effekt.ziel === 'packFrueher' && !data.packIndex[n.effekt.pack]) errors.push(`Sternenkarte ${n.id}: unbekanntes Pack`);
+    const ef = n.effekt;
+    if ((ef.ziel === 'einheit' || n.voraussetzung?.karte) && !isCard(ef.karte ?? n.voraussetzung.karte)) e.push(`Sternenkarte ${n.id}: unbekannte Karte`);
+    if (ef.ziel === 'gebaeude' && !data.buildingIndex[ef.gebaeude]) e.push(`Sternenkarte ${n.id}: unbekanntes Gebäude ${ef.gebaeude}`);
   }
-  if (!data.starIndex[data.starmap.start]) errors.push('Sternenkarte: Startknoten fehlt');
-  return errors;
+  if (data.balance.shop.neuWuerfeln.freischaltKnoten && !data.starIndex[data.balance.shop.neuWuerfeln.freischaltKnoten]) {
+    e.push('balance.shop.neuWuerfeln.freischaltKnoten verweist auf unbekannten Knoten');
+  }
+  // Erreichbarkeit: jeder Knoten muss vom Start aus über Verbindungen erreichbar sein
+  const reach = new Set([data.starmap.start]);
+  const queue = [data.starmap.start];
+  while (queue.length) for (const v of data.starIndex[queue.shift()]?.verbindungen || []) if (!reach.has(v)) { reach.add(v); queue.push(v); }
+  for (const n of data.starmap.knoten) if (!reach.has(n.id)) e.push(`Sternenkarte ${n.id}: vom Start aus nicht erreichbar`);
+  return e;
+}
+
+/** Kurze Statistik für Übersichten. */
+export function dataSummary(data) {
+  const heroes = data.units.filter((u) => !u.nurBeschworen);
+  return {
+    einheiten: heroes.length,
+    tomes: data.tomes.length,
+    karten: data.allCards.length,
+    packs: data.packs.length,
+    gegner: data.enemies.filter((g) => !g.boss).length,
+    bosse: data.enemies.filter((g) => g.boss).length,
+    kapitel: data.chapters.length,
+    modifikatoren: data.modifiers.length,
+    gebaeude: data.buildings.length,
+    relikte: data.relics.length,
+    quests: data.quests.length,
+    knoten: data.starmap.knoten.length,
+    knotenStufen: data.starmap.knoten.reduce((s, n) => s + n.maxStufe, 0),
+  };
 }

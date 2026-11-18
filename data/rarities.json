@@ -1,7 +1,9 @@
 {
-  "common":    { "name": "Gewöhnlich",   "color": "#9A9A9A", "order": 0, "sellValue": 15,  "glow": false, "shine": false, "flipSlow": false },
-  "uncommon":  { "name": "Ungewöhnlich", "color": "#4FBF5A", "order": 1, "sellValue": 30,  "glow": false, "shine": false, "flipSlow": false },
-  "rare":      { "name": "Selten",       "color": "#3E8EDE", "order": 2, "sellValue": 60,  "glow": true,  "shine": false, "flipSlow": true },
-  "epic":      { "name": "Episch",       "color": "#A55CE0", "order": 3, "sellValue": 150, "glow": true,  "shine": true,  "flipSlow": true },
-  "legendary": { "name": "Legendär",     "color": "#F2B630", "order": 4, "sellValue": 400, "glow": true,  "shine": true,  "flipSlow": true }
+  "$kommentar": "Seltenheiten. 'geheim' = taucht nicht in normalen Ziehwahrscheinlichkeiten auf (Grenzgänger, siehe balance.karten.grenzgaenger).",
+  "common":       { "name": "Gewöhnlich",   "farbe": "#9A9A9A", "rang": 0, "lichtblitz": false, "zeitlupe": false },
+  "uncommon":     { "name": "Ungewöhnlich", "farbe": "#4FBF5A", "rang": 1, "lichtblitz": false, "zeitlupe": false },
+  "rare":         { "name": "Selten",       "farbe": "#3E8EDE", "rang": 2, "lichtblitz": true,  "zeitlupe": true },
+  "epic":         { "name": "Episch",       "farbe": "#A55CE0", "rang": 3, "lichtblitz": true,  "zeitlupe": true },
+  "legendary":    { "name": "Legendär",     "farbe": "#F2B630", "rang": 4, "lichtblitz": true,  "zeitlupe": true },
+  "grenzgaenger": { "name": "Grenzgänger",  "farbe": "#2EE6D6", "farbe2": "#E62E9A", "rang": 5, "lichtblitz": true, "zeitlupe": true, "geheim": true, "flackern": true }
 }

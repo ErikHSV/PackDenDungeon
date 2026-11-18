@@ -1,0 +1,188 @@
+[
+  {
+    "id": 1,
+    "name": "Der Moorwald",
+    "intro": "Nebel liegt über dem Moor. Etwas Großes bewegt sich zwischen den Bäumen …",
+    "question": "Kannst du fliegende Gegner treffen?",
+    "waves": 20,
+    "hpMult": 1.5,
+    "hpGrowth": 1.13,
+    "goldMult": 1,
+    "damageMult": 1,
+    "colors": {
+      "sky": "#1f2b25",
+      "skyBottom": "#33463a",
+      "ground": "#3b4a2b"
+    },
+    "enemies": [
+      {
+        "id": "schlammling",
+        "weight": 5
+      },
+      {
+        "id": "moorwolf",
+        "weight": 3,
+        "fromWave": 2
+      },
+      {
+        "id": "kraehe",
+        "weight": 3,
+        "fromWave": 6
+      }
+    ],
+    "boss": "borkenkoloss"
+  },
+  {
+    "id": 2,
+    "name": "Die versunkene Gruft",
+    "intro": "Unter dem Moor liegt eine alte Gruft. Ihre Toten ruhen nicht.",
+    "question": "Hast du Magie, Einzelschaden und Betäubung?",
+    "waves": 25,
+    "hpMult": 1.8,
+    "hpGrowth": 1.12,
+    "goldMult": 2.5,
+    "damageMult": 1.8,
+    "colors": {
+      "sky": "#1b1d26",
+      "skyBottom": "#2c3040",
+      "ground": "#3a3a44"
+    },
+    "enemies": [
+      {
+        "id": "schlammling",
+        "weight": 2,
+        "toWave": 8
+      },
+      {
+        "id": "knochenritter",
+        "weight": 4
+      },
+      {
+        "id": "irrlicht",
+        "weight": 3,
+        "fromWave": 3
+      },
+      {
+        "id": "grabraeuber",
+        "weight": 2,
+        "fromWave": 5
+      },
+      {
+        "id": "kraehe",
+        "weight": 1,
+        "fromWave": 10
+      }
+    ],
+    "boss": "graue_aebtissin"
+  },
+  {
+    "id": 3,
+    "name": "Die Aschenschmiede",
+    "intro": "Tief im Berg glühen die Essen einer vergessenen Schmiede.",
+    "question": "Hast du Flächenschaden und Verlangsamung?",
+    "waves": 30,
+    "hpMult": 3,
+    "hpGrowth": 1.11,
+    "goldMult": 5,
+    "damageMult": 3,
+    "colors": {
+      "sky": "#2a1612",
+      "skyBottom": "#4a2318",
+      "ground": "#3d2a22"
+    },
+    "enemies": [
+      {
+        "id": "feuerkaefer",
+        "weight": 4
+      },
+      {
+        "id": "schildtraeger",
+        "weight": 3,
+        "fromWave": 4
+      },
+      {
+        "id": "lavaschleim",
+        "weight": 3,
+        "fromWave": 6
+      },
+      {
+        "id": "knochenritter",
+        "weight": 1,
+        "fromWave": 10
+      },
+      {
+        "id": "kraehe",
+        "weight": 1,
+        "fromWave": 12
+      }
+    ],
+    "boss": "magmafuerst"
+  },
+  {
+    "id": 4,
+    "name": "Der Frostthron",
+    "intro": "Auf dem höchsten Gipfel wartet die Herrscherin des ewigen Winters.",
+    "question": "Ist dein Team bereit für alles?",
+    "waves": 35,
+    "hpMult": 5,
+    "hpGrowth": 1.1,
+    "goldMult": 9,
+    "damageMult": 5,
+    "colors": {
+      "sky": "#152234",
+      "skyBottom": "#2b4566",
+      "ground": "#d9e6f0"
+    },
+    "enemies": [
+      {
+        "id": "schlammling",
+        "weight": 1,
+        "toWave": 10
+      },
+      {
+        "id": "moorwolf",
+        "weight": 2
+      },
+      {
+        "id": "kraehe",
+        "weight": 1
+      },
+      {
+        "id": "knochenritter",
+        "weight": 2,
+        "fromWave": 3
+      },
+      {
+        "id": "irrlicht",
+        "weight": 2,
+        "fromWave": 5
+      },
+      {
+        "id": "grabraeuber",
+        "weight": 1,
+        "fromWave": 7
+      },
+      {
+        "id": "feuerkaefer",
+        "weight": 2,
+        "fromWave": 9
+      },
+      {
+        "id": "schildtraeger",
+        "weight": 2,
+        "fromWave": 12
+      },
+      {
+        "id": "lavaschleim",
+        "weight": 1,
+        "fromWave": 15
+      },
+      {
+        "id": "eisgeist",
+        "weight": 3,
+        "fromWave": 4
+      }
+    ],
+    "boss": "winterkoenigin"
+  }
+]

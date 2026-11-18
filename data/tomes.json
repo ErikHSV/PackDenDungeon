@@ -1,0 +1,38 @@
+[
+  {
+    "id": "hagelschauer",
+    "name": "Hagelschauer",
+    "rarity": "rare",
+    "beschreibung": "8 Sekunden lang Hagel auf zufällige Gegner in der ganzen Arena.",
+    "farbe": "#bfe9ff",
+    "symbol": "ice",
+    "effekt": { "typ": "hagel", "dauer": 8, "einschlaegeProSekunde": 6, "schaden": 14, "radius": 40, "schadensTyp": "physical" }
+  },
+  {
+    "id": "knochenruf",
+    "name": "Knochenruf",
+    "rarity": "epic",
+    "beschreibung": "Beschwört 6 Skelettkrieger um den Turm.",
+    "farbe": "#e8e2d0",
+    "symbol": "skull",
+    "effekt": { "typ": "beschwoeren", "einheit": "skelettkrieger", "anzahl": 6, "ort": "turm", "dauer": 25 }
+  },
+  {
+    "id": "blutrausch",
+    "name": "Blutrausch",
+    "rarity": "epic",
+    "beschreibung": "10 Sekunden lang +60 % Angriffstempo für alle Helden.",
+    "farbe": "#E04848",
+    "symbol": "horn",
+    "effekt": { "typ": "verstaerken", "wert": "angriffsTempo", "bonus": 0.6, "dauer": 10 }
+  },
+  {
+    "id": "zeitbruch",
+    "name": "Zeitbruch",
+    "rarity": "legendary",
+    "beschreibung": "Alle Gegner sind 6 Sekunden eingefroren.",
+    "farbe": "#F2B630",
+    "symbol": "clock",
+    "effekt": { "typ": "einfrieren", "dauer": 6 }
+  }
+]

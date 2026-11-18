@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "quests.schema.json",
+  "title": "Quests",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "id",
+      "name",
+      "beschreibung",
+      "ziel",
+      "belohnung"
+    ],
+    "properties": {
+      "id": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "beschreibung": {
+        "type": "string"
+      },
+      "ziel": {
+        "type": "object",
+        "required": [
+          "statistik",
+          "anzahl"
+        ],
+        "properties": {
+          "statistik": {
+            "enum": [
+              "packsGeoeffnet",
+              "foilsGezogen",
+              "kills",
+              "bossBesiegt",
+              "tomesGenutzt",
+              "entwicklungen",
+              "laengsterRun",
+              "grenzgaengerGezogen"
+            ]
+          },
+          "filter": {
+            "type": "object"
+          },
+          "anzahl": {
+            "type": "number"
+          }
+        }
+      },
+      "belohnung": {
+        "type": "object",
+        "properties": {
+          "grundEinkommen": {
+            "type": "number"
+          },
+          "kristalle": {
+            "type": "number"
+          },
+          "reliktpack": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  }
+}

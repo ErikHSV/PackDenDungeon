@@ -1,38 +1,33 @@
 #!/usr/bin/env node
-// Prüft alle Daten-Dateien auf Pflichtfelder und Querverweise.
+// Prüft alle Datendateien gegen ihre JSON-Schemas und alle Querverweise.
 // Aufruf: node tools/validate-data.mjs
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
-import { loadData } from './load-data.mjs';
-import { validateReferences } from '../src/core/data.js';
+import { loadRaw, loadSchemas } from './load-data.mjs';
+import { DATA_FILES, prepareData, validateReferences, dataSummary } from '../src/core/data.js';
+import { validateSchema } from '../src/core/schema.js';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const data = loadData();
+const raw = loadRaw();
+const schemas = loadSchemas();
 const errors = [];
 
-// Leichte Schema-Prüfung: Pflichtfelder laut data/schemas/*.schema.json
-const schemaFor = (name) => JSON.parse(readFileSync(join(root, 'data', 'schemas', `${name}.schema.json`), 'utf8'));
-for (const name of ['heroes', 'spells', 'enemies', 'packs', 'chapters']) {
-  const required = schemaFor(name).items.required;
-  for (const item of data[name]) {
-    for (const key of required) if (!(key in item)) errors.push(`${name}: ${item.id ?? '?'} fehlt Feld "${key}"`);
-  }
-}
-const nodeRequired = schemaFor('starmap').properties.knoten.items.required;
-for (const n of data.starmap.knoten) for (const key of nodeRequired) if (!(key in n)) errors.push(`starmap: ${n.id} fehlt Feld "${key}"`);
-
-// Eindeutige IDs
-const seen = new Set();
-for (const id of [...data.heroes, ...data.spells].map((c) => c.id)) {
-  if (seen.has(id)) errors.push(`Doppelte Karten-ID: ${id}`);
-  seen.add(id);
+for (const f of DATA_FILES) {
+  const schema = schemas[`${f}.schema.json`];
+  if (!schema) { errors.push(`Kein Schema für data/${f}.json`); continue; }
+  for (const msg of validateSchema(raw[f], schema, schemas, f)) errors.push(`[Schema] ${msg}`);
 }
 
-errors.push(...validateReferences(data));
+let data;
+try {
+  data = prepareData(raw);
+  for (const msg of validateReferences(data)) errors.push(`[Verweis] ${msg}`);
+} catch (err) {
+  errors.push(`Aufbereitung fehlgeschlagen: ${err.message}`);
+}
 
 if (errors.length) {
   console.error(`✗ ${errors.length} Fehler:\n  - ` + errors.join('\n  - '));
   process.exit(1);
 }
-console.log(`✓ Daten ok: ${data.heroes.length} Helden, ${data.spells.length} Zauber, ${data.enemies.length} Gegner, ${data.packs.length} Packs, ${data.chapters.length} Kapitel, ${data.starmap.knoten.length} Sternenkarten-Knoten`);
+const s = dataSummary(data);
+console.log(`✓ Daten ok: ${s.einheiten} Einheiten, ${s.tomes} Tomes (${s.karten} Karten), ${s.packs} Packs, ${s.gegner} Gegner, ${s.bosse} Bosse, ` +
+  `${s.kapitel} Kapitel, ${s.modifikatoren} Modifikatoren, ${s.gebaeude} Gebäude, ${s.relikte} Relikte, ${s.quests} Quests, ` +
+  `${s.knoten} Sternenkarten-Knoten (${s.knotenStufen} Stufen)`);

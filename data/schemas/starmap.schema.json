@@ -3,43 +3,155 @@
   "$id": "starmap.schema.json",
   "title": "Sternenkarte (Skill-Tree)",
   "type": "object",
-  "required": ["groesse", "start", "aeste", "knoten"],
+  "required": [
+    "groesse",
+    "start",
+    "aeste",
+    "knoten"
+  ],
   "properties": {
-    "groesse": { "type": "object", "properties": { "breite": { "type": "number" }, "hoehe": { "type": "number" } } },
-    "start": { "type": "string", "description": "ID des Startknotens (bereits gekauft)" },
-    "aeste": { "type": "array", "items": { "type": "object", "required": ["id", "name", "farbe"] } },
+    "groesse": {
+      "type": "object",
+      "required": [
+        "breite",
+        "hoehe"
+      ]
+    },
+    "start": {
+      "type": "string"
+    },
+    "aeste": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "farbe"
+        ]
+      }
+    },
     "knoten": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "name", "beschreibung", "typ", "ast", "position", "verbindungen", "maxStufe", "basisKosten", "kostenFaktor", "splitterKosten", "effekt"],
+        "required": [
+          "id",
+          "name",
+          "beschreibung",
+          "typ",
+          "ast",
+          "position",
+          "verbindungen",
+          "maxStufe",
+          "basisKosten",
+          "kostenFaktor",
+          "kristallKosten",
+          "effekt"
+        ],
         "properties": {
-          "id": { "type": "string" },
-          "name": { "type": "string" },
-          "beschreibung": { "type": "string" },
-          "typ": { "enum": ["start", "klein", "gross", "schluessel", "freischalt"], "description": "klein = Kreis 48 px, gross = Sechseck 72 px, schluessel = Stern 96 px, freischalt = Schloss" },
-          "ast": { "type": "string" },
-          "position": { "type": "object", "required": ["x", "y"], "properties": { "x": { "type": "number" }, "y": { "type": "number" } } },
-          "verbindungen": { "type": "array", "items": { "type": "string" }, "description": "Nachbarknoten (beidseitig eintragen)" },
-          "maxStufe": { "type": "integer", "minimum": 1 },
-          "basisKosten": { "type": "number" },
-          "kostenFaktor": { "type": "number", "description": "Kosten = basisKosten × kostenFaktor^Stufe" },
-          "splitterKosten": { "type": "integer", "description": "Sternensplitter pro Stufe (Schlüsselknoten)" },
-          "symbol": { "type": "string", "description": "Symbol im Knoten, z. B. rune, coin, lock oder card:<kartenId>" },
-          "effekt": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "beschreibung": {
+            "type": "string"
+          },
+          "typ": {
+            "enum": [
+              "start",
+              "klein",
+              "gross",
+              "schluessel",
+              "freischalt"
+            ],
+            "description": "klein = Kreis, gross = Sechseck, schluessel = Stern (MP + Kristalle), freischalt = Schloss"
+          },
+          "ast": {
+            "type": "string"
+          },
+          "position": {
             "type": "object",
-            "required": ["ziel"],
+            "required": [
+              "x",
+              "y"
+            ],
             "properties": {
-              "ziel": { "type": "string", "description": "Modifikator (siehe MOD_DEFAULTS in src/core/starmap.js), 'flag', 'spec', 'packFrueher' oder 'keiner'" },
-              "wert": { "type": "number" },
-              "rechenart": { "enum": ["addieren", "multiplizieren"] },
-              "flag": { "type": "string" },
-              "karte": { "type": "string" },
-              "pack": { "type": "string" },
-              "patches": { "type": "array", "items": { "$ref": "common.schema.json#/definitions/patch" } }
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              }
             }
           },
-          "voraussetzung": { "type": "object", "properties": { "karte": { "type": "string", "description": "Karte muss mindestens einmal gezogen worden sein" } } }
+          "verbindungen": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "maxStufe": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "basisKosten": {
+            "type": "number"
+          },
+          "kostenFaktor": {
+            "type": "number"
+          },
+          "kristallKosten": {
+            "type": "number"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "effekt": {
+            "type": "object",
+            "required": [
+              "ziel"
+            ],
+            "properties": {
+              "ziel": {
+                "type": "string"
+              },
+              "wert": {
+                "type": "number"
+              },
+              "rechenart": {
+                "enum": [
+                  "addieren",
+                  "multiplizieren"
+                ]
+              },
+              "flag": {
+                "type": "string"
+              },
+              "karte": {
+                "type": "string"
+              },
+              "gebaeude": {
+                "type": "string"
+              },
+              "patches": {
+                "type": "array",
+                "items": {
+                  "$ref": "common.schema.json#/definitions/patch"
+                }
+              }
+            }
+          },
+          "voraussetzung": {
+            "type": "object",
+            "properties": {
+              "karte": {
+                "type": "string"
+              }
+            }
+          }
         }
       }
     }

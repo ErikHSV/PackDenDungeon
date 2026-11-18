@@ -5,27 +5,123 @@
   "type": "array",
   "items": {
     "type": "object",
-    "required": ["id", "name", "waves", "hpMult", "goldMult", "damageMult", "enemies", "boss", "colors"],
+    "required": [
+      "id",
+      "akt",
+      "name",
+      "intro",
+      "boden",
+      "bossNachSekunden",
+      "spawn",
+      "wellen",
+      "gegner",
+      "boss",
+      "gefahren"
+    ],
     "properties": {
-      "id": { "type": "integer" },
-      "name": { "type": "string" },
-      "intro": { "type": "string" },
-      "question": { "type": "string", "description": "Die strategische 'Frage' des Kapitels" },
-      "waves": { "type": "integer", "description": "Letzte Welle = Bosswelle" },
-      "hpMult": { "type": "number" },
-      "hpGrowth": { "type": "number", "description": "Optional: überschreibt balance.waves.hpGrowth" },
-      "goldMult": { "type": "number" },
-      "damageMult": { "type": "number" },
-      "colors": { "type": "object" },
-      "enemies": {
+      "id": {
+        "type": "integer"
+      },
+      "akt": {
+        "type": "integer"
+      },
+      "name": {
+        "type": "string"
+      },
+      "intro": {
+        "type": "string"
+      },
+      "boden": {
+        "type": "object",
+        "required": [
+          "grund",
+          "akzent",
+          "detail"
+        ]
+      },
+      "bossNachSekunden": {
+        "type": "number"
+      },
+      "spawn": {
+        "type": "object",
+        "required": [
+          "modus"
+        ],
+        "properties": {
+          "modus": {
+            "enum": [
+              "ring",
+              "portale"
+            ]
+          },
+          "portale": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "winkel"
+              ]
+            }
+          }
+        }
+      },
+      "wellen": {
+        "type": "object",
+        "properties": {
+          "lebenMul": {
+            "type": "number"
+          },
+          "muenzenMul": {
+            "type": "number"
+          },
+          "schadenMul": {
+            "type": "number"
+          }
+        }
+      },
+      "gegner": {
         "type": "array",
         "items": {
           "type": "object",
-          "required": ["id", "weight"],
-          "properties": { "id": { "type": "string" }, "weight": { "type": "number" }, "fromWave": { "type": "integer" }, "toWave": { "type": "integer" } }
+          "required": [
+            "id",
+            "gewicht"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "gewicht": {
+              "type": "number"
+            },
+            "abSekunde": {
+              "type": "number"
+            },
+            "bisSekunde": {
+              "type": "number"
+            }
+          }
         }
       },
-      "boss": { "type": "string" }
+      "boss": {
+        "type": "string"
+      },
+      "gefahren": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "typ"
+          ],
+          "properties": {
+            "typ": {
+              "enum": [
+                "schneesturm"
+              ]
+            }
+          }
+        }
+      }
     }
   }
 }

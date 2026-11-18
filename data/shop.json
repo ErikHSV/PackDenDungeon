@@ -1,0 +1,10 @@
+{
+  "$kommentar": "Shop-Angebote vor jedem Run. Jeder Angebotsplatz würfelt gewichtet ein freigeschaltetes Angebot. Preis = grundPreis × (1 + balance.wirtschaft.preisWachstumProKapitel)^(höchstes freigeschaltetes Kapitel − 1).",
+  "angebote": [
+    { "id": "a_holz",         "artikel": "holzpack",    "anzahl": 1, "grundPreis": 10,  "gewicht": 50 },
+    { "id": "a_holz_kiste",   "artikel": "kiste_holz",  "anzahl": 1, "grundPreis": 27,  "gewicht": 20 },
+    { "id": "a_silber",       "artikel": "silberpack",  "anzahl": 1, "grundPreis": 35,  "gewicht": 25 },
+    { "id": "a_silber_kiste", "artikel": "kiste_silber","anzahl": 1, "grundPreis": 95,  "gewicht": 10 },
+    { "id": "a_sternen",      "artikel": "sternenpack", "anzahl": 1, "grundPreis": 120, "gewicht": 12 }
+  ]
+}

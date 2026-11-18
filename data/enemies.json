@@ -1,443 +1,85 @@
 [
-  {
-    "id": "schlammling",
-    "name": "Schlammling",
-    "short": "Sl",
-    "hp": 38,
-    "speed": 48,
-    "armor": 0,
-    "magicResist": 0,
-    "flying": false,
-    "immune": [],
-    "gold": 5,
-    "damage": 6,
-    "attackInterval": 1.2,
-    "size": 24,
-    "shape": "circle",
-    "color": "#6d7f3b",
-    "traits": {},
-    "sprite": "schlammling",
-    "hint": "Langsam und schwach – kommt aber in Massen.",
-    "spriteSize": 24
-  },
-  {
-    "id": "moorwolf",
-    "name": "Moorwolf",
-    "short": "Wo",
-    "hp": 24,
-    "speed": 131,
-    "armor": 0,
-    "magicResist": 0,
-    "flying": false,
-    "immune": [],
-    "gold": 5,
-    "damage": 5,
-    "attackInterval": 0.8,
-    "size": 21,
-    "shape": "triangle",
-    "color": "#7b6a58",
-    "traits": {},
-    "sprite": "moorwolf",
-    "hint": "Sehr schnell, aber mit wenig Leben.",
-    "spriteSize": 24
-  },
-  {
-    "id": "kraehe",
-    "name": "Krähenschwarm",
-    "short": "Kr",
-    "hp": 18,
-    "speed": 99,
-    "armor": 0,
-    "magicResist": 0,
-    "flying": true,
-    "immune": [],
-    "gold": 4,
-    "damage": 4,
-    "attackInterval": 1.0,
-    "size": 18,
-    "shape": "diamond",
-    "color": "#3a3a46",
-    "groupSize": 3,
-    "traits": {},
-    "sprite": "kraehe",
-    "hint": "Fliegt – nur Helden mit Fernangriff können ihn treffen.",
-    "spriteSize": 24
-  },
-  {
-    "id": "borkenkoloss",
-    "name": "Borkenkoloss",
-    "short": "BK",
-    "boss": true,
-    "hp": 1800,
-    "speed": 22,
-    "armor": 3,
-    "magicResist": 0,
-    "flying": false,
-    "immune": [],
-    "gold": 300,
-    "damage": 35,
-    "attackInterval": 1.6,
-    "blockSlots": 3,
-    "size": 67,
-    "shape": "square",
-    "color": "#5b4630",
-    "traits": {},
-    "bossAbilities": {
-      "roots": {
-        "interval": 8,
-        "duration": 3,
-        "targets": 2
-      },
-      "summon": {
-        "interval": 12,
-        "enemy": "schlammling",
-        "count": 3
-      }
+  { "id": "moorling", "name": "Moorling", "beschreibung": "Langsam und schwach – kommt in Massen.",
+    "leben": 14, "tempo": 45, "ruestung": 0, "magieResistenz": 0, "fliegt": false, "immun": [],
+    "muenzen": 1, "schaden": 3, "angriffsIntervall": 1.2, "groesse": 24, "farbe": "#6d7f3b", "sprite": "moorling", "eigenschaften": {} },
+  { "id": "sumpfratte", "name": "Sumpfratte", "beschreibung": "Sehr schnell, aber zerbrechlich.",
+    "leben": 8, "tempo": 110, "ruestung": 0, "magieResistenz": 0, "fliegt": false, "immun": [],
+    "muenzen": 1, "schaden": 2, "angriffsIntervall": 0.8, "groesse": 24, "farbe": "#7b6a58", "sprite": "sumpfratte", "eigenschaften": {} },
+  { "id": "kraehe", "name": "Krähe", "beschreibung": "Fliegt – nur Fernkämpfer und der Runenkreis treffen sie.",
+    "leben": 10, "tempo": 80, "ruestung": 0, "magieResistenz": 0, "fliegt": true, "immun": [],
+    "muenzen": 1, "schaden": 2, "angriffsIntervall": 1.0, "groesse": 24, "farbe": "#3a3a46", "sprite": "kraehe", "gruppe": 3, "eigenschaften": {} },
+  { "id": "trommler", "name": "Der Trommler", "boss": true, "beschreibung": "Seine Trommelschläge schicken Schockwellen über das Feld.",
+    "leben": 900, "tempo": 28, "ruestung": 2, "magieResistenz": 0, "fliegt": false, "immun": [],
+    "muenzen": 60, "schaden": 20, "angriffsIntervall": 1.5, "groesse": 96, "farbe": "#8a5a3a", "sprite": "trommler", "eigenschaften": {},
+    "bossFaehigkeiten": {
+      "schockwelle": { "intervall": 7, "vorwarnung": 1.2, "radius": 520, "rueckstoss": 180, "schaden": 8, "text": "Der Trommler holt aus!" },
+      "beschwoeren": { "intervall": 12, "gegner": "moorling", "anzahl": 4 }
     },
-    "phases": [],
-    "sprite": "borkenkoloss",
-    "hint": "Riesig und zäh. Seine Wurzeln halten Helden fest.",
-    "spriteSize": 32
-  },
-  {
-    "id": "knochenritter",
-    "name": "Knochenritter",
-    "short": "KR",
-    "hp": 55,
-    "speed": 45,
-    "armor": 10,
-    "magicResist": 0,
-    "flying": false,
-    "immune": [],
-    "gold": 8,
-    "damage": 10,
-    "attackInterval": 1.2,
-    "size": 26,
-    "shape": "square",
-    "color": "#c8c3b0",
-    "traits": {},
-    "sprite": "knochenritter",
-    "hint": "Schwere Rüstung – Magie oder starke Einzeltreffer helfen.",
-    "spriteSize": 24
-  },
-  {
-    "id": "irrlicht",
-    "name": "Irrlicht",
-    "short": "Ir",
-    "hp": 30,
-    "speed": 77,
-    "armor": 0,
-    "magicResist": 0,
-    "flying": false,
-    "immune": [
-      "physical"
-    ],
-    "gold": 7,
-    "damage": 6,
-    "attackInterval": 1.0,
-    "size": 18,
-    "shape": "circle",
-    "color": "#9fe8ff",
-    "traits": {},
-    "sprite": "irrlicht",
-    "hint": "Immun gegen physischen Schaden – nur Magie wirkt.",
-    "spriteSize": 24
-  },
-  {
-    "id": "grabraeuber",
-    "name": "Grabräuber",
-    "short": "Gr",
-    "hp": 34,
-    "speed": 118,
-    "armor": 0,
-    "magicResist": 0,
-    "flying": false,
-    "immune": [],
-    "gold": 9,
-    "damage": 0,
-    "attackInterval": 1.0,
-    "size": 21,
-    "shape": "triangle",
-    "color": "#5c4a7a",
-    "traits": {
-      "stealGold": {
-        "amount": 25
-      }
+    "phasen": [] },
+
+  { "id": "knochenritter", "name": "Knochenritter", "beschreibung": "Schwere Rüstung – Magie oder starke Treffer helfen.",
+    "leben": 40, "tempo": 40, "ruestung": 6, "magieResistenz": 0, "fliegt": false, "immun": [],
+    "muenzen": 2, "schaden": 6, "angriffsIntervall": 1.2, "groesse": 32, "farbe": "#c8c3b0", "sprite": "knochenritter", "eigenschaften": {} },
+  { "id": "irrlicht", "name": "Irrlicht", "beschreibung": "Immun gegen physischen Schaden – nur Magie und Runenkreis wirken.",
+    "leben": 22, "tempo": 65, "ruestung": 0, "magieResistenz": 0, "fliegt": false, "immun": ["physical"],
+    "muenzen": 2, "schaden": 4, "angriffsIntervall": 1.0, "groesse": 24, "farbe": "#9fe8ff", "sprite": "irrlicht", "eigenschaften": {} },
+  { "id": "grabraeuber", "name": "Grabräuber", "beschreibung": "Stiehlt Münzen, wenn er den Turm erreicht.",
+    "leben": 24, "tempo": 100, "ruestung": 0, "magieResistenz": 0, "fliegt": false, "immun": [],
+    "muenzen": 3, "schaden": 0, "angriffsIntervall": 1.0, "groesse": 24, "farbe": "#5c4a7a", "sprite": "grabraeuber",
+    "eigenschaften": { "muenzenStehlen": { "anzahl": 5 } } },
+  { "id": "graue_aebtissin", "name": "Die Graue Äbtissin", "boss": true, "beschreibung": "Lädt einen Schrei auf – triff ihr Medaillon mit dem Runenkreis!",
+    "leben": 2200, "tempo": 22, "ruestung": 4, "magieResistenz": 0.2, "fliegt": false, "immun": [],
+    "muenzen": 150, "schaden": 30, "angriffsIntervall": 1.6, "groesse": 96, "farbe": "#8a8f98", "sprite": "graue_aebtissin", "eigenschaften": {},
+    "bossFaehigkeiten": {
+      "schrei": { "intervall": 11, "aufladen": 4, "turmSchaden": 60, "heldenSchaden": 50,
+        "schwachpunkt": { "name": "Medaillon", "treffer": 6, "versatzY": -20 }, "text": "Die Äbtissin holt Luft – triff das Medaillon!" },
+      "beschwoeren": { "intervall": 14, "gegner": "knochenritter", "anzahl": 2 }
     },
-    "sprite": "grabraeuber",
-    "hint": "Stiehlt Gold, wenn er den Turm erreicht.",
-    "spriteSize": 24
-  },
-  {
-    "id": "graue_aebtissin",
-    "name": "Die Graue Äbtissin",
-    "short": "GÄ",
-    "boss": true,
-    "hp": 5200,
-    "speed": 21,
-    "armor": 6,
-    "magicResist": 0.2,
-    "flying": false,
-    "immune": [],
-    "gold": 600,
-    "damage": 50,
-    "attackInterval": 1.6,
-    "blockSlots": 3,
-    "size": 64,
-    "shape": "square",
-    "color": "#8a8f98",
-    "traits": {},
-    "bossAbilities": {
-      "scream": {
-        "interval": 11,
-        "chargeTime": 3.5,
-        "towerDamage": 220,
-        "heroDamage": 120
-      },
-      "summon": {
-        "interval": 14,
-        "enemy": "knochenritter",
-        "count": 2
-      }
+    "phasen": [] },
+
+  { "id": "feuerkaefer", "name": "Feuerkäfer", "beschreibung": "Explodiert beim Tod und verletzt Helden in der Nähe.",
+    "leben": 30, "tempo": 75, "ruestung": 0, "magieResistenz": 0, "fliegt": false, "immun": [],
+    "muenzen": 2, "schaden": 5, "angriffsIntervall": 1.0, "groesse": 24, "farbe": "#e0602a", "sprite": "feuerkaefer",
+    "eigenschaften": { "explodiertBeimTod": { "schaden": 25, "radius": 110 } } },
+  { "id": "schildtraeger", "name": "Schildträger", "beschreibung": "Von vorne immun – nur Flächenschaden, Springer und Runenkreis treffen.",
+    "leben": 60, "tempo": 35, "ruestung": 3, "magieResistenz": 0, "fliegt": false, "immun": [],
+    "muenzen": 3, "schaden": 8, "angriffsIntervall": 1.3, "groesse": 32, "farbe": "#8a6d3b", "sprite": "schildtraeger",
+    "eigenschaften": { "frontSchild": true } },
+  { "id": "lavaschleim", "name": "Lavaschleim", "beschreibung": "Teilt sich beim Tod in zwei kleine Schleime.",
+    "leben": 50, "tempo": 40, "ruestung": 0, "magieResistenz": 0, "fliegt": false, "immun": [],
+    "muenzen": 2, "schaden": 6, "angriffsIntervall": 1.2, "groesse": 32, "farbe": "#ff5a1f", "sprite": "lavaschleim",
+    "eigenschaften": { "teiltSichBeimTod": { "in": "lavaschleim_klein", "anzahl": 2 } } },
+  { "id": "lavaschleim_klein", "name": "Kleiner Lavaschleim", "beschreibung": "Überbleibsel eines Lavaschleims.",
+    "leben": 18, "tempo": 60, "ruestung": 0, "magieResistenz": 0, "fliegt": false, "immun": [],
+    "muenzen": 1, "schaden": 3, "angriffsIntervall": 1.0, "groesse": 24, "farbe": "#ff8a4f", "sprite": "lavaschleim_klein", "eigenschaften": {} },
+  { "id": "schmied", "name": "Der Schmied", "boss": true, "beschreibung": "Wirft glühende Hämmer – klicke sie im richtigen Moment an, um sie zu parieren!",
+    "leben": 4500, "tempo": 20, "ruestung": 6, "magieResistenz": 0.25, "fliegt": false, "immun": [],
+    "muenzen": 300, "schaden": 45, "angriffsIntervall": 1.6, "groesse": 112, "farbe": "#b8321a", "sprite": "schmied", "eigenschaften": {},
+    "bossFaehigkeiten": {
+      "hammerwurf": { "intervall": 6, "anzahl": 2, "flugzeit": 1.6, "parierFenster": 0.45, "schaden": 40, "radius": 80, "text": "Hämmer im Anflug – klicke sie kurz vor dem Einschlag!" },
+      "beschwoeren": { "intervall": 13, "gegner": "feuerkaefer", "anzahl": 3 }
     },
-    "phases": [],
-    "sprite": "graue_aebtissin",
-    "hint": "Lädt einen gewaltigen Schrei auf – unterbrich ihn mit Betäubung!",
-    "spriteSize": 32
-  },
-  {
-    "id": "feuerkaefer",
-    "name": "Feuerkäfer",
-    "short": "FK",
-    "hp": 40,
-    "speed": 88,
-    "armor": 0,
-    "magicResist": 0,
-    "flying": false,
-    "immune": [],
-    "gold": 8,
-    "damage": 8,
-    "attackInterval": 1.0,
-    "size": 21,
-    "shape": "circle",
-    "color": "#e0602a",
-    "traits": {
-      "explodeOnDeath": {
-        "damage": 45,
-        "radius": 176
-      }
+    "phasen": [] },
+
+  { "id": "eisgeist", "name": "Eisgeist", "beschreibung": "Fliegt und ist magieresistent.",
+    "leben": 30, "tempo": 70, "ruestung": 0, "magieResistenz": 0.5, "fliegt": true, "immun": [],
+    "muenzen": 2, "schaden": 5, "angriffsIntervall": 1.0, "groesse": 24, "farbe": "#bfe9ff", "sprite": "eisgeist", "gruppe": 2, "eigenschaften": {} },
+  { "id": "frostwolf", "name": "Frostwolf", "beschreibung": "Schnell; seine Bisse verlangsamen Helden.",
+    "leben": 34, "tempo": 105, "ruestung": 1, "magieResistenz": 0, "fliegt": false, "immun": [],
+    "muenzen": 2, "schaden": 5, "angriffsIntervall": 0.9, "groesse": 32, "farbe": "#c8d8e6", "sprite": "frostwolf",
+    "eigenschaften": { "verlangsamtHelden": { "faktor": 0.7, "dauer": 2 } } },
+  { "id": "winterkoenigin", "name": "Die Winterkönigin", "boss": true, "beschreibung": "Friert Helden ein und wird in jeder Phase stärker.",
+    "leben": 8000, "tempo": 20, "ruestung": 6, "magieResistenz": 0.3, "fliegt": false, "immun": [],
+    "muenzen": 0, "schaden": 60, "angriffsIntervall": 1.5, "groesse": 112, "farbe": "#dff6ff", "sprite": "winterkoenigin", "eigenschaften": {},
+    "bossFaehigkeiten": {
+      "einfrieren": { "intervall": 8, "vorwarnung": 1.5, "dauer": 3, "anzahl": 1, "text": "Eisige Kälte breitet sich aus!" },
+      "beschwoeren": { "intervall": 10, "gegner": "eisgeist", "anzahl": 2 }
     },
-    "sprite": "feuerkaefer",
-    "hint": "Explodiert beim Tod und verletzt Helden in der Nähe.",
-    "spriteSize": 24
-  },
-  {
-    "id": "schildtraeger",
-    "name": "Schildträger",
-    "short": "ST",
-    "hp": 85,
-    "speed": 38,
-    "armor": 5,
-    "magicResist": 0,
-    "flying": false,
-    "immune": [],
-    "gold": 11,
-    "damage": 12,
-    "attackInterval": 1.3,
-    "size": 29,
-    "shape": "square",
-    "color": "#8a6d3b",
-    "traits": {
-      "frontalShield": true
-    },
-    "sprite": "schildtraeger",
-    "hint": "Von vorne immun – nur Flächenschaden oder Springer treffen.",
-    "spriteSize": 24
-  },
-  {
-    "id": "lavaschleim",
-    "name": "Lavaschleim",
-    "short": "LS",
-    "hp": 75,
-    "speed": 45,
-    "armor": 0,
-    "magicResist": 0,
-    "flying": false,
-    "immune": [],
-    "gold": 8,
-    "damage": 10,
-    "attackInterval": 1.2,
-    "size": 27,
-    "shape": "circle",
-    "color": "#ff5a1f",
-    "traits": {
-      "splitOnDeath": {
-        "into": "lavaschleim_klein",
-        "count": 2
-      }
-    },
-    "sprite": "lavaschleim",
-    "hint": "Teilt sich beim Tod in zwei kleine Schleime.",
-    "spriteSize": 24
-  },
-  {
-    "id": "lavaschleim_klein",
-    "name": "Kleiner Lavaschleim",
-    "short": "ls",
-    "hp": 30,
-    "speed": 64,
-    "armor": 0,
-    "magicResist": 0,
-    "flying": false,
-    "immune": [],
-    "gold": 3,
-    "damage": 5,
-    "attackInterval": 1.0,
-    "size": 16,
-    "shape": "circle",
-    "color": "#ff8a4f",
-    "traits": {},
-    "sprite": "lavaschleim_klein",
-    "hint": "Klein und flink – Überbleibsel eines Lavaschleims.",
-    "spriteSize": 24
-  },
-  {
-    "id": "magmafuerst",
-    "name": "Magmafürst",
-    "short": "MF",
-    "boss": true,
-    "hp": 9000,
-    "speed": 19,
-    "armor": 8,
-    "magicResist": 0.25,
-    "flying": false,
-    "immune": [],
-    "gold": 1200,
-    "damage": 80,
-    "attackInterval": 1.6,
-    "blockSlots": 3,
-    "size": 70,
-    "shape": "square",
-    "color": "#b8321a",
-    "traits": {},
-    "bossAbilities": {
-      "lavaField": {
-        "interval": 7,
-        "radius": 112,
-        "dps": 30,
-        "duration": 5
-      },
-      "regen": {
-        "perSecond": 0.015
-      }
-    },
-    "phases": [],
-    "sprite": "magmafuerst",
-    "hint": "Regeneriert sich, solange er nicht verlangsamt wird.",
-    "spriteSize": 32
-  },
-  {
-    "id": "eisgeist",
-    "name": "Eisgeist",
-    "short": "EG",
-    "hp": 40,
-    "speed": 83,
-    "armor": 0,
-    "magicResist": 0.5,
-    "flying": true,
-    "immune": [],
-    "gold": 9,
-    "damage": 9,
-    "attackInterval": 1.0,
-    "size": 21,
-    "shape": "diamond",
-    "color": "#bfe9ff",
-    "groupSize": 2,
-    "traits": {},
-    "sprite": "eisgeist",
-    "hint": "Fliegt und ist magieresistent.",
-    "spriteSize": 24
-  },
-  {
-    "id": "winterkoenigin",
-    "name": "Die Winterkönigin",
-    "short": "WK",
-    "boss": true,
-    "hp": 16000,
-    "speed": 19,
-    "armor": 8,
-    "magicResist": 0.3,
-    "flying": false,
-    "immune": [],
-    "gold": 0,
-    "damage": 110,
-    "attackInterval": 1.5,
-    "blockSlots": 3,
-    "size": 74,
-    "shape": "diamond",
-    "color": "#dff6ff",
-    "traits": {},
-    "bossAbilities": {
-      "freeze": {
-        "interval": 8,
-        "duration": 3,
-        "count": 1
-      },
-      "summon": {
-        "interval": 10,
-        "enemy": "eisgeist",
-        "count": 2
-      }
-    },
-    "phases": [
-      {
-        "hpBelow": 0.66,
-        "text": "Phase 2: Schneesturm!",
-        "speedMul": 1.25,
-        "patches": [
-          {
-            "path": "bossAbilities.freeze.count",
-            "op": "set",
-            "value": 2
-          }
-        ],
-        "spawn": [
-          {
-            "id": "eisgeist",
-            "count": 4
-          }
-        ]
-      },
-      {
-        "hpBelow": 0.33,
-        "text": "Phase 3: Ewiger Winter!",
-        "speedMul": 1.25,
-        "patches": [
-          {
-            "path": "bossAbilities.freeze.count",
-            "op": "set",
-            "value": 3
-          },
-          {
-            "path": "bossAbilities.freeze.interval",
-            "op": "set",
-            "value": 6
-          }
-        ],
-        "spawn": [
-          {
-            "id": "knochenritter",
-            "count": 3
-          },
-          {
-            "id": "eisgeist",
-            "count": 4
-          }
-        ]
-      }
-    ],
-    "sprite": "winterkoenigin",
-    "hint": "Friert Helden ein und wird in jeder Phase stärker.",
-    "spriteSize": 32
-  }
+    "phasen": [
+      { "lebenUnter": 0.66, "text": "Phase 2: Schneesturm!", "tempoMul": 1.25,
+        "patches": [ { "pfad": "bossFaehigkeiten.einfrieren.anzahl", "op": "set", "wert": 2 } ], "beschwoeren": [ { "gegner": "eisgeist", "anzahl": 4 } ] },
+      { "lebenUnter": 0.33, "text": "Phase 3: Ewiger Winter!", "tempoMul": 1.25,
+        "patches": [ { "pfad": "bossFaehigkeiten.einfrieren.anzahl", "op": "set", "wert": 3 }, { "pfad": "bossFaehigkeiten.einfrieren.intervall", "op": "set", "wert": 6 } ],
+        "beschwoeren": [ { "gegner": "frostwolf", "anzahl": 3 }, { "gegner": "eisgeist", "anzahl": 4 } ] }
+    ] }
 ]
