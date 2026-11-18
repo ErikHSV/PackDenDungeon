@@ -1,8 +1,7 @@
 {
   "$kommentar": "Zentrale Balancing-Datei: alle globalen Zahlen. Koordinaten in Pixeln bei 1920×1080.",
   "spielTitel": "PackDenDungeon",
-  "version": "0.3.0",
-
+  "version": "0.3.1",
   "arena": {
     "$kommentar": "Ovale Arena (Draufsicht mit leichter Neigung). Turm in der Mitte.",
     "mitteX": 960,
@@ -10,20 +9,25 @@
     "radiusX": 880,
     "radiusY": 470,
     "neigung": 0.55,
-    "packLandeRing": [0.2, 0.6],
+    "packLandeRing": [
+      0.2,
+      0.6
+    ],
     "spawnRand": 1.0,
     "gebaeudeRing": 0.94
   },
-
   "turm": {
     "leben": 300,
     "breite": 120,
     "hoehe": 160,
     "kontaktRadius": 70,
-    "rissStufen": [0.75, 0.5, 0.25],
+    "rissStufen": [
+      0.75,
+      0.5,
+      0.25
+    ],
     "schweresTrefferAnteil": 0.05
   },
-
   "cursor": {
     "$kommentar": "Runenkreis: trifft alles im Kreis (Monster und Packs) in festen Ticks, ohne Klick.",
     "radius": 35,
@@ -35,29 +39,33 @@
     "farbeLeer": "#5AA9F0",
     "farbeAktiv": "#FF9A3A"
   },
-
   "run": {
     "countdown": 3,
     "packFlugzeit": 0.7,
     "kartenDrehzeit": 0.2,
     "seltenZeitlupe": 0.3,
     "seltenZeitlupeFaktor": 0.25,
-    "geschwindigkeiten": [1, 2]
+    "geschwindigkeiten": [
+      1,
+      2
+    ]
   },
-
   "karten": {
     "foilChance": 0.02,
-    "foil": { "lebenMul": 2, "reichweiteMul": 1.5, "flaecheMul": 1.5 },
+    "foil": {
+      "lebenMul": 2,
+      "reichweiteMul": 1.5,
+      "flaecheMul": 1.5
+    },
     "grenzgaenger": {
-      "$kommentar": "Geheime Seltenheit: Chance pro gezogener Karte, steigt mit der Gesamtspielzeit leicht an.",
+      "$kommentar": "Geheime Seltenheit: Chance pro gezogener Karte, steigt mit der Spielzeit der aktuellen Sitzung leicht an.",
       "grundChance": 0.005,
-      "proSpielstunde": 0.002,
-      "maxChance": 0.02
+      "proSitzungsMinute": 0.0001,
+      "maxChance": 0.015
     },
     "$kommentar_fallback": "Wird eine Seltenheit gewürfelt, die im Pool fehlt, wird die nächstniedrigere vorhandene genommen.",
     "seltenheitsFallback": "niedriger"
   },
-
   "wellen": {
     "$kommentar": "Monster kommen kontinuierlich. Werte gelten, falls das Kapitel nichts anderes angibt.",
     "intervall": 6,
@@ -67,37 +75,89 @@
     "lebenWachstum": 1.08,
     "schadenWachstum": 1.05,
     "elitewelleAlleSekunden": 30,
-    "elite": { "lebenMul": 3.5, "schadenMul": 1.5, "muenzenMul": 4, "groesse": 48 }
+    "elite": {
+      "lebenMul": 3.5,
+      "schadenMul": 1.5,
+      "muenzenMul": 4,
+      "groesse": 48
+    },
+    "foilMonster": {
+      "$kommentar": "Seltene schimmernde Monster: stärker, mehr Belohnung, zählen fürs Foil-Bestiarium.",
+      "chance": 0.01,
+      "lebenMul": 2.5,
+      "muenzenMul": 5,
+      "foilStaub": 1
+    }
   },
-
   "belohnungen": {
     "muenzenProKill": 1,
     "masteryProSekunde": 0.1,
     "masteryProKill": 0.05,
     "masteryProBoss": 15,
     "kristalleNeueKarte": 2,
-    "$kommentar_kristalle": "Kristalle aus Packs stehen in packs.json; neu entdeckte Karten geben zusätzlich 'kristalleNeueKarte' × Kristallwert des Packs"
+    "$kommentar_kristalle": "Kristalle aus Packs stehen in packs.json; neu entdeckte Karten geben zusätzlich 'kristalleNeueKarte' × Kristallwert des Packs",
+    "masteryProElitewelle": 2,
+    "foilStaubProFoilKarte": 1
   },
-
   "wirtschaft": {
+    "$kommentar": "Jeder Run ist ein Tag: Tageseinkommen wird gutgeschrieben, der Shop würfelt neu.",
     "startMuenzen": 30,
-    "grundEinkommen": 0,
+    "tagesEinkommen": 0,
     "preisWachstumProKapitel": 0.35
   },
-
   "shop": {
     "angebotsPlaetzeStart": 3,
     "angebotsPlaetzeMax": 6,
-    "neuWuerfeln": { "grundKosten": 5, "wachstum": 1.5, "freischaltKnoten": "g_wuerfeln" },
-    "rueckerstattung": 1.0
+    "neuWuerfeln": {
+      "grundKosten": 5,
+      "wachstum": 1.5,
+      "freischaltKnoten": "g_wuerfeln"
+    },
+    "rueckerstattung": 1.0,
+    "jackpot": {
+      "$kommentar": "Chance pro Angebotsplatz auf einen goldenen Jackpot-Platz (Inhalte in shop.json → jackpots).",
+      "chance": 0.04
+    }
   },
-
   "sternenkarte": {
     "kostenFaktorStandard": 1.45
   },
-
   "relikte": {
     "plaetzeStart": 1,
-    "plaetzeMax": 4
+    "plaetzeMax": 5,
+    "zerstoerenGibtPlatz": true,
+    "$kommentar": "Ein Relikt zu zerstören schaltet einmalig einen weiteren Platz frei (bis plaetzeMax). Relikt-Jagd garantiert ein noch fehlendes Relikt."
+  },
+  "akte": {
+    "$kommentar": "Beim Eintritt in Akt 2 wird die Sternenkarte zurückgesetzt (volle Rückerstattung), neue Äste kommen hinzu.",
+    "sternenkarteResetBeiAktwechsel": true
+  },
+  "prestige": {
+    "$kommentar": "Geschaffte Kapitel in höheren Stufen erneut spielen.",
+    "stufen": [
+      {
+        "stufe": 1,
+        "lebenMul": 2.0,
+        "schadenMul": 1.6,
+        "belohnungMul": 1.6
+      },
+      {
+        "stufe": 2,
+        "lebenMul": 4.0,
+        "schadenMul": 2.5,
+        "belohnungMul": 2.5
+      }
+    ]
+  },
+  "gesucht": {
+    "$kommentar": "Geschafftes Kapitel gegen die Foil-Version seines Bosses.",
+    "bossLebenMul": 2.5,
+    "bossSchadenMul": 1.5,
+    "kristalle": 10,
+    "foilStaub": 5
+  },
+  "debug": {
+    "$kommentar": "Debug-Werkzeuge (nur mit ?debug in der URL).",
+    "zeitVorspulenSekunden": 30
   }
 }

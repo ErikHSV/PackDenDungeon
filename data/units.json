@@ -9,15 +9,30 @@
     "beschreibung": "Schwach, aber häufig.",
     "farbe": "#b08b5a",
     "sprite": "stalljunge",
-    "werte": { "leben": 60, "schaden": 6, "angriffsTempo": 1.0, "reichweite": 40, "lauftempo": 95, "schadensTyp": "physical" },
+    "werte": {
+      "leben": 60,
+      "schaden": 6,
+      "angriffsTempo": 1.0,
+      "reichweite": 40,
+      "lauftempo": 95,
+      "schadensTyp": "physical"
+    },
     "trifftLuft": false,
-    "angriff": { "art": "nahkampf" },
+    "angriff": {
+      "art": "nahkampf"
+    },
     "faehigkeiten": {},
     "entwicklung": {
-      "bedingung": { "typ": "kills", "anzahl": 3 },
+      "bedingung": {
+        "typ": "kills",
+        "anzahl": 2
+      },
       "name": "Waffenknecht",
-      "text": "Nach 3 Kills: doppelte Werte und volle Heilung.",
-      "werteMul": { "leben": 2, "schaden": 2 },
+      "text": "Nach 2 Kills: doppelte Werte und volle Heilung. Tipp: Gegner mit dem Cursor nur anschlagen und den Stalljungen den letzten Treffer machen lassen.",
+      "werteMul": {
+        "leben": 2,
+        "schaden": 2
+      },
       "volleHeilung": true,
       "patches": [],
       "sprite": "waffenknecht"
@@ -30,15 +45,30 @@
     "rolle": "Flächen-Nahkampf",
     "rollenSymbol": "sword",
     "ki": "angreifen",
-    "beschreibung": "Schlägt im Halbkreis und trifft mehrere Gegner.",
+    "beschreibung": "Schlägt im Kegel nach vorne und trifft mehrere Gegner.",
     "farbe": "#8f5b3a",
     "sprite": "kettenschwinger",
-    "werte": { "leben": 140, "schaden": 10, "angriffsTempo": 0.8, "reichweite": 60, "lauftempo": 75, "schadensTyp": "physical" },
+    "werte": {
+      "leben": 140,
+      "schaden": 10,
+      "angriffsTempo": 0.8,
+      "reichweite": 60,
+      "lauftempo": 75,
+      "schadensTyp": "physical"
+    },
     "trifftLuft": false,
-    "angriff": { "art": "halbkreis", "radius": 70 },
+    "angriff": {
+      "art": "kegel",
+      "radius": 90,
+      "winkel": 100
+    },
     "faehigkeiten": {},
     "beimTod": {
-      "beschwoeren": { "einheit": "rostgolem", "anzahl": 1, "dauer": 10 },
+      "beschwoeren": {
+        "einheit": "rostgolem",
+        "anzahl": 1,
+        "dauer": 10
+      },
       "text": "Beim Tod zerfällt er zu einem Rostgolem, der 10 s weiterkämpft."
     }
   },
@@ -49,23 +79,42 @@
     "rolle": "Fernkampf",
     "rollenSymbol": "bow",
     "ki": "abstand",
-    "beschreibung": "Schießt Steine und trifft auch Luftziele.",
+    "beschreibung": "Schießt Steine, trifft auch Luftziele – aber sehr zerbrechlich.",
     "farbe": "#c79a5b",
     "sprite": "schleuderin",
-    "werte": { "leben": 55, "schaden": 7, "angriffsTempo": 1.4, "reichweite": 320, "lauftempo": 85, "schadensTyp": "physical" },
+    "werte": {
+      "leben": 40,
+      "schaden": 7,
+      "angriffsTempo": 1.4,
+      "reichweite": 320,
+      "lauftempo": 85,
+      "schadensTyp": "physical"
+    },
     "trifftLuft": true,
-    "angriff": { "art": "geschoss", "geschossTempo": 700, "abpraller": 0 },
+    "angriff": {
+      "art": "geschoss",
+      "geschossTempo": 700,
+      "abpraller": 0
+    },
     "faehigkeiten": {},
     "entwicklung": {
-      "bedingung": { "typ": "kills", "anzahl": 5 },
+      "bedingung": {
+        "typ": "kills",
+        "anzahl": 5
+      },
       "name": "Meisterschleuderin",
       "text": "Nach 5 Kills: Steine prallen auf ein zweites Ziel ab.",
       "werteMul": {},
       "volleHeilung": true,
-      "patches": [ { "pfad": "angriff.abpraller", "op": "add", "wert": 1 } ]
+      "patches": [
+        {
+          "pfad": "angriff.abpraller",
+          "op": "add",
+          "wert": 1
+        }
+      ]
     }
   },
-
   {
     "id": "torwaechterin",
     "name": "Torwächterin",
@@ -73,20 +122,46 @@
     "rolle": "Tank",
     "rollenSymbol": "shield",
     "ki": "bewachen",
-    "beschreibung": "Bleibt in Turmnähe und blockt jeden 3. Angriff.",
+    "beschreibung": "Bleibt in Turmnähe und blockt Angriffe mit einer gewissen Chance.",
     "farbe": "#8d97a6",
     "sprite": "torwaechterin",
-    "werte": { "leben": 320, "schaden": 8, "angriffsTempo": 0.8, "reichweite": 50, "lauftempo": 60, "schadensTyp": "physical" },
+    "werte": {
+      "leben": 320,
+      "schaden": 8,
+      "angriffsTempo": 0.8,
+      "reichweite": 50,
+      "lauftempo": 60,
+      "schadensTyp": "physical"
+    },
     "trifftLuft": false,
-    "angriff": { "art": "nahkampf" },
-    "faehigkeiten": { "blocken": { "jederNte": 3, "betaeuben": 0 } },
+    "angriff": {
+      "art": "nahkampf"
+    },
+    "faehigkeiten": {
+      "blocken": {
+        "chance": 0.33,
+        "betaeuben": 0,
+        "blitz": 0
+      }
+    },
     "entwicklung": {
-      "bedingung": { "typ": "blocks", "anzahl": 10 },
+      "bedingung": {
+        "typ": "blocks",
+        "anzahl": 10
+      },
       "name": "Bollwerkmeisterin",
       "text": "Nach 10 Blocks: Blocks betäuben den Angreifer.",
-      "werteMul": { "leben": 1.3 },
+      "werteMul": {
+        "leben": 1.3
+      },
       "volleHeilung": true,
-      "patches": [ { "pfad": "faehigkeiten.blocken.betaeuben", "op": "set", "wert": 1 } ]
+      "patches": [
+        {
+          "pfad": "faehigkeiten.blocken.betaeuben",
+          "op": "set",
+          "wert": 1
+        }
+      ]
     }
   },
   {
@@ -96,20 +171,48 @@
     "rolle": "Springer",
     "rollenSymbol": "sword",
     "ki": "springen",
-    "beschreibung": "Sprintet durch Gegnergruppen und schleudert sie weg.",
+    "beschreibung": "Sprintet bei jedem Angriff durch mehrere Gegner.",
     "farbe": "#7fd3c0",
     "sprite": "windlaeufer",
-    "werte": { "leben": 110, "schaden": 14, "angriffsTempo": 0.9, "reichweite": 45, "lauftempo": 140, "schadensTyp": "physical" },
+    "werte": {
+      "leben": 110,
+      "schaden": 14,
+      "angriffsTempo": 0.9,
+      "reichweite": 45,
+      "lauftempo": 140,
+      "schadensTyp": "physical"
+    },
     "trifftLuft": false,
-    "angriff": { "art": "nahkampf" },
-    "faehigkeiten": { "sprint": { "intervall": 4, "laenge": 260, "schadenMul": 1.5, "rueckstoss": 80, "anzahl": 1 } },
+    "angriff": {
+      "art": "nahkampf"
+    },
+    "faehigkeiten": {
+      "sprint": {
+        "beiAngriff": true,
+        "laenge": 240,
+        "schadenMul": 1.0,
+        "rueckstoss": 60,
+        "anzahl": 1
+      }
+    },
     "entwicklung": {
-      "bedingung": { "typ": "kills", "anzahl": 8 },
+      "bedingung": {
+        "typ": "kills",
+        "anzahl": 8
+      },
       "name": "Sturmläufer",
       "text": "Nach 8 Kills: zwei Sprints hintereinander.",
-      "werteMul": { "schaden": 1.3 },
+      "werteMul": {
+        "schaden": 1.3
+      },
       "volleHeilung": true,
-      "patches": [ { "pfad": "faehigkeiten.sprint.anzahl", "op": "set", "wert": 2 } ]
+      "patches": [
+        {
+          "pfad": "faehigkeiten.sprint.anzahl",
+          "op": "set",
+          "wert": 2
+        }
+      ]
     }
   },
   {
@@ -119,23 +222,48 @@
     "rolle": "Magie-Fläche",
     "rollenSymbol": "staff",
     "ki": "abstand",
-    "beschreibung": "Wirft Feuerkugeln, die Brandflächen hinterlassen.",
+    "beschreibung": "Wirft Feuerkugeln mit Flächenschaden.",
     "farbe": "#e0602a",
     "sprite": "glutweberin",
-    "werte": { "leben": 70, "schaden": 12, "angriffsTempo": 0.7, "reichweite": 300, "lauftempo": 80, "schadensTyp": "magic" },
+    "werte": {
+      "leben": 70,
+      "schaden": 12,
+      "angriffsTempo": 0.7,
+      "reichweite": 300,
+      "lauftempo": 80,
+      "schadensTyp": "magic"
+    },
     "trifftLuft": true,
-    "angriff": { "art": "geschoss", "geschossTempo": 500, "flaeche": { "radius": 60, "dauer": 3, "schadenProSekunde": 6 } },
+    "angriff": {
+      "art": "geschoss",
+      "geschossTempo": 500,
+      "explosion": {
+        "radius": 60
+      }
+    },
     "faehigkeiten": {},
     "entwicklung": {
-      "bedingung": { "typ": "kills", "anzahl": 6 },
+      "bedingung": {
+        "typ": "kills",
+        "anzahl": 6
+      },
       "name": "Flammenweberin",
-      "text": "Nach 6 Kills: Brandflächen bleiben doppelt so lange.",
+      "text": "Nach 6 Kills: Feuerkugeln hinterlassen Brandflächen.",
       "werteMul": {},
       "volleHeilung": true,
-      "patches": [ { "pfad": "angriff.flaeche.dauer", "op": "mul", "wert": 2 } ]
+      "patches": [
+        {
+          "pfad": "angriff.flaeche",
+          "op": "set",
+          "wert": {
+            "radius": 60,
+            "dauer": 3,
+            "schadenProSekunde": 6
+          }
+        }
+      ]
     }
   },
-
   {
     "id": "bannertraeger",
     "name": "Bannerträger",
@@ -146,10 +274,25 @@
     "beschreibung": "Seine Angriffe feuern nahe Verbündete an (+Angriffstempo).",
     "farbe": "#c0392b",
     "sprite": "bannertraeger",
-    "werte": { "leben": 120, "schaden": 6, "angriffsTempo": 1.0, "reichweite": 60, "lauftempo": 80, "schadensTyp": "physical" },
+    "werte": {
+      "leben": 120,
+      "schaden": 6,
+      "angriffsTempo": 1.0,
+      "reichweite": 60,
+      "lauftempo": 80,
+      "schadensTyp": "physical"
+    },
     "trifftLuft": false,
-    "angriff": { "art": "nahkampf" },
-    "faehigkeiten": { "anfeuern": { "radius": 180, "tempoBonus": 0.25, "dauer": 3 } }
+    "angriff": {
+      "art": "nahkampf"
+    },
+    "faehigkeiten": {
+      "anfeuern": {
+        "radius": 180,
+        "tempoBonus": 0.25,
+        "dauer": 3
+      }
+    }
   },
   {
     "id": "moorhexer",
@@ -161,9 +304,27 @@
     "beschreibung": "Wirft Seuchenbomben – infizierte Gegner explodieren beim Tod.",
     "farbe": "#6b8a3a",
     "sprite": "moorhexer",
-    "werte": { "leben": 90, "schaden": 8, "angriffsTempo": 0.6, "reichweite": 280, "lauftempo": 75, "schadensTyp": "magic" },
+    "werte": {
+      "leben": 90,
+      "schaden": 8,
+      "angriffsTempo": 0.6,
+      "reichweite": 280,
+      "lauftempo": 75,
+      "schadensTyp": "magic"
+    },
     "trifftLuft": true,
-    "angriff": { "art": "geschoss", "geschossTempo": 450, "beiTreffer": [ { "typ": "seuche", "dauer": 6, "explosionSchaden": 25, "explosionRadius": 90 } ] },
+    "angriff": {
+      "art": "geschoss",
+      "geschossTempo": 450,
+      "beiTreffer": [
+        {
+          "typ": "seuche",
+          "dauer": 6,
+          "explosionSchaden": 25,
+          "explosionRadius": 90
+        }
+      ]
+    },
     "faehigkeiten": {}
   },
   {
@@ -176,10 +337,29 @@
     "beschreibung": "Ruft Wirbelstürme, die zufällig über das Feld wandern.",
     "farbe": "#9fb8e8",
     "sprite": "wolkenhirtin",
-    "werte": { "leben": 85, "schaden": 5, "angriffsTempo": 0.8, "reichweite": 260, "lauftempo": 75, "schadensTyp": "magic" },
+    "werte": {
+      "leben": 85,
+      "schaden": 5,
+      "angriffsTempo": 0.8,
+      "reichweite": 260,
+      "lauftempo": 75,
+      "schadensTyp": "magic"
+    },
     "trifftLuft": true,
-    "angriff": { "art": "geschoss", "geschossTempo": 600 },
-    "faehigkeiten": { "wirbelsturm": { "intervall": 7, "dauer": 6, "radius": 70, "schadenProSekunde": 10, "tempo": 90, "rueckstoss": 40 } }
+    "angriff": {
+      "art": "geschoss",
+      "geschossTempo": 600
+    },
+    "faehigkeiten": {
+      "wirbelsturm": {
+        "intervall": 7,
+        "dauer": 6,
+        "radius": 70,
+        "schadenProSekunde": 10,
+        "tempo": 90,
+        "rueckstoss": 40
+      }
+    }
   },
   {
     "id": "glockenmoench",
@@ -191,12 +371,27 @@
     "beschreibung": "Ein Glockenschlag betäubt alle Gegner im großen Umkreis.",
     "farbe": "#d6b656",
     "sprite": "glockenmoench",
-    "werte": { "leben": 160, "schaden": 6, "angriffsTempo": 1.0, "reichweite": 240, "lauftempo": 60, "schadensTyp": "magic" },
+    "werte": {
+      "leben": 160,
+      "schaden": 6,
+      "angriffsTempo": 1.0,
+      "reichweite": 240,
+      "lauftempo": 60,
+      "schadensTyp": "magic"
+    },
     "trifftLuft": true,
-    "angriff": { "art": "geschoss", "geschossTempo": 600 },
-    "faehigkeiten": { "glocke": { "intervall": 8, "radius": 420, "betaeubung": 2 } }
+    "angriff": {
+      "art": "geschoss",
+      "geschossTempo": 600
+    },
+    "faehigkeiten": {
+      "glocke": {
+        "intervall": 8,
+        "radius": 420,
+        "betaeubung": 2
+      }
+    }
   },
-
   {
     "id": "flackerling",
     "name": "Flackerling",
@@ -207,10 +402,29 @@
     "beschreibung": "Springt zwischen Dimensionen – jeder Sprung reißt eine Schadenswelle auf.",
     "farbe": "#2EE6D6",
     "sprite": "flackerling",
-    "werte": { "leben": 140, "schaden": 18, "angriffsTempo": 0.8, "reichweite": 260, "lauftempo": 100, "schadensTyp": "magic" },
+    "werte": {
+      "leben": 140,
+      "schaden": 18,
+      "angriffsTempo": 0.8,
+      "reichweite": 260,
+      "lauftempo": 100,
+      "schadensTyp": "magic"
+    },
     "trifftLuft": true,
-    "angriff": { "art": "geschoss", "geschossTempo": 900 },
-    "faehigkeiten": { "dimensionssprung": { "intervall": 5, "radius": 160, "schadenMul": 2 }, "bonusMuenzen": { "proKill": 2 } }
+    "angriff": {
+      "art": "geschoss",
+      "geschossTempo": 900
+    },
+    "faehigkeiten": {
+      "dimensionssprung": {
+        "intervall": 5,
+        "radius": 160,
+        "schadenMul": 2
+      },
+      "bonusMuenzen": {
+        "proKill": 2
+      }
+    }
   },
   {
     "id": "spiegelsplitter",
@@ -222,10 +436,27 @@
     "beschreibung": "Ein Wesen aus Bildfehlern, dessen Treffer sich auf nahe Gegner spiegeln.",
     "farbe": "#E62E9A",
     "sprite": "spiegelsplitter",
-    "werte": { "leben": 200, "schaden": 16, "angriffsTempo": 1.2, "reichweite": 50, "lauftempo": 120, "schadensTyp": "physical" },
+    "werte": {
+      "leben": 200,
+      "schaden": 16,
+      "angriffsTempo": 1.2,
+      "reichweite": 50,
+      "lauftempo": 120,
+      "schadensTyp": "physical"
+    },
     "trifftLuft": false,
-    "angriff": { "art": "nahkampf", "spiegelung": { "radius": 140, "anteil": 0.6 } },
-    "faehigkeiten": { "bonusMuenzen": { "proKill": 2 } }
+    "angriff": {
+      "art": "nahkampf",
+      "spiegelung": {
+        "radius": 140,
+        "anteil": 0.6
+      }
+    },
+    "faehigkeiten": {
+      "bonusMuenzen": {
+        "proKill": 2
+      }
+    }
   },
   {
     "id": "leerlaeufer",
@@ -237,12 +468,31 @@
     "beschreibung": "Öffnet Risse im Boden, die Gegner verschlucken und Münzen ausspucken.",
     "farbe": "#7a4aff",
     "sprite": "leerlaeufer",
-    "werte": { "leben": 180, "schaden": 10, "angriffsTempo": 0.6, "reichweite": 280, "lauftempo": 60, "schadensTyp": "magic" },
+    "werte": {
+      "leben": 180,
+      "schaden": 10,
+      "angriffsTempo": 0.6,
+      "reichweite": 280,
+      "lauftempo": 60,
+      "schadensTyp": "magic"
+    },
     "trifftLuft": true,
-    "angriff": { "art": "geschoss", "geschossTempo": 600 },
-    "faehigkeiten": { "riss": { "intervall": 9, "radius": 120, "dauer": 4, "schadenProSekunde": 25 }, "bonusMuenzen": { "proKill": 3 } }
+    "angriff": {
+      "art": "geschoss",
+      "geschossTempo": 600
+    },
+    "faehigkeiten": {
+      "riss": {
+        "intervall": 9,
+        "radius": 120,
+        "dauer": 4,
+        "schadenProSekunde": 25
+      },
+      "bonusMuenzen": {
+        "proKill": 3
+      }
+    }
   },
-
   {
     "id": "rostgolem",
     "name": "Rostgolem",
@@ -254,9 +504,18 @@
     "beschreibung": "Zerfallener Kettenschwinger, kämpft 10 Sekunden weiter.",
     "farbe": "#8a5a3a",
     "sprite": "rostgolem",
-    "werte": { "leben": 120, "schaden": 12, "angriffsTempo": 0.7, "reichweite": 50, "lauftempo": 50, "schadensTyp": "physical" },
+    "werte": {
+      "leben": 120,
+      "schaden": 12,
+      "angriffsTempo": 0.7,
+      "reichweite": 50,
+      "lauftempo": 50,
+      "schadensTyp": "physical"
+    },
     "trifftLuft": false,
-    "angriff": { "art": "nahkampf" },
+    "angriff": {
+      "art": "nahkampf"
+    },
     "faehigkeiten": {}
   },
   {
@@ -270,9 +529,44 @@
     "beschreibung": "Ein freundlicher Knochenkrieger, der den Turm verteidigt.",
     "farbe": "#e8e2d0",
     "sprite": "skelettkrieger",
-    "werte": { "leben": 80, "schaden": 9, "angriffsTempo": 1.0, "reichweite": 45, "lauftempo": 80, "schadensTyp": "physical" },
+    "werte": {
+      "leben": 80,
+      "schaden": 9,
+      "angriffsTempo": 1.0,
+      "reichweite": 45,
+      "lauftempo": 80,
+      "schadensTyp": "physical"
+    },
     "trifftLuft": false,
-    "angriff": { "art": "nahkampf" },
+    "angriff": {
+      "art": "nahkampf"
+    },
+    "faehigkeiten": {}
+  },
+  {
+    "id": "geisterkrieger",
+    "name": "Geisterkrieger",
+    "rarity": "common",
+    "rolle": "Beschwörung",
+    "rollenSymbol": "sword",
+    "ki": "angreifen",
+    "nurBeschworen": true,
+    "geist": true,
+    "beschreibung": "Die zurückgekehrte Seele eines gefallenen Helden. Halbtransparent, kämpft eine Weile mit.",
+    "farbe": "#a6e3ff",
+    "sprite": "geisterkrieger",
+    "werte": {
+      "leben": 90,
+      "schaden": 12,
+      "angriffsTempo": 1.0,
+      "reichweite": 45,
+      "lauftempo": 110,
+      "schadensTyp": "magic"
+    },
+    "trifftLuft": false,
+    "angriff": {
+      "art": "nahkampf"
+    },
     "faehigkeiten": {}
   }
 ]

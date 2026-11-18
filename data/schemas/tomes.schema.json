@@ -45,8 +45,27 @@
               "hagel",
               "beschwoeren",
               "verstaerken",
-              "einfrieren"
+              "einfrieren",
+              "geisterFreisetzen",
+              "riesenwuchs"
             ]
+          }
+        }
+      },
+      "liegendEffekt": {
+        "type": "object",
+        "required": [
+          "typ"
+        ],
+        "description": "Wirkt, solange das Buch ungeöffnet liegt",
+        "properties": {
+          "typ": {
+            "enum": [
+              "seelenSammeln"
+            ]
+          },
+          "maxSeelen": {
+            "type": "integer"
           }
         }
       }

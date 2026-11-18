@@ -38,7 +38,9 @@
               "tomesGenutzt",
               "entwicklungen",
               "laengsterRun",
-              "grenzgaengerGezogen"
+              "grenzgaengerGezogen",
+              "killsGegner",
+              "runs"
             ]
           },
           "filter": {
@@ -52,7 +54,7 @@
       "belohnung": {
         "type": "object",
         "properties": {
-          "grundEinkommen": {
+          "tagesEinkommen": {
             "type": "number"
           },
           "kristalle": {
@@ -60,6 +62,9 @@
           },
           "reliktpack": {
             "type": "integer"
+          },
+          "freischaltung": {
+            "type": "string"
           }
         }
       }

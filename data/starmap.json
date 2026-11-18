@@ -1,5 +1,5 @@
 {
- "$kommentar": "Sternenkarte (Skill-Tree). Kosten pro Stufe = basisKosten × kostenFaktor^Stufe (Mastery-Punkte) + kristallKosten. Kaufbar, wenn ein verbundener Nachbar Stufe ≥ 1 hat. Sichtbar: gekaufte Knoten und direkte Nachbarn. Effekt-Ziele siehe docs/DATENFORMATE.md.",
+ "$kommentar": "Sternenkarte (Skill-Tree). Kosten pro Stufe = basisKosten × kostenFaktor^Stufe in 'waehrung' (mastery oder foilstaub) + kristallKosten. Kaufbar, wenn ein verbundener Nachbar Stufe ≥ 1 hat. Sichtbar: gekaufte Knoten und direkte Nachbarn. Knoten mit akt 2 erscheinen erst nach dem Tor. Effekt-Ziele siehe docs/DATENFORMATE.md.",
  "groesse": {
   "breite": 4800,
   "hoehe": 4800
@@ -42,6 +42,11 @@
    "farbe": "#3ED6C4"
   },
   {
+   "id": "foil",
+   "name": "Foil",
+   "farbe": "#FF7AC8"
+  },
+  {
    "id": "start",
    "name": "Ursprung",
    "farbe": "#F4EBD9"
@@ -54,6 +59,7 @@
    "beschreibung": "Der Ursprung deiner Macht. Von hier wächst die Sternenkarte.",
    "typ": "start",
    "ast": "start",
+   "akt": 1,
    "position": {
     "x": 2400,
     "y": 2400
@@ -65,11 +71,13 @@
     "b_taverne",
     "t_leben",
     "to_wirkung",
-    "e_kampf"
+    "e_kampf",
+    "f_chance"
    ],
    "maxStufe": 1,
    "basisKosten": 0,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "keiner"
@@ -82,6 +90,7 @@
    "beschreibung": "+1 Schaden des Runenkreises.",
    "typ": "klein",
    "ast": "cursor",
+   "akt": 1,
    "position": {
     "x": 2400,
     "y": 2140
@@ -93,6 +102,7 @@
    "maxStufe": 10,
    "basisKosten": 2,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "cursorSchaden",
@@ -107,6 +117,7 @@
    "beschreibung": "+8 % Radius des Runenkreises.",
    "typ": "klein",
    "ast": "cursor",
+   "akt": 1,
    "position": {
     "x": 2400,
     "y": 1930
@@ -119,6 +130,7 @@
    "maxStufe": 8,
    "basisKosten": 3,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "cursorRadiusMul",
@@ -133,6 +145,7 @@
    "beschreibung": "−4 % Abstand zwischen Runen-Ticks.",
    "typ": "klein",
    "ast": "cursor",
+   "akt": 1,
    "position": {
     "x": 2312,
     "y": 1726
@@ -144,6 +157,7 @@
    "maxStufe": 8,
    "basisKosten": 3,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "cursorTickMul",
@@ -158,6 +172,7 @@
    "beschreibung": "+25 % Runen-Schaden gegen Packs.",
    "typ": "klein",
    "ast": "cursor",
+   "akt": 1,
    "position": {
     "x": 2488,
     "y": 1726
@@ -169,6 +184,7 @@
    "maxStufe": 8,
    "basisKosten": 2,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "cursorPackSchadenMul",
@@ -183,6 +199,7 @@
    "beschreibung": "+3 % kritische Chance (Krit = doppelter Schaden).",
    "typ": "klein",
    "ast": "cursor",
+   "akt": 1,
    "position": {
     "x": 2311,
     "y": 1514
@@ -194,6 +211,7 @@
    "maxStufe": 5,
    "basisKosten": 4,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "cursorKrit",
@@ -208,16 +226,19 @@
    "beschreibung": "Runen-Treffer setzen Gegner in Brand.",
    "typ": "schluessel",
    "ast": "cursor",
+   "akt": 1,
    "position": {
     "x": 2181,
     "y": 1322
    },
    "verbindungen": [
-    "c_krit"
+    "c_krit",
+    "a2_cursor"
    ],
    "maxStufe": 1,
    "basisKosten": 25,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 5,
    "effekt": {
     "ziel": "flag",
@@ -231,6 +252,7 @@
    "beschreibung": "Ein zweiter, kleinerer Kreis umkreist den Cursor und macht 40 % Schaden.",
    "typ": "schluessel",
    "ast": "cursor",
+   "akt": 1,
    "position": {
     "x": 2601,
     "y": 1502
@@ -241,6 +263,7 @@
    "maxStufe": 1,
    "basisKosten": 35,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 8,
    "effekt": {
     "ziel": "flag",
@@ -250,10 +273,11 @@
   },
   {
    "id": "w_einkommen",
-   "name": "Grundeinkommen",
-   "beschreibung": "+5 Münzen Grundeinkommen nach jedem Run.",
+   "name": "Tageseinkommen",
+   "beschreibung": "+5 Münzen Tageseinkommen pro Run.",
    "typ": "klein",
    "ast": "wirtschaft",
+   "akt": 1,
    "position": {
     "x": 2602,
     "y": 2236
@@ -265,9 +289,10 @@
    "maxStufe": 10,
    "basisKosten": 2,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
-    "ziel": "grundEinkommen",
+    "ziel": "tagesEinkommen",
     "wert": 5,
     "rechenart": "addieren"
    },
@@ -279,6 +304,7 @@
    "beschreibung": "+5 % Münzen pro besiegtem Monster.",
    "typ": "klein",
    "ast": "wirtschaft",
+   "akt": 1,
    "position": {
     "x": 2765,
     "y": 2104
@@ -291,6 +317,7 @@
    "maxStufe": 10,
    "basisKosten": 3,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "muenzenMul",
@@ -305,6 +332,7 @@
    "beschreibung": "Schaltet den Knopf „Neu würfeln“ im Shop frei.",
    "typ": "freischalt",
    "ast": "wirtschaft",
+   "akt": 1,
    "position": {
     "x": 2869,
     "y": 1907
@@ -316,6 +344,7 @@
    "maxStufe": 1,
    "basisKosten": 8,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "flag",
@@ -329,17 +358,20 @@
    "beschreibung": "Ein weiterer Platz im Shop.",
    "typ": "freischalt",
    "ast": "wirtschaft",
+   "akt": 1,
    "position": {
     "x": 2979,
     "y": 2044
    },
    "verbindungen": [
     "w_kill",
-    "w_platz5"
+    "w_platz5",
+    "w_jackpot"
    ],
    "maxStufe": 1,
    "basisKosten": 12,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "shopPlaetze",
@@ -354,6 +386,7 @@
    "beschreibung": "Ein weiterer Platz im Shop.",
    "typ": "freischalt",
    "ast": "wirtschaft",
+   "akt": 1,
    "position": {
     "x": 3158,
     "y": 1934
@@ -365,6 +398,7 @@
    "maxStufe": 1,
    "basisKosten": 25,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "shopPlaetze",
@@ -379,16 +413,19 @@
    "beschreibung": "Ein weiterer Platz im Shop.",
    "typ": "freischalt",
    "ast": "wirtschaft",
+   "akt": 1,
    "position": {
     "x": 3337,
     "y": 1824
    },
    "verbindungen": [
-    "w_platz5"
+    "w_platz5",
+    "a2_einkommen"
    ],
    "maxStufe": 1,
    "basisKosten": 45,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "shopPlaetze",
@@ -403,6 +440,7 @@
    "beschreibung": "+10 % Mastery-Punkte am Ende jedes Runs.",
    "typ": "gross",
    "ast": "wirtschaft",
+   "akt": 1,
    "position": {
     "x": 3013,
     "y": 1755
@@ -413,6 +451,7 @@
    "maxStufe": 3,
    "basisKosten": 15,
    "kostenFaktor": 1.8,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "masteryMul",
@@ -427,6 +466,7 @@
    "beschreibung": "−5 % Widerstand aller Packs.",
    "typ": "klein",
    "ast": "packs",
+   "akt": 1,
    "position": {
     "x": 2653,
     "y": 2458
@@ -439,6 +479,7 @@
    "maxStufe": 8,
    "basisKosten": 2,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "packWiderstandMul",
@@ -453,17 +494,20 @@
    "beschreibung": "+0,5 Prozentpunkte Foil-Chance.",
    "typ": "klein",
    "ast": "packs",
+   "akt": 1,
    "position": {
     "x": 2867,
     "y": 2450
    },
    "verbindungen": [
     "p_widerstand",
-    "p_aufplatzen"
+    "p_aufplatzen",
+    "p_grenz"
    ],
    "maxStufe": 6,
    "basisKosten": 4,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "foilChance",
@@ -478,6 +522,7 @@
    "beschreibung": "+1 Karte pro Pack.",
    "typ": "gross",
    "ast": "packs",
+   "akt": 1,
    "position": {
     "x": 2842,
     "y": 2560
@@ -489,6 +534,7 @@
    "maxStufe": 2,
    "basisKosten": 20,
    "kostenFaktor": 2.5,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "kartenProPack",
@@ -503,6 +549,7 @@
    "beschreibung": "+10 % Chance, dass ein Silberpack zusätzlich ein Holzpack fallen lässt.",
    "typ": "gross",
    "ast": "packs",
+   "akt": 1,
    "position": {
     "x": 3049,
     "y": 2635
@@ -513,6 +560,7 @@
    "maxStufe": 3,
    "basisKosten": 15,
    "kostenFaktor": 1.8,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "packImPack",
@@ -527,6 +575,7 @@
    "beschreibung": "Beim Öffnen eines Packs entsteht eine Schockwelle.",
    "typ": "schluessel",
    "ast": "packs",
+   "akt": 1,
    "position": {
     "x": 3097,
     "y": 2461
@@ -537,6 +586,7 @@
    "maxStufe": 1,
    "basisKosten": 30,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 6,
    "effekt": {
     "ziel": "flag",
@@ -550,6 +600,7 @@
    "beschreibung": "Die Taverne steht am Arenarand und wirft regelmäßig Packs aufs Feld.",
    "typ": "freischalt",
    "ast": "gebaeude",
+   "akt": 1,
    "position": {
     "x": 2514,
     "y": 2634
@@ -562,6 +613,7 @@
    "maxStufe": 1,
    "basisKosten": 10,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 3,
    "effekt": {
     "ziel": "gebaeude",
@@ -577,6 +629,7 @@
    "beschreibung": "Kürzere Intervalle, später Chance auf Kisten.",
    "typ": "gross",
    "ast": "gebaeude",
+   "akt": 1,
    "position": {
     "x": 2519,
     "y": 2824
@@ -587,6 +640,7 @@
    "maxStufe": 3,
    "basisKosten": 13,
    "kostenFaktor": 1.8,
+   "waehrung": "mastery",
    "kristallKosten": 2,
    "effekt": {
     "ziel": "gebaeude",
@@ -602,6 +656,7 @@
    "beschreibung": "Die Kaserne steht am Arenarand und wirft regelmäßig Packs aufs Feld.",
    "typ": "freischalt",
    "ast": "gebaeude",
+   "akt": 1,
    "position": {
     "x": 2606,
     "y": 2822
@@ -614,6 +669,7 @@
    "maxStufe": 1,
    "basisKosten": 30,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 8,
    "effekt": {
     "ziel": "gebaeude",
@@ -629,6 +685,7 @@
    "beschreibung": "Kürzere Intervalle, später Chance auf Kisten.",
    "typ": "gross",
    "ast": "gebaeude",
+   "akt": 1,
    "position": {
     "x": 2576,
     "y": 3026
@@ -639,6 +696,7 @@
    "maxStufe": 3,
    "basisKosten": 23,
    "kostenFaktor": 1.8,
+   "waehrung": "mastery",
    "kristallKosten": 5,
    "effekt": {
     "ziel": "gebaeude",
@@ -654,6 +712,7 @@
    "beschreibung": "Die Sternwarte steht am Arenarand und wirft regelmäßig Packs aufs Feld.",
    "typ": "freischalt",
    "ast": "gebaeude",
+   "akt": 1,
    "position": {
     "x": 2610,
     "y": 3047
@@ -665,6 +724,7 @@
    "maxStufe": 1,
    "basisKosten": 60,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 15,
    "effekt": {
     "ziel": "gebaeude",
@@ -680,6 +740,7 @@
    "beschreibung": "Kürzere Intervalle, später Chance auf Kisten.",
    "typ": "gross",
    "ast": "gebaeude",
+   "akt": 1,
    "position": {
     "x": 2515,
     "y": 3252
@@ -690,6 +751,7 @@
    "maxStufe": 2,
    "basisKosten": 38,
    "kostenFaktor": 1.8,
+   "waehrung": "mastery",
    "kristallKosten": 8,
    "effekt": {
     "ziel": "gebaeude",
@@ -705,6 +767,7 @@
    "beschreibung": "+8 % Turm-Leben.",
    "typ": "klein",
    "ast": "turm",
+   "akt": 1,
    "position": {
     "x": 2147,
     "y": 2458
@@ -717,6 +780,7 @@
    "maxStufe": 10,
    "basisKosten": 2,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "turmLebenMul",
@@ -731,6 +795,7 @@
    "beschreibung": "Turm regeneriert 0,5 % Leben pro Sekunde.",
    "typ": "klein",
    "ast": "turm",
+   "akt": 1,
    "position": {
     "x": 1958,
     "y": 2560
@@ -742,6 +807,7 @@
    "maxStufe": 5,
    "basisKosten": 3,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "turmRegen",
@@ -756,6 +822,7 @@
    "beschreibung": "Der Turm schießt selbst. Jede Stufe: mehr Schaden und Tempo.",
    "typ": "gross",
    "ast": "turm",
+   "akt": 1,
    "position": {
     "x": 1933,
     "y": 2450
@@ -767,6 +834,7 @@
    "maxStufe": 3,
    "basisKosten": 8,
    "kostenFaktor": 1.8,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "turmSchuetze",
@@ -781,6 +849,7 @@
    "beschreibung": "Monster, die den Turm angreifen, erleiden 2 Schaden pro Stufe.",
    "typ": "klein",
    "ast": "turm",
+   "akt": 1,
    "position": {
     "x": 1751,
     "y": 2635
@@ -791,6 +860,7 @@
    "maxStufe": 5,
    "basisKosten": 3,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "turmDornen",
@@ -805,16 +875,19 @@
    "beschreibung": "Alle 6 Sekunden schlägt ein Blitz in einen Gegner nahe dem Turm ein.",
    "typ": "schluessel",
    "ast": "turm",
+   "akt": 1,
    "position": {
     "x": 1703,
     "y": 2461
    },
    "verbindungen": [
-    "t_schuetze"
+    "t_schuetze",
+    "a2_turm"
    ],
    "maxStufe": 1,
    "basisKosten": 30,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 6,
    "effekt": {
     "ziel": "flag",
@@ -828,17 +901,20 @@
    "beschreibung": "+10 % Wirkung aller Tomes.",
    "typ": "klein",
    "ast": "tomes",
+   "akt": 1,
    "position": {
     "x": 2198,
     "y": 2236
    },
    "verbindungen": [
     "start",
-    "to_doppelt"
+    "to_doppelt",
+    "to_dauer"
    ],
    "maxStufe": 8,
    "basisKosten": 3,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "tomeWirkungMul",
@@ -853,6 +929,7 @@
    "beschreibung": "+5 % Chance, dass ein Tome doppelt ausgelöst wird.",
    "typ": "klein",
    "ast": "tomes",
+   "akt": 1,
    "position": {
     "x": 2035,
     "y": 2104
@@ -864,6 +941,7 @@
    "maxStufe": 5,
    "basisKosten": 4,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "tomeDoppeltChance",
@@ -878,6 +956,7 @@
    "beschreibung": "Tomes erscheinen mit 15 % Chance zweimal.",
    "typ": "gross",
    "ast": "tomes",
+   "akt": 1,
    "position": {
     "x": 1872,
     "y": 1972
@@ -888,6 +967,7 @@
    "maxStufe": 1,
    "basisKosten": 20,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "tomeZweimalChance",
@@ -902,6 +982,7 @@
    "beschreibung": "+4 % Schaden aller Helden.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 2286,
     "y": 2634
@@ -914,6 +995,7 @@
    "maxStufe": 10,
    "basisKosten": 2,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "heldenSchadenMul",
@@ -928,6 +1010,7 @@
    "beschreibung": "+5 % Leben aller Helden.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 2258,
     "y": 2838
@@ -943,6 +1026,7 @@
    "maxStufe": 10,
    "basisKosten": 2,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "heldenLebenMul",
@@ -957,6 +1041,7 @@
    "beschreibung": "+3 % Angriffstempo aller Helden.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 2143,
     "y": 2781
@@ -972,6 +1057,7 @@
    "maxStufe": 8,
    "basisKosten": 3,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "heldenTempoMul",
@@ -983,9 +1069,10 @@
   {
    "id": "u_stalljunge_1",
    "name": "Stalljunge: Frühreif",
-   "beschreibung": "Entwickelt sich schon nach 2 Kills.",
+   "beschreibung": "Entwickelt sich schon nach 1 Kill.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 2469,
     "y": 3117
@@ -997,6 +1084,7 @@
    "maxStufe": 1,
    "basisKosten": 3,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1005,14 +1093,14 @@
      {
       "pfad": "entwicklung.bedingung.anzahl",
       "op": "set",
-      "wert": 2
+      "wert": 1
      }
     ]
    },
-   "symbol": "card:stalljunge",
    "voraussetzung": {
     "karte": "stalljunge"
-   }
+   },
+   "symbol": "card:stalljunge"
   },
   {
    "id": "u_stalljunge_2",
@@ -1020,6 +1108,7 @@
    "beschreibung": "+15 % Leben.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 2487,
     "y": 3306
@@ -1031,6 +1120,7 @@
    "maxStufe": 5,
    "basisKosten": 5,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1043,10 +1133,10 @@
      }
     ]
    },
-   "symbol": "card:stalljunge",
    "voraussetzung": {
     "karte": "stalljunge"
-   }
+   },
+   "symbol": "card:stalljunge"
   },
   {
    "id": "u_stalljunge_3",
@@ -1054,6 +1144,7 @@
    "beschreibung": "+15 % Schaden.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 2506,
     "y": 3495
@@ -1064,6 +1155,7 @@
    "maxStufe": 5,
    "basisKosten": 7,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1076,10 +1168,10 @@
      }
     ]
    },
-   "symbol": "card:stalljunge",
    "voraussetzung": {
     "karte": "stalljunge"
-   }
+   },
+   "symbol": "card:stalljunge"
   },
   {
    "id": "u_kettenschwinger_1",
@@ -1087,6 +1179,7 @@
    "beschreibung": "+10 % Schlagradius.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 2381,
     "y": 3120
@@ -1098,6 +1191,7 @@
    "maxStufe": 5,
    "basisKosten": 4,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1110,10 +1204,10 @@
      }
     ]
    },
-   "symbol": "card:kettenschwinger",
    "voraussetzung": {
     "karte": "kettenschwinger"
-   }
+   },
+   "symbol": "card:kettenschwinger"
   },
   {
    "id": "u_kettenschwinger_2",
@@ -1121,6 +1215,7 @@
    "beschreibung": "Der Rostgolem kämpft 5 s länger.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 2376,
     "y": 3310
@@ -1132,6 +1227,7 @@
    "maxStufe": 1,
    "basisKosten": 6,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1144,10 +1240,10 @@
      }
     ]
    },
-   "symbol": "card:kettenschwinger",
    "voraussetzung": {
     "karte": "kettenschwinger"
-   }
+   },
+   "symbol": "card:kettenschwinger"
   },
   {
    "id": "u_kettenschwinger_3",
@@ -1155,6 +1251,7 @@
    "beschreibung": "+15 % Schaden.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 2371,
     "y": 3500
@@ -1165,6 +1262,7 @@
    "maxStufe": 5,
    "basisKosten": 8,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1177,10 +1275,10 @@
      }
     ]
    },
-   "symbol": "card:kettenschwinger",
    "voraussetzung": {
     "karte": "kettenschwinger"
-   }
+   },
+   "symbol": "card:kettenschwinger"
   },
   {
    "id": "u_schleuderin_1",
@@ -1188,6 +1286,7 @@
    "beschreibung": "+1 Abpraller.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 2294,
     "y": 3112
@@ -1199,6 +1298,7 @@
    "maxStufe": 1,
    "basisKosten": 4,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1211,10 +1311,10 @@
      }
     ]
    },
-   "symbol": "card:schleuderin",
    "voraussetzung": {
     "karte": "schleuderin"
-   }
+   },
+   "symbol": "card:schleuderin"
   },
   {
    "id": "u_schleuderin_2",
@@ -1222,6 +1322,7 @@
    "beschreibung": "+10 % Angriffstempo.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 2266,
     "y": 3300
@@ -1233,6 +1334,7 @@
    "maxStufe": 5,
    "basisKosten": 6,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1245,10 +1347,10 @@
      }
     ]
    },
-   "symbol": "card:schleuderin",
    "voraussetzung": {
     "karte": "schleuderin"
-   }
+   },
+   "symbol": "card:schleuderin"
   },
   {
    "id": "u_schleuderin_3",
@@ -1256,6 +1358,7 @@
    "beschreibung": "+10 % Reichweite.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 2238,
     "y": 3488
@@ -1266,6 +1369,7 @@
    "maxStufe": 3,
    "basisKosten": 8,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1278,17 +1382,18 @@
      }
     ]
    },
-   "symbol": "card:schleuderin",
    "voraussetzung": {
     "karte": "schleuderin"
-   }
+   },
+   "symbol": "card:schleuderin"
   },
   {
    "id": "u_torwaechterin_1",
    "name": "Torwächterin: Schildwall",
-   "beschreibung": "Blockt jeden 2. statt jeden 3. Angriff.",
+   "beschreibung": "+10 Prozentpunkte Block-Chance.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 2208,
     "y": 3094
@@ -1297,25 +1402,26 @@
     "e_leben",
     "u_torwaechterin_2"
    ],
-   "maxStufe": 1,
+   "maxStufe": 3,
    "basisKosten": 4,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
     "karte": "torwaechterin",
     "patches": [
      {
-      "pfad": "faehigkeiten.blocken.jederNte",
-      "op": "set",
-      "wert": 2
+      "pfad": "faehigkeiten.blocken.chance",
+      "op": "add",
+      "wert": 0.1
      }
     ]
    },
-   "symbol": "card:torwaechterin",
    "voraussetzung": {
     "karte": "torwaechterin"
-   }
+   },
+   "symbol": "card:torwaechterin"
   },
   {
    "id": "u_torwaechterin_2",
@@ -1323,6 +1429,7 @@
    "beschreibung": "+15 % Leben.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 2157,
     "y": 3277
@@ -1334,6 +1441,7 @@
    "maxStufe": 5,
    "basisKosten": 6,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1346,17 +1454,18 @@
      }
     ]
    },
-   "symbol": "card:torwaechterin",
    "voraussetzung": {
     "karte": "torwaechterin"
-   }
+   },
+   "symbol": "card:torwaechterin"
   },
   {
    "id": "u_torwaechterin_3",
-   "name": "Torwächterin: Erfahrung",
-   "beschreibung": "Entwickelt sich schon nach 6 Blocks.",
+   "name": "Torwächterin: Blitzblock",
+   "beschreibung": "Blocks lösen Blitze aus, die den Angreifer treffen.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 2106,
     "y": 3460
@@ -1367,29 +1476,31 @@
    "maxStufe": 1,
    "basisKosten": 8,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
     "karte": "torwaechterin",
     "patches": [
      {
-      "pfad": "entwicklung.bedingung.anzahl",
+      "pfad": "faehigkeiten.blocken.blitz",
       "op": "set",
-      "wert": 6
+      "wert": 25
      }
     ]
    },
-   "symbol": "card:torwaechterin",
    "voraussetzung": {
     "karte": "torwaechterin"
-   }
+   },
+   "symbol": "card:torwaechterin"
   },
   {
    "id": "u_windlaeufer_1",
    "name": "Windläufer: Rückenwind",
-   "beschreibung": "Sprintet 15 % häufiger.",
+   "beschreibung": "+15 % Sprintlänge.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 2124,
     "y": 3065
@@ -1401,22 +1512,23 @@
    "maxStufe": 3,
    "basisKosten": 6,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
     "karte": "windlaeufer",
     "patches": [
      {
-      "pfad": "faehigkeiten.sprint.intervall",
+      "pfad": "faehigkeiten.sprint.laenge",
       "op": "mul",
-      "wert": 0.85
+      "wert": 1.15
      }
     ]
    },
-   "symbol": "card:windlaeufer",
    "voraussetzung": {
     "karte": "windlaeufer"
-   }
+   },
+   "symbol": "card:windlaeufer"
   },
   {
    "id": "u_windlaeufer_2",
@@ -1424,6 +1536,7 @@
    "beschreibung": "+25 % Rückstoß beim Sprint.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 2052,
     "y": 3241
@@ -1435,6 +1548,7 @@
    "maxStufe": 3,
    "basisKosten": 8,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1447,10 +1561,10 @@
      }
     ]
    },
-   "symbol": "card:windlaeufer",
    "voraussetzung": {
     "karte": "windlaeufer"
-   }
+   },
+   "symbol": "card:windlaeufer"
   },
   {
    "id": "u_windlaeufer_3",
@@ -1458,6 +1572,7 @@
    "beschreibung": "+15 % Schaden.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 1979,
     "y": 3416
@@ -1468,6 +1583,7 @@
    "maxStufe": 5,
    "basisKosten": 10,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1480,17 +1596,18 @@
      }
     ]
    },
-   "symbol": "card:windlaeufer",
    "voraussetzung": {
     "karte": "windlaeufer"
-   }
+   },
+   "symbol": "card:windlaeufer"
   },
   {
    "id": "u_glutweberin_1",
    "name": "Glutweberin: Große Glut",
-   "beschreibung": "+15 % Brandflächen-Radius.",
+   "beschreibung": "+15 % Explosionsradius.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 2045,
     "y": 3027
@@ -1502,29 +1619,31 @@
    "maxStufe": 3,
    "basisKosten": 6,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
     "karte": "glutweberin",
     "patches": [
      {
-      "pfad": "angriff.flaeche.radius",
+      "pfad": "angriff.explosion.radius",
       "op": "mul",
       "wert": 1.15
      }
     ]
    },
-   "symbol": "card:glutweberin",
    "voraussetzung": {
     "karte": "glutweberin"
-   }
+   },
+   "symbol": "card:glutweberin"
   },
   {
    "id": "u_glutweberin_2",
-   "name": "Glutweberin: Heiße Asche",
-   "beschreibung": "+20 % Brandschaden.",
+   "name": "Glutweberin: Glutkern",
+   "beschreibung": "+15 % Schaden.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 1952,
     "y": 3192
@@ -1536,22 +1655,23 @@
    "maxStufe": 5,
    "basisKosten": 8,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
     "karte": "glutweberin",
     "patches": [
      {
-      "pfad": "angriff.flaeche.schadenProSekunde",
+      "pfad": "werte.schaden",
       "op": "mul",
-      "wert": 1.2
+      "wert": 1.15
      }
     ]
    },
-   "symbol": "card:glutweberin",
    "voraussetzung": {
     "karte": "glutweberin"
-   }
+   },
+   "symbol": "card:glutweberin"
   },
   {
    "id": "u_glutweberin_3",
@@ -1559,6 +1679,7 @@
    "beschreibung": "+10 % Angriffstempo.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 1858,
     "y": 3357
@@ -1569,6 +1690,7 @@
    "maxStufe": 5,
    "basisKosten": 10,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1581,10 +1703,10 @@
      }
     ]
    },
-   "symbol": "card:glutweberin",
    "voraussetzung": {
     "karte": "glutweberin"
-   }
+   },
+   "symbol": "card:glutweberin"
   },
   {
    "id": "u_bannertraeger_1",
@@ -1592,6 +1714,7 @@
    "beschreibung": "+20 % Anfeuer-Radius.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 1972,
     "y": 2979
@@ -1603,6 +1726,7 @@
    "maxStufe": 3,
    "basisKosten": 6,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1615,10 +1739,10 @@
      }
     ]
    },
-   "symbol": "card:bannertraeger",
    "voraussetzung": {
     "karte": "bannertraeger"
-   }
+   },
+   "symbol": "card:bannertraeger"
   },
   {
    "id": "u_bannertraeger_2",
@@ -1626,6 +1750,7 @@
    "beschreibung": "+10 % zusätzliches Tempo beim Anfeuern.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 1859,
     "y": 3131
@@ -1637,6 +1762,7 @@
    "maxStufe": 3,
    "basisKosten": 8,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1649,10 +1775,10 @@
      }
     ]
    },
-   "symbol": "card:bannertraeger",
    "voraussetzung": {
     "karte": "bannertraeger"
-   }
+   },
+   "symbol": "card:bannertraeger"
   },
   {
    "id": "u_bannertraeger_3",
@@ -1660,6 +1786,7 @@
    "beschreibung": "+20 % Leben.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 1746,
     "y": 3284
@@ -1670,6 +1797,7 @@
    "maxStufe": 5,
    "basisKosten": 10,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1682,10 +1810,10 @@
      }
     ]
    },
-   "symbol": "card:bannertraeger",
    "voraussetzung": {
     "karte": "bannertraeger"
-   }
+   },
+   "symbol": "card:bannertraeger"
   },
   {
    "id": "u_moorhexer_1",
@@ -1693,6 +1821,7 @@
    "beschreibung": "+25 % Explosionsschaden.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 1904,
     "y": 2922
@@ -1704,6 +1833,7 @@
    "maxStufe": 5,
    "basisKosten": 8,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1716,10 +1846,10 @@
      }
     ]
    },
-   "symbol": "card:moorhexer",
    "voraussetzung": {
     "karte": "moorhexer"
-   }
+   },
+   "symbol": "card:moorhexer"
   },
   {
    "id": "u_moorhexer_2",
@@ -1727,6 +1857,7 @@
    "beschreibung": "+15 % Explosionsradius.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 1774,
     "y": 3060
@@ -1738,6 +1869,7 @@
    "maxStufe": 3,
    "basisKosten": 10,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1750,10 +1882,10 @@
      }
     ]
    },
-   "symbol": "card:moorhexer",
    "voraussetzung": {
     "karte": "moorhexer"
-   }
+   },
+   "symbol": "card:moorhexer"
   },
   {
    "id": "u_moorhexer_3",
@@ -1761,6 +1893,7 @@
    "beschreibung": "+10 % Angriffstempo.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 1643,
     "y": 3198
@@ -1771,6 +1904,7 @@
    "maxStufe": 5,
    "basisKosten": 12,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1783,10 +1917,10 @@
      }
     ]
    },
-   "symbol": "card:moorhexer",
    "voraussetzung": {
     "karte": "moorhexer"
-   }
+   },
+   "symbol": "card:moorhexer"
   },
   {
    "id": "u_wolkenhirtin_1",
@@ -1794,6 +1928,7 @@
    "beschreibung": "Wirbelstürme 15 % häufiger.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 1844,
     "y": 2858
@@ -1805,6 +1940,7 @@
    "maxStufe": 3,
    "basisKosten": 8,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1817,10 +1953,10 @@
      }
     ]
    },
-   "symbol": "card:wolkenhirtin",
    "voraussetzung": {
     "karte": "wolkenhirtin"
-   }
+   },
+   "symbol": "card:wolkenhirtin"
   },
   {
    "id": "u_wolkenhirtin_2",
@@ -1828,6 +1964,7 @@
    "beschreibung": "+15 % Wirbelsturm-Radius.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 1698,
     "y": 2979
@@ -1839,6 +1976,7 @@
    "maxStufe": 3,
    "basisKosten": 10,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1851,10 +1989,10 @@
      }
     ]
    },
-   "symbol": "card:wolkenhirtin",
    "voraussetzung": {
     "karte": "wolkenhirtin"
-   }
+   },
+   "symbol": "card:wolkenhirtin"
   },
   {
    "id": "u_wolkenhirtin_3",
@@ -1862,16 +2000,19 @@
    "beschreibung": "Wirbelstürme halten 2 s länger.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 1551,
     "y": 3100
    },
    "verbindungen": [
-    "u_wolkenhirtin_2"
+    "u_wolkenhirtin_2",
+    "a2_helden"
    ],
    "maxStufe": 3,
    "basisKosten": 12,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1884,10 +2025,10 @@
      }
     ]
    },
-   "symbol": "card:wolkenhirtin",
    "voraussetzung": {
     "karte": "wolkenhirtin"
-   }
+   },
+   "symbol": "card:wolkenhirtin"
   },
   {
    "id": "u_glockenmoench_1",
@@ -1895,6 +2036,7 @@
    "beschreibung": "Glocke 10 % häufiger.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 1793,
     "y": 2787
@@ -1906,6 +2048,7 @@
    "maxStufe": 3,
    "basisKosten": 12,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1918,10 +2061,10 @@
      }
     ]
    },
-   "symbol": "card:glockenmoench",
    "voraussetzung": {
     "karte": "glockenmoench"
-   }
+   },
+   "symbol": "card:glockenmoench"
   },
   {
    "id": "u_glockenmoench_2",
@@ -1929,6 +2072,7 @@
    "beschreibung": "+0,5 s Betäubung.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 1632,
     "y": 2889
@@ -1940,6 +2084,7 @@
    "maxStufe": 3,
    "basisKosten": 14,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1952,10 +2097,10 @@
      }
     ]
    },
-   "symbol": "card:glockenmoench",
    "voraussetzung": {
     "karte": "glockenmoench"
-   }
+   },
+   "symbol": "card:glockenmoench"
   },
   {
    "id": "u_glockenmoench_3",
@@ -1963,16 +2108,19 @@
    "beschreibung": "+10 % Glocken-Radius.",
    "typ": "klein",
    "ast": "einheiten",
+   "akt": 1,
    "position": {
     "x": 1472,
     "y": 2991
    },
    "verbindungen": [
-    "u_glockenmoench_2"
+    "u_glockenmoench_2",
+    "a2_helden"
    ],
    "maxStufe": 3,
    "basisKosten": 16,
    "kostenFaktor": 1.45,
+   "waehrung": "mastery",
    "kristallKosten": 0,
    "effekt": {
     "ziel": "einheit",
@@ -1985,10 +2133,301 @@
      }
     ]
    },
-   "symbol": "card:glockenmoench",
    "voraussetzung": {
     "karte": "glockenmoench"
-   }
+   },
+   "symbol": "card:glockenmoench"
+  },
+  {
+   "id": "p_grenz",
+   "name": "Riss im Papier",
+   "beschreibung": "+0,1 Prozentpunkte Grenzgänger-Chance pro Karte.",
+   "typ": "klein",
+   "ast": "packs",
+   "akt": 1,
+   "position": {
+    "x": 3088,
+    "y": 2350
+   },
+   "verbindungen": [
+    "p_foil"
+   ],
+   "maxStufe": 5,
+   "basisKosten": 6,
+   "kostenFaktor": 1.45,
+   "waehrung": "mastery",
+   "kristallKosten": 0,
+   "effekt": {
+    "ziel": "grenzgaengerChance",
+    "wert": 0.001,
+    "rechenart": "addieren"
+   },
+   "symbol": "stun"
+  },
+  {
+   "id": "w_jackpot",
+   "name": "Glückssträhne",
+   "beschreibung": "+1 Prozentpunkt Jackpot-Chance pro Angebotsplatz.",
+   "typ": "klein",
+   "ast": "wirtschaft",
+   "akt": 1,
+   "position": {
+    "x": 3226,
+    "y": 2069
+   },
+   "verbindungen": [
+    "w_platz4"
+   ],
+   "maxStufe": 5,
+   "basisKosten": 6,
+   "kostenFaktor": 1.45,
+   "waehrung": "mastery",
+   "kristallKosten": 0,
+   "effekt": {
+    "ziel": "jackpotChance",
+    "wert": 0.01,
+    "rechenart": "addieren"
+   },
+   "symbol": "coin"
+  },
+  {
+   "id": "to_dauer",
+   "name": "Lange Lektüre",
+   "beschreibung": "+10 % Dauer aller Tome-Effekte.",
+   "typ": "klein",
+   "ast": "tomes",
+   "akt": 1,
+   "position": {
+    "x": 2119,
+    "y": 2023
+   },
+   "verbindungen": [
+    "to_wirkung"
+   ],
+   "maxStufe": 5,
+   "basisKosten": 3,
+   "kostenFaktor": 1.45,
+   "waehrung": "mastery",
+   "kristallKosten": 0,
+   "effekt": {
+    "ziel": "tomeDauerMul",
+    "wert": 0.1,
+    "rechenart": "addieren"
+   },
+   "symbol": "clock"
+  },
+  {
+   "id": "f_chance",
+   "name": "Schimmernde Folie",
+   "beschreibung": "+0,5 Prozentpunkte Foil-Chance.",
+   "typ": "klein",
+   "ast": "foil",
+   "akt": 1,
+   "position": {
+    "x": 2636,
+    "y": 2585
+   },
+   "verbindungen": [
+    "start",
+    "f_staerke",
+    "f_monster"
+   ],
+   "maxStufe": 6,
+   "basisKosten": 1,
+   "kostenFaktor": 1.45,
+   "waehrung": "foilstaub",
+   "kristallKosten": 0,
+   "effekt": {
+    "ziel": "foilChance",
+    "wert": 0.005,
+    "rechenart": "addieren"
+   },
+   "symbol": "stun"
+  },
+  {
+   "id": "f_staerke",
+   "name": "Prismenkraft",
+   "beschreibung": "Foil-Einheiten: +10 % Leben und Schaden.",
+   "typ": "klein",
+   "ast": "foil",
+   "akt": 1,
+   "position": {
+    "x": 2837,
+    "y": 2664
+   },
+   "verbindungen": [
+    "f_chance",
+    "f_prisma"
+   ],
+   "maxStufe": 5,
+   "basisKosten": 2,
+   "kostenFaktor": 1.45,
+   "waehrung": "foilstaub",
+   "kristallKosten": 0,
+   "effekt": {
+    "ziel": "foilStaerkeMul",
+    "wert": 0.1,
+    "rechenart": "addieren"
+   },
+   "symbol": "sword"
+  },
+  {
+   "id": "f_monster",
+   "name": "Glanzjäger",
+   "beschreibung": "+0,5 Prozentpunkte Foil-Monster-Chance.",
+   "typ": "klein",
+   "ast": "foil",
+   "akt": 1,
+   "position": {
+    "x": 2761,
+    "y": 2760
+   },
+   "verbindungen": [
+    "f_chance",
+    "f_prisma"
+   ],
+   "maxStufe": 5,
+   "basisKosten": 2,
+   "kostenFaktor": 1.45,
+   "waehrung": "foilstaub",
+   "kristallKosten": 0,
+   "effekt": {
+    "ziel": "foilMonsterChance",
+    "wert": 0.005,
+    "rechenart": "addieren"
+   },
+   "symbol": "skull"
+  },
+  {
+   "id": "f_prisma",
+   "name": "Prismenglanz",
+   "beschreibung": "Foil-Einheiten geben +2 Münzen pro Kill.",
+   "typ": "schluessel",
+   "ast": "foil",
+   "akt": 1,
+   "position": {
+    "x": 2967,
+    "y": 2843
+   },
+   "verbindungen": [
+    "f_staerke",
+    "f_monster"
+   ],
+   "maxStufe": 1,
+   "basisKosten": 6,
+   "kostenFaktor": 1.45,
+   "waehrung": "foilstaub",
+   "kristallKosten": 4,
+   "effekt": {
+    "ziel": "flag",
+    "flag": "prismenglanz"
+   },
+   "symbol": "coin"
+  },
+  {
+   "id": "a2_cursor",
+   "name": "Meisterrune",
+   "beschreibung": "+3 Schaden des Runenkreises.",
+   "typ": "klein",
+   "ast": "cursor",
+   "akt": 2,
+   "position": {
+    "x": 2334,
+    "y": 1082
+   },
+   "verbindungen": [
+    "c_glut"
+   ],
+   "maxStufe": 5,
+   "basisKosten": 20,
+   "kostenFaktor": 1.45,
+   "waehrung": "mastery",
+   "kristallKosten": 0,
+   "effekt": {
+    "ziel": "cursorSchaden",
+    "wert": 3,
+    "rechenart": "addieren"
+   },
+   "symbol": "rune"
+  },
+  {
+   "id": "a2_helden",
+   "name": "Veteranen",
+   "beschreibung": "+8 % Schaden aller Helden.",
+   "typ": "klein",
+   "ast": "einheiten",
+   "akt": 2,
+   "position": {
+    "x": 1786,
+    "y": 3658
+   },
+   "verbindungen": [
+    "u_glockenmoench_3",
+    "u_wolkenhirtin_3"
+   ],
+   "maxStufe": 10,
+   "basisKosten": 15,
+   "kostenFaktor": 1.45,
+   "waehrung": "mastery",
+   "kristallKosten": 0,
+   "effekt": {
+    "ziel": "heldenSchadenMul",
+    "wert": 0.08,
+    "rechenart": "addieren"
+   },
+   "symbol": "sword"
+  },
+  {
+   "id": "a2_einkommen",
+   "name": "Handelsroute",
+   "beschreibung": "+15 Münzen Tageseinkommen.",
+   "typ": "klein",
+   "ast": "wirtschaft",
+   "akt": 2,
+   "position": {
+    "x": 3525,
+    "y": 1709
+   },
+   "verbindungen": [
+    "w_platz6"
+   ],
+   "maxStufe": 5,
+   "basisKosten": 20,
+   "kostenFaktor": 1.45,
+   "waehrung": "mastery",
+   "kristallKosten": 0,
+   "effekt": {
+    "ziel": "tagesEinkommen",
+    "wert": 15,
+    "rechenart": "addieren"
+   },
+   "symbol": "coin"
+  },
+  {
+   "id": "a2_turm",
+   "name": "Bastion",
+   "beschreibung": "+20 % Turm-Leben.",
+   "typ": "klein",
+   "ast": "turm",
+   "akt": 2,
+   "position": {
+    "x": 1483,
+    "y": 2480
+   },
+   "verbindungen": [
+    "t_blitz"
+   ],
+   "maxStufe": 5,
+   "basisKosten": 20,
+   "kostenFaktor": 1.45,
+   "waehrung": "mastery",
+   "kristallKosten": 0,
+   "effekt": {
+    "ziel": "turmLebenMul",
+    "wert": 0.2,
+    "rechenart": "addieren"
+   },
+   "symbol": "tower"
   }
  ]
 }

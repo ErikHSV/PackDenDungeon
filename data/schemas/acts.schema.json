@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "acts.schema.json",
+  "title": "Akte und das Tor",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "id",
+      "name",
+      "kapitel"
+    ],
+    "properties": {
+      "id": {
+        "type": "integer"
+      },
+      "name": {
+        "type": "string"
+      },
+      "kapitel": {
+        "type": "array",
+        "items": {
+          "type": "integer"
+        }
+      },
+      "sonder": {
+        "type": "array",
+        "items": {
+          "type": "integer"
+        }
+      },
+      "status": {
+        "enum": [
+          "geplant",
+          "teilweise",
+          "fertig"
+        ]
+      },
+      "geplant": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "tor": {
+        "type": "object",
+        "required": [
+          "name",
+          "schluesselsteine"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "beschreibung": {
+            "type": "string"
+          },
+          "sternenkarteReset": {
+            "type": "boolean"
+          },
+          "warnung": {
+            "type": "string"
+          },
+          "schluesselsteine": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "kapitel",
+                "name",
+                "farbe"
+              ],
+              "properties": {
+                "kapitel": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "farbe": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

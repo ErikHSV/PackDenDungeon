@@ -1,0 +1,61 @@
+[
+  {
+    "id": 1,
+    "name": "Akt 1 – Das erwachende Land",
+    "kapitel": [
+      1,
+      2,
+      3
+    ],
+    "sonder": [
+      90
+    ],
+    "tor": {
+      "name": "Das Alte Tor",
+      "beschreibung": "Jeder besiegte Boss in Akt 1 bringt einen Schlüsselstein. Sind alle eingesetzt, öffnet sich das Tor zu Akt 2.",
+      "schluesselsteine": [
+        {
+          "kapitel": 1,
+          "name": "Trommelstein",
+          "farbe": "#6a7a3a"
+        },
+        {
+          "kapitel": 2,
+          "name": "Stiller Stein",
+          "farbe": "#8a8f98"
+        },
+        {
+          "kapitel": 3,
+          "name": "Glutstein",
+          "farbe": "#ff7a2a"
+        }
+      ],
+      "sternenkarteReset": true,
+      "warnung": "Beim Durchschreiten des Tores wird deine Sternenkarte zurückgesetzt. Alle Punkte bekommst du zurück – und neue, stärkere Äste erwarten dich."
+    }
+  },
+  {
+    "id": 2,
+    "name": "Akt 2 – Die Eiserne Marsch",
+    "kapitel": [],
+    "status": "geplant",
+    "geplant": [
+      "Kapitel 4–6 mit neuen Monstern (gepanzerte Armee) und einem Akt-Boss",
+      "Kapitel-Modifikatoren ab Akt 2"
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Akt 3 – Die Elementar-Risse",
+    "kapitel": [
+      9
+    ],
+    "status": "teilweise",
+    "geplant": [
+      "Riss der Natur",
+      "Riss des Todes",
+      "Riss des Chaos",
+      "Finale mit Endboss, danach Rückkehr zum Tor"
+    ]
+  }
+]

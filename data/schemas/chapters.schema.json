@@ -16,7 +16,10 @@
       "wellen",
       "gegner",
       "boss",
-      "gefahren"
+      "gefahren",
+      "art",
+      "prestige",
+      "gesucht"
     ],
     "properties": {
       "id": {
@@ -119,6 +122,36 @@
                 "schneesturm"
               ]
             }
+          }
+        }
+      },
+      "art": {
+        "enum": [
+          "kapitel",
+          "riss",
+          "finale",
+          "reliktjagd"
+        ]
+      },
+      "prestige": {
+        "type": "boolean"
+      },
+      "gesucht": {
+        "type": "boolean"
+      },
+      "belohnung": {
+        "type": "object",
+        "properties": {
+          "fehlendesRelikt": {
+            "type": "boolean"
+          }
+        }
+      },
+      "freischaltung": {
+        "type": "object",
+        "properties": {
+          "boss": {
+            "type": "integer"
           }
         }
       }

@@ -1,66 +1,261 @@
 [
   {
-    "id": 1, "akt": 1, "name": "Trommeln im Moor",
+    "id": 1,
+    "akt": 1,
+    "name": "Trommeln im Moor",
     "intro": "Aus dem Nebel dröhnt ein dumpfer Rhythmus. Etwas zieht die Kreaturen des Moors zum Turm.",
-    "boden": { "grund": "#3b4a2b", "akzent": "#56684a", "detail": "#2a3420" },
+    "boden": {
+      "grund": "#3b4a2b",
+      "akzent": "#56684a",
+      "detail": "#2a3420"
+    },
     "bossNachSekunden": 180,
-    "spawn": { "modus": "ring" },
-    "wellen": { "lebenMul": 1, "muenzenMul": 1, "schadenMul": 1 },
+    "spawn": {
+      "modus": "ring"
+    },
+    "wellen": {
+      "lebenMul": 1,
+      "muenzenMul": 1,
+      "schadenMul": 1
+    },
     "gegner": [
-      { "id": "moorling", "gewicht": 6 },
-      { "id": "sumpfratte", "gewicht": 3, "abSekunde": 15 },
-      { "id": "kraehe", "gewicht": 3, "abSekunde": 45 }
+      {
+        "id": "moorling",
+        "gewicht": 6
+      },
+      {
+        "id": "sumpfratte",
+        "gewicht": 3,
+        "abSekunde": 15
+      },
+      {
+        "id": "kraehe",
+        "gewicht": 3,
+        "abSekunde": 45
+      }
     ],
     "boss": "trommler",
-    "gefahren": []
+    "gefahren": [],
+    "art": "kapitel",
+    "prestige": true,
+    "gesucht": true
   },
   {
-    "id": 2, "akt": 1, "name": "Die Gruft der Stillen",
+    "id": 2,
+    "akt": 1,
+    "name": "Die Gruft der Stillen",
     "intro": "Unter dem Moor erwachen die Toten einer vergessenen Gruft.",
-    "boden": { "grund": "#3a3a44", "akzent": "#5a6272", "detail": "#2a2a32" },
+    "boden": {
+      "grund": "#3a3a44",
+      "akzent": "#5a6272",
+      "detail": "#2a2a32"
+    },
     "bossNachSekunden": 210,
-    "spawn": { "modus": "ring" },
-    "wellen": { "lebenMul": 1.8, "muenzenMul": 1.6, "schadenMul": 1.6 },
+    "spawn": {
+      "modus": "ring"
+    },
+    "wellen": {
+      "lebenMul": 1.8,
+      "muenzenMul": 1.6,
+      "schadenMul": 1.6
+    },
     "gegner": [
-      { "id": "moorling", "gewicht": 2, "bisSekunde": 60 },
-      { "id": "knochenritter", "gewicht": 5 },
-      { "id": "irrlicht", "gewicht": 3, "abSekunde": 20 },
-      { "id": "grabraeuber", "gewicht": 2, "abSekunde": 40 }
+      {
+        "id": "moorling",
+        "gewicht": 2,
+        "bisSekunde": 60
+      },
+      {
+        "id": "knochenritter",
+        "gewicht": 5
+      },
+      {
+        "id": "irrlicht",
+        "gewicht": 3,
+        "abSekunde": 20
+      },
+      {
+        "id": "grabraeuber",
+        "gewicht": 2,
+        "abSekunde": 40
+      }
     ],
     "boss": "graue_aebtissin",
-    "gefahren": []
+    "gefahren": [],
+    "art": "kapitel",
+    "prestige": true,
+    "gesucht": true
   },
   {
-    "id": 3, "akt": 1, "name": "Die Aschenschmiede",
+    "id": 3,
+    "akt": 1,
+    "name": "Die Aschenschmiede",
     "intro": "Glühende Essen tief im Berg. Der Schmied duldet keine Gäste.",
-    "boden": { "grund": "#3d2a22", "akzent": "#6a3a2a", "detail": "#ff7a2a" },
+    "boden": {
+      "grund": "#3d2a22",
+      "akzent": "#6a3a2a",
+      "detail": "#ff7a2a"
+    },
     "bossNachSekunden": 240,
-    "spawn": { "modus": "portale", "portale": [ { "winkel": 0 }, { "winkel": 120 }, { "winkel": 240 } ] },
-    "wellen": { "lebenMul": 3, "muenzenMul": 2.4, "schadenMul": 2.4 },
+    "spawn": {
+      "modus": "portale",
+      "portale": [
+        {
+          "winkel": 0
+        },
+        {
+          "winkel": 120
+        },
+        {
+          "winkel": 240
+        }
+      ]
+    },
+    "wellen": {
+      "lebenMul": 3,
+      "muenzenMul": 2.4,
+      "schadenMul": 2.4
+    },
     "gegner": [
-      { "id": "feuerkaefer", "gewicht": 5 },
-      { "id": "schildtraeger", "gewicht": 3, "abSekunde": 30 },
-      { "id": "lavaschleim", "gewicht": 3, "abSekunde": 60 }
+      {
+        "id": "feuerkaefer",
+        "gewicht": 5
+      },
+      {
+        "id": "schildtraeger",
+        "gewicht": 3,
+        "abSekunde": 30
+      },
+      {
+        "id": "lavaschleim",
+        "gewicht": 3,
+        "abSekunde": 60
+      }
     ],
     "boss": "schmied",
-    "gefahren": []
+    "gefahren": [],
+    "art": "kapitel",
+    "prestige": true,
+    "gesucht": true
   },
   {
-    "id": 4, "akt": 1, "name": "Die Frostebene",
+    "id": 9,
+    "akt": 3,
+    "name": "Riss des Frosts",
     "intro": "Eisiger Wind fegt über die weiße Ebene. Am Horizont glänzt ein Thron aus Eis.",
-    "boden": { "grund": "#d9e6f0", "akzent": "#b0c4d6", "detail": "#ffffff" },
+    "boden": {
+      "grund": "#d9e6f0",
+      "akzent": "#b0c4d6",
+      "detail": "#ffffff"
+    },
     "bossNachSekunden": 270,
-    "spawn": { "modus": "portale", "portale": [ { "winkel": 45 }, { "winkel": 135 }, { "winkel": 225 }, { "winkel": 315 } ] },
-    "wellen": { "lebenMul": 4.5, "muenzenMul": 3.2, "schadenMul": 3.2 },
+    "spawn": {
+      "modus": "portale",
+      "portale": [
+        {
+          "winkel": 45
+        },
+        {
+          "winkel": 135
+        },
+        {
+          "winkel": 225
+        },
+        {
+          "winkel": 315
+        }
+      ]
+    },
+    "wellen": {
+      "lebenMul": 4.5,
+      "muenzenMul": 3.2,
+      "schadenMul": 3.2
+    },
     "gegner": [
-      { "id": "frostwolf", "gewicht": 4 },
-      { "id": "eisgeist", "gewicht": 3, "abSekunde": 20 },
-      { "id": "knochenritter", "gewicht": 2, "abSekunde": 60 },
-      { "id": "schildtraeger", "gewicht": 2, "abSekunde": 90 }
+      {
+        "id": "frostwolf",
+        "gewicht": 4
+      },
+      {
+        "id": "eisgeist",
+        "gewicht": 3,
+        "abSekunde": 20
+      },
+      {
+        "id": "knochenritter",
+        "gewicht": 2,
+        "abSekunde": 60
+      },
+      {
+        "id": "schildtraeger",
+        "gewicht": 2,
+        "abSekunde": 90
+      }
     ],
     "boss": "winterkoenigin",
     "gefahren": [
-      { "typ": "schneesturm", "abSekunde": 60, "intervall": 45, "dauer": 15, "heldenLebenProSekunde": 0.02, "text": "Schneesturm! Helden verlieren langsam Leben." }
-    ]
+      {
+        "typ": "schneesturm",
+        "abSekunde": 60,
+        "intervall": 45,
+        "dauer": 15,
+        "heldenLebenProSekunde": 0.02,
+        "text": "Schneesturm! Helden verlieren langsam Leben."
+      }
+    ],
+    "art": "riss",
+    "prestige": false,
+    "gesucht": false
+  },
+  {
+    "id": 90,
+    "akt": 1,
+    "art": "reliktjagd",
+    "name": "Relikt-Jagd: Das Moorgrab",
+    "intro": "Ein Sonderkapitel: Wer bis zum Ende durchhält, erhält garantiert ein noch fehlendes Relikt.",
+    "boden": {
+      "grund": "#2f3a28",
+      "akzent": "#4a5a3a",
+      "detail": "#C9A45C"
+    },
+    "bossNachSekunden": 150,
+    "spawn": {
+      "modus": "ring"
+    },
+    "wellen": {
+      "lebenMul": 1.5,
+      "muenzenMul": 0.5,
+      "schadenMul": 1.4
+    },
+    "gegner": [
+      {
+        "id": "moorling",
+        "gewicht": 4
+      },
+      {
+        "id": "sumpfratte",
+        "gewicht": 3
+      },
+      {
+        "id": "kraehe",
+        "gewicht": 2,
+        "abSekunde": 30
+      },
+      {
+        "id": "knochenritter",
+        "gewicht": 2,
+        "abSekunde": 60
+      }
+    ],
+    "boss": "trommler",
+    "gefahren": [],
+    "belohnung": {
+      "fehlendesRelikt": true
+    },
+    "freischaltung": {
+      "boss": 1
+    },
+    "prestige": false,
+    "gesucht": false
   }
 ]

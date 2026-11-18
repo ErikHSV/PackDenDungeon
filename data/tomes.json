@@ -6,7 +6,14 @@
     "beschreibung": "8 Sekunden lang Hagel auf zufällige Gegner in der ganzen Arena.",
     "farbe": "#bfe9ff",
     "symbol": "ice",
-    "effekt": { "typ": "hagel", "dauer": 8, "einschlaegeProSekunde": 6, "schaden": 14, "radius": 40, "schadensTyp": "physical" }
+    "effekt": {
+      "typ": "hagel",
+      "dauer": 8,
+      "einschlaegeProSekunde": 6,
+      "schaden": 14,
+      "radius": 40,
+      "schadensTyp": "physical"
+    }
   },
   {
     "id": "knochenruf",
@@ -15,7 +22,13 @@
     "beschreibung": "Beschwört 6 Skelettkrieger um den Turm.",
     "farbe": "#e8e2d0",
     "symbol": "skull",
-    "effekt": { "typ": "beschwoeren", "einheit": "skelettkrieger", "anzahl": 6, "ort": "turm", "dauer": 25 }
+    "effekt": {
+      "typ": "beschwoeren",
+      "einheit": "skelettkrieger",
+      "anzahl": 6,
+      "ort": "turm",
+      "dauer": 25
+    }
   },
   {
     "id": "blutrausch",
@@ -24,7 +37,46 @@
     "beschreibung": "10 Sekunden lang +60 % Angriffstempo für alle Helden.",
     "farbe": "#E04848",
     "symbol": "horn",
-    "effekt": { "typ": "verstaerken", "wert": "angriffsTempo", "bonus": 0.6, "dauer": 10 }
+    "effekt": {
+      "typ": "verstaerken",
+      "wert": "angriffsTempo",
+      "bonus": 0.6,
+      "dauer": 10
+    }
+  },
+  {
+    "id": "seelenkrug",
+    "name": "Seelenkrug",
+    "rarity": "epic",
+    "beschreibung": "Sammelt, solange er liegt, die Seelen gefallener Helden. Beim Öffnen kehren sie als Geisterkrieger zurück.",
+    "farbe": "#a6e3ff",
+    "symbol": "skull",
+    "liegendEffekt": {
+      "typ": "seelenSammeln",
+      "maxSeelen": 8
+    },
+    "effekt": {
+      "typ": "geisterFreisetzen",
+      "einheit": "geisterkrieger",
+      "dauer": 20,
+      "mindestens": 1
+    }
+  },
+  {
+    "id": "riesenwuchs",
+    "name": "Riesenwuchs",
+    "rarity": "legendary",
+    "beschreibung": "Alle Helden werden für kurze Zeit riesig: mehr Leben, Schaden und Reichweite.",
+    "farbe": "#F2B630",
+    "symbol": "sword",
+    "effekt": {
+      "typ": "riesenwuchs",
+      "dauer": 8,
+      "lebenMul": 1.5,
+      "schadenMul": 1.6,
+      "reichweiteMul": 1.4,
+      "groesseMul": 1.5
+    }
   },
   {
     "id": "zeitbruch",
@@ -33,6 +85,9 @@
     "beschreibung": "Alle Gegner sind 6 Sekunden eingefroren.",
     "farbe": "#F2B630",
     "symbol": "clock",
-    "effekt": { "typ": "einfrieren", "dauer": 6 }
+    "effekt": {
+      "typ": "einfrieren",
+      "dauer": 6
+    }
   }
 ]

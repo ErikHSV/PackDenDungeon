@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "achievements.schema.json",
+  "title": "Erfolge",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "id",
+      "name",
+      "beschreibung",
+      "kategorie",
+      "ziel"
+    ],
+    "properties": {
+      "id": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "beschreibung": {
+        "type": "string"
+      },
+      "kategorie": {
+        "type": "string"
+      },
+      "ziel": {
+        "type": "object",
+        "required": [
+          "statistik",
+          "anzahl"
+        ],
+        "properties": {
+          "statistik": {
+            "type": "string"
+          },
+          "anzahl": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "filter": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  }
+}

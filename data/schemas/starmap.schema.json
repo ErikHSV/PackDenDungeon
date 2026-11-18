@@ -47,7 +47,9 @@
           "basisKosten",
           "kostenFaktor",
           "kristallKosten",
-          "effekt"
+          "effekt",
+          "akt",
+          "waehrung"
         ],
         "properties": {
           "id": {
@@ -151,6 +153,16 @@
                 "type": "string"
               }
             }
+          },
+          "akt": {
+            "type": "integer",
+            "description": "1 = von Anfang an, 2 = erst nach dem Tor sichtbar"
+          },
+          "waehrung": {
+            "enum": [
+              "mastery",
+              "foilstaub"
+            ]
           }
         }
       }

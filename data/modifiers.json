@@ -1,22 +1,190 @@
 [
-  { "id": "eilige_horden", "name": "Eilige Horden", "beschreibung": "Monster sind 30 % schneller.", "abAkt": 2,
-    "effekte": [ { "ziel": "gegnerTempoMul", "op": "mul", "wert": 1.3 } ], "belohnung": { "masteryMul": 1.5 } },
-  { "id": "zaehe_folie", "name": "Zähe Folie", "beschreibung": "Packs haben doppelten Widerstand.", "abAkt": 2,
-    "effekte": [ { "ziel": "packWiderstandMul", "op": "mul", "wert": 2 } ], "belohnung": { "masteryMul": 1.4 } },
-  { "id": "nur_fernkampf", "name": "Fernes Echo", "beschreibung": "Nur Fernkämpfer erscheinen aus Packs (Nahkampfkarten werden zu Münzen).", "abAkt": 2,
-    "effekte": [ { "ziel": "erlaubteKI", "op": "set", "wert": ["abstand"] } ], "belohnung": { "masteryMul": 1.6 } },
-  { "id": "glaeserner_turm", "name": "Gläserner Turm", "beschreibung": "Der Turm hat nur halb so viel Leben.", "abAkt": 2,
-    "effekte": [ { "ziel": "turmLebenMul", "op": "mul", "wert": 0.5 } ], "belohnung": { "masteryMul": 1.5 } },
-  { "id": "goldfieber", "name": "Goldfieber", "beschreibung": "Doppelte Münzen, aber Monster haben +40 % Leben.", "abAkt": 2,
-    "effekte": [ { "ziel": "muenzenMul", "op": "mul", "wert": 2 }, { "ziel": "gegnerLebenMul", "op": "mul", "wert": 1.4 } ], "belohnung": { "masteryMul": 1.0 } },
-  { "id": "duestere_runen", "name": "Düstere Runen", "beschreibung": "Der Runenkreis ist 30 % kleiner.", "abAkt": 2,
-    "effekte": [ { "ziel": "cursorRadiusMul", "op": "mul", "wert": 0.7 } ], "belohnung": { "masteryMul": 1.4 } },
-  { "id": "elitesturm", "name": "Elitesturm", "beschreibung": "Elitewellen kommen doppelt so oft.", "abAkt": 2,
-    "effekte": [ { "ziel": "elitewelleIntervallMul", "op": "mul", "wert": 0.5 } ], "belohnung": { "masteryMul": 1.5 } },
-  { "id": "stille_buecher", "name": "Stille Bücher", "beschreibung": "Tomes erscheinen nicht – ihre Karten werden zu Kristallen.", "abAkt": 2,
-    "effekte": [ { "ziel": "tomesErlaubt", "op": "set", "wert": false } ], "belohnung": { "masteryMul": 1.3 } },
-  { "id": "fluechtige_helden", "name": "Flüchtige Helden", "beschreibung": "Helden verlieren jede Sekunde 1 % ihres Lebens.", "abAkt": 2,
-    "effekte": [ { "ziel": "heldenVerfallProSekunde", "op": "add", "wert": 0.01 } ], "belohnung": { "masteryMul": 1.6 } },
-  { "id": "fruehe_bosse", "name": "Ungeduldiger Boss", "beschreibung": "Der Boss erscheint 40 % früher.", "abAkt": 2,
-    "effekte": [ { "ziel": "bossZeitMul", "op": "mul", "wert": 0.6 } ], "belohnung": { "masteryMul": 1.7 } }
+  {
+    "id": "eilige_horden",
+    "name": "Eilige Horden",
+    "beschreibung": "Monster sind 30 % schneller.",
+    "abAkt": 2,
+    "effekte": [
+      {
+        "ziel": "gegnerTempoMul",
+        "op": "mul",
+        "wert": 1.3
+      }
+    ],
+    "belohnung": {
+      "masteryMul": 1.5
+    }
+  },
+  {
+    "id": "zaehe_folie",
+    "name": "Zähe Folie",
+    "beschreibung": "Packs haben doppelten Widerstand.",
+    "abAkt": 2,
+    "effekte": [
+      {
+        "ziel": "packWiderstandMul",
+        "op": "mul",
+        "wert": 2
+      }
+    ],
+    "belohnung": {
+      "masteryMul": 1.4
+    }
+  },
+  {
+    "id": "nur_fernkampf",
+    "name": "Fernes Echo",
+    "beschreibung": "Nur Fernkämpfer erscheinen aus Packs (Nahkampfkarten werden zu Münzen).",
+    "abAkt": 2,
+    "effekte": [
+      {
+        "ziel": "erlaubteKI",
+        "op": "set",
+        "wert": [
+          "abstand"
+        ]
+      }
+    ],
+    "belohnung": {
+      "masteryMul": 1.6
+    }
+  },
+  {
+    "id": "glaeserner_turm",
+    "name": "Gläserner Turm",
+    "beschreibung": "Der Turm hat nur halb so viel Leben.",
+    "abAkt": 2,
+    "effekte": [
+      {
+        "ziel": "turmLebenMul",
+        "op": "mul",
+        "wert": 0.5
+      }
+    ],
+    "belohnung": {
+      "masteryMul": 1.5
+    }
+  },
+  {
+    "id": "goldfieber",
+    "name": "Goldfieber",
+    "beschreibung": "Doppelte Münzen, aber Monster haben +40 % Leben.",
+    "abAkt": 2,
+    "effekte": [
+      {
+        "ziel": "muenzenMul",
+        "op": "mul",
+        "wert": 2
+      },
+      {
+        "ziel": "gegnerLebenMul",
+        "op": "mul",
+        "wert": 1.4
+      }
+    ],
+    "belohnung": {
+      "masteryMul": 1.0
+    }
+  },
+  {
+    "id": "duestere_runen",
+    "name": "Düstere Runen",
+    "beschreibung": "Der Runenkreis ist 30 % kleiner.",
+    "abAkt": 2,
+    "effekte": [
+      {
+        "ziel": "cursorRadiusMul",
+        "op": "mul",
+        "wert": 0.7
+      }
+    ],
+    "belohnung": {
+      "masteryMul": 1.4
+    }
+  },
+  {
+    "id": "elitesturm",
+    "name": "Elitesturm",
+    "beschreibung": "Elitewellen kommen doppelt so oft.",
+    "abAkt": 2,
+    "effekte": [
+      {
+        "ziel": "elitewelleIntervallMul",
+        "op": "mul",
+        "wert": 0.5
+      }
+    ],
+    "belohnung": {
+      "masteryMul": 1.5
+    }
+  },
+  {
+    "id": "stille_buecher",
+    "name": "Stille Bücher",
+    "beschreibung": "Tomes erscheinen nicht – ihre Karten werden zu Kristallen.",
+    "abAkt": 2,
+    "effekte": [
+      {
+        "ziel": "tomesErlaubt",
+        "op": "set",
+        "wert": false
+      }
+    ],
+    "belohnung": {
+      "masteryMul": 1.3
+    }
+  },
+  {
+    "id": "fluechtige_helden",
+    "name": "Flüchtige Helden",
+    "beschreibung": "Helden verlieren jede Sekunde 1 % ihres Lebens.",
+    "abAkt": 2,
+    "effekte": [
+      {
+        "ziel": "heldenVerfallProSekunde",
+        "op": "add",
+        "wert": 0.01
+      }
+    ],
+    "belohnung": {
+      "masteryMul": 1.6
+    }
+  },
+  {
+    "id": "fruehe_bosse",
+    "name": "Ungeduldiger Boss",
+    "beschreibung": "Der Boss erscheint 40 % früher.",
+    "abAkt": 2,
+    "effekte": [
+      {
+        "ziel": "bossZeitMul",
+        "op": "mul",
+        "wert": 0.6
+      }
+    ],
+    "belohnung": {
+      "masteryMul": 1.7
+    }
+  },
+  {
+    "id": "siegesheilung",
+    "name": "Siegesheilung",
+    "beschreibung": "Helden heilen sich bei jedem Kill um 10 % ihres Lebens, Monster haben +25 % Leben.",
+    "abAkt": 2,
+    "effekte": [
+      {
+        "ziel": "heldenHeilungProKill",
+        "op": "add",
+        "wert": 0.1
+      },
+      {
+        "ziel": "gegnerLebenMul",
+        "op": "mul",
+        "wert": 1.25
+      }
+    ],
+    "belohnung": {
+      "masteryMul": 1.2
+    }
+  }
 ]

@@ -12,7 +12,8 @@
       "symbol",
       "beschreibung",
       "ausloeser",
-      "aktion"
+      "aktion",
+      "verflucht"
     ],
     "properties": {
       "id": {
@@ -54,10 +55,17 @@
               "giftwolke",
               "wiederbeleben",
               "verstaerken",
-              "rueckschaden"
+              "rueckschaden",
+              "werte"
             ]
           }
         }
+      },
+      "verflucht": {
+        "type": "boolean"
+      },
+      "nachteil": {
+        "type": "string"
       }
     }
   }

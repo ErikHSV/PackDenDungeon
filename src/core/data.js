@@ -4,7 +4,7 @@
 /** Alle Datendateien unter data/ (ohne Endung). Neue Dateien hier eintragen. */
 export const DATA_FILES = [
   'balance', 'rarities', 'units', 'tomes', 'packs', 'shop', 'enemies',
-  'chapters', 'modifiers', 'buildings', 'relics', 'quests', 'starmap',
+  'chapters', 'acts', 'modifiers', 'buildings', 'relics', 'quests', 'achievements', 'starmap',
 ];
 
 const byId = (list) => Object.fromEntries(list.map((x) => [x.id, x]));
@@ -22,6 +22,8 @@ export function prepareData(raw) {
   data.buildingIndex = byId(raw.buildings);
   data.relicIndex = byId(raw.relics);
   data.questIndex = byId(raw.quests);
+  data.actIndex = byId(raw.acts);
+  data.achievementIndex = byId(raw.achievements);
   data.starIndex = byId(raw.starmap.knoten);
   data.branchIndex = byId(raw.starmap.aeste);
 
@@ -72,6 +74,15 @@ export function validateReferences(data) {
   }
   // Shop
   for (const a of data.shop.angebote) if (!data.packIndex[a.artikel]) e.push(`Shop ${a.id}: unbekannter Artikel ${a.artikel}`);
+  for (const j of data.shop.jackpots) for (const i of j.inhalt) if (!data.packIndex[i.artikel]) e.push(`Jackpot ${j.id}: unbekannter Artikel ${i.artikel}`);
+  // Akte und Tor
+  for (const a of data.acts) {
+    for (const k of [...a.kapitel, ...(a.sonder || [])]) if (!data.chapterIndex[k]) e.push(`Akt ${a.id}: unbekanntes Kapitel ${k}`);
+    for (const s of a.tor?.schluesselsteine || []) if (!data.chapterIndex[s.kapitel]) e.push(`Akt ${a.id}: Schlüsselstein für unbekanntes Kapitel ${s.kapitel}`);
+  }
+  for (const k of data.chapters) if (!data.acts.some((a) => a.id === k.akt)) e.push(`Kapitel ${k.id}: unbekannter Akt ${k.akt}`);
+  // Tomes, die beim Freisetzen Einheiten erzeugen
+  for (const t of data.tomes) if (t.effekt.einheit && !data.unitIndex[t.effekt.einheit]) e.push(`Tome ${t.id}: unbekannte Einheit ${t.effekt.einheit}`);
   // Gegner
   for (const g of data.enemies) {
     const split = g.eigenschaften?.teiltSichBeimTod?.in;
@@ -95,6 +106,8 @@ export function validateReferences(data) {
   for (const q of data.quests) {
     if (q.ziel.filter?.pack && !data.packIndex[q.ziel.filter.pack]) e.push(`Quest ${q.id}: unbekanntes Pack im Filter`);
     if (q.ziel.filter?.boss && !data.enemyIndex[q.ziel.filter.boss]) e.push(`Quest ${q.id}: unbekannter Boss im Filter`);
+    if (q.ziel.filter?.gegner && !data.enemyIndex[q.ziel.filter.gegner]) e.push(`Quest ${q.id}: unbekannter Gegner im Filter`);
+    if (q.ziel.filter?.kapitel && !data.chapterIndex[q.ziel.filter.kapitel]) e.push(`Quest ${q.id}: unbekanntes Kapitel im Filter`);
   }
   // Sternenkarte
   const branches = data.starmap.aeste.map((b) => b.id);
@@ -134,8 +147,11 @@ export function dataSummary(data) {
     modifikatoren: data.modifiers.length,
     gebaeude: data.buildings.length,
     relikte: data.relics.length,
+    erfolge: data.achievements.length,
+    akte: data.acts.length,
     quests: data.quests.length,
     knoten: data.starmap.knoten.length,
     knotenStufen: data.starmap.knoten.reduce((s, n) => s + n.maxStufe, 0),
+    knotenStufenAkt1: data.starmap.knoten.filter((n) => (n.akt ?? 1) === 1).reduce((s, n) => s + n.maxStufe, 0),
   };
 }

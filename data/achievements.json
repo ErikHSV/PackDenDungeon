@@ -1,0 +1,251 @@
+[
+  {
+    "id": "e_pack_1",
+    "name": "Erster Riss",
+    "beschreibung": "Öffne dein erstes Pack.",
+    "kategorie": "Packs",
+    "ziel": {
+      "statistik": "packsGeoeffnet",
+      "anzahl": 1
+    }
+  },
+  {
+    "id": "e_pack_100",
+    "name": "Packmeister",
+    "beschreibung": "Öffne 100 Packs.",
+    "kategorie": "Packs",
+    "ziel": {
+      "statistik": "packsGeoeffnet",
+      "anzahl": 100
+    }
+  },
+  {
+    "id": "e_pack_1000",
+    "name": "Folienflut",
+    "beschreibung": "Öffne 1.000 Packs.",
+    "kategorie": "Packs",
+    "ziel": {
+      "statistik": "packsGeoeffnet",
+      "anzahl": 1000
+    }
+  },
+  {
+    "id": "e_tome_1",
+    "name": "Erste Seite",
+    "beschreibung": "Öffne dein erstes Tome.",
+    "kategorie": "Tomes",
+    "ziel": {
+      "statistik": "tomesGenutzt",
+      "anzahl": 1
+    }
+  },
+  {
+    "id": "e_tome_50",
+    "name": "Bibliothekar",
+    "beschreibung": "Öffne 50 Tomes.",
+    "kategorie": "Tomes",
+    "ziel": {
+      "statistik": "tomesGenutzt",
+      "anzahl": 50
+    }
+  },
+  {
+    "id": "e_foil_1",
+    "name": "Es schimmert",
+    "beschreibung": "Finde deine erste Foil-Karte.",
+    "kategorie": "Foil",
+    "ziel": {
+      "statistik": "foilsGezogen",
+      "anzahl": 1
+    }
+  },
+  {
+    "id": "e_foilmonster_1",
+    "name": "Glänzende Beute",
+    "beschreibung": "Besiege dein erstes Foil-Monster.",
+    "kategorie": "Foil",
+    "ziel": {
+      "statistik": "foilMonsterBesiegt",
+      "anzahl": 1
+    }
+  },
+  {
+    "id": "e_grenz_1",
+    "name": "Bildfehler",
+    "beschreibung": "Finde einen Grenzgänger.",
+    "kategorie": "Grenzgänger",
+    "ziel": {
+      "statistik": "grenzgaengerGezogen",
+      "anzahl": 1
+    }
+  },
+  {
+    "id": "e_grenz_alle",
+    "name": "Zwischen den Welten",
+    "beschreibung": "Finde alle Grenzgänger.",
+    "kategorie": "Grenzgänger",
+    "ziel": {
+      "statistik": "grenzgaengerArten",
+      "anzahl": "alle"
+    }
+  },
+  {
+    "id": "e_kap1",
+    "name": "Stille im Moor",
+    "beschreibung": "Schaffe Kapitel 1.",
+    "kategorie": "Kapitel",
+    "ziel": {
+      "statistik": "bossBesiegt",
+      "anzahl": 1,
+      "filter": {
+        "boss": "trommler"
+      }
+    }
+  },
+  {
+    "id": "e_kap2",
+    "name": "Das Ende des Schreis",
+    "beschreibung": "Schaffe Kapitel 2.",
+    "kategorie": "Kapitel",
+    "ziel": {
+      "statistik": "bossBesiegt",
+      "anzahl": 1,
+      "filter": {
+        "boss": "graue_aebtissin"
+      }
+    }
+  },
+  {
+    "id": "e_kap3",
+    "name": "Kalte Esse",
+    "beschreibung": "Schaffe Kapitel 3.",
+    "kategorie": "Kapitel",
+    "ziel": {
+      "statistik": "bossBesiegt",
+      "anzahl": 1,
+      "filter": {
+        "boss": "schmied"
+      }
+    }
+  },
+  {
+    "id": "e_tor",
+    "name": "Durch das Tor",
+    "beschreibung": "Öffne das Alte Tor.",
+    "kategorie": "Kapitel",
+    "ziel": {
+      "statistik": "torGeoeffnet",
+      "anzahl": 1
+    }
+  },
+  {
+    "id": "e_prestige1",
+    "name": "Noch einmal, nur härter",
+    "beschreibung": "Schaffe ein Kapitel auf Prestige 1.",
+    "kategorie": "Kapitel",
+    "ziel": {
+      "statistik": "prestigeGeschafft",
+      "anzahl": 1
+    }
+  },
+  {
+    "id": "e_gesucht",
+    "name": "Gesucht und gefunden",
+    "beschreibung": "Besiege einen Foil-Boss.",
+    "kategorie": "Kapitel",
+    "ziel": {
+      "statistik": "foilBossBesiegt",
+      "anzahl": 1
+    }
+  },
+  {
+    "id": "e_karten_alle",
+    "name": "Vollständiges Deck",
+    "beschreibung": "Finde alle Karten.",
+    "kategorie": "Sammlung",
+    "ziel": {
+      "statistik": "kartenArten",
+      "anzahl": "alle"
+    }
+  },
+  {
+    "id": "e_foils_alle",
+    "name": "Regenbogendeck",
+    "beschreibung": "Finde alle Karten als Foil.",
+    "kategorie": "Sammlung",
+    "ziel": {
+      "statistik": "foilArten",
+      "anzahl": "alle"
+    }
+  },
+  {
+    "id": "e_bestiarium",
+    "name": "Monsterkunde",
+    "beschreibung": "Besiege jede Monsterart einmal.",
+    "kategorie": "Sammlung",
+    "ziel": {
+      "statistik": "monsterArten",
+      "anzahl": "alle"
+    }
+  },
+  {
+    "id": "e_relikte_alle",
+    "name": "Reliktsammler",
+    "beschreibung": "Besitze alle Relikte.",
+    "kategorie": "Sammlung",
+    "ziel": {
+      "statistik": "reliktArten",
+      "anzahl": "alle"
+    }
+  },
+  {
+    "id": "e_kills_1000",
+    "name": "Tausend Tapfere",
+    "beschreibung": "Besiege 1.000 Monster.",
+    "kategorie": "Allgemein",
+    "ziel": {
+      "statistik": "kills",
+      "anzahl": 1000
+    }
+  },
+  {
+    "id": "e_kills_10000",
+    "name": "Legende des Turms",
+    "beschreibung": "Besiege 10.000 Monster.",
+    "kategorie": "Allgemein",
+    "ziel": {
+      "statistik": "kills",
+      "anzahl": 10000
+    }
+  },
+  {
+    "id": "e_muenzen_5000",
+    "name": "Großzügig",
+    "beschreibung": "Gib 5.000 Münzen aus.",
+    "kategorie": "Allgemein",
+    "ziel": {
+      "statistik": "muenzenAusgegeben",
+      "anzahl": 5000
+    }
+  },
+  {
+    "id": "e_entwicklung_10",
+    "name": "Wachstumsschub",
+    "beschreibung": "Lass 10 Helden sich entwickeln.",
+    "kategorie": "Allgemein",
+    "ziel": {
+      "statistik": "entwicklungen",
+      "anzahl": 10
+    }
+  },
+  {
+    "id": "e_runs_50",
+    "name": "Fünfzig Tage",
+    "beschreibung": "Spiele 50 Runs.",
+    "kategorie": "Allgemein",
+    "ziel": {
+      "statistik": "runs",
+      "anzahl": 50
+    }
+  }
+]

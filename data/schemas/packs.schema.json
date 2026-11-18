@@ -45,11 +45,23 @@
               "start",
               "boss",
               "quest",
-              "sternenkarte"
+              "quelle",
+              "sternenkarte",
+              "geplant"
             ]
           },
           "kapitel": {
             "type": "integer"
+          },
+          "quellen": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "jackpot",
+                "quest",
+                "reliktjagd"
+              ]
+            }
           }
         }
       },
@@ -82,6 +94,9 @@
             "type": "integer"
           },
           "relikte": {
+            "type": "integer"
+          },
+          "auswahl": {
             "type": "integer"
           }
         }

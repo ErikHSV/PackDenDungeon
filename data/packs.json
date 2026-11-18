@@ -5,12 +5,25 @@
     "art": "pack",
     "beschreibung": "Ein einfaches Pack aus dem Moor.",
     "farbe": "#8b5a2b",
-    "freischaltung": { "typ": "start" },
+    "freischaltung": {
+      "typ": "start"
+    },
     "widerstand": 10,
     "kartenProPack": 3,
     "kristalle": 1,
-    "pool": ["stalljunge", "kettenschwinger", "schleuderin", "hagelschauer"],
-    "seltenheitsGewichte": { "common": 60, "uncommon": 30, "rare": 9, "epic": 0.5, "legendary": 0.5 }
+    "pool": [
+      "stalljunge",
+      "kettenschwinger",
+      "schleuderin",
+      "hagelschauer"
+    ],
+    "seltenheitsGewichte": {
+      "common": 60,
+      "uncommon": 30,
+      "rare": 9,
+      "epic": 0.5,
+      "legendary": 0.5
+    }
   },
   {
     "id": "kiste_holz",
@@ -18,8 +31,13 @@
     "art": "kiste",
     "beschreibung": "Drei Holzpacks auf einmal.",
     "farbe": "#6b4423",
-    "freischaltung": { "typ": "start" },
-    "inhalt": { "pack": "holzpack", "anzahl": 3 },
+    "freischaltung": {
+      "typ": "start"
+    },
+    "inhalt": {
+      "pack": "holzpack",
+      "anzahl": 3
+    },
     "kristalle": 3
   },
   {
@@ -28,12 +46,29 @@
     "art": "pack",
     "beschreibung": "Glänzendes Pack mit stärkeren Helden.",
     "farbe": "#b8c4d0",
-    "freischaltung": { "typ": "boss", "kapitel": 1 },
+    "freischaltung": {
+      "typ": "boss",
+      "kapitel": 1
+    },
     "widerstand": 25,
     "kartenProPack": 3,
     "kristalle": 2,
-    "pool": ["kettenschwinger", "schleuderin", "torwaechterin", "windlaeufer", "glutweberin", "hagelschauer", "knochenruf", "blutrausch"],
-    "seltenheitsGewichte": { "uncommon": 55, "rare": 33, "epic": 11, "legendary": 1 }
+    "pool": [
+      "kettenschwinger",
+      "schleuderin",
+      "torwaechterin",
+      "windlaeufer",
+      "glutweberin",
+      "hagelschauer",
+      "knochenruf",
+      "blutrausch"
+    ],
+    "seltenheitsGewichte": {
+      "uncommon": 55,
+      "rare": 33,
+      "epic": 11,
+      "legendary": 1
+    }
   },
   {
     "id": "kiste_silber",
@@ -41,8 +76,14 @@
     "art": "kiste",
     "beschreibung": "Drei Silberpacks auf einmal.",
     "farbe": "#8a96a4",
-    "freischaltung": { "typ": "boss", "kapitel": 2 },
-    "inhalt": { "pack": "silberpack", "anzahl": 3 },
+    "freischaltung": {
+      "typ": "boss",
+      "kapitel": 2
+    },
+    "inhalt": {
+      "pack": "silberpack",
+      "anzahl": 3
+    },
     "kristalle": 6
   },
   {
@@ -51,21 +92,90 @@
     "art": "pack",
     "beschreibung": "Funkelt im Dunkeln – hier warten Legenden.",
     "farbe": "#3b2f7a",
-    "freischaltung": { "typ": "boss", "kapitel": 3 },
+    "freischaltung": {
+      "typ": "boss",
+      "kapitel": 2
+    },
     "widerstand": 60,
     "kartenProPack": 3,
     "kristalle": 4,
-    "pool": ["windlaeufer", "glutweberin", "bannertraeger", "moorhexer", "wolkenhirtin", "glockenmoench", "knochenruf", "blutrausch", "zeitbruch"],
-    "seltenheitsGewichte": { "rare": 55, "epic": 35, "legendary": 10 }
+    "pool": [
+      "windlaeufer",
+      "glutweberin",
+      "bannertraeger",
+      "moorhexer",
+      "wolkenhirtin",
+      "glockenmoench",
+      "knochenruf",
+      "blutrausch",
+      "seelenkrug",
+      "riesenwuchs",
+      "zeitbruch"
+    ],
+    "seltenheitsGewichte": {
+      "rare": 55,
+      "epic": 35,
+      "legendary": 10
+    }
+  },
+  {
+    "id": "tomepack",
+    "name": "Tomepack",
+    "art": "pack",
+    "beschreibung": "Enthält ausschließlich Zauberbücher.",
+    "farbe": "#3ED6C4",
+    "freischaltung": {
+      "typ": "geplant"
+    },
+    "widerstand": 30,
+    "kartenProPack": 3,
+    "kristalle": 2,
+    "pool": [
+      "hagelschauer",
+      "knochenruf",
+      "blutrausch",
+      "seelenkrug",
+      "riesenwuchs",
+      "zeitbruch"
+    ],
+    "seltenheitsGewichte": {
+      "rare": 55,
+      "epic": 35,
+      "legendary": 10
+    }
   },
   {
     "id": "reliktpack",
     "name": "Reliktpack",
     "art": "relikt",
-    "beschreibung": "Enthält ein zufälliges Relikt. Nur über Quests erhältlich.",
+    "beschreibung": "Enthält ein zufälliges Relikt. Aus Shop-Jackpots, Quests und der Relikt-Jagd.",
     "farbe": "#C9A45C",
-    "freischaltung": { "typ": "quest" },
-    "inhalt": { "relikte": 1 },
+    "freischaltung": {
+      "typ": "quelle",
+      "quellen": [
+        "jackpot",
+        "quest",
+        "reliktjagd"
+      ]
+    },
+    "inhalt": {
+      "relikte": 1
+    },
+    "kristalle": 0
+  },
+  {
+    "id": "grosses_reliktpack",
+    "name": "Großes Reliktpack",
+    "art": "relikt",
+    "beschreibung": "Wähle eines aus mehreren Relikten.",
+    "farbe": "#F2B630",
+    "freischaltung": {
+      "typ": "geplant"
+    },
+    "inhalt": {
+      "relikte": 1,
+      "auswahl": 3
+    },
     "kristalle": 0
   }
 ]
