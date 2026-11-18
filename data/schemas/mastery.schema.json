@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "mastery.schema.json",
+  "title": "Mastery-Baum",
+  "type": "object",
+  "required": ["branches", "nodes"],
+  "properties": {
+    "branches": { "type": "array", "items": { "type": "object", "required": ["id", "name"] } },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "branch", "name", "description", "baseCost", "maxLevel", "effect"],
+        "properties": {
+          "id": { "type": "string" },
+          "branch": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "baseCost": { "type": "number" },
+          "costGrowth": { "type": "number", "default": 1.5 },
+          "maxLevel": { "type": "integer" },
+          "effect": {
+            "oneOf": [
+              { "type": "object", "required": ["type", "stat", "perLevel"], "properties": { "type": { "const": "stat" },
+                "stat": { "enum": ["startGold", "killGoldMul", "packPriceMul", "priceGrowthAdd", "bonusCardChance", "towerHpMul", "towerDamageMul", "attackSpeedMul", "damageMul", "heroHpMul", "extraSlots"] },
+                "perLevel": { "type": "number" } } },
+              { "type": "object", "required": ["type", "card", "patches"], "properties": { "type": { "const": "spec" }, "card": { "type": "string" },
+                "patches": { "type": "array", "items": { "$ref": "common.schema.json#/definitions/patch" } } } }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

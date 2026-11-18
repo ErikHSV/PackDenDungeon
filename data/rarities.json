@@ -1,0 +1,7 @@
+{
+  "common":    { "name": "Gewöhnlich",   "color": "#9aa0a6", "order": 0, "sellValue": 15,  "glow": false },
+  "uncommon":  { "name": "Ungewöhnlich", "color": "#4caf50", "order": 1, "sellValue": 30,  "glow": false },
+  "rare":      { "name": "Selten",       "color": "#3d8bfd", "order": 2, "sellValue": 60,  "glow": true },
+  "epic":      { "name": "Episch",       "color": "#a855f7", "order": 3, "sellValue": 150, "glow": true },
+  "legendary": { "name": "Legendär",     "color": "#f5b301", "order": 4, "sellValue": 400, "glow": true }
+}

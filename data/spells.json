@@ -1,0 +1,101 @@
+[
+  {
+    "id": "steinregen",
+    "name": "Steinregen",
+    "short": "St",
+    "rarity": "common",
+    "color": "#8d7b68",
+    "description": "Physischer Flächenschaden an der Stelle mit den meisten Gegnern.",
+    "cooldown": 9,
+    "auto": { "minEnemies": 3, "bossPresent": true },
+    "effect": { "type": "rockfall", "damage": 55, "radius": 110, "damageType": "physical" },
+    "scale": ["effect.damage"],
+    "star3": {
+      "text": "Radius +40 %, betäubt getroffene Gegner 0,5 s.",
+      "patches": [
+        { "path": "effect.radius", "op": "mul", "value": 1.4 },
+        { "path": "effect.stun", "op": "set", "value": 0.5 }
+      ]
+    }
+  },
+  {
+    "id": "heilquelle",
+    "name": "Heilquelle",
+    "short": "Hq",
+    "rarity": "common",
+    "color": "#55c27a",
+    "description": "Heilt Turm und alle Helden.",
+    "cooldown": 16,
+    "auto": { "towerBelow": 0.75, "heroesBelow": 0.6 },
+    "effect": { "type": "heal", "tower": 120, "heroPct": 0.35 },
+    "scale": ["effect.tower"],
+    "star3": {
+      "text": "Helden werden um 60 % geheilt.",
+      "patches": [ { "path": "effect.heroPct", "op": "set", "value": 0.6 } ]
+    }
+  },
+  {
+    "id": "goldfieber",
+    "name": "Goldfieber",
+    "short": "Gf",
+    "rarity": "uncommon",
+    "color": "#f1c40f",
+    "description": "10 Sekunden lang doppelte Goldbeute.",
+    "cooldown": 30,
+    "auto": { "minEnemies": 6, "bossPresent": false },
+    "effect": { "type": "goldRush", "duration": 10, "multiplier": 2 },
+    "scale": [],
+    "star3": {
+      "text": "2,5-fache statt doppelte Goldbeute.",
+      "patches": [ { "path": "effect.multiplier", "op": "set", "value": 2.5 } ]
+    }
+  },
+  {
+    "id": "eiswand",
+    "name": "Eiswand",
+    "short": "Ew",
+    "rarity": "rare",
+    "color": "#a6e3ff",
+    "description": "Errichtet eine Barriere, die Bodengegner 5 Sekunden aufhält.",
+    "cooldown": 18,
+    "auto": { "minEnemiesNearFront": 4 },
+    "effect": { "type": "iceWall", "duration": 5 },
+    "scale": [],
+    "star3": {
+      "text": "Hält 7,5 Sekunden.",
+      "patches": [ { "path": "effect.duration", "op": "set", "value": 7.5 } ]
+    }
+  },
+  {
+    "id": "kriegshorn",
+    "name": "Kriegshorn",
+    "short": "Kh",
+    "rarity": "rare",
+    "color": "#d35400",
+    "description": "Alle Helden machen 8 Sekunden lang +50 % Schaden.",
+    "cooldown": 20,
+    "auto": { "minEnemies": 5, "bossPresent": true },
+    "effect": { "type": "warHorn", "amount": 0.5, "duration": 8 },
+    "scale": [],
+    "star3": {
+      "text": "+75 % Schaden statt +50 %.",
+      "patches": [ { "path": "effect.amount", "op": "set", "value": 0.75 } ]
+    }
+  },
+  {
+    "id": "fluch_der_schwaeche",
+    "name": "Fluch der Schwäche",
+    "short": "Fl",
+    "rarity": "epic",
+    "color": "#8e44ad",
+    "description": "Alle Gegner erleiden 10 Sekunden lang +35 % Schaden.",
+    "cooldown": 22,
+    "auto": { "minEnemies": 5, "bossPresent": true },
+    "effect": { "type": "curse", "amount": 0.35, "duration": 10 },
+    "scale": [],
+    "star3": {
+      "text": "+50 % erlittener Schaden statt +35 %.",
+      "patches": [ { "path": "effect.amount", "op": "set", "value": 0.5 } ]
+    }
+  }
+]

@@ -1,0 +1,46 @@
+[
+  {
+    "id": "holzkiste",
+    "name": "Holzkiste",
+    "description": "Gewöhnlich bis Selten.",
+    "unlockChapter": 1,
+    "basePrice": 100,
+    "color": "#8b5a2b",
+    "rarityWeights": { "common": 62, "uncommon": 28, "rare": 10 },
+    "pool": [
+      "torwaechter", "schleuderjunge", "feldscherin",
+      "kettenschwinger", "falknerin", "runenschmied",
+      "frostweberin", "schattenlaeuferin", "glockenmoench",
+      "steinregen", "heilquelle", "goldfieber", "eiswand", "kriegshorn"
+    ]
+  },
+  {
+    "id": "silberkiste",
+    "name": "Silberkiste",
+    "description": "Ungewöhnlich bis Episch.",
+    "unlockChapter": 2,
+    "basePrice": 400,
+    "color": "#b8c4d0",
+    "rarityWeights": { "uncommon": 50, "rare": 35, "epic": 15 },
+    "pool": [
+      "kettenschwinger", "falknerin", "runenschmied",
+      "frostweberin", "schattenlaeuferin", "glockenmoench",
+      "sturmruferin", "knochenfluesterer",
+      "goldfieber", "eiswand", "kriegshorn", "fluch_der_schwaeche"
+    ]
+  },
+  {
+    "id": "sternenkiste",
+    "name": "Sternenkiste",
+    "description": "Selten bis Legendär.",
+    "unlockChapter": 3,
+    "basePrice": 1500,
+    "color": "#3b2f7a",
+    "rarityWeights": { "rare": 55, "epic": 35, "legendary": 10 },
+    "pool": [
+      "frostweberin", "schattenlaeuferin", "glockenmoench",
+      "sturmruferin", "knochenfluesterer", "uhrmacher",
+      "eiswand", "kriegshorn", "fluch_der_schwaeche"
+    ]
+  }
+]

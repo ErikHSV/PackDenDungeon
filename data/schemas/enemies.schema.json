@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "enemies.schema.json",
+  "title": "Gegner und Bosse",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "name", "short", "hp", "speed", "armor", "magicResist", "flying", "immune", "gold", "damage", "attackInterval", "size", "shape", "color", "traits"],
+    "properties": {
+      "id": { "type": "string", "pattern": "^[a-z0-9_]+$" },
+      "name": { "type": "string" },
+      "short": { "type": "string", "maxLength": 3 },
+      "boss": { "type": "boolean" },
+      "hp": { "type": "number", "description": "Basisleben (Normale: × Kapitel × Wachstum^Welle, Bosse: × Kapitel)" },
+      "speed": { "type": "number", "description": "Pixel pro Sekunde" },
+      "armor": { "type": "number", "description": "Fester Abzug von physischem Schaden" },
+      "magicResist": { "type": "number", "minimum": 0, "maximum": 1, "description": "Prozentuale Reduktion von Magieschaden" },
+      "flying": { "type": "boolean" },
+      "immune": { "type": "array", "items": { "enum": ["physical", "magic"] } },
+      "gold": { "type": "number" },
+      "damage": { "type": "number" },
+      "attackInterval": { "type": "number" },
+      "blockSlots": { "type": "integer", "description": "Wie viel Blockkapazität dieser Gegner belegt (Standard 1)" },
+      "groupSize": { "type": "integer", "description": "Erscheint in Gruppen" },
+      "size": { "type": "number" },
+      "shape": { "enum": ["circle", "triangle", "square", "diamond"] },
+      "color": { "type": "string" },
+      "traits": {
+        "type": "object",
+        "properties": {
+          "stealGold": { "type": "object", "properties": { "amount": { "type": "number" } } },
+          "explodeOnDeath": { "type": "object", "properties": { "damage": { "type": "number" }, "radius": { "type": "number" } } },
+          "splitOnDeath": { "type": "object", "properties": { "into": { "type": "string" }, "count": { "type": "integer" } } },
+          "frontalShield": { "type": "boolean", "description": "Nur Flächenschaden oder Springer treffen" }
+        }
+      },
+      "bossAbilities": {
+        "type": "object",
+        "propertyNames": { "enum": ["roots", "summon", "scream", "lavaField", "regen", "freeze"] }
+      },
+      "phases": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["hpBelow"],
+          "properties": {
+            "hpBelow": { "type": "number" },
+            "text": { "type": "string" },
+            "speedMul": { "type": "number" },
+            "patches": { "type": "array", "items": { "$ref": "common.schema.json#/definitions/patch" } },
+            "spawn": { "type": "array", "items": { "type": "object", "properties": { "id": { "type": "string" }, "count": { "type": "integer" } } } }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "$comment": "Zentrale Balancing-Datei. Alle globalen Zahlen des Spiels stehen hier.",
+  "gameTitle": "PackDenDungeon",
+
+  "field": {
+    "$comment": "Logische Spielfeld-Koordinaten (Pixel). Der Canvas wird darauf skaliert.",
+    "width": 1200,
+    "height": 560,
+    "towerX": 110,
+    "frontX": 480,
+    "groundY": 450,
+    "airY": 170,
+    "spawnX": 1240,
+    "slotPositions": [[410, 420], [410, 330], [345, 420], [345, 330], [280, 420], [280, 330], [215, 420], [215, 330], [150, 420], [150, 330]]
+  },
+
+  "tower": {
+    "hp": 1000,
+    "attack": { "damage": 5, "interval": 1.0, "range": 340, "canHitAir": true, "damageType": "physical", "waveGrowth": 1.06 }
+  },
+
+  "heroes": {
+    "baseSlots": 5,
+    "maxSlots": 10,
+    "reviveTime": 12,
+    "reviveHpFraction": 0.5
+  },
+
+  "economy": {
+    "startGold": 150,
+    "cardsPerPack": 3,
+    "packPriceGrowth": 0.12,
+    "minPackPriceGrowth": 0.02,
+    "$comment_sell": "Gold für Karten, die keinen Platz finden oder schon 5 Sterne haben (× sellValue der Seltenheit)",
+    "overflowGoldFactor": 1.0,
+    "$comment_first": "Erstes Pack eines Runs enthält garantiert einen angreifenden Helden (verhindert Pech-Starts)",
+    "firstPackGuaranteesAttacker": true
+  },
+
+  "waves": {
+    "firstWaveDelay": 7,
+    "breakBetweenWaves": 2,
+    "maxWaveDuration": 22,
+    "spawnInterval": 0.6,
+    "groupSpawnInterval": 0.2,
+    "countBase": 4,
+    "countPerWave": 1.5,
+    "countMax": 40,
+    "hpGrowth": 1.13,
+    "goldGrowth": 1.03,
+    "damageGrowth": 1.07,
+    "earlyCallGoldPerSecond": 2,
+    "eliteFromWave": 4,
+    "eliteChancePerWave": 0.012,
+    "eliteChanceMax": 0.18,
+    "elite": { "hp": 3.5, "gold": 4, "size": 1.35, "damage": 1.5 }
+  },
+
+  "stars": {
+    "max": 5,
+    "$comment": "Benötigte Duplikate (kumuliert) für Stern 2..5: 2, +4, +8, +16",
+    "thresholds": [0, 2, 6, 14, 30],
+    "statPerStar": 0.6,
+    "enhancedFromStar": 3
+  },
+
+  "spells": {
+    "cooldownReductionPerStar": 0.08,
+    "waveScaling": 1.03,
+    "initialChargeFraction": 0.5
+  },
+
+  "combat": {
+    "armorMinFraction": 0.2,
+    "heroArmorMinFraction": 0.3,
+    "statusBossFactor": 0.5,
+    "knockbackBossFactor": 0.15,
+    "knockbackEliteFactor": 0.5,
+    "projectileHitRadius": 6
+  },
+
+  "mastery": {
+    "pointsPerWave": 1,
+    "pointsPerBoss": 10
+  },
+
+  "speeds": [1, 2, 3]
+}

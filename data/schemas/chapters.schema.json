@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "chapters.schema.json",
+  "title": "Kapitel",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "name", "waves", "hpMult", "goldMult", "damageMult", "enemies", "boss", "colors"],
+    "properties": {
+      "id": { "type": "integer" },
+      "name": { "type": "string" },
+      "intro": { "type": "string" },
+      "question": { "type": "string", "description": "Die strategische 'Frage' des Kapitels" },
+      "waves": { "type": "integer", "description": "Letzte Welle = Bosswelle" },
+      "hpMult": { "type": "number" },
+      "hpGrowth": { "type": "number", "description": "Optional: überschreibt balance.waves.hpGrowth" },
+      "goldMult": { "type": "number" },
+      "damageMult": { "type": "number" },
+      "colors": { "type": "object" },
+      "enemies": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["id", "weight"],
+          "properties": { "id": { "type": "string" }, "weight": { "type": "number" }, "fromWave": { "type": "integer" }, "toWave": { "type": "integer" } }
+        }
+      },
+      "boss": { "type": "string" }
+    }
+  }
+}

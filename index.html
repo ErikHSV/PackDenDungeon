@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#15131f">
+  <title>PackDenDungeon</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app">
+
+    <!-- ============ Hauptmenü ============ -->
+    <section id="screen-menu" class="screen active">
+      <div class="menu-box">
+        <h1 class="logo" id="game-title">PackDenDungeon</h1>
+        <p class="tagline">Packs aufreißen. Helden sammeln. Den Turm halten.</p>
+        <div class="menu-buttons">
+          <button class="btn btn-primary btn-big" data-goto="chapters">▶ Start</button>
+          <button class="btn btn-big" data-goto="mastery">⬆ Mastery <span id="menu-points" class="badge"></span></button>
+          <button class="btn btn-big" data-goto="collection">🃏 Sammlung</button>
+          <button class="btn btn-big" data-goto="settings">⚙ Einstellungen</button>
+        </div>
+        <div id="menu-stats" class="menu-stats"></div>
+      </div>
+      <a class="legacy-link" href="pack-legends/index.html">Erster Prototyp: Pack Legends →</a>
+    </section>
+
+    <!-- ============ Kapitelwahl ============ -->
+    <section id="screen-chapters" class="screen">
+      <header class="screen-head">
+        <button class="btn" data-goto="menu">← Zurück</button>
+        <h2>Kapitel wählen</h2>
+      </header>
+      <div id="chapter-list" class="chapter-list"></div>
+    </section>
+
+    <!-- ============ Kampf ============ -->
+    <section id="screen-battle" class="screen">
+      <div class="battle-top">
+        <div class="hud-item hud-tower" title="Turm-Leben">🏰 <span id="hud-tower"></span>
+          <div class="hud-bar"><div id="hud-tower-bar"></div></div>
+        </div>
+        <div class="hud-item" title="Gold">💰 <span id="hud-gold"></span></div>
+        <div class="hud-item" title="Welle">🌊 <span id="hud-wave"></span></div>
+        <div class="hud-spacer"></div>
+        <button class="btn btn-small" id="btn-next-wave" title="Nächste Welle sofort rufen (Bonusgold)">⏩ Welle rufen</button>
+        <button class="btn btn-small" id="btn-speed">1×</button>
+        <button class="btn btn-small" id="btn-pause">⏸</button>
+      </div>
+      <div class="battle-main">
+        <div class="field-wrap">
+          <canvas id="field"></canvas>
+          <p class="rotate-hint">📱 Tipp: Im Querformat siehst du mehr vom Schlachtfeld.</p>
+          <div id="banner" class="banner hidden"></div>
+        </div>
+        <aside class="side-panel">
+          <h3>Packs</h3>
+          <div id="shop" class="shop"></div>
+          <h3>Zauber <small id="auto-spells-label"></small></h3>
+          <div id="spellbar" class="spellbar"><p class="muted small">Ziehe Zauberkarten aus Packs.</p></div>
+          <div id="hero-info" class="hero-info hidden"></div>
+          <div id="debug-panel" class="debug-panel hidden">
+            <h3>Debug</h3>
+            <button class="btn btn-small" data-debug="gold">+1000 Gold</button>
+            <button class="btn btn-small" data-debug="skip">Welle überspringen</button>
+            <button class="btn btn-small" data-debug="kill">Alle Gegner töten</button>
+            <button class="btn btn-small" data-debug="heal">Turm heilen</button>
+            <button class="btn btn-small" data-debug="boss">Zur Bosswelle</button>
+            <button class="btn btn-small" data-debug="lose">Run beenden</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ============ Mastery ============ -->
+    <section id="screen-mastery" class="screen">
+      <header class="screen-head">
+        <button class="btn" data-goto="menu">← Zurück</button>
+        <h2>Mastery-Baum</h2>
+        <div class="points">Punkte: <b id="mastery-points">0</b></div>
+      </header>
+      <div id="mastery-tree" class="mastery-tree"></div>
+    </section>
+
+    <!-- ============ Sammlung ============ -->
+    <section id="screen-collection" class="screen">
+      <header class="screen-head">
+        <button class="btn" data-goto="menu">← Zurück</button>
+        <h2>Sammlung <small id="collection-count"></small></h2>
+      </header>
+      <div id="collection" class="card-grid"></div>
+    </section>
+
+    <!-- ============ Einstellungen ============ -->
+    <section id="screen-settings" class="screen">
+      <header class="screen-head">
+        <button class="btn" data-goto="menu">← Zurück</button>
+        <h2>Einstellungen</h2>
+      </header>
+      <div class="settings">
+        <label><input type="checkbox" data-setting="sound"> Sound</label>
+        <label><input type="checkbox" data-setting="autoSpells"> Zauber automatisch wirken</label>
+        <label><input type="checkbox" data-setting="damageNumbers"> Schadenszahlen anzeigen</label>
+        <label><input type="checkbox" data-setting="fastPackOpening"> Schnelles Pack-Öffnen (ohne Animation)</label>
+        <label><input type="checkbox" data-setting="debug"> Debug-Werkzeuge</label>
+        <div id="debug-meta" class="debug-meta hidden">
+          <button class="btn btn-small" id="dbg-points">+100 Mastery-Punkte</button>
+          <button class="btn btn-small" id="dbg-unlock">Alle Kapitel freischalten</button>
+          <button class="btn btn-small" id="dbg-collect">Alle Karten in Sammlung</button>
+        </div>
+        <hr>
+        <button class="btn btn-danger" id="btn-reset">Spielstand zurücksetzen</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ Overlays ============ -->
+  <div id="overlay-pack" class="overlay hidden">
+    <div class="overlay-box pack-box">
+      <h2 id="pack-title"></h2>
+      <div id="pack-cards" class="pack-cards"></div>
+      <button class="btn btn-primary" id="pack-close">Weiter</button>
+    </div>
+  </div>
+
+  <div id="overlay-runend" class="overlay hidden">
+    <div class="overlay-box">
+      <h2 id="runend-title"></h2>
+      <div id="runend-body"></div>
+      <div class="row">
+        <button class="btn btn-primary" id="runend-again">↻ Nochmal</button>
+        <button class="btn" id="runend-mastery">⬆ Mastery</button>
+        <button class="btn" id="runend-menu">Hauptmenü</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="overlay-pause" class="overlay hidden">
+    <div class="overlay-box">
+      <h2>Pause</h2>
+      <div class="row column">
+        <button class="btn btn-primary" id="pause-resume">Weiter</button>
+        <button class="btn" id="pause-abandon">Run aufgeben</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toasts"></div>
+  <div id="load-error" class="load-error hidden"></div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
