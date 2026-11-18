@@ -30,7 +30,8 @@ export function unitRange(run, u) {
 
 export function unitAttackInterval(run, u) {
   const buff = 1 + (run.buffs.blutrausch.t > 0 ? run.buffs.blutrausch.bonus : 0) + (u.cheer > 0 ? u.cheerBonus : 0) + (run.buffs.trommel.t > 0 ? run.buffs.trommel.bonus : 0);
-  return 1 / (u.def.werte.angriffsTempo * run.mods.heldenTempoMul * buff);
+  const wut = u.def.faehigkeiten?.wut ? 1 + u.def.faehigkeiten.wut.tempoMax * (1 - u.hp / u.maxHp) : 1;
+  return 1 / (u.def.werte.angriffsTempo * run.mods.heldenTempoMul * buff * wut);
 }
 
 function moveToward(run, u, tx, ty, dt, stopAt = 0) {

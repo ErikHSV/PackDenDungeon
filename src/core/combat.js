@@ -40,7 +40,13 @@ export function applyStatus(run, e, st, hit = 0, source = null) {
     case 'brennen': S.burn = { dps: Math.max(S.burn.t > 0 ? S.burn.dps : 0, st.schadenProSekunde ?? hit * (st.anteil ?? 0.3)), t: Math.max(S.burn.t, st.dauer ?? 3) }; break;
     case 'gift': S.poison = { dps: Math.max(S.poison.t > 0 ? S.poison.dps : 0, st.schadenProSekunde ?? hit * 0.25), t: Math.max(S.poison.t, st.dauer ?? 4) }; break;
     case 'verwundbarkeit': S.vuln = { a: Math.max(S.vuln.t > 0 ? S.vuln.a : 0, st.anteil ?? 0.2), t: Math.max(S.vuln.t, st.dauer ?? 3) }; break;
-    case 'seuche': S.plague = { t: st.dauer ?? 6, dmg: st.explosionSchaden ?? 20, r: st.explosionRadius ?? 80 }; break;
+    case 'seuche': {
+      const dauer = st.dauer ?? 6;
+      S.plague = { t: dauer, dmg: st.explosionSchaden ?? 20, r: st.explosionRadius ?? 80, springt: !!st.springt, skelettChance: st.skelettChance || 0, st };
+      if (st.verwundbar) S.vuln = { a: Math.max(S.vuln.t > 0 ? S.vuln.a : 0, st.verwundbar), t: Math.max(S.vuln.t, dauer) };
+      if (st.lahm) { const f = 1 - st.lahm * boss; if (f < S.slow.f || S.slow.t <= 0) S.slow.f = f; S.slow.t = Math.max(S.slow.t, dauer); }
+      break;
+    }
     case 'rueckstoss': {
       if (e.fliegt) break;
       const d = (st.distanz ?? 40) * (e.boss ? 0.15 : e.elite ? 0.5 : 1);
@@ -84,6 +90,8 @@ export function damageEnemy(run, e, amount, type, opts = {}) {
     }
   }
   let d = amount;
+  // Helden-Krit (Skill-Tree „Heldenglück“): doppelter Schaden
+  if (opts.source?.kind === 'unit' && !opts.crit && run.mods.heldenKrit > 0 && run.rng() < run.mods.heldenKrit) { d *= 2; opts = { ...opts, crit: true }; }
   // Banner-Aura eines Hauptmanns: Soldaten in der Nähe haben mehr Rüstung
   let armor = e.ruestung;
   if (run.auraCarriers?.length && !e.def.eigenschaften?.aura) for (const h of run.auraCarriers) if (!h.dead && dist(h, e) <= h.def.eigenschaften.aura.radius) { armor += h.def.eigenschaften.aura.ruestung; break; }
@@ -125,7 +133,8 @@ export function killEnemy(run, e, killer = null) {
   }
   if (killer && run.mods.heldenHeilungProKill && !killer.dead) killer.hp = Math.min(killer.maxHp, killer.hp + killer.maxHp * run.mods.heldenHeilungProKill);
   // Münzen gibt es nur aus dem Tageseinkommen. Fähigkeiten wie „Bonus-Münzen pro Kill“ bringen Bonus-Münzen für den nächsten Tag.
-  const coins = killer?.def?.faehigkeiten?.bonusMuenzen?.proKill ?? 0;
+  const km = killer?.def?.faehigkeiten?.killMuenze;
+  const coins = (killer?.def?.faehigkeiten?.bonusMuenzen?.proKill ?? 0) + (km && run.rng() < km.chance ? 1 : 0);
   if (coins > 0) {
     run.coins += coins;
     run.stats.muenzen += coins;
@@ -156,6 +165,12 @@ export function killEnemy(run, e, killer = null) {
     const p = e.st.plague;
     fx(run, { type: 'burst', x: e.x, y: e.y, r: p.r, color: '#9be84a', life: 0.45 });
     for (const o of run.enemies) if (o !== e && !o.dead && dist(o, e) <= p.r) damageEnemy(run, o, p.dmg, 'magic', { aoe: true, silent: true });
+    // Seuche springt auf den nächsten Gegner über
+    if (p.springt) {
+      const n = run.enemies.filter((o) => o !== e && !o.dead && !(o.st.plague?.t > 0)).sort((a, b) => dist(a, e) - dist(b, e))[0];
+      if (n && dist(n, e) <= p.r * 2.5) { applyStatus(run, n, { ...p.st, typ: 'seuche' }); fx(run, { type: 'bolt', x1: e.x, y1: e.y - 10, x2: n.x, y2: n.y - 10, color: '#9be84a', life: 0.25 }); }
+    }
+    if (p.skelettChance && run.rng() < p.skelettChance) run.spawnUnit('skelettkrieger', e.x, e.y, { life: 12 });
   }
   if (e.boss) run.onBossKilled(e);
   run.emit('kill', { enemy: e });
@@ -168,8 +183,9 @@ export function killEnemy(run, e, killer = null) {
 /** Schaden an einer Einheit. attacker = Gegner (für Blocken mit Betäubung). */
 export function damageUnit(run, u, amount, attacker = null) {
   if (u.dead || amount <= 0) return 0;
-  const block = u.def.faehigkeiten.blocken;
-  if (block && attacker && run.rng() < block.chance) {
+  const block = u.def.faehigkeiten.blocken || {};
+  const blockChance = (block.chance || 0) + (u.summoned ? 0 : run.mods.heldenBlock || 0);
+  if (blockChance > 0 && attacker && run.rng() < blockChance) {
     u.blocks = (u.blocks || 0) + 1;
     fx(run, { type: 'text', x: u.x, y: u.y - 70, text: 'Block!', color: '#d9c38c', size: 16 });
     if (block.betaeuben) applyStatus(run, attacker, { typ: 'betaeubung', dauer: 1 });

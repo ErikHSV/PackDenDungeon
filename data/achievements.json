@@ -10,6 +10,16 @@
     }
   },
   {
+    "id": "e_pack_10",
+    "name": "Packratte",
+    "beschreibung": "Öffne 10 Packs.",
+    "kategorie": "Packs",
+    "ziel": {
+      "statistik": "packsGeoeffnet",
+      "anzahl": 10
+    }
+  },
+  {
     "id": "e_pack_100",
     "name": "Packmeister",
     "beschreibung": "Öffne 100 Packs.",
@@ -40,13 +50,23 @@
     }
   },
   {
-    "id": "e_tome_50",
-    "name": "Bibliothekar",
-    "beschreibung": "Öffne 50 Tomes.",
+    "id": "e_tome_10",
+    "name": "Leseratte",
+    "beschreibung": "Löse 10 Tomes aus.",
     "kategorie": "Tomes",
     "ziel": {
       "statistik": "tomesGenutzt",
-      "anzahl": 50
+      "anzahl": 10
+    }
+  },
+  {
+    "id": "e_tome_100",
+    "name": "Bibliothekar",
+    "beschreibung": "Löse 100 Tomes aus.",
+    "kategorie": "Tomes",
+    "ziel": {
+      "statistik": "tomesGenutzt",
+      "anzahl": 100
     }
   },
   {

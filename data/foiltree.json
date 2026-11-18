@@ -71,7 +71,8 @@
       },
       "verbindungen": [
         "f_start",
-        "f_theke"
+        "f_theke",
+        "f_rerollrabatt"
       ],
       "maxStufe": 3,
       "basisKosten": 2,
@@ -262,7 +263,7 @@
     {
       "id": "f_zinsen",
       "name": "Zinsen",
-      "beschreibung": "Nicht ausgegebene Mastery bringt zu Beginn jedes Tages +5 % Zinsen je Stufe (höchstens 2000 pro Tag).",
+      "beschreibung": "Zu Beginn jedes Tages bringt deine gesparte Mastery 25 % Zinsen.",
       "typ": "klein",
       "ast": "mastery",
       "akt": 1,
@@ -274,12 +275,12 @@
         "f_start",
         "f_neubeginn"
       ],
-      "maxStufe": 5,
-      "basisKosten": 3,
+      "maxStufe": 1,
+      "basisKosten": 10,
       "kostenFaktor": 1.6,
       "effekt": {
         "ziel": "zinsen",
-        "wert": 0.05,
+        "wert": 0.25,
         "rechenart": "addieren"
       },
       "symbol": "mastery",
@@ -412,6 +413,31 @@
       },
       "symbol": "skull",
       "abzeichen": "plus"
+    },
+    {
+      "id": "f_rerollrabatt",
+      "name": "Rabatt beim Würfeln",
+      "beschreibung": "Jedes Neu-Würfeln am selben Tag erhöht die Rabatt-Chance der neuen Angebote um 5 % (setzt sich jeden Tag zurück).",
+      "typ": "klein",
+      "ast": "shop",
+      "akt": 1,
+      "position": {
+        "x": 864,
+        "y": 480
+      },
+      "verbindungen": [
+        "f_gratiswurf"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 8,
+      "kostenFaktor": 1.6,
+      "effekt": {
+        "ziel": "rerollRabatt",
+        "wert": 0.05,
+        "rechenart": "addieren"
+      },
+      "symbol": "coin",
+      "abzeichen": "star"
     }
   ]
 }

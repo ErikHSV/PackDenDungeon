@@ -120,7 +120,8 @@ export function validateReferences(data) {
   checkTree('Skill-Tree', data.starmap, data.starIndex, (n) => {
     if (!branches.includes(n.ast)) e.push(`Skill-Tree ${n.id}: unbekannter Ast ${n.ast}`);
     const ef = n.effekt;
-    if ((ef.ziel === 'einheit' || n.voraussetzung?.karte) && !isCard(ef.karte ?? n.voraussetzung.karte)) e.push(`Skill-Tree ${n.id}: unbekannte Karte`);
+    if (ef.ziel === 'einheit' && !isCard(ef.karte) && !(data.units || []).some((u) => u.id === ef.karte)) e.push(`Skill-Tree ${n.id}: unbekannte Einheit ${ef.karte}`);
+    if (n.voraussetzung?.karte && !isCard(n.voraussetzung.karte)) e.push(`Skill-Tree ${n.id}: unbekannte Karte`);
     if (ef.ziel === 'tome' && !data.tomeIndex[ef.tome]) e.push(`Skill-Tree ${n.id}: unbekanntes Tome ${ef.tome}`);
     if (ef.ziel === 'gebaeude' && !data.buildingIndex[ef.gebaeude]) e.push(`Skill-Tree ${n.id}: unbekanntes Gebäude ${ef.gebaeude}`);
     if (ef.ziel === 'relikt' && !data.relicIndex[ef.relikt]?.nurBaum) e.push(`Skill-Tree ${n.id}: Relikt ${ef.relikt} fehlt oder ist nicht als nurBaum markiert`);

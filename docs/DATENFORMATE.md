@@ -53,6 +53,8 @@ Einheiten-Fähigkeiten, die Knoten setzen können: `faehigkeiten.killHeilung { a
 
 ## Packs (`packs.json`)
 
+- `packImPack { pack, mod }`: beim Öffnen mit der Chance `mods[mod]` zusätzlich dieses Pack (Silber → Holz über „Pack im Pack“, Sternen/Kronen → Pack darunter über „Pack im Pack II“). Kronenpack: nach Boss 3, im Shop und aus dem Prägewerk.
+
 - `kartenProPack` ist 1 (eine Einheit pro Pack). `kartenGewichte` legt feste Ergebnisse fest (Holzpack 60/30/9/1) und ersetzt dann Pool und Seltenheits-Gewichte.
 - Modifikator `packTrefferWeniger`: Packs brauchen so viele Cursor-Treffer weniger (mindestens einer).
 - Entwicklung: `entwicklung.gesperrt` (erst ein Knoten schaltet sie frei) und `entwicklung.stufe2` (zweite Entwicklung nach weiteren Kills).
@@ -82,6 +84,8 @@ Einheiten-Fähigkeiten, die Knoten setzen können: `faehigkeiten.killHeilung { a
 
 ## Kapitel (`chapters.json`)
 
+- `masteryMul`: Mastery-Faktor des Kapitels (1 / 5 / 20 in Akt 1, 40–85 in Akt 2), damit die Kosten bis 75.000 erreichbar sind.
+
 `bossNachSekunden`: Zeit bis zum Boss. `spawn.modus`: `ring` (ganzer Arenarand) oder `portale` (feste Winkel in Grad, 0 = rechts, 90 = unten).
 `farbwelt`: `thema` (`moor`, `gruft`, `schmiede`, `frost`), `boden` (Bodenfarbe), `turmlicht` (Tor/Fenster des Turms).
 `gegner[]`: Gewicht, optional `abSekunde` und `bisSekunde`. `wellen`: Multiplikatoren für Leben und Schaden; `muenzenMul` ist der Mastery-Multiplikator des Kapitels (Name historisch). `gefahren`: z. B. `schneesturm`.
@@ -110,7 +114,8 @@ Gleiches Knotenformat, Positionen von Hand. Bezahlt mit Foil-Staub (`basisKosten
 | `cursorSchaden`, `cursorRadiusMul`, `cursorTickMul`, `cursorPackSchadenMul`, `cursorKrit` | Runenkreis |
 | `tagesEinkommen`, `shopPlaetze`, `freieRerolls`, `masteryMul`, `masteryNeueKarte`, `jackpotChance`, `rabattChance` | Wirtschaft |
 | `packWiderstandMul`, `kartenProPack`, `bonusKarteChance`, `packImPack`, `grenzgaengerChance` | Packs |
-| `foilChance`, `foilStaerkeMul`, `foilMonsterChance`, `reliktPlaetze`, `zinsen`, `aktStartMastery`, `gesuchtStaub` | Foil-Baum |
+| `foilChance`, `foilStaerkeMul`, `foilMonsterChance`, `reliktPlaetze`, `zinsen`, `aktStartMastery`, `gesuchtStaub`, `rerollRabatt` (Rabatt-Chance je Neu-Würfeln am selben Tag) | Foil-Baum |
+| `heldenKrit` (doppelter Schaden), `heldenBlock` (Blockchance aller Helden), `packImPack2` (Sternen-/Kronenpack → Pack darunter) | Skill-Tree (Wiki-Ausbau) |
 | `heldenSchadenMul`, `heldenLebenMul`, `heldenTempoMul` | alle Helden |
 | `turmLebenMul`, `turmRegen`, `turmSchuetze`, `turmDornen` | Turm |
 | `tomeWirkungMul`, `tomeDauerMul`, `tomeDoppeltChance`, `tomeZweimalChance` | Tomes |
@@ -122,12 +127,15 @@ Gleiches Knotenformat, Positionen von Hand. Bezahlt mit Foil-Staub (`basisKosten
 
 `rechenart`: `addieren` (Wert × Stufe) oder `multiplizieren` (Wert^Stufe).
 
+- **Weitere Knotenfelder:** `muenzKosten` (zusätzliche Münzen bei der ersten Stufe, z. B. Prägewerk), `torBosse` am Tor-Knoten (Kapitel, deren Bosse der Tor-Zähler 1/3 – 3/3 zählt), `effekt.ziel: "einheit"` darf auch Einheiten ohne Karte patchen (z. B. `skelettkrieger`).
+- **Helden-Fähigkeiten aus dem Baum:** `faehigkeiten.wut { tempoMax }` (schneller bei wenig Leben), `todSkelett { chance, dauer }`, `killMuenze { chance }`, `killHeilung { anteil }`; Seuche (`beiTreffer` typ `seuche`) mit `verwundbar`, `lahm`, `springt`, `skelettChance`.
+
 ## Weitere Dateien
 
 - **Modifikatoren:** `effekte[]` mit `ziel`, `op`, `wert`, dazu `belohnung.masteryMul`.
-- **Gebäude:** `pack`, optional `kiste`, `position.winkel` am Arenarand, `stufen[]` mit `intervall` und `kistenChance`, optional `riesenChance` (Einheiten aus den Packs dieses Gebäudes werden mit dieser Chance zum Riesen) und `foilBonus` (relativer Aufschlag auf die Shiny-Chance dieser Packs, 0.1 = +10 %).
+- **Gebäude:** `pack`, optional `kiste`, `position.winkel` am Arenarand, `stufen[]` mit `intervall`, `kistenChance`, optional `doppelChance` (Doppel-Aktivierung), `riesenChance` und `foilBonus` (relativer Aufschlag auf die Shiny-Chance, 0.1 = +10 %). `umwandeln: "<packId>"` (Prägewerk) verwandelt statt zu werfen ein liegendes, ungeöffnetes Pack in dieses Pack. Skill-Tree-Knoten mit `effekt: { ziel: "gebaeudeBonus", gebaeude, feld, wert }` addieren `riesenChance`, `foilBonus`, `doppelChance` oder `intervall` (Sekunden weniger) zu einem Gebäude.
 - **Relikte:** `ausloeser` (`passiv`, `runStart`, `packGeoeffnet`, `heldGestorben`, `kill`, `turmGetroffen`, `tomeGenutzt`, `bossErscheint`) und `aktion` (u. a. `kettenblitz`, `skelett`, `spawnBetaeubung`). `nurBaum: true` = nur über Relikt-Knoten.
-- **Relikte, verflucht:** `verflucht: true` plus `nachteil` (Text); `aktion.typ: werte` setzt mehrere Modifikatoren (Vorteil und Nachteil). Zerstörte Relikte geben einen weiteren Platz (`balance.relikte`).
+- **Relikte, verflucht:** `verflucht: true` plus `nachteil` (Text); `aktion.typ: werte` setzt mehrere Modifikatoren (Vorteil und Nachteil). Zerstörte Relikte schalten Plätze frei: `balance.relikte.zerstoerenSchwellen` (kumuliert, Standard 1/3/6/10). Aktion `questMuenzen { wert }`: Münzen je abgeschlossener Quest.
 - **Erfolge:** `ziel { statistik, filter?, anzahl }` ohne Belohnung, mit `kategorie`. `anzahl: "alle"` zählt bis zur Gesamtzahl (z. B. alle Karten).
 - **Akte:** `kapitel[]`, `sonder[]` (z. B. Reliktjagd), `tor` mit `knoten` (Tor-Knoten im Skill-Tree) und `warnung` (Text der Bestätigung).
 

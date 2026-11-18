@@ -120,7 +120,7 @@ export class SpriteBank {
     return this.get(`pack:${packId}:${cracks}`, () => {
       const def = this.data.packIndex[packId];
       const p = new Pix(16, 21);
-      PACK_ART(p, def?.farbe ?? '#8b5a2b', packId === 'sternenpack' ? '#fff6a0' : packId === 'silberpack' ? '#5AA9F0' : '#FFD24A');
+      PACK_ART(p, def?.farbe ?? '#8b5a2b', packId === 'sternenpack' ? '#fff6a0' : packId === 'kronenpack' ? '#fff0b0' : packId === 'silberpack' ? '#5AA9F0' : '#FFD24A');
       const col = '#1a1422';
       if (cracks >= 1) { p.line(4, 4, 7, 9, col); p.line(7, 9, 5, 12, col); }
       if (cracks >= 2) { p.line(12, 5, 10, 11, col); p.line(10, 11, 13, 15, col); }

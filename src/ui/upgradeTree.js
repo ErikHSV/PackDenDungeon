@@ -299,7 +299,12 @@ export class UpgradeTree {
       else if (st === 'claimable') html += '<div class="cost">Erfüllt! Klicken zum Abholen</div>';
       else html += '<div class="hint">Wird durch Spielen erfüllt. Fortschritt zählt nur, solange die Quest im Baum sichtbar ist.</div>';
     } else if (node.typ === 'tor') {
-      html += `<div>${escapeHtml(node.beschreibung)}</div><div class="cost">Klicken, um Akt ${node.effekt.akt} zu beginnen</div>`;
+      html += `<div>${escapeHtml(node.beschreibung)}</div>`;
+      if (node.torBosse) {
+        const done = node.torBosse.filter((ch) => save.stats.bossKills?.[ch] > 0).length;
+        html += `<div><b>Tor-Zähler:</b> ${done}/${node.torBosse.length} Bosse besiegt</div>`;
+      }
+      html += `<div class="cost">Klicken, um Akt ${node.effekt.akt} zu beginnen</div>`;
     } else {
       html += `<div>${escapeHtml(node.beschreibung)}</div>`;
       if (node.effekt.ziel === 'relikt') {
@@ -316,7 +321,7 @@ export class UpgradeTree {
         else {
           const c = nodeCost(this.kind, node, lvl, data, save);
           const why = nodeBlocker(this.kind, node, save, data);
-          html += `<div class="cost ${why ? 'no' : ''}">Kosten: ${fmtNum(c.amount)} <img src="${this.game.bank.iconUrl(this.foil ? 'crystal_regen' : 'mastery')}" alt=""> ${this.foil ? 'Schimmer' : 'Mastery'}</div>`;
+          html += `<div class="cost ${why ? 'no' : ''}">Kosten: ${fmtNum(c.amount)} <img src="${this.game.bank.iconUrl(this.foil ? 'crystal_regen' : 'mastery')}" alt=""> ${this.foil ? 'Schimmer' : 'Mastery'}${c.muenzen ? ` + ${c.muenzen} <img src="${this.game.bank.iconUrl('coin')}" alt=""> Münzen` : ''}</div>`;
           if (why && !/Zu wenig/.test(why)) html += `<div class="req">${escapeHtml(why)}</div>`;
           else html += `<div class="hint">Klicken zum Kaufen${node.maxStufe > 1 ? ' · gedrückt halten für mehrere Stufen' : ''}</div>`;
         }
@@ -748,7 +753,7 @@ export class UpgradeTree {
     if (sym.startsWith('card:')) {
       const id = sym.slice(5);
       const card = this.data.cardIndex[id];
-      if (!card) return bank.icon('sword');
+      if (!card) return this.data.unitIndex[id] ? bank.unit(id).idle[0] : bank.icon('sword');
       return card.art === 'einheit' ? bank.unit(id).idle[0] : bank.tome(id);
     }
     return bank.icon(sym);

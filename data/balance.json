@@ -37,7 +37,13 @@
     "touchVersatzY": -60,
     "infoVerzoegerung": 0.6,
     "farbeLeer": "#5AA9F0",
-    "farbeAktiv": "#FF9A3A"
+    "farbeAktiv": "#FF9A3A",
+    "pfeilregen": {
+      "$kommentar": "Skill-Tree „Pfeilregen“: kritischer Cursor-Kill → Pfeile regnen um das Ziel.",
+      "pfeile": 10,
+      "radius": 150,
+      "schadenMul": 1.5
+    }
   },
   "run": {
     "countdown": 3,
@@ -127,7 +133,7 @@
     "masteryProKill": 0.2,
     "masteryProElitewelle": 2,
     "masteryProBoss": 30,
-    "masteryProPack": 0.4,
+    "masteryProPack": 1,
     "masteryNeueKarte": 2,
     "erstesShiny": {
       "$kommentar": "Einmalige Schimmer-Quellen (10.1) plus Mastery fürs Entdecken.",
@@ -178,8 +184,8 @@
       "minTypen": 2
     },
     "rabatt": {
-      "$kommentar": "Chance je normalem Angebot auf einen Rabatt (rotes Etikett).",
-      "chance": 0.05,
+      "$kommentar": "Rabatt-Chance je Angebot kommt aus dem Skill-Tree („Feilschen“, 5 % je Stufe) und dem Foil-Knoten „Rabatt beim Würfeln“; Rabatt −30 %.",
+      "chance": 0,
       "faktor": 0.7
     },
     "paar": {
@@ -202,8 +208,13 @@
   "relikte": {
     "plaetzeStart": 1,
     "plaetzeMax": 5,
-    "zerstoerenGibtPlatz": true,
-    "$kommentar": "Zerstören schaltet einen weiteren Platz frei (bis plaetzeMax). Foil-Knoten „Weiterer Relikt-Platz“ gibt zusätzliche Plätze. Relikte mit nurBaum gibt es nur über Relikt-Knoten."
+    "$kommentar": "Zerstörte Relikte schalten Plätze frei: der erste Platz kostet 1 zerstörtes Relikt, die weiteren 2, 3 und 4 (kumuliert 1/3/6/10). Foil-Knoten „Weiterer Relikt-Platz“ gibt zusätzliche Plätze. Relikte mit nurBaum gibt es nur über Relikt-Knoten.",
+    "zerstoerenSchwellen": [
+      1,
+      3,
+      6,
+      10
+    ]
   },
   "akte": {
     "$kommentar": "Akt-Wechsel über den Tor-Knoten im Skill-Tree: der Skill-Tree wird zurückgesetzt (volle Rückerstattung), Quest-Fortschritt beginnt neu. Erhalten bleiben Foil-Baum, Foil-Staub, Sammlung, Bestiarium, Relikte.",
@@ -257,7 +268,7 @@
   "foilbaum": {
     "$kommentar": "Zweiter, dauerhafter Baum (data/foiltree.json). Kosten = basisKosten × kostenFaktor^Stufe.",
     "kostenFaktorStandard": 1.6,
-    "zinsenMax": 2000,
+    "zinsenMax": 50000,
     "reliktReparaturKosten": 10
   },
   "$kommentar_schimmer": "Schimmer ist bewusst knapp (10.1): 1–5 pro Ereignis, ein normaler Run ohne Shiny-Ereignis gibt 0."

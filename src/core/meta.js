@@ -20,6 +20,7 @@ export const MOD_DEFAULTS = {
   packWiderstandMul: 1, packTrefferWeniger: 0, foilChance: 0, foilChanceMul: 1, kartenProPack: 0, bonusKarteChance: 0, packImPack: 0, grenzgaengerChance: 0,
   // Shiny / Foil-Baum
   foilStaerkeMul: 1, foilMonsterChance: 0, reliktPlaetze: 0, zinsen: 0, aktStartMastery: 0, gesuchtStaub: 0,
+  heldenKrit: 0, heldenBlock: 0, packImPack2: 0, rerollRabatt: 0,
   // Helden
   heldenSchadenMul: 1, heldenLebenMul: 1, heldenTempoMul: 1, heldenLaufMul: 1, turmVerfallProSekunde: 0, bossSchadenMul: 1, heldenVerfallProSekunde: 0, heldenHeilungProKill: 0,
   // Turm und Gebäude
@@ -46,6 +47,7 @@ function applyNodeEffect(mods, node, lvl) {
   const e = node.effekt;
   if (e.ziel === 'flag') mods.flags[e.flag] = true;
   else if (e.ziel === 'gebaeude') mods.gebaeude[e.gebaeude] = (mods.gebaeude[e.gebaeude] || 0) + lvl;
+  else if (e.ziel === 'gebaeudeBonus') { const b = (mods.gebaeudeBonus[e.gebaeude] ||= {}); b[e.feld] = (b[e.feld] || 0) + e.wert * lvl; }
   else if (e.ziel === 'einheit') { const list = (mods.einheiten[e.karte] ||= []); for (let i = 0; i < lvl; i++) list.push(...e.patches); }
   else if (e.ziel === 'tome') { const t = (mods.tomes[e.tome] ||= { wirkungMul: 1, dauerMul: 1 }); t[`${e.art}Mul`] += e.betrag * lvl; }
   else if ('wert' in e && typeof e.wert === 'number') applyOp(mods, e.ziel, e.rechenart === 'multiplizieren' ? 'mul' : 'add', e.wert, lvl);
@@ -55,10 +57,10 @@ function applyNodeEffect(mods, node, lvl) {
  * @param {object} opts { modifierId, prestige, gesucht }
  */
 export function computeMods(data, save, opts = {}) {
-  const mods = { ...MOD_DEFAULTS, gebaeude: {}, einheiten: {}, tomes: {}, flags: {}, seltenheitMul: {}, modifierMastery: 1, prestige: null, gesucht: false };
+  const mods = { ...MOD_DEFAULTS, gebaeude: {}, gebaeudeBonus: {}, einheiten: {}, tomes: {}, flags: {}, seltenheitMul: {}, modifierMastery: 1, prestige: null, gesucht: false };
   mods.tagesEinkommen = data.balance.wirtschaft.tagesEinkommen ?? 0;
   for (const node of data.starmap.knoten) {
-    const lvl = levelOf(save, node.id);
+    const lvl = Math.min(levelOf(save, node.id), node.maxStufe ?? 1); // alte Spielstände: Stufen über dem neuen Maximum zählen nicht
     if (!lvl || node.typ === 'start' || node.typ === 'relikt' || node.typ === 'tor') continue;
     if (node.typ === 'quest') { mods.tagesEinkommen += node.belohnung?.tagesEinkommen || 0; continue; }
     applyNodeEffect(mods, node, lvl);
@@ -232,7 +234,8 @@ function rollSlot(data, save, mods, rng, index, uid, fromReroll) {
       if (data.cardIndex[karte].art === 'einheit' && mods?.flags?.paarAngebot && rng() < S.paar.chance) slot.anzahl = mods.flags.trioAngebot && rng() < S.paar.trioChance ? 3 : 2;
       if (rng() < cardFoilChance(data, mods) * (S.shinyEinzelkarte?.faktor ?? 1)) slot.foil = true;
     } else slot = { kind: 'angebot', id: weightedPick(pool.map((o) => [o.id, o.gewicht]), rng) };
-    if (rng() < S.rabatt.chance + (mods?.rabattChance || 0)) slot.rabatt = true;
+    const rerollBonus = fromReroll ? ((save.shop.rerolls || 0) + (save.shop.freeUsed || 0)) * (mods?.rerollRabatt || 0) : 0;
+    if (rng() < S.rabatt.chance + (mods?.rabattChance || 0) + rerollBonus) slot.rabatt = true;
   }
   slot.uid = uid;
   const seen = (save.shop.seen ||= []);
@@ -383,7 +386,8 @@ export function masteryFor(result, data, mods) {
   const B = data.balance.belohnungen;
   const base = result.zeit * B.masteryProSekunde + result.kills * B.masteryProKill + result.elitewellen * B.masteryProElitewelle + (result.sieg ? B.masteryProBoss : 0)
     + (result.packs || 0) * (B.masteryProPack || 0);
-  const kapitelMul = data.chapterIndex[result.kapitel]?.wellen.muenzenMul ?? 1; // höhere Kapitel geben mehr Mastery
+  const ch = data.chapterIndex[result.kapitel];
+  const kapitelMul = ch?.masteryMul ?? ch?.wellen.muenzenMul ?? 1; // höhere Kapitel geben deutlich mehr Mastery
   return Math.round(base * kapitelMul * mods.masteryMul * mods.modifierMastery * (mods.prestige?.belohnungMul ?? 1));
 }
 
@@ -558,6 +562,10 @@ export function claimQuestNode(node, data, save, rng = Math.random) {
   const b = node.belohnung || {};
   const out = { parts: [], relics: [] };
   if (b.tagesEinkommen) out.parts.push(`+${b.tagesEinkommen} Tageseinkommen (dauerhaft)`);
+  for (const id of save.relics.equipped) {
+    const r = data.relicIndex[id];
+    if (r?.aktion.typ === 'questMuenzen') { save.coins += r.aktion.wert; out.parts.push(`+${r.aktion.wert} Münze (${r.name})`); }
+  }
   if (b.mastery) { save.mastery += b.mastery; out.parts.push(`+${b.mastery} Mastery`); }
   if (b.relikt) {
     const r = data.relicIndex[b.relikt];
@@ -629,7 +637,7 @@ export function nodeVisible(kind, node, save, data) {
 export function nodeCost(kind, node, level, data, save = null) {
   const f = node.kostenFaktor ?? TREE[kind].faktor(data);
   const aktMul = kind === 'skill' ? (data.balance.skilltree.aktKostenMul?.[save?.act ?? 1] ?? 1) : 1;
-  return { amount: Math.round(node.basisKosten * Math.pow(f, level) * aktMul), waehrung: TREE[kind].wallet };
+  return { amount: Math.round(node.basisKosten * Math.pow(f, level) * aktMul), waehrung: TREE[kind].wallet, muenzen: level === 0 ? node.muenzKosten || 0 : 0 };
 }
 
 export function nodeBlocker(kind, node, save, data) {
@@ -642,6 +650,7 @@ export function nodeBlocker(kind, node, save, data) {
   if (node.typ === 'tor') return null;
   const c = nodeCost(kind, node, lvl, data, save);
   if (save[c.waehrung] < c.amount) return kind === 'foil' ? 'Zu wenig Schimmer' : 'Zu wenig Mastery';
+  if (c.muenzen && (save.coins || 0) + (save.bonusCoins || 0) < c.muenzen) return 'Zu wenig Münzen';
   return null;
 }
 
@@ -655,6 +664,7 @@ export function buyNode(kind, node, save, data) {
   const lvl = T.level(save, node.id);
   const c = nodeCost(kind, node, lvl, data, save);
   save[c.waehrung] -= c.amount;
+  if (c.muenzen) pay(save, c.muenzen);
   (save[T.store] ||= {})[node.id] = lvl + 1;
   if (kind === 'skill') save.lastBought = node.id;
   const out = { relic: null, staub: 0 };
@@ -674,7 +684,7 @@ export function resetStarmap(data, save) {
   let mp = 0;
   for (const node of data.starmap.knoten) {
     if (node.typ === 'quest' || node.typ === 'tor') continue;
-    for (let l = 0; l < (save.starmap[node.id] || 0); l++) mp += nodeCost('skill', node, l, data, save).amount;
+    for (let l = 0; l < (save.starmap[node.id] || 0); l++) { const c = nodeCost('skill', node, l, data, save); mp += c.amount; if (c.muenzen) save.coins += c.muenzen; }
   }
   save.mastery += mp;
   save.starmap = {};
@@ -746,14 +756,30 @@ export function equipRelic(id, data, save) {
   return true;
 }
 
-/** Relikt zerstören: es ist weg, dafür gibt es einen zusätzlichen Platz (bis zum Maximum). */
+/** Zusätzliche Plätze durch Zerstören: Schwellen kumuliert (1, 3, 6, 10 zerstörte Relikte → +1, +2, +3, +4). */
+export function slotsFromDestroyed(data, save) {
+  const R = data.balance.relikte;
+  const n = save.relics.destroyed?.length || 0;
+  const sw = R.zerstoerenSchwellen ?? [1, 2, 3, 4];
+  return Math.min(R.plaetzeMax - R.plaetzeStart, sw.filter((x) => n >= x).length);
+}
+
+/** Wie viele Relikte noch zerstört werden müssen, bis der nächste Platz frei wird (null = Maximum erreicht). */
+export function relicsToNextSlot(data, save) {
+  const R = data.balance.relikte;
+  const n = save.relics.destroyed?.length || 0;
+  const next = (R.zerstoerenSchwellen ?? [1, 2, 3, 4]).find((x) => n < x);
+  if (next == null || slotsFromDestroyed(data, save) >= R.plaetzeMax - R.plaetzeStart) return null;
+  return next - n;
+}
+
+/** Relikt zerstören: es ist weg; genug zerstörte Relikte schalten weitere Plätze frei. */
 export function destroyRelic(id, data, save) {
   if (!save.relics.owned.includes(id)) return false;
   save.relics.owned = save.relics.owned.filter((x) => x !== id);
   save.relics.equipped = save.relics.equipped.filter((x) => x !== id);
   (save.relics.destroyed ||= []).push(id);
-  const R = data.balance.relikte;
-  if (R.zerstoerenGibtPlatz && R.plaetzeStart + (save.relics.extraSlots || 0) < R.plaetzeMax) save.relics.extraSlots = (save.relics.extraSlots || 0) + 1;
+  save.relics.extraSlots = slotsFromDestroyed(data, save);
   return true;
 }
 

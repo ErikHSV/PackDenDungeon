@@ -72,6 +72,10 @@
       "rare": 33,
       "epic": 11,
       "legendary": 1
+    },
+    "packImPack": {
+      "pack": "holzpack",
+      "mod": "packImPack"
     }
   },
   {
@@ -119,6 +123,41 @@
       "rare": 55,
       "epic": 35,
       "legendary": 10
+    },
+    "packImPack": {
+      "pack": "silberpack",
+      "mod": "packImPack2"
+    }
+  },
+  {
+    "id": "kronenpack",
+    "name": "Kronenpack",
+    "art": "pack",
+    "beschreibung": "Mit Goldprägung – fast nur epische und legendäre Karten.",
+    "farbe": "#c9971f",
+    "freischaltung": {
+      "typ": "boss",
+      "kapitel": 3
+    },
+    "widerstand": 80,
+    "kartenProPack": 1,
+    "pool": [
+      "bannertraeger",
+      "moorhexer",
+      "wolkenhirtin",
+      "glockenmoench",
+      "seelenkrug",
+      "riesenwuchs",
+      "zeitbruch"
+    ],
+    "seltenheitsGewichte": {
+      "rare": 30,
+      "epic": 60,
+      "legendary": 10
+    },
+    "packImPack": {
+      "pack": "sternenpack",
+      "mod": "packImPack2"
     }
   },
   {

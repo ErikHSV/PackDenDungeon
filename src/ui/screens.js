@@ -2,7 +2,7 @@
 // Quests gibt es nur als Knoten im Skill-Tree (11.3). Shiny: drei getrennte Sammlungen (Helden, Tomes, Monster).
 import { $, $$, el, escapeHtml, show, confirmDialog, toast } from './dom.js';
 import { cardElement } from './cardView.js';
-import { relicSlots, equipRelic, destroyRelic, repairRelic, progressOf, levelOf, questProgress, nodeVisible } from '../core/meta.js';
+import { relicSlots, relicsToNextSlot, equipRelic, destroyRelic, repairRelic, progressOf, levelOf, questProgress, nodeVisible } from '../core/meta.js';
 import { resetSave } from '../save.js';
 import { setVolumes, play } from '../audio.js';
 import { formatNumber } from '../core/util.js';
@@ -131,7 +131,7 @@ export function renderRelics(game, selected = null) {
   const max = data.balance.relikte.plaetzeMax;
   const eq = save.relics.equipped;
   $('#relic-slots').innerHTML = Array.from({ length: Math.max(max, slots) }, (_, i) => {
-    if (i >= slots) return `<div class="r-slot locked" title="Zerstöre ein Relikt oder kaufe „Weiterer Relikt-Platz“ im Foil-Baum."><img src="${bank.iconUrl('lock')}" alt=""></div>`;
+    if (i >= slots) return `<div class="r-slot locked" title="Zerstöre Relikte oder kaufe „Weiterer Relikt-Platz“ im Foil-Baum."><img src="${bank.iconUrl('lock')}" alt=""></div>`;
     const id = eq[i];
     const r = id && data.relicIndex[id];
     return r ? `<div class="r-slot filled${r.verflucht ? ' cursed' : ''}" data-id="${id}" title="${escapeHtml(r.name)}"><img src="${bank.iconUrl(r.symbol)}" alt=""></div>` : '<div class="r-slot"></div>';
@@ -161,7 +161,7 @@ export function renderRelics(game, selected = null) {
         <button class="btn btn-primary" id="relic-toggle">${eq.includes(sel.id) ? 'Ablegen' : 'Ausrüsten'}</button>
         <button class="btn btn-danger" id="relic-destroy">Zerstören</button>
       </div>
-      <p class="muted">Zerstören entfernt das Relikt und schaltet dafür einen weiteren Reliktplatz frei (max. ${max}). Ab Akt 3 kann es über den Foil-Knoten „Relikt-Wiederherstellung“ zurückgeholt werden. Quellen: Quest- und Relikt-Knoten im Skill-Tree, Jackpots beim Neu-Würfeln (Foil-Knoten „Jackpot-Relikt“), Relikt-Jagd.</p>`
+      <p class="muted">Zerstören entfernt das Relikt. Zerstörte Relikte schalten Plätze frei: der erste Platz kostet 1, jeder weitere mehr (${relicsToNextSlot(data, save) == null ? 'alle Plätze frei' : `noch ${relicsToNextSlot(data, save)} bis zum nächsten Platz`}). Ab Akt 3 kann es über den Foil-Knoten „Relikt-Wiederherstellung“ zurückgeholt werden. Quellen: Quest- und Relikt-Knoten im Skill-Tree, Jackpots beim Neu-Würfeln (Foil-Knoten „Jackpot-Relikt“), Relikt-Jagd.</p>`
     : `<h2>Relikte</h2><p>${save.relics.owned.length} von ${data.relics.length} gefunden · ${eq.length}/${slots} Plätze belegt.</p>
        <p class="muted">Klicke ein Relikt an, um es auszurüsten oder abzulegen. Verfluchte Relikte (violett-roter Rand) sind stark, haben aber einen Nachteil.</p>`;
 
@@ -176,7 +176,7 @@ export function renderRelics(game, selected = null) {
   $$('.r-slot.filled').forEach((s) => s.addEventListener('click', () => toggle(s.dataset.id)));
   $('#relic-toggle')?.addEventListener('click', () => toggle(sel.id));
   $('#relic-destroy')?.addEventListener('click', async () => {
-    if (!(await confirmDialog(`${sel.name} wirklich zerstören? Es ist danach für immer weg, du erhältst einen zusätzlichen Reliktplatz.`, 'Zerstören', 'Behalten'))) return;
+    if (!(await confirmDialog(`${sel.name} wirklich zerstören? Es ist danach für immer weg.${relicsToNextSlot(data, save) === 1 ? ' Dafür bekommst du einen zusätzlichen Reliktplatz.' : ''}`, 'Zerstören', 'Behalten'))) return;
     destroyRelic(sel.id, data, save);
     play('bossSkill');
     game.persist();

@@ -872,6 +872,16 @@ export const BUILDING_ART = {
     p.px(5, 3, '#fff6a0'); p.px(19, 9, '#fff6a0'); p.px(3, 12, '#fff6a0');
     p.rect(10, 16, 4, 6, '#2a1e3a');
   },
+  praegewerk(p) {
+    p.rect(3, 11, 18, 11, '#5d5348');
+    p.rect(3, 11, 18, 2, '#7a6e60');
+    p.rect(16, 3, 4, 9, '#4a4038');
+    p.px(17, 1, '#9a9aa0'); p.px(18, 0, '#b8b8c0');
+    p.rect(6, 14, 7, 4, '#3a3028');
+    p.ellipse(9, 16, 3, 2, '#c9971f');
+    p.px(9, 15, '#fff0b0');
+    p.rect(14, 16, 4, 6, '#2a2018');
+  },
 };
 
 /** Turm in Draufsicht-Neigung (30×40 → ×4 = 120×160). cracks = 0–3 Riss-Stufen. */

@@ -72,8 +72,11 @@ export class Run {
       const p = this.edgePoint(def.position.winkel, this.A.gebaeudeRing);
       const stufe = def.stufen[Math.min(def.stufen.length - 1, lvl - 1)];
       const interval = stufe.intervall * (mods.gebaeudeIntervallMul ?? 1);
-      return { id, def, level: lvl, x: p.x, y: p.y, interval, crateChance: stufe.kistenChance, timer: interval * 0.5,
-        extra: stufe.riesenChance || stufe.foilBonus ? { riesenChance: stufe.riesenChance || 0, foilBonus: stufe.foilBonus || 0 } : null };
+      const bonus = mods.gebaeudeBonus?.[id] || {};
+      const riesenChance = (stufe.riesenChance || 0) + (bonus.riesenChance || 0), foilBonus = (stufe.foilBonus || 0) + (bonus.foilBonus || 0);
+      const iv = Math.max(4, interval - (bonus.intervall || 0));
+      return { id, def, level: lvl, x: p.x, y: p.y, interval: iv, crateChance: stufe.kistenChance || 0, doubleChance: (stufe.doppelChance || 0) + (bonus.doppelChance || 0), timer: iv * 0.5,
+        extra: riesenChance || foilBonus ? { riesenChance, foilBonus } : null };
     });
 
     // bonusMastery: Mastery außerhalb der Überlebensformel (erste Shinys, Tome-Verbot), foilStaub: Schimmer aus Shinys
@@ -212,7 +215,8 @@ export class Run {
       }
     }
     // Pack im Pack (Silberpack lässt ein Holzpack fallen)
-    if (def.id === 'silberpack' && this.rng() < this.mods.packImPack) this.launchPack('holzpack', p);
+    const pip = def.packImPack;
+    if (pip && this.rng() < (this.mods[pip.mod] || 0)) this.launchPack(pip.pack, p);
     // Relikte beim Öffnen
     for (const r of this.relics('packGeoeffnet')) {
       if (r.aktion.typ === 'giftwolke') this.zones.push({ type: 'gift', x: p.x, y: p.y, r: r.aktion.radius, t: r.aktion.dauer, max: r.aktion.dauer, dps: r.aktion.schadenProSekunde });
@@ -380,6 +384,8 @@ export class Run {
         fx(this, { type: 'text', x: u.x, y: u.y - 70, text: 'Knochenecho!', color: '#e8e2f0', size: 18 });
       }
     }
+    const ts = u.def.faehigkeiten?.todSkelett;
+    if (ts && !u.summoned && !expired && this.rng() < (ts.chance ?? 1)) this.spawnUnit('skelettkrieger', u.x, u.y, { life: ts.dauer ?? 12 });
     const s = u.def.beimTod?.beschwoeren;
     if (s && !expired) for (let i = 0; i < s.anzahl; i++) this.spawnUnit(s.einheit, u.x + i * 20, u.y, { life: s.dauer ?? 10 });
     this.emit('unitDied', { unit: u });
@@ -851,6 +857,7 @@ export class Run {
         if (e.dead || !inside(c, body(e), e.r)) continue;
         hitSomething = true;
         damageEnemy(this, e, dmg, this.B.cursor.schadensTyp, { cursor: true, aoe: true, crit: crit || strong });
+        if (crit && e.dead && this.mods.flags.pfeilregen) this.arrowRain(e, cs.damage);
         if (strong && !e.dead) applyStatus(this, e, { typ: 'betaeubung', dauer: rhythm.betaeubung });
         if (frost && !e.dead && this.time >= (cur.frostReady || 0)) {
           cur.frostReady = this.time + frost.intervall;
@@ -962,9 +969,38 @@ export class Run {
       b.timer -= dt;
       if (b.timer > 0) continue;
       b.timer = b.interval;
-      const crate = b.def.kiste && this.rng() < b.crateChance;
-      this.launchPack(crate ? b.def.kiste : b.def.pack, b, 0, b.extra);
+      // Prägewerk: verwandelt ein liegendes, ungeöffnetes Pack in ein Kronenpack
+      if (b.def.umwandeln) { this.transformPack(b); continue; }
+      const times = this.rng() < b.doubleChance ? 2 : 1; // Doppel-Aktivierung
+      for (let i = 0; i < times; i++) {
+        const crate = b.def.kiste && this.rng() < b.crateChance;
+        this.launchPack(crate ? b.def.kiste : b.def.pack, b, i * 0.25, b.extra);
+      }
+      if (times > 1) fx(this, { type: 'text', x: b.x, y: b.y - 80, text: 'Doppelt!', color: '#FFD24A', size: 18 });
       this.emit('sound', 'building');
+    }
+  }
+
+  transformPack(b) {
+    const target = b.def.umwandeln;
+    const list = this.packs.filter((p) => p.landed && !p.opened && !p.schatz && p.packId !== target);
+    if (!list.length) { b.timer = 1; return; } // nichts da: gleich wieder versuchen
+    const p = list[Math.floor(this.rng() * list.length)];
+    const def = this.data.packIndex[target];
+    p.packId = target; p.def = def; p.hp = p.maxHp = this.packHp(def); p.cracks = 0; p.wobble = 0.3;
+    fx(this, { type: 'bolt', x1: b.x, y1: b.y - 40, x2: p.x, y2: p.y - 30, color: '#FFD24A', life: 0.3 });
+    fx(this, { type: 'flash', x: p.x, y: p.y - 30, r: 90, color: def.farbe, life: 0.4 });
+    this.emit('sound', 'building');
+  }
+
+  /** Cursor-Knoten „Pfeilregen“: ein kritischer Cursor-Kill lässt Pfeile um das Ziel regnen. */
+  arrowRain(at, dmg) {
+    const P = this.B.cursor.pfeilregen ?? { pfeile: 10, radius: 150, schadenMul: 1 };
+    for (let i = 0; i < P.pfeile; i++) {
+      const a = this.rng() * Math.PI * 2, r = Math.sqrt(this.rng()) * P.radius;
+      const x = at.x + Math.cos(a) * r, y = at.y + Math.sin(a) * r * 0.6;
+      fx(this, { type: 'arrow', x1: x - 60, y1: y - 260, x2: x, y2: y, life: 0.25 + i * 0.02 });
+      for (const e of this.enemies) if (!e.dead && Math.hypot(e.x - x, e.y - y) <= 40 + e.r) damageEnemy(this, e, dmg * P.schadenMul, 'physical', { aoe: true, silent: true });
     }
   }
 

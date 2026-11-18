@@ -150,6 +150,10 @@
       "freischaltung": {
         "type": "object"
       },
+      "masteryMul": {
+        "type": "number",
+        "minimum": 0
+      },
       "gesuchtSchimmer": {
         "type": "integer",
         "minimum": 1,

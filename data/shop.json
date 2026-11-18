@@ -35,6 +35,13 @@
       "anzahl": 1,
       "grundPreis": 7,
       "gewicht": 12
+    },
+    {
+      "id": "a_kronen",
+      "artikel": "kronenpack",
+      "anzahl": 1,
+      "grundPreis": 12,
+      "gewicht": 8
     }
   ],
   "einzelkarten": {

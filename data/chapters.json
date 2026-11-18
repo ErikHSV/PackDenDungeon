@@ -45,7 +45,8 @@
       "turmlicht": "#7ab8ff"
     },
     "gesuchtSchimmer": 1,
-    "eliteGegner": "moorling"
+    "eliteGegner": "moorling",
+    "masteryMul": 1
   },
   {
     "id": 2,
@@ -98,7 +99,8 @@
       "turmlicht": "#7aff9a"
     },
     "gesuchtSchimmer": 2,
-    "eliteGegner": "knochenritter"
+    "eliteGegner": "knochenritter",
+    "masteryMul": 5
   },
   {
     "id": 3,
@@ -126,9 +128,9 @@
       ]
     },
     "wellen": {
-      "lebenMul": 1.4,
+      "lebenMul": 0.8,
       "muenzenMul": 2.4,
-      "schadenMul": 1.3
+      "schadenMul": 0.8
     },
     "gegner": [
       {
@@ -157,7 +159,8 @@
       "turmlicht": "#ff9a3a"
     },
     "gesuchtSchimmer": 3,
-    "eliteGegner": "schildtraeger"
+    "eliteGegner": "schildtraeger",
+    "masteryMul": 20
   },
   {
     "id": 4,
@@ -175,7 +178,7 @@
     },
     "wellen": {
       "lebenMul": 3.2,
-      "muenzenMul": 3.0,
+      "muenzenMul": 3,
       "schadenMul": 2.5
     },
     "gegner": [
@@ -215,7 +218,8 @@
         5
       ],
       "ankuendigung": 3
-    }
+    },
+    "masteryMul": 40
   },
   {
     "id": 5,
@@ -234,7 +238,7 @@
     "wellen": {
       "lebenMul": 4.2,
       "muenzenMul": 3.6,
-      "schadenMul": 3.0
+      "schadenMul": 3
     },
     "gegner": [
       {
@@ -272,7 +276,8 @@
         5
       ],
       "ankuendigung": 3
-    }
+    },
+    "masteryMul": 60
   },
   {
     "id": 6,
@@ -334,7 +339,8 @@
         5
       ],
       "ankuendigung": 3
-    }
+    },
+    "masteryMul": 85
   },
   {
     "id": 9,
@@ -413,6 +419,7 @@
     "freischaltung": {
       "boss": 6
     },
-    "eliteGegner": "frostwolf"
+    "eliteGegner": "frostwolf",
+    "masteryMul": 70
   }
 ]

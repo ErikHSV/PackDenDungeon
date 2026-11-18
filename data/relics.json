@@ -329,5 +329,18 @@
       ]
     },
     "verflucht": true
+  },
+  {
+    "id": "wegtagebuch",
+    "name": "Wegtagebuch",
+    "rarity": "uncommon",
+    "symbol": "quest",
+    "beschreibung": "+1 Münze für jede abgeschlossene Quest.",
+    "ausloeser": "passiv",
+    "aktion": {
+      "typ": "questMuenzen",
+      "wert": 1
+    },
+    "verflucht": false
   }
 ]

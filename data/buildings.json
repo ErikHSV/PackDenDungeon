@@ -2,10 +2,10 @@
   {
     "id": "taverne",
     "name": "Taverne",
-    "beschreibung": "Wirft regelmäßig ein Holzpack aufs Feld.",
+    "beschreibung": "Wirft alle 20 s ein Holzpack aufs Feld. Ausbau: kürzerer Takt und Chance auf Doppel-Aktivierung.",
     "farbe": "#8b5a2b",
     "pack": "holzpack",
-    "kiste": "kiste_holz",
+    "kiste": null,
     "position": {
       "winkel": 200
     },
@@ -16,22 +16,25 @@
       },
       {
         "intervall": 18,
-        "kistenChance": 0
+        "kistenChance": 0,
+        "doppelChance": 0.1
       },
       {
         "intervall": 16,
-        "kistenChance": 0.1
+        "kistenChance": 0,
+        "doppelChance": 0.2
       },
       {
         "intervall": 14,
-        "kistenChance": 0.2
+        "kistenChance": 0,
+        "doppelChance": 0.3
       }
     ]
   },
   {
     "id": "kaserne",
     "name": "Kaserne",
-    "beschreibung": "Wirft regelmäßig ein Silberpack aufs Feld. Ab Stufe 3 (Effizienz) wird jede Einheit daraus mit 10 % Chance zum Riesen.",
+    "beschreibung": "Wirft alle 25 s ein Silberpack aufs Feld. Jede Ausbaustufe −3 s. „Kaserne: Effizienz“ gibt ihren Einheiten 10 % Riesen-Chance.",
     "farbe": "#b8c4d0",
     "pack": "silberpack",
     "kiste": "kiste_silber",
@@ -49,20 +52,18 @@
       },
       {
         "intervall": 19,
-        "kistenChance": 0.1,
-        "riesenChance": 0.1
+        "kistenChance": 0.1
       },
       {
         "intervall": 16,
-        "kistenChance": 0.15,
-        "riesenChance": 0.1
+        "kistenChance": 0.15
       }
     ]
   },
   {
     "id": "sternwarte",
     "name": "Sternwarte",
-    "beschreibung": "Wirft regelmäßig ein Sternenpack aufs Feld. Ab Stufe 2 (Effizienz) +10 % Shiny-Chance für ihre Packs.",
+    "beschreibung": "Wirft alle 30 s ein Sternenpack aufs Feld. „Sternwarte: Effizienz“ gibt ihren Packs +10 % Shiny-Chance.",
     "farbe": "#3b2f7a",
     "pack": "sternenpack",
     "kiste": null,
@@ -76,13 +77,37 @@
       },
       {
         "intervall": 27,
-        "kistenChance": 0,
-        "foilBonus": 0.1
+        "kistenChance": 0
       },
       {
         "intervall": 24,
-        "kistenChance": 0,
-        "foilBonus": 0.1
+        "kistenChance": 0
+      }
+    ]
+  },
+  {
+    "id": "praegewerk",
+    "name": "Prägewerk",
+    "beschreibung": "Verwandelt alle 40 s ein liegendes, ungeöffnetes Pack in ein Kronenpack. Jede Ausbaustufe −5 s.",
+    "farbe": "#c9971f",
+    "pack": "kronenpack",
+    "kiste": null,
+    "umwandeln": "kronenpack",
+    "position": {
+      "winkel": 270
+    },
+    "stufen": [
+      {
+        "intervall": 40,
+        "kistenChance": 0
+      },
+      {
+        "intervall": 35,
+        "kistenChance": 0
+      },
+      {
+        "intervall": 30,
+        "kistenChance": 0
       }
     ]
   }

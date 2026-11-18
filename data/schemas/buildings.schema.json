@@ -30,6 +30,9 @@
       "pack": {
         "type": "string"
       },
+      "umwandeln": {
+        "type": "string"
+      },
       "kiste": {
         "type": [
           "string",
@@ -63,6 +66,11 @@
               "type": "number"
             },
             "riesenChance": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "doppelChance": {
               "type": "number",
               "minimum": 0,
               "maximum": 1
