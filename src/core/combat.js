@@ -104,20 +104,27 @@ export function killEnemy(run, e, killer = null) {
   run.stats.kills++;
   const k = (run.stats.killsNachArt[e.id] ||= { normal: 0, foil: 0 });
   k[e.foil ? 'foil' : 'normal']++;
-  if (e.foil) { run.stats.foilMonster++; run.stats.foilStaub += run.B.wellen.foilMonster.foilStaub; fx(run, { type: 'text', x: e.x, y: e.y - 60, text: '+Foil-Staub', color: '#FF7AC8', size: 18 }); }
+  if (e.foil) {
+    // Shiny-Monster: Foil-Staub; das erste Shiny einer Art gibt zusätzlich Mastery
+    run.stats.foilMonster++;
+    run.stats.foilStaub += run.B.wellen.foilMonster.foilStaub;
+    fx(run, { type: 'text', x: e.x, y: e.y - 60, text: `+${run.B.wellen.foilMonster.foilStaub} Schimmer`, color: 'rainbow', size: 18 });
+    fx(run, { type: 'sparkles', x: e.x, y: e.y - 20, life: 1 });
+    if (!(run.save.bestiary[e.id]?.foil > 0) && k.foil === 1) run.stats.bonusMastery += run.B.belohnungen.erstesShiny.masteryMonster;
+  }
   if (killer && run.mods.heldenHeilungProKill && !killer.dead) killer.hp = Math.min(killer.maxHp, killer.hp + killer.maxHp * run.mods.heldenHeilungProKill);
-  // Münzen: Erwartungswert = Grundwert × muenzenProKill; Nachkommaanteil wird zufällig gerundet
-  const raw = e.muenzen * (run.B.belohnungen.muenzenProKill ?? 1) * run.mods.muenzenMul * run.chapter.wellen.muenzenMul +
-    (killer?.def?.faehigkeiten?.bonusMuenzen?.proKill ?? 0) + (killer?.foil && run.mods.flags.prismenglanz ? 2 : 0);
-  const coins = Math.floor(raw) + (run.rng() < raw % 1 ? 1 : 0);
+  // Münzen gibt es nur aus dem Tageseinkommen. Fähigkeiten wie „Bonus-Münzen pro Kill“ bringen Bonus-Münzen für den nächsten Tag.
+  const coins = killer?.def?.faehigkeiten?.bonusMuenzen?.proKill ?? 0;
   if (coins > 0) {
     run.coins += coins;
     run.stats.muenzen += coins;
-    const n = Math.min(4, 1 + Math.floor(Math.log2(1 + coins / 3)));
-    for (let i = 0; i < n; i++) fx(run, { type: 'coin', x: e.x, y: e.y, delay: i * 0.05, life: 0.85 + i * 0.05, seed: Math.random() });
+    fx(run, { type: 'coin', x: e.x, y: e.y, delay: 0, life: 0.85, seed: Math.random() });
     run.emit('coins', { amount: coins });
   }
 
+  // Heilung bei Kills (z. B. Waffenknecht)
+  const kh = killer?.def?.faehigkeiten?.killHeilung;
+  if (kh && !killer.dead && (!kh.nurEntwickelt || killer.evolved)) killer.hp = Math.min(killer.maxHp, killer.hp + killer.maxHp * kh.anteil);
   if (killer) {
     killer.kills = (killer.kills || 0) + 1;
     run.checkEvolution(killer);
@@ -155,7 +162,12 @@ export function damageUnit(run, u, amount, attacker = null) {
     u.blocks = (u.blocks || 0) + 1;
     fx(run, { type: 'text', x: u.x, y: u.y - 70, text: 'Block!', color: '#d9c38c', size: 16 });
     if (block.betaeuben) applyStatus(run, attacker, { typ: 'betaeubung', dauer: 1 });
-    if (block.blitz) {
+    // Schildstoß: Block betäubt alle Gegner im Umkreis
+    if (block.umkreis) {
+      fx(run, { type: 'ring', x: u.x, y: u.y, r: block.umkreis.radius, color: '#d9c38c', life: 0.35 });
+      for (const e of run.enemies) if (!e.dead && dist(e, u) <= block.umkreis.radius) applyStatus(run, e, { typ: 'betaeubung', dauer: block.umkreis.dauer });
+    }
+    if (block.blitz && (block.blitzChance == null || run.rng() < block.blitzChance)) {
       fx(run, { type: 'bolt', x1: u.x, y1: u.y - 40, x2: attacker.x, y2: attacker.y, color: '#fff6a0', life: 0.2 });
       damageEnemy(run, attacker, block.blitz, 'magic', { aoe: true, source: u });
     }
@@ -180,6 +192,20 @@ export function healUnit(run, u, amount) {
 export function damageTower(run, amount, attacker = null, heavy = false) {
   const t = run.tower;
   if (run.over) return;
+  // Bollwerk-Schild fängt Schaden ab; zerbricht er, betäubt eine Schockwelle alle Gegner
+  if (t.shield > 0) {
+    const absorbed = Math.min(t.shield, amount);
+    t.shield -= absorbed;
+    amount -= absorbed;
+    if (t.shield <= 0) {
+      fx(run, { type: 'ring', x: t.x, y: t.y, r: 1400, color: '#7ac8ff', life: 0.9 });
+      fx(run, { type: 'flash', x: t.x, y: t.y - 30, r: 300, color: '#7ac8ff', life: 0.6 });
+      for (const e of run.enemies) if (!e.dead) { applyStatus(run, e, { typ: 'betaeubung', dauer: 3 }); damageEnemy(run, e, 25 * run.chapter.wellen.lebenMul, 'magic', { aoe: true, silent: true }); }
+      run.emit('shake', { power: 18 });
+      run.emit('sound', 'bossSkill');
+    }
+    if (amount <= 0) { t.hitFlash = 0.1; return; }
+  }
   t.hp -= amount;
   t.hitFlash = 0.15;
   t.lastHit = run.time; // kleine Lebensleiste über dem Turm erscheint für 3 s

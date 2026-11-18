@@ -1,0 +1,417 @@
+{
+  "$kommentar": "Foil-Baum (11.6): zweiter, dauerhafter Baum. Bezahlt mit Foil-Staub, bleibt bei Akt-Wechseln erhalten. Sichtbar ab dem ersten Foil-Staub; Knoten mit akt erscheinen erst ab diesem Akt. Kosten = basisKosten × kostenFaktor^Stufe.",
+  "groesse": {
+    "breite": 1920,
+    "hoehe": 1248
+  },
+  "start": "f_start",
+  "aeste": [
+    {
+      "id": "shop",
+      "name": "Shop",
+      "farbe": "#FFD24A"
+    },
+    {
+      "id": "relikt",
+      "name": "Relikte",
+      "farbe": "#B23ED8"
+    },
+    {
+      "id": "mastery",
+      "name": "Mastery",
+      "farbe": "#5AA9F0"
+    },
+    {
+      "id": "shiny",
+      "name": "Shiny",
+      "farbe": "#FF7AC8"
+    },
+    {
+      "id": "start",
+      "name": "Ursprung",
+      "farbe": "#F4EBD9"
+    }
+  ],
+  "knoten": [
+    {
+      "id": "f_start",
+      "name": "Prisma",
+      "beschreibung": "Der Ursprung des Foil-Baums. Alles hier ist dauerhaft.",
+      "typ": "start",
+      "ast": "start",
+      "akt": 1,
+      "position": {
+        "x": 960,
+        "y": 672
+      },
+      "verbindungen": [
+        "f_gratiswurf",
+        "f_reliktplatz",
+        "f_zinsen",
+        "f_glanzauge"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 0,
+      "kostenFaktor": 1.6,
+      "effekt": {
+        "ziel": "keiner"
+      },
+      "symbol": "crystal_regen"
+    },
+    {
+      "id": "f_gratiswurf",
+      "name": "Gratis-Würfel",
+      "beschreibung": "+1 kostenloses Neu-Würfeln pro Tag je Stufe.",
+      "typ": "klein",
+      "ast": "shop",
+      "akt": 1,
+      "position": {
+        "x": 960,
+        "y": 576
+      },
+      "verbindungen": [
+        "f_start",
+        "f_theke"
+      ],
+      "maxStufe": 3,
+      "basisKosten": 2,
+      "kostenFaktor": 1.6,
+      "effekt": {
+        "ziel": "freieRerolls",
+        "wert": 1,
+        "rechenart": "addieren"
+      },
+      "symbol": "coin",
+      "abzeichen": "plus"
+    },
+    {
+      "id": "f_theke",
+      "name": "Größere Theke",
+      "beschreibung": "+1 Shop-Platz je Stufe.",
+      "typ": "klein",
+      "ast": "shop",
+      "akt": 1,
+      "position": {
+        "x": 960,
+        "y": 480
+      },
+      "verbindungen": [
+        "f_gratiswurf",
+        "f_paar",
+        "f_jackpotrelikt"
+      ],
+      "maxStufe": 2,
+      "basisKosten": 3,
+      "kostenFaktor": 1.6,
+      "effekt": {
+        "ziel": "shopPlaetze",
+        "wert": 1,
+        "rechenart": "addieren"
+      },
+      "symbol": "coin",
+      "abzeichen": "plus"
+    },
+    {
+      "id": "f_paar",
+      "name": "Doppel-Angebot",
+      "beschreibung": "Helden können im Shop als Paar erscheinen: 2 gleiche Helden auf einer Kachel, etwas günstiger als zwei einzeln.",
+      "typ": "klein",
+      "ast": "shop",
+      "akt": 1,
+      "position": {
+        "x": 768,
+        "y": 384
+      },
+      "verbindungen": [
+        "f_theke",
+        "f_trio"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 6,
+      "kostenFaktor": 1.6,
+      "effekt": {
+        "ziel": "flag",
+        "flag": "paarAngebot"
+      },
+      "symbol": "coin",
+      "abzeichen": "plus"
+    },
+    {
+      "id": "f_trio",
+      "name": "Dreier-Angebot",
+      "beschreibung": "Helden können im Shop als Trio erscheinen.",
+      "typ": "klein",
+      "ast": "shop",
+      "akt": 2,
+      "position": {
+        "x": 768,
+        "y": 288
+      },
+      "verbindungen": [
+        "f_paar"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 14,
+      "kostenFaktor": 1.6,
+      "effekt": {
+        "ziel": "flag",
+        "flag": "trioAngebot"
+      },
+      "symbol": "coin",
+      "abzeichen": "plus"
+    },
+    {
+      "id": "f_jackpotrelikt",
+      "name": "Jackpot-Relikt",
+      "beschreibung": "Jackpots beim Neu-Würfeln können ein Reliktpack enthalten.",
+      "typ": "klein",
+      "ast": "shop",
+      "akt": 2,
+      "position": {
+        "x": 1152,
+        "y": 384
+      },
+      "verbindungen": [
+        "f_theke",
+        "f_glanzpack"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 8,
+      "kostenFaktor": 1.6,
+      "effekt": {
+        "ziel": "flag",
+        "flag": "jackpotRelikt"
+      },
+      "symbol": "gem",
+      "abzeichen": "star"
+    },
+    {
+      "id": "f_glanzpack",
+      "name": "Glanzpack",
+      "beschreibung": "Mit kleiner Chance erscheint ein pinkes Glanzpack im Shop. Es enthält gezielt seltene Karten, die dir noch fehlen.",
+      "typ": "klein",
+      "ast": "shop",
+      "akt": 2,
+      "position": {
+        "x": 1152,
+        "y": 288
+      },
+      "verbindungen": [
+        "f_jackpotrelikt"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 12,
+      "kostenFaktor": 1.6,
+      "effekt": {
+        "ziel": "flag",
+        "flag": "glanzpack"
+      },
+      "symbol": "pack",
+      "abzeichen": "star"
+    },
+    {
+      "id": "f_reliktplatz",
+      "name": "Weiterer Relikt-Platz",
+      "beschreibung": "+1 Relikt-Platz je Stufe.",
+      "typ": "klein",
+      "ast": "relikt",
+      "akt": 2,
+      "position": {
+        "x": 768,
+        "y": 672
+      },
+      "verbindungen": [
+        "f_start",
+        "f_wiederherstellung"
+      ],
+      "maxStufe": 2,
+      "basisKosten": 4,
+      "kostenFaktor": 1.6,
+      "effekt": {
+        "ziel": "reliktPlaetze",
+        "wert": 1,
+        "rechenart": "addieren"
+      },
+      "symbol": "gem",
+      "abzeichen": "plus"
+    },
+    {
+      "id": "f_wiederherstellung",
+      "name": "Relikt-Wiederherstellung",
+      "beschreibung": "Zerstörte Relikte können im Reiter RELIKTE gegen Foil-Staub repariert werden.",
+      "typ": "klein",
+      "ast": "relikt",
+      "akt": 3,
+      "position": {
+        "x": 576,
+        "y": 672
+      },
+      "verbindungen": [
+        "f_reliktplatz"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 15,
+      "kostenFaktor": 1.6,
+      "effekt": {
+        "ziel": "flag",
+        "flag": "reliktReparatur"
+      },
+      "symbol": "gem",
+      "abzeichen": "bolt"
+    },
+    {
+      "id": "f_zinsen",
+      "name": "Zinsen",
+      "beschreibung": "Nicht ausgegebene Mastery bringt zu Beginn jedes Tages +1 % Zinsen je Stufe (höchstens 500 pro Tag).",
+      "typ": "klein",
+      "ast": "mastery",
+      "akt": 1,
+      "position": {
+        "x": 1152,
+        "y": 672
+      },
+      "verbindungen": [
+        "f_start",
+        "f_neubeginn"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 3,
+      "kostenFaktor": 1.6,
+      "effekt": {
+        "ziel": "zinsen",
+        "wert": 0.01,
+        "rechenart": "addieren"
+      },
+      "symbol": "mastery",
+      "abzeichen": "plus"
+    },
+    {
+      "id": "f_neubeginn",
+      "name": "Schneller Neubeginn",
+      "beschreibung": "Nach einem Akt-Wechsel startest du mit +1.500 Mastery je Stufe.",
+      "typ": "klein",
+      "ast": "mastery",
+      "akt": 2,
+      "position": {
+        "x": 1344,
+        "y": 672
+      },
+      "verbindungen": [
+        "f_zinsen"
+      ],
+      "maxStufe": 3,
+      "basisKosten": 8,
+      "kostenFaktor": 1.6,
+      "effekt": {
+        "ziel": "aktStartMastery",
+        "wert": 1500,
+        "rechenart": "addieren"
+      },
+      "symbol": "mastery",
+      "abzeichen": "clock"
+    },
+    {
+      "id": "f_glanzauge",
+      "name": "Glanzauge",
+      "beschreibung": "+0,5 % Shiny-Chance für Karten je Stufe.",
+      "typ": "klein",
+      "ast": "shiny",
+      "akt": 1,
+      "position": {
+        "x": 960,
+        "y": 768
+      },
+      "verbindungen": [
+        "f_start",
+        "f_schimmerjagd"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 1,
+      "kostenFaktor": 1.6,
+      "effekt": {
+        "ziel": "foilChance",
+        "wert": 0.005,
+        "rechenart": "addieren"
+      },
+      "symbol": "dust",
+      "abzeichen": "star"
+    },
+    {
+      "id": "f_schimmerjagd",
+      "name": "Schimmerjagd",
+      "beschreibung": "+0,5 % Shiny-Chance für Monster je Stufe.",
+      "typ": "klein",
+      "ast": "shiny",
+      "akt": 1,
+      "position": {
+        "x": 960,
+        "y": 864
+      },
+      "verbindungen": [
+        "f_glanzauge",
+        "f_starkerglanz",
+        "f_gesucht"
+      ],
+      "maxStufe": 3,
+      "basisKosten": 2,
+      "kostenFaktor": 1.6,
+      "effekt": {
+        "ziel": "foilMonsterChance",
+        "wert": 0.005,
+        "rechenart": "addieren"
+      },
+      "symbol": "skull",
+      "abzeichen": "star"
+    },
+    {
+      "id": "f_starkerglanz",
+      "name": "Starker Glanz",
+      "beschreibung": "Shiny-Boni +15 % je Stufe.",
+      "typ": "klein",
+      "ast": "shiny",
+      "akt": 2,
+      "position": {
+        "x": 768,
+        "y": 960
+      },
+      "verbindungen": [
+        "f_schimmerjagd"
+      ],
+      "maxStufe": 3,
+      "basisKosten": 6,
+      "kostenFaktor": 1.6,
+      "effekt": {
+        "ziel": "foilStaerkeMul",
+        "wert": 0.15,
+        "rechenart": "addieren"
+      },
+      "symbol": "dust",
+      "abzeichen": "sword"
+    },
+    {
+      "id": "f_gesucht",
+      "name": "Gesucht-Belohnung",
+      "beschreibung": "+1 Foil-Staub pro besiegtem Shiny-Boss je Stufe.",
+      "typ": "klein",
+      "ast": "shiny",
+      "akt": 2,
+      "position": {
+        "x": 1152,
+        "y": 960
+      },
+      "verbindungen": [
+        "f_schimmerjagd"
+      ],
+      "maxStufe": 2,
+      "basisKosten": 6,
+      "kostenFaktor": 1.6,
+      "effekt": {
+        "ziel": "gesuchtStaub",
+        "wert": 1,
+        "rechenart": "addieren"
+      },
+      "symbol": "skull",
+      "abzeichen": "plus"
+    }
+  ]
+}

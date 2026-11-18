@@ -1,12 +1,13 @@
 // Hub (14.2): EIN Bildschirm zwischen den Runs. Links Kapitelwahl + Shop, rechts Reiter
-// UPGRADE / SAMMLUNG / BESTIARIUM / RELIKTE, oben rechts Quests, Erfolge, Einstellungen, unten rechts KAMPF.
+// UPGRADE / SAMMLUNG / BESTIARIUM / RELIKTE (die letzten beiden erst ab Akt 2), oben rechts Erfolge und Einstellungen,
+// unten rechts KAMPF. Quests gibt es nur als Knoten im Skill-Tree.
 import { $, $$, escapeHtml, confirmDialog, showTip, show, countTo, stage } from './dom.js';
-import { showPopups } from './result.js';
+import { showUnlocks } from './reveal.js';
 import { UpgradeTree } from './upgradeTree.js';
 import { renderCollection, renderBestiary, renderRelics } from './screens.js';
 import {
   chapterUnlocked, describeOffer, buyOffer, rollOffers, rerollCost, canReroll, reroll, resetPurchases, walletTotal, shopSlots,
-  gateState, openGate, prestigeAvailable, modifiersAvailable, anyNodeAffordable, claimableQuests, bagItems,
+  prestigeAvailable, modifiersAvailable, anyNodeAffordable, claimableQuests, bagItems, tabUnlocked, foilTreeUnlocked,
 } from '../core/meta.js';
 import { hash } from '../render/pixel.js';
 import { play } from '../audio.js';
@@ -28,7 +29,7 @@ export class Hub {
     $('#shop-reroll').addEventListener('click', () => {
       const { data, save } = this.game;
       const mods = this.game.mods();
-      if (!canReroll(mods)) { play('error'); this.game.toast('Schalte „Neu würfeln“ in den Upgrades frei.', true); return; }
+      if (!canReroll(mods)) { play('error'); this.game.toast('Schalte „Neu würfeln“ im Skill-Tree frei.', true); return; }
       if (!reroll(data, save, mods)) { play('error'); this.game.toast('Nicht genug Münzen.', true); return; }
       play('buy');
       this.game.persist();
@@ -70,6 +71,7 @@ export class Hub {
 
   showTab(tab) {
     const { save } = this.game;
+    if (!tabUnlocked(tab, save)) { play('error'); this.game.toast('Wird mit dem ersten Akt-Wechsel (Tor im Skill-Tree) freigeschaltet.', true); tab = 'upgrade'; }
     this.tab = tab;
     $$('.hub-tab').forEach((b) => b.classList.toggle('active', b.dataset.tab === tab));
     $$('.tab-page').forEach((p) => p.classList.toggle('active', p.dataset.page === tab));
@@ -87,12 +89,39 @@ export class Hub {
 
   renderDots() {
     const { data, save } = this.game;
-    const dot = (tab, on) => $(`.hub-tab[data-tab="${tab}"] .red-dot`).classList.toggle('hidden', !on || this.tab === tab);
-    dot('upgrade', anyNodeAffordable(data, save));
+    const dot = (tab, on) => $(`.hub-tab[data-tab="${tab}"] .red-dot`).classList.toggle('hidden', !on || this.tab === tab || !tabUnlocked(tab, save));
+    $$('.hub-tab').forEach((b) => b.classList.toggle('locked', !tabUnlocked(b.dataset.tab, save)));
+    dot('upgrade', anyNodeAffordable(data, save) || claimableQuests(data, save) > 0 || (foilTreeUnlocked(save) && anyNodeAffordable(data, save, 'foil')));
     dot('sammlung', this.foundCards() > (save.ui.cardsSeen ?? 0));
     dot('bestiarium', this.knownBeasts() > (save.ui.beastsSeen ?? 0));
     dot('relikte', save.relics.newCount > 0);
-    $('#dot-quests').classList.toggle('hidden', !claimableQuests(data, save));
+  }
+
+  /** Nach dem Akt-Wechsel: Kapitel, Shop (Einkommen), Reiter und Navigationsleiste neu zeichnen. */
+  onActChanged() {
+    const { data, save } = this.game;
+    rollOffers(data, save, this.game.mods(), Math.random, true);
+    this.game.persist();
+    this.renderChapter();
+    this.renderShop();
+    this.renderDots();
+    this.tree.updateNav();
+  }
+
+  /** Prestige-Hinweis (Pfeil im Upgrade-Reiter): höchste verfügbare Stufe in der Kapitelwahl auswählen. */
+  selectNewestPrestige() {
+    const list = this.chapterEntries().filter((e) => e.prestige);
+    const e = list[list.length - 1];
+    if (!e) return;
+    Object.assign(this.game.save.selection, { chapter: e.chapter, prestige: e.prestige });
+    this.game.persist();
+    this.renderChapter();
+  }
+
+  chapterShort(ch) {
+    if (!ch) return '';
+    if (ch.art !== 'kapitel') return ch.name;
+    return this.chapterLabel(ch).split(' – ')[0].replace('KAPITEL', 'Kapitel');
   }
 
   /** Nach einem Upgrade-Kauf: Shop-Plätze, Rerolls und Gebäude können sich geändert haben. */
@@ -103,6 +132,7 @@ export class Hub {
     this.game.persist();
     this.renderShop();
     this.renderDots();
+    this.tree.updateNav();
   }
 
   // -------------------------------------------------------------------
@@ -160,39 +190,13 @@ export class Hub {
     const extra = [];
     const canWanted = ch.gesucht && save.stats.bossKills[ch.id] > 0;
     if (!canWanted) sel.gesucht = false;
-    if (canWanted) extra.push(`<button class="chip${sel.gesucht ? ' on' : ''}" id="sel-gesucht" title="Der Boss erscheint als Foil-Boss: stärker, mehr Belohnung.">GESUCHT ✦</button>`);
+    if (canWanted) extra.push(`<button class="chip${sel.gesucht ? ' on' : ''}" id="sel-gesucht" title="Der Boss erscheint als Shiny-Boss: stärker, mit Zusatzangriff. Sieg: ${data.balance.gesucht.foilStaub} Schimmer, beim ersten Sieg zusätzlich ${data.balance.gesucht.erstsiegMastery} Mastery.">GESUCHT ✦</button>`);
     const modsAvail = ch.art === 'kapitel' ? modifiersAvailable(data, save) : [];
     if (!modsAvail.some((m) => m.id === sel.modifier)) sel.modifier = null;
     if (modsAvail.length) extra.push(`<span class="chip"><select id="sel-mod" title="Kapitel-Modifikator"><option value="">kein Modifikator</option>${modsAvail.map((m) => `<option value="${m.id}"${sel.modifier === m.id ? ' selected' : ''} title="${escapeHtml(m.beschreibung)}">${escapeHtml(m.name)} (×${m.belohnung.masteryMul})</option>`).join('')}</select></span>`);
-    const g = gateState(data, save);
-    if (g.stones.some((s) => s.owned) || g.opened) extra.push(`<button class="chip gate" id="sel-gate">${g.opened ? 'TOR OFFEN' : `TOR ${g.stones.filter((s) => s.owned).length}/${g.stones.length}`}</button>`);
     $('#ch-extra').innerHTML = extra.join('');
     $('#sel-gesucht')?.addEventListener('click', () => { sel.gesucht = !sel.gesucht; play('click'); this.game.persist(); this.renderChapter(); });
     $('#sel-mod')?.addEventListener('change', (e) => { sel.modifier = e.target.value || null; this.game.persist(); });
-    $('#sel-gate')?.addEventListener('click', () => this.showGate());
-  }
-
-  showGate() {
-    const { data, save } = this.game;
-    const g = gateState(data, save);
-    const box = $('#popup-box');
-    box.innerHTML = `<h1>${escapeHtml(g.tor.name)}</h1>
-      <div class="row" style="gap:24px;margin:16px 0">${g.stones.map((s) => `<div title="${escapeHtml(s.name)}" style="width:80px;height:80px;border-radius:50%;border:5px solid ${s.owned ? '#FFD24A' : '#4a4266'};background:${s.owned ? s.farbe : '#14121e'};box-shadow:${s.owned ? `0 0 20px ${s.farbe}` : 'none'};display:grid;place-items:center;font-family:var(--pixel);font-size:28px">${s.owned ? '' : '?'}</div>`).join('')}</div>
-      <p>${escapeHtml(g.opened ? 'Das Tor ist offen. Neue Upgrades, Kapitel-Modifikatoren und der Riss des Frosts warten.' : g.tor.beschreibung)}</p>
-      <div class="row">${!g.opened && g.complete ? '<button class="btn btn-primary btn-big" id="gate-open">Tor öffnen</button>' : ''}<button class="btn btn-big" id="gate-close">Schließen</button></div>`;
-    show('#overlay-popup', true);
-    $('#gate-close').onclick = () => show('#overlay-popup', false);
-    $('#gate-open')?.addEventListener('click', async () => {
-      show('#overlay-popup', false);
-      if (!(await confirmDialog(g.tor.warnung, 'Tor öffnen', 'Noch nicht'))) return;
-      if (!openGate(data, save)) return;
-      play('keystone');
-      this.game.persist();
-      this.renderChapter();
-      this.tree.updateCurrency(false);
-      this.renderDots();
-      showPopups(['<h1>Akt 2 beginnt!</h1><p style="font-size:24px">Deine Mastery-Punkte wurden vollständig erstattet. Neue Upgrades sind sichtbar.</p>']);
-    });
   }
 
   // -------------------------------------------------------------------
@@ -212,7 +216,9 @@ export class Hub {
     const { bank, data } = this.game;
     if (o.kind === 'karte') {
       const c = data.cardIndex[o.id];
-      return c.art === 'tome' ? `<img class="tome" src="${bank.url(bank.tome(o.id))}" alt="">` : `<img class="hero" src="${bank.unitUrl(o.id)}" alt="">`;
+      if (c.art === 'tome') return `<img class="tome" src="${bank.url(bank.tome(o.id))}" alt="">`;
+      const img = `<img class="hero" src="${bank.unitUrl(o.id)}" alt="">`;
+      return o.anzahl > 1 ? `<img class="hero dup" src="${bank.unitUrl(o.id)}" alt="">${img}` : img;
     }
     const first = o.items.find((i) => data.packIndex[i.artikel]?.art !== 'relikt') ?? o.items[0];
     return `<img class="art" src="${bank.shopItemUrl(first.artikel)}" alt="">`;
@@ -228,9 +234,11 @@ export class Hub {
       const o = describeOffer(slot, data, save);
       if (!o) return;
       const div = document.createElement('div');
-      div.className = `offer${o.kind === 'jackpot' ? ' jackpot' : ''}${o.sold ? ' sold' : total < o.preis ? ' poor' : ''}${o.opened ? ' final' : ''}`;
+      div.className = `offer${o.kind === 'jackpot' ? ' jackpot' : ''}${o.kind === 'glanz' ? ' glanz' : ''}${o.sold ? ' sold' : total < o.preis ? ' poor' : ''}${o.opened ? ' final' : ''}`;
+      const shiny = o.foil || o.kind === 'glanz';
       div.innerHTML = `<div class="tag-price">${o.rabatt && !o.sold ? `<s>${o.basisPreis}</s>` : ''}${o.preis}<img src="${bank.iconUrl('coin')}" alt=""></div>
-        <div class="field">${this.offerArt(o)}</div>
+        <div class="field${shiny ? ' shiny-frame shiny-sheen' : ''}">${this.offerArt(o)}</div>
+        ${o.anzahl > 1 ? `<div class="anzahl">×${o.anzahl}</div>` : ''}
         ${o.rabatt && !o.sold ? `<div class="rabatt">−${Math.round((1 - data.balance.shop.rabatt.faktor) * 100)} %</div>` : ''}
         ${o.neu ? '<div class="neu"><span>NEU</span></div>' : ''}`;
       div.addEventListener('click', () => { if (this.longPressed) { this.longPressed = false; return; } this.buy(i); });
@@ -265,9 +273,12 @@ export class Hub {
     this.lastCoins = before;
     this.renderShop(true);
     if (res.relics.length) {
-      showPopups(res.relics.map((r) => r
-        ? `<h1>Neues Relikt!</h1><img src="${bank.iconUrl(r.symbol)}" style="width:96px;height:96px"><p style="font-size:28px">${escapeHtml(r.name)}</p><p>${escapeHtml(r.beschreibung)}</p>`
-        : '<h1>Alle Relikte gefunden!</h1><p>Stattdessen: +10 Kristalle</p>'));
+      const st = data.balance.belohnungen.reliktpackOhneRelikt.foilStaub;
+      showUnlocks(res.relics.map((r) => (r
+        ? { title: 'NEUES RELIKT!', name: `${r.name}: ${r.beschreibung}`, img: bank.iconUrl(r.symbol), w: 180, h: 180 }
+        : { title: 'ALLE RELIKTE GEFUNDEN!', name: `Stattdessen: +${st} Schimmer`, img: bank.iconUrl('crystal_regen'), w: 160, h: 160 })));
+      this.tree.updateCurrency(false);
+      this.tree.updateNav();
       this.renderDots();
       if (this.tab === 'relikte') renderRelics(this.game);
     }
@@ -292,7 +303,12 @@ export class Hub {
     const packInfo = (packId) => {
       const p = data.packIndex[packId];
       if (p.art === 'kiste') return `<div>Enthält ${p.inhalt.anzahl} × ${escapeHtml(data.packIndex[p.inhalt.pack].name)}.</div>` + packInfo(p.inhalt.pack);
-      if (p.art === 'relikt') return '<div>Wird sofort geöffnet: ein Relikt, das dir noch fehlt.</div>';
+      if (p.art === 'relikt') return `<div>Wird sofort geöffnet: ein Relikt, das dir noch fehlt (sonst ${data.balance.belohnungen.reliktpackOhneRelikt.foilStaub} Schimmer).</div>`;
+      if (p.nurFehlende) {
+        const sum = Object.values(p.seltenheitsGewichte).reduce((a, b) => a + b, 0);
+        const odds = Object.entries(p.seltenheitsGewichte).map(([r, w]) => `<span style="color:${data.rarities[r].farbe}">${data.rarities[r].name} ${Math.round((w / sum) * 1000) / 10} %</span>`).join('');
+        return `<div>${escapeHtml(p.beschreibung ?? '')}</div><div>${p.kartenProPack} Karten pro Pack · Widerstand ${p.widerstand}</div><div class="odds">${odds}</div>`;
+      }
       // Effektive Ziehchancen: fehlende Seltenheiten fallen auf die nächstniedrigere vorhandene zurück
       const present = [...new Set(p.pool.map((id) => data.cardIndex[id].def.rarity))];
       const byRank = Object.entries(data.rarities).filter(([, r]) => !r.geheim).sort((a, b) => a[1].rang - b[1].rang).map(([k]) => k);
@@ -312,6 +328,8 @@ export class Hub {
       const c = data.cardIndex[o.id];
       html += `<div style="color:${data.rarities[c.def.rarity].farbe}">${data.rarities[c.def.rarity].name} · ${c.art === 'tome' ? 'Tome' : escapeHtml(c.def.rolle)}</div>
         <div>${escapeHtml(c.def.beschreibung)}</div>
+        ${o.anzahl > 1 ? `<div style="margin-top:6px;color:var(--gold)">${o.anzahl} gleiche Helden auf einer Kachel – günstiger als einzeln.</div>` : ''}
+        ${o.foil ? '<div style="margin-top:6px" class="rainbow-text">SHINY: doppeltes Leben, +50 % Reichweite und Fläche.</div>' : ''}
         <div style="margin-top:6px">${has(o.id) ? '✓ In deiner Sammlung' : '<span style="color:var(--gold)">Noch nicht in deiner Sammlung</span>'}</div>
         <div class="muted">Landet im Kampf als aufgedeckte Karte.</div>`;
     } else {

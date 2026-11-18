@@ -122,16 +122,16 @@
     "rarity": "epic",
     "symbol": "crown",
     "verflucht": true,
-    "beschreibung": "Doppelte Münzen pro Kill.",
+    "beschreibung": "+3 Bonus-Münzen pro Tag.",
     "nachteil": "Der Turm hat 40 % weniger Leben.",
     "ausloeser": "passiv",
     "aktion": {
       "typ": "werte",
       "werte": [
         {
-          "ziel": "muenzenMul",
-          "op": "mul",
-          "wert": 2
+          "ziel": "tagesEinkommen",
+          "op": "add",
+          "wert": 3
         },
         {
           "ziel": "turmLebenMul",
@@ -165,5 +165,66 @@
         }
       ]
     }
+  },
+  {
+    "id": "funkennadel",
+    "name": "Funkennadel",
+    "rarity": "epic",
+    "symbol": "bolt",
+    "beschreibung": "Cursor-Treffer springen mit 12 % Chance als Kettenblitz auf bis zu 3 weitere Gegner über.",
+    "ausloeser": "passiv",
+    "aktion": {
+      "typ": "kettenblitz",
+      "chance": 0.12,
+      "ziele": 3,
+      "schadenMul": 1
+    },
+    "verflucht": false,
+    "nurBaum": true
+  },
+  {
+    "id": "knochenecho",
+    "name": "Knochenecho",
+    "rarity": "epic",
+    "symbol": "skull",
+    "beschreibung": "Gefallene Helden kehren mit 40 % Chance für 20 s als Skelett zurück.",
+    "ausloeser": "heldGestorben",
+    "aktion": {
+      "typ": "skelett",
+      "chance": 0.4,
+      "dauer": 20
+    },
+    "verflucht": false,
+    "nurBaum": true
+  },
+  {
+    "id": "balliste",
+    "name": "Selbstschuss-Balliste",
+    "rarity": "rare",
+    "symbol": "bow",
+    "beschreibung": "Eine kleine Balliste neben dem Turm schießt auf Gegner (+1 Stufe Turmschütze).",
+    "ausloeser": "passiv",
+    "aktion": {
+      "typ": "wert",
+      "ziel": "turmSchuetze",
+      "op": "add",
+      "wert": 1
+    },
+    "verflucht": false,
+    "nurBaum": true
+  },
+  {
+    "id": "portalsiegel",
+    "name": "Portalsiegel",
+    "rarity": "rare",
+    "symbol": "rune",
+    "beschreibung": "Monster sind beim Erscheinen 1 s lang betäubt.",
+    "ausloeser": "passiv",
+    "aktion": {
+      "typ": "spawnBetaeubung",
+      "dauer": 1
+    },
+    "verflucht": false,
+    "nurBaum": true
   }
 ]

@@ -46,7 +46,7 @@
         "type": "object",
         "required": [
           "name",
-          "schluesselsteine"
+          "knoten"
         ],
         "properties": {
           "name": {
@@ -55,33 +55,12 @@
           "beschreibung": {
             "type": "string"
           },
-          "sternenkarteReset": {
-            "type": "boolean"
-          },
           "warnung": {
             "type": "string"
           },
-          "schluesselsteine": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": [
-                "kapitel",
-                "name",
-                "farbe"
-              ],
-              "properties": {
-                "kapitel": {
-                  "type": "integer"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "farbe": {
-                  "type": "string"
-                }
-              }
-            }
+          "knoten": {
+            "type": "string",
+            "description": "Tor-Knoten im Skill-Tree"
           }
         }
       }

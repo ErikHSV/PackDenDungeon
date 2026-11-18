@@ -29,5 +29,5 @@ if (errors.length) {
 }
 const s = dataSummary(data);
 console.log(`✓ Daten ok: ${s.einheiten} Einheiten, ${s.tomes} Tomes (${s.karten} Karten), ${s.packs} Packs, ${s.gegner} Gegner, ${s.bosse} Bosse, ` +
-  `${s.kapitel} Kapitel in ${s.akte} Akten, ${s.modifikatoren} Modifikatoren, ${s.gebaeude} Gebäude, ${s.relikte} Relikte, ${s.quests} Quests, ${s.erfolge} Erfolge, ` +
-  `${s.knoten} Sternenkarten-Knoten (${s.knotenStufen} Stufen)`);
+  `${s.kapitel} Kapitel in ${s.akte} Akten, ${s.modifikatoren} Modifikatoren, ${s.gebaeude} Gebäude, ${s.relikte} Relikte, ${s.quests} Quest-Knoten, ${s.erfolge} Erfolge, ` +
+  `${s.knoten} Skill-Tree-Knoten (${s.knotenStufen} Stufen), ${s.foilKnoten} Foil-Knoten`);

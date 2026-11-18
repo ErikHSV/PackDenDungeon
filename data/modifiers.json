@@ -34,7 +34,7 @@
   {
     "id": "nur_fernkampf",
     "name": "Fernes Echo",
-    "beschreibung": "Nur Fernkämpfer erscheinen aus Packs (Nahkampfkarten werden zu Münzen).",
+    "beschreibung": "Nur Fernkämpfer erscheinen aus Packs (Nahkampfkarten werden zu Bonus-Münzen für den nächsten Tag).",
     "abAkt": 2,
     "effekte": [
       {
@@ -67,14 +67,14 @@
   },
   {
     "id": "goldfieber",
-    "name": "Goldfieber",
-    "beschreibung": "Doppelte Münzen, aber Monster haben +40 % Leben.",
+    "name": "Glanzfieber",
+    "beschreibung": "Gegner bringen +50 % Schimmer-Chance (Shiny-Monster), haben aber +40 % Leben.",
     "abAkt": 2,
     "effekte": [
       {
-        "ziel": "muenzenMul",
-        "op": "mul",
-        "wert": 2
+        "ziel": "foilMonsterChance",
+        "op": "add",
+        "wert": 0.005
       },
       {
         "ziel": "gegnerLebenMul",
@@ -121,7 +121,7 @@
   {
     "id": "stille_buecher",
     "name": "Stille Bücher",
-    "beschreibung": "Tomes erscheinen nicht – ihre Karten werden zu Kristallen.",
+    "beschreibung": "Tomes erscheinen nicht – ihre Karten werden zu je 1 Mastery.",
     "abAkt": 2,
     "effekte": [
       {

@@ -6,12 +6,13 @@ import { firstSentence } from './cardView.js';
 import { play } from '../audio.js';
 import { hash } from '../render/pixel.js';
 
-/** Halbton-Fleck: Punkte im Raster, zum Rand hin kleiner und ausfransend. */
-export function halftoneBlob(canvas, color, grow = 1) {
+/** Halbton-Fleck: Punkte im Raster, zum Rand hin kleiner und ausfransend. color 'rainbow' = Regenbogen (Shiny). */
+export function halftoneBlob(canvas, color, grow = 1, hueShift = 0) {
   const c = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height, R = (W / 2) * 0.86 * grow;
+  const rainbow = color === 'rainbow';
   c.clearRect(0, 0, W, H);
-  c.fillStyle = color;
+  c.fillStyle = rainbow ? '#fff' : color;
   const step = 11;
   for (let y = step / 2; y < H; y += step) for (let x = step / 2 + ((y / step) % 2) * step / 2; x < W; x += step) {
     const d = Math.hypot(x - W / 2, y - H / 2) / R;
@@ -19,6 +20,7 @@ export function halftoneBlob(canvas, color, grow = 1) {
     const k = 1 - Math.max(0, d + fray);
     if (k <= 0) continue;
     const r = Math.min(step * 0.62, step * 0.75 * Math.sqrt(k) + (d < 0.55 ? 1 : 0));
+    if (rainbow) c.fillStyle = `hsl(${Math.round((Math.atan2(y - H / 2, x - W / 2) * 180) / Math.PI + hueShift + 360) % 360},90%,64%)`;
     c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill();
   }
 }
@@ -38,13 +40,17 @@ export class NewCardReveal {
     window.addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && !this.box.classList.contains('hidden')) this.close(); });
   }
 
+  /** foil: Karte ist shiny → Regenbogen-Punktfleck, Zusatz „SHINY!“, wandernder Glanz über der Figur. */
   open(id, foil = false) {
     const { data, bank } = this.game;
     const card = data.cardIndex[id];
     const def = card.def;
     const rar = data.rarities[def.rarity];
-    $('#nc-name').textContent = def.name.toUpperCase() + (foil ? ' ✦' : '');
-    $('#nc-name').style.color = rar.farbe;
+    $('#nc-name').textContent = def.name.toUpperCase();
+    $('#nc-name').style.color = foil ? '' : rar.farbe;
+    $('#nc-name').classList.toggle('rainbow-text', foil);
+    show('#nc-shiny', foil);
+    show('#nc-sheen', foil);
     $('#nc-ability').textContent = firstSentence(def.beschreibung).replace(/\.$/, '').toUpperCase();
     const img = $('#nc-fig');
     img.src = card.art === 'tome' ? bank.url(bank.tome(id)) : bank.unitUrl(id);
@@ -56,12 +62,13 @@ export class NewCardReveal {
     const t0 = performance.now();
     const step = (now) => {
       const k = Math.min(1, (now - t0) / 300);
-      halftoneBlob(this.blob, rar.farbe, 0.2 + 0.8 * (1 - Math.pow(1 - k, 3)));
-      if (k < 1) requestAnimationFrame(step);
+      halftoneBlob(this.blob, foil ? 'rainbow' : rar.farbe, 0.2 + 0.8 * (1 - Math.pow(1 - k, 3)), (now - t0) / 12);
+      // Shiny: der Regenbogen dreht sich langsam weiter, solange die Präsentation offen ist
+      if (k < 1 || (foil && !this.box.classList.contains('hidden'))) requestAnimationFrame(step);
     };
     requestAnimationFrame(step);
     img.style.animation = 'none'; void img.offsetWidth; img.style.animation = '';
-    play('newCard');
+    play(foil ? 'foil' : 'newCard');
   }
 
   close() {
@@ -99,6 +106,7 @@ function next() {
   img.style.width = `${it.w ?? 200}px`;
   img.style.height = `${it.h ?? 200}px`;
   img.style.animation = 'none'; void img.offsetWidth; img.style.animation = '';
+  show('#tip', false);
   show('#overlay-unlock', true);
   play('fanfare');
   const cv = $('#ul-rays');

@@ -1,11 +1,15 @@
 // Fortschritts-Simulation ohne Browser: ein Bot spielt viele Tage hintereinander.
-// Pro Tag: Packs kaufen → Run (Runenkreis zuerst auf Packs, dann auf Gegner nahe am Turm, Boss-Hämmer parieren)
-// → Belohnungen → Sternenkarte kaufen (günstigster Knoten zuerst) → ggf. nächstes Kapitel.
+// Pro Tag: Shop (teuerste bezahlbare Angebote, Reroll wenn billig) → Run (Runenkreis zuerst auf Packs, dann auf
+// Gegner nahe am Turm, Boss-Hämmer parieren) → Belohnungen → erfüllte Quest-Knoten abholen → Skill-Tree und
+// Foil-Baum kaufen (günstigster Knoten zuerst) → Tor öffnen, sobald möglich → nächstes Kapitel.
 //
 //   node tools/simulate.mjs [tage=40] [seed=1] [--verbose]
 import { loadData } from './load-data.mjs';
 import { Run } from '../src/core/run.js';
-import { bagItems, consumeBag, walletTotal, canReroll, reroll, rerollCost, computeMods, rollOffers, describeOffer, buyOffer, applyRunResult, buyNode, nodeBlocker, nodeCost, levelOf, chapterUnlocked, gateState, openGate, claimQuest, questDone } from '../src/core/meta.js';
+import {
+  bagItems, consumeBag, walletTotal, canReroll, reroll, rerollCost, computeMods, rollOffers, describeOffer, buyOffer, applyRunResult,
+  buyNode, nodeBlocker, nodeCost, nodeVisible, treeLevel, chapterUnlocked, claimQuestNode, changeAct, questProgress, levelOf,
+} from '../src/core/meta.js';
 import { defaultSave } from '../src/save.js';
 import { mulberry32 } from '../src/core/util.js';
 
@@ -27,7 +31,6 @@ function botRun(chapterId, mods, bag) {
   const dt = 1 / 30;
   let target = null, think = 0;
   while (!run.over && run.time < 900) {
-    // Boss-Hämmer haben Vorrang: anklicken = parieren
     for (const h of run.hammers) if (!h.parried && h.parryable) run.click(h.x, h.y);
     const p = run.packs.find((x) => x.landed && !x.opened);
     const alive = run.enemies.filter((e) => !e.dead);
@@ -49,7 +52,6 @@ function botRun(chapterId, mods, bag) {
 }
 
 function shop() {
-  // Kauft die teuersten bezahlbaren Angebote; würfelt neu, solange Rerolls billig sind
   const mods = computeMods(data, save);
   for (let round = 0; round < 6; round++) {
     for (let guard = 0; guard < 20; guard++) {
@@ -63,26 +65,32 @@ function shop() {
   }
 }
 
-function spendStarmap() {
-  for (let guard = 0; guard < 500; guard++) {
-    const cand = data.starmap.knoten.filter((n) => !nodeBlocker(n, save, data));
-    if (!cand.length) break;
-    cand.sort((a, b) => nodeCost(a, levelOf(save, a.id)).amount - nodeCost(b, levelOf(save, b.id)).amount);
-    buyNode(cand[0], save, data);
+function spendTrees() {
+  for (const n of data.starmap.knoten) if (n.typ === 'quest' && levelOf(save, n.id) === 0 && nodeVisible('skill', n, save, data) && questProgress(n, data, save).done) claimQuestNode(n, data, save, rng);
+  for (const kind of ['skill', 'foil']) {
+    const list = kind === 'skill' ? data.starmap.knoten : data.foiltree.knoten;
+    for (let guard = 0; guard < 500; guard++) {
+      const cand = list.filter((n) => n.typ !== 'quest' && n.typ !== 'tor' && nodeVisible(kind, n, save, data) && !nodeBlocker(kind, n, save, data));
+      if (!cand.length) break;
+      cand.sort((a, b) => nodeCost(kind, a, treeLevel(kind, save, a.id), data).amount - nodeCost(kind, b, treeLevel(kind, save, b.id), data).amount);
+      buyNode(kind, cand[0], save, data);
+    }
   }
+  const tor = data.starmap.knoten.find((n) => n.typ === 'tor' && nodeVisible('skill', n, save, data));
+  if (tor) { changeAct(tor, data, save); spendTrees(); }
 }
 
 function pickChapter() {
-  // Höchstes freigeschaltetes reguläres Kapitel, dessen Boss noch nicht besiegt ist – sonst das höchste
   const list = data.chapters.filter((c) => c.art === 'kapitel' && chapterUnlocked(c, save, data));
   return (list.find((c) => !save.stats.bossKills[c.id]) ?? list[list.length - 1]).id;
 }
 
 console.log(`Simulation: ${DAYS} Tage, Seed ${SEED}`);
-console.log('Tag Kap  Zeit   Sieg Kills Münzen  MP   Kris Packs Einh. Knoten');
+console.log('Tag Kap  Zeit   Sieg Kills Münzen   MP  Staub Packs Einh. Knoten Eink.');
 rollOffers(data, save, computeMods(data, save), rng);
 const firstWin = {};
 for (let day = 1; day <= DAYS; day++) {
+  const coinsBefore = walletTotal(save);
   shop();
   const bag = bagItems(data, save);
   consumeBag(save);
@@ -92,11 +100,9 @@ for (let day = 1; day <= DAYS; day++) {
   const r = run.result;
   const info = applyRunResult(r, data, save, mods, rng);
   if (r.sieg && !firstWin[ch]) firstWin[ch] = day;
-  for (const q of data.quests) if (!save.quests.claimed.includes(q.id) && questDone(q, data, save)) claimQuest(q, data, save, rng);
-  if (gateState(data, save).complete && save.act < 2) openGate(data, save);
-  spendStarmap();
+  spendTrees();
   const nodes = Object.values(save.starmap).reduce((a, b) => a + b, 0);
-  console.log(`${String(day).padStart(3)} ${String(ch).padStart(3)} ${r.zeit.toFixed(0).padStart(5)}s ${r.sieg ? ' ja ' : ' -  '} ${String(r.kills).padStart(5)} ${String(info.muenzen + info.einkommen).padStart(6)} ${String(info.mastery).padStart(4)} ${String(info.kristalle).padStart(5)} ${String(bag.length).padStart(5)} ${String(run.units.length).padStart(5)} ${String(nodes).padStart(6)}`);
-  if (VERBOSE) console.log('   ', JSON.stringify(save.starmap));
+  console.log(`${String(day).padStart(3)} ${String(ch).padStart(3)} ${r.zeit.toFixed(0).padStart(5)}s ${r.sieg ? ' ja ' : ' -  '} ${String(r.kills).padStart(5)} ${String(coinsBefore).padStart(6)} ${String(info.mastery).padStart(5)} ${String(info.foilStaub).padStart(5)} ${String(bag.length).padStart(5)} ${String(run.units.length).padStart(5)} ${String(nodes).padStart(6)} ${String(info.einkommen).padStart(5)}`);
+  if (VERBOSE) console.log('   ', JSON.stringify(save.starmap), JSON.stringify(save.foiltree));
 }
-console.log('Erste Siege (Kapitel → Tag):', JSON.stringify(firstWin), '· Akt', save.act);
+console.log('Erste Siege (Kapitel → Tag):', JSON.stringify(firstWin), '· Akt', save.act, '· Foil-Baum', JSON.stringify(save.foiltree));

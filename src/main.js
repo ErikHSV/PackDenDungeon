@@ -7,7 +7,7 @@ import { $, $$, stage, toast, show } from './ui/dom.js';
 import { cardElement } from './ui/cardView.js';
 import { BattleController } from './ui/battle.js';
 import { Hub } from './ui/hub.js';
-import { renderQuests, renderAchievements, bindSettings, refreshSettings } from './ui/screens.js';
+import { renderAchievements, bindSettings, refreshSettings } from './ui/screens.js';
 import { SpriteBank, frameAt } from './render/sprites.js';
 import { arenaFloor } from './render/arena.js';
 
@@ -73,7 +73,7 @@ async function boot() {
   try { data = await loadData(); } catch (err) { showLoadError(err); return; }
   const problems = validateReferences(data);
   if (problems.length) console.warn('Datenprobleme:', problems);
-  try { await document.fonts?.load('32px "Pixelify Sans"'); } catch { /* Schrift optional */ }
+  try { await Promise.all([document.fonts?.load('32px "Pixelify Sans"'), document.fonts?.load('32px "Jersey 10"', '0123456789')]); } catch { /* Schrift optional */ }
 
   const game = {
     data,
@@ -95,13 +95,12 @@ async function boot() {
     /** Bildschirm wechseln. opts.back: wohin "Zurück" führt. */
     goto(name, opts = {}) {
       // Sternenkarte, Relikte und Sammlung sind Reiter im Hub
-      const tabOf = { starmap: 'upgrade', upgrade: 'upgrade', relics: 'relikte', collection: 'sammlung', bestiary: 'bestiarium' };
+      const tabOf = { starmap: 'upgrade', upgrade: 'upgrade', quests: 'upgrade', relics: 'relikte', collection: 'sammlung', bestiary: 'bestiarium' };
       if (tabOf[name]) { opts = { ...opts, tab: tabOf[name] }; name = 'hub'; }
       if (this.current === 'hub' && name !== 'hub') this.hub.close();
       if (name !== 'battle' && this.current === 'battle' && !this.battle.paused) this.battle.stop();
       show('#tip', false);
       switch (name) {
-        case 'quests': renderQuests(this); break;
         case 'achievements': renderAchievements(this); break;
         case 'settings': this.settingsBack = opts.back ?? 'hub'; refreshSettings(this); break;
       }
@@ -113,7 +112,7 @@ async function boot() {
     },
     /** Run starten: Abblenden (0,4 s), Kampfbildschirm mit leerem Feld. */
     startRun(opts) {
-      this.lastBag = this.save.shop.offers.filter((o) => o.sold && !o.opened).map((o) => ({ kind: o.kind, id: o.id, karte: o.karte }));
+      this.lastBag = this.save.shop.offers.filter((o) => o.sold && !o.opened).map((o) => ({ kind: o.kind, id: o.id, karte: o.karte, anzahl: o.anzahl, foil: o.foil }));
       stage.fade(() => {
         if (this.current === 'hub') this.hub.close();
         ['#overlay-result', '#overlay-pause', '#overlay-popup'].forEach((s) => show(s, false));

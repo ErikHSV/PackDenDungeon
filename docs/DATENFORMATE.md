@@ -1,7 +1,7 @@
 # Datenformate
 
 Alle Inhalte stehen in `data/*.json`. Jede Datei hat ein JSON-Schema in `data/schemas/`.
-`node tools/validate-data.mjs` prüft Schemas **und** Querverweise, zum Beispiel ob jede Karte in einem Pack-Pool existiert und jeder Sternenkarten-Knoten vom Start aus erreichbar ist.
+`node tools/validate-data.mjs` prüft Schemas **und** Querverweise, zum Beispiel ob jede Karte in einem Pack-Pool existiert und jeder Knoten im Skill-Tree und im Foil-Baum vom Start aus erreichbar ist.
 Die Entwickler-Seite `dev/overview.html` zeigt dieselbe Prüfung im Browser.
 
 | Datei | Inhalt |
@@ -14,17 +14,17 @@ Die Entwickler-Seite `dev/overview.html` zeigt dieselbe Prüfung im Browser.
 | `shop.json` | Shop-Angebote (Artikel, Grundpreis, Gewicht) und Jackpots |
 | `enemies.json` | Gegner und Bosse |
 | `chapters.json` | Kapitel: Gegner-Pool, Boss-Zeit, Spawn-Modus, Gefahren |
-| `acts.json` | Akte mit Kapitel-Liste und dem Alten Tor (Schlüsselsteine) |
+| `acts.json` | Akte mit Kapitel-Liste und Tor (Verweis auf den Tor-Knoten im Skill-Tree) |
 | `modifiers.json` | Kapitel-Modifikatoren |
 | `buildings.json` | Gebäude, die Packs aufs Feld werfen |
 | `relics.json` | Relikte |
-| `quests.json` | Quests |
 | `achievements.json` | Erfolge |
-| `starmap.json` | Sternenkarte (Skill-Tree) |
+| `starmap.json` | Skill-Tree mit Upgrade-, Freischalt-, Relikt-, Quest- und Tor-Knoten |
+| `foiltree.json` | Foil-Baum (dauerhaft, bezahlt mit Foil-Staub) |
 
 ## Gemeinsame Bausteine
 
-**Patch** – ändert einen Wert per Punkt-Pfad. Verwendet für Entwicklungen im Run, Sternenkarten-Knoten von Einheiten und Boss-Phasen:
+**Patch** – ändert einen Wert per Punkt-Pfad. Verwendet für Entwicklungen im Run, Skill-Tree-Knoten von Einheiten und Boss-Phasen:
 
 ```json
 { "pfad": "faehigkeiten.sprint.anzahl", "op": "set", "wert": 2 }
@@ -47,19 +47,22 @@ Bei mehrstufigen Knoten wird der Patch **einmal pro Stufe** angewendet.
 | `beimTod.beschwoeren` | Einheit, die beim Tod entsteht (z. B. Rostgolem für 10 s) |
 | `nurBeschworen` | keine Karte, entsteht nur durch Fähigkeiten oder Tomes |
 
-Jede gezogene Karte wird zu einer eigenen Einheit, Duplikate ergeben also mehrere Einheiten. **Foil-Karten** bekommen ×2 Leben und ×1,5 Reichweite bzw. Fläche (`balance.karten.foil`).
+Jede gezogene Karte wird zu einer eigenen Einheit, Duplikate ergeben also mehrere Einheiten. **Shiny-Karten** (im Code „foil“) bekommen ×2 Leben und ×1,5 Reichweite bzw. Fläche, Shiny-Tomes ×1,5 Dauer und ×1,5 Fläche bzw. Häufigkeit (`balance.karten.foil`). Der Foil-Knoten „Starker Glanz“ verstärkt nur den Bonusanteil.
+
+Einheiten-Fähigkeiten, die Knoten setzen können: `faehigkeiten.killHeilung { anteil, nurEntwickelt }`, `faehigkeiten.blocken.umkreis { radius, dauer }`, `faehigkeiten.blocken.blitzChance`, `angriff.zweitschussChance`, `faehigkeiten.sprint.aufprall { radius, schadenMul }`.
 
 ## Packs (`packs.json`)
 
 - `art: pack`: `widerstand` (Lebenspunkte, die der Cursor abbauen muss), `kartenProPack`, `pool`, `seltenheitsGewichte` (in Prozent).
 - `art: kiste`: `inhalt: { pack, anzahl }`. Landet als mehrere Einzelpacks auf dem Feld.
-- `art: relikt`: `inhalt: { relikte: 1 }`. Erhältlich über Jackpots im Shop, Quests und die Reliktjagd. Wird sofort geöffnet und bevorzugt ein noch fehlendes Relikt.
-- `freischaltung.typ`: `start`, `boss` (mit `kapitel`), `quest`, `sternenkarte`.
+- `art: relikt`: `inhalt: { relikte: 1 }`. Erhältlich über Relikt-Jackpots beim Neu-Würfeln (Foil-Knoten „Jackpot-Relikt“), Quest-Knoten und die Reliktjagd. Wird sofort geöffnet und gibt ein noch fehlendes, zufällig erhältliches Relikt – sind alle gefunden, Foil-Staub (`balance.belohnungen.reliktpackOhneRelikt`).
+- `nurFehlende: true` (Glanzpack): zieht gezielt seltene Karten, die noch nicht in der Sammlung sind; `pool` bleibt leer.
+- `freischaltung.typ`: `start`, `boss` (mit `kapitel`), `knoten` (Skill-Tree-Knoten, optional zusätzlich `kapitel`), `foilknoten`, `quelle`, `geplant`.
 - Fehlt eine gewürfelte Seltenheit im Pool, wird die nächstniedrigere vorhandene genommen (`balance.karten.seltenheitsFallback`).
 
 ## Gegner und Bosse (`enemies.json`)
 
-`eigenschaften`: `muenzenStehlen`, `explodiertBeimTod`, `frontSchild`, `teiltSichBeimTod`, `verlangsamtHelden`.
+`eigenschaften`: `masteryStehlen`, `explodiertBeimTod`, `frontSchild`, `teiltSichBeimTod`, `verlangsamtHelden`.
 
 `bossFaehigkeiten` (mit Vorwarnung):
 
@@ -76,34 +79,41 @@ Jede gezogene Karte wird zu einer eigenen Einheit, Duplikate ergeben also mehrer
 ## Kapitel (`chapters.json`)
 
 `bossNachSekunden`: Zeit bis zum Boss. `spawn.modus`: `ring` (ganzer Arenarand) oder `portale` (feste Winkel in Grad, 0 = rechts, 90 = unten).
-`farbwelt`: `thema` (`moor`, `gruft`, `schmiede`, `frost`), `boden` (Bodenfarbe), `turmlicht` (Tor/Fenster des Turms), `waehrung` (`blau`, `rot`, `weiss` – Kristall im Run-Zähler).
-`gegner[]`: Gewicht, optional `abSekunde` und `bisSekunde`. `wellen`: Multiplikatoren für Leben, Münzen und Schaden. `gefahren`: z. B. `schneesturm`.
+`farbwelt`: `thema` (`moor`, `gruft`, `schmiede`, `frost`), `boden` (Bodenfarbe), `turmlicht` (Tor/Fenster des Turms).
+`gegner[]`: Gewicht, optional `abSekunde` und `bisSekunde`. `wellen`: Multiplikatoren für Leben und Schaden; `muenzenMul` ist der Mastery-Multiplikator des Kapitels (Name historisch). `gefahren`: z. B. `schneesturm`.
 
-## Sternenkarte (`starmap.json`)
+## Skill-Tree (`starmap.json`)
 
-Felder je Knoten (laut Spezifikation): `id`, `name`, `beschreibung`, `typ`, `ast`, `position {x,y}`, `verbindungen`, `maxStufe`, `basisKosten`, `kostenFaktor`, `kristallKosten`, `effekt`, optional `voraussetzung` und `symbol`.
+Felder je Knoten: `id`, `name`, `beschreibung`, `typ`, `ast`, `akt`, `position {x,y}`, `verbindungen`, `maxStufe`, `basisKosten`, `kostenFaktor`, `effekt`, optional `voraussetzung`, `symbol`, `abzeichen`, `nurAkt`.
 
-- **Typen:** `klein` (Kreis, mehrere Stufen), `gross` (Sechseck), `schluessel` (Stern, Mastery-Punkte + Kristalle), `freischalt` (Schloss), `start`.
-- **Kosten:** `basisKosten × kostenFaktor^Stufe` in `waehrung` (`mastery` oder `foilstaub` für Ast H), plus `kristallKosten`.
-- **Akt:** Knoten mit `akt: 2` erscheinen erst nach dem Öffnen des Tors. Beim Durchschreiten wird die Karte mit voller Rückerstattung zurückgesetzt (`balance.akte.sternenkarteResetBeiAktwechsel`).
-- **Darstellung (14.2.5):** Schaltplan mit rechtwinkligen Leitungen. `position` liegt auf einem Raster; `symbol` = was verbessert wird (`hand`, `claw`, `coin`, `pack`, `house`, `card:<id>`, `tower`, `bigheart`, `book`, `dust`), `abzeichen` = welcher Wert (`clock`, `sword`, `heart`, `plus`, `arrow`, `bolt`, `star`). `node tools/layout-starmap.mjs` erzeugt Positionen, Symbole und Abzeichen neu.
-- **Kaufbar:** wenn ein verbundener Nachbar mindestens Stufe 1 hat. Bei `voraussetzung.karte` muss diese Karte zusätzlich schon gefunden sein.
+- **Typen (11.2):** `klein`/`gross`/`schluessel` (Upgrade-Knoten), `freischalt` (1 Stufe, schaltet etwas frei), `relikt` (gibt ein festes Relikt mit `nurBaum: true`), `quest` (kostenlos, `aufgabe` + `belohnung`), `tor` (Akt-Wechsel, `effekt: { ziel: "tor", akt }`), `start`.
+- **Kosten:** Mastery, `basisKosten × kostenFaktor^Stufe` (Standard 1,45). Frühe Knoten 10–50, mittlere einige Hundert bis Tausende, späte bis 25.000.
+- **Sichtbar:** im aktuellen Akt (`akt ≤ Akt`, `nurAkt` = nur in diesem Akt) und ein verbundener Nachbar ist gekauft bzw. abgeschlossen. Knoten mit `voraussetzung.karte` erscheinen erst, wenn die Karte in der Sammlung ist.
+- **Quest-Knoten (11.3):** `aufgabe { statistik, filter?, anzahl }` mit `statistik` = `packsGeoeffnet` (`filter.pack`), `kills`, `killsGegner` (`filter.gegner`, optional `filter.kapitel`), `kartenGefunden` (`filter.karte`), `ueberleben` (`filter.kapitel`, `anzahl` in Sekunden, bester Run), `foilMonsterBesiegt`, `bossBesiegt` (`filter.boss`), `tomesGenutzt`. `belohnung`: `tagesEinkommen` (dauerhaft, solange der Knoten abgeschlossen ist), `mastery`, `reliktpack`. Fortschritt (`save.questProgress`) zählt nur, solange die Quest sichtbar ist; Abholen setzt den Knoten auf Stufe 1.
+- **Akt-Wechsel (11.5):** Der Tor-Knoten setzt den Skill-Tree mit voller Erstattung zurück und löscht den Quest-Fortschritt. Foil-Baum, Foil-Staub, Sammlung, Bestiarium und Relikte bleiben. BESTIARIUM und RELIKTE öffnen sich erst danach.
+- **Darstellung (14.2.5):** Schaltplan mit rechtwinkligen Leitungen. `node tools/layout-starmap.mjs` erzeugt Positionen, Symbole (`card:<id>`, `quest`, `gate`, Relikt-Symbol …) und Abzeichen (`clock`, `sword`, `heart`, `plus`, `arrow`, `bolt`, `star`) neu.
 - **Verbindungen:** in **beiden** Knoten eintragen (prüft der Validator).
+
+## Foil-Baum (`foiltree.json`)
+
+Gleiches Knotenformat, Positionen von Hand. Bezahlt mit Foil-Staub (`basisKosten × 1,6^Stufe`), wird nie zurückgesetzt, sichtbar ab dem ersten Foil-Staub. Knoten mit `akt` erscheinen erst ab diesem Akt.
 
 **Effekt-Ziele** (`effekt.ziel`):
 
 | Ziel | Wirkung pro Stufe |
 |---|---|
 | `cursorSchaden`, `cursorRadiusMul`, `cursorTickMul`, `cursorPackSchadenMul`, `cursorKrit` | Runenkreis |
-| `tagesEinkommen`, `muenzenMul`, `shopPlaetze`, `freieRerolls`, `masteryMul`, `jackpotChance` | Wirtschaft |
-| `packWiderstandMul`, `foilChance`, `kartenProPack`, `packImPack`, `grenzgaengerChance` | Packs |
-| `foilStaerkeMul`, `foilMonsterChance` | Foil (Ast H) |
+| `tagesEinkommen`, `shopPlaetze`, `freieRerolls`, `masteryMul`, `masteryNeueKarte`, `jackpotChance`, `rabattChance` | Wirtschaft |
+| `packWiderstandMul`, `kartenProPack`, `bonusKarteChance`, `packImPack`, `grenzgaengerChance` | Packs |
+| `foilChance`, `foilStaerkeMul`, `foilMonsterChance`, `reliktPlaetze`, `zinsen`, `aktStartMastery`, `gesuchtStaub` | Foil-Baum |
 | `heldenSchadenMul`, `heldenLebenMul`, `heldenTempoMul` | alle Helden |
 | `turmLebenMul`, `turmRegen`, `turmSchuetze`, `turmDornen` | Turm |
-| `tomeWirkungMul`, `tomeDoppeltChance`, `tomeZweimalChance` | Tomes |
+| `tomeWirkungMul`, `tomeDauerMul`, `tomeDoppeltChance`, `tomeZweimalChance` | Tomes |
+| `tome` (+ `tome`, `art`: `wirkung`/`dauer`, `betrag`) | einzelnes Tome |
+| `relikt` (+ `relikt`) | Relikt-Knoten |
 | `gebaeude` (+ `gebaeude: id`) | Stufe 1 baut das Gebäude, weitere Stufen bauen es aus |
 | `einheit` (+ `karte`, `patches`) | Spezialisierung einer Einheit |
-| `flag` (+ `flag`) | Schlüsselfähigkeit: `glutkreis`, `zwillingsrune`, `aufplatzen`, `blitzableiter`, `neuWuerfeln` |
+| `flag` (+ `flag`) | `glutkreis`, `zwillingsrune`, `aufplatzen`, `blitzableiter`, `bollwerk`, `knochenExplosion`, `neuWuerfeln`, `kisteHolz`, `kisteSilber`, `einzelkarten`; Foil-Baum: `paarAngebot`, `trioAngebot`, `glanzpack`, `jackpotRelikt`, `reliktReparatur` |
 
 `rechenart`: `addieren` (Wert × Stufe) oder `multiplizieren` (Wert^Stufe).
 
@@ -111,17 +121,16 @@ Felder je Knoten (laut Spezifikation): `id`, `name`, `beschreibung`, `typ`, `ast
 
 - **Modifikatoren:** `effekte[]` mit `ziel`, `op`, `wert`, dazu `belohnung.masteryMul`.
 - **Gebäude:** `pack`, optional `kiste`, `position.winkel` am Arenarand, `stufen[]` mit `intervall` und `kistenChance`.
-- **Relikte:** `ausloeser` (`passiv`, `runStart`, `packGeoeffnet`, `heldGestorben`, `kill`, `turmGetroffen`, `tomeGenutzt`, `bossErscheint`) und `aktion`.
-- **Quests:** `ziel.statistik` (z. B. `packsGeoeffnet`, `foilsGezogen`, `kills`, `bossBesiegt`), optional `filter`, dazu `anzahl` und `belohnung` (`tagesEinkommen`, `kristalle`, `reliktpack`).
+- **Relikte:** `ausloeser` (`passiv`, `runStart`, `packGeoeffnet`, `heldGestorben`, `kill`, `turmGetroffen`, `tomeGenutzt`, `bossErscheint`) und `aktion` (u. a. `kettenblitz`, `skelett`, `spawnBetaeubung`). `nurBaum: true` = nur über Relikt-Knoten.
 - **Relikte, verflucht:** `verflucht: true` plus `nachteil` (Text); `aktion.typ: werte` setzt mehrere Modifikatoren (Vorteil und Nachteil). Zerstörte Relikte geben einen weiteren Platz (`balance.relikte`).
-- **Erfolge:** wie Quests, aber ohne Belohnung und mit `kategorie`. `anzahl: "alle"` zählt bis zur Gesamtzahl (z. B. alle Karten).
-- **Akte:** `kapitel[]`, `sonder[]` (z. B. Reliktjagd), `tor` mit `schluesselsteine[]` (je Kapitel-Boss einer) und `warnung`.
+- **Erfolge:** `ziel { statistik, filter?, anzahl }` ohne Belohnung, mit `kategorie`. `anzahl: "alle"` zählt bis zur Gesamtzahl (z. B. alle Karten).
+- **Akte:** `kapitel[]`, `sonder[]` (z. B. Reliktjagd), `tor` mit `knoten` (Tor-Knoten im Skill-Tree) und `warnung` (Text der Bestätigung).
 
-## Wirtschaft (Kurzüberblick)
+## Währungen und Wirtschaft (Abschnitt 10)
 
-- Ein Run ist ein **Tag**: danach werden Münzen und Tageseinkommen gutgeschrieben, der Shop würfelt neu.
-- Münzen pro Kill: `gegner.muenzen × balance.belohnungen.muenzenProKill × Kapitel-Münzmultiplikator`. Nachkommastellen werden zufällig gerundet.
-- **Shop (14.2.3):** `balance.shop.angebotsPlaetzeStart`/`Max` Plätze (3 Spalten). Jeder Platz ist einmal kaufbar; ein zweiter Klick macht den Kauf rückgängig, RESET erstattet alle Käufe des Tages. Gekaufte Plätze bilden die Run-Tasche. `balance.shop.rabatt` (Chance, Faktor) gibt rote Rabatt-Etiketten, „NEU“ markiert erstmals gesehene Angebote. `shop.einzelkarten` bietet einzelne Helden/Tomes (Preis nach Seltenheit), die im Kampf als aufgedeckte Karte landen.
-- **Münzanzeige „x+b/B“:** x = Münzen, b = Bonus-Münzen aus Quests und Relikten (werden zuerst ausgegeben), B = Tagesbudget (Einkommen des Tages).
-- Preise steigen pro erreichtem Kapitel um `balance.wirtschaft.preisWachstumProKapitel`.
-- Mastery: `masteryProSekunde`, `masteryProKill`, `masteryProElitewelle`, `masteryProBoss`, multipliziert mit dem Münzmultiplikator des Kapitels.
+- Genau drei Währungen: **Münzen** (`save.coins` + `save.bonusCoins`, nur Shop), **Mastery** (`save.mastery`, Skill-Tree), **Foil-Staub** (`save.foilDust`, Anzeige „Schimmer“, Foil-Baum).
+- Ein Run ist ein **Tag**: danach wird das Tageseinkommen gutgeschrieben (`balance.wirtschaft.tagesEinkommen` + Knoten + abgeschlossene Quest-Knoten), Relikt-Einkommen und Münzen aus Fähigkeiten als Bonus-Münzen. Kills geben keine Münzen.
+- **Shop:** `balance.shop.angebotsPlaetzeStart` (3) bis `Max` Plätze. Jeder Platz ist einmal kaufbar, ein zweiter Klick macht den Kauf rückgängig, RESET erstattet alle Käufe des Tages. Jackpots nur beim Neu-Würfeln (`balance.shop.jackpot.chance`). `balance.shop.paar`, `glanzpack`, `shinyEinzelkarte` steuern Paar/Trio, Glanzpack und Shiny-Einzelkarten.
+- **Münzanzeige „x+b/B“:** x = Münzen, b = Bonus-Münzen (werden zuerst ausgegeben), B = Tageseinkommen.
+- **Mastery:** `masteryProSekunde`, `masteryProKill` (Shiny-Monster zählen ×3), `masteryProElitewelle`, `masteryProBoss`, `masteryProPack`, `masteryNeueKarte`, multipliziert mit dem Kapitel-Multiplikator; dazu erste Shinys (`erstesShiny`) und Quest-Belohnungen.
+- **Foil-Staub:** erste Shiny-Version einer Karte (`erstesShiny.foilStaubKarte`), jedes Shiny-Monster (`wellen.foilMonster.foilStaub`), Shiny-Bosse über „Gesucht“ (`gesucht.foilStaub`, beim ersten Sieg zusätzlich `gesucht.erstsiegMastery`), Reliktpacks ohne fehlendes Relikt.

@@ -1,0 +1,209 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "foiltree.schema.json",
+  "title": "Foil-Baum (dauerhaft, Foil-Staub)",
+  "type": "object",
+  "required": [
+    "groesse",
+    "start",
+    "aeste",
+    "knoten"
+  ],
+  "properties": {
+    "groesse": {
+      "type": "object",
+      "required": [
+        "breite",
+        "hoehe"
+      ]
+    },
+    "start": {
+      "type": "string"
+    },
+    "aeste": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "farbe"
+        ]
+      }
+    },
+    "knoten": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "beschreibung",
+          "typ",
+          "ast",
+          "position",
+          "verbindungen",
+          "maxStufe",
+          "basisKosten",
+          "kostenFaktor",
+          "effekt",
+          "akt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "beschreibung": {
+            "type": "string"
+          },
+          "typ": {
+            "enum": [
+              "start",
+              "klein",
+              "gross",
+              "schluessel",
+              "freischalt",
+              "relikt",
+              "quest",
+              "tor"
+            ],
+            "description": "klein/gross/schluessel = Upgrade-Knoten, freischalt = schaltet etwas frei, relikt = gibt ein festes Relikt (nurBaum), quest = kostenlose Aufgabe (aufgabe + belohnung), tor = Akt-Wechsel"
+          },
+          "ast": {
+            "type": "string"
+          },
+          "position": {
+            "type": "object",
+            "required": [
+              "x",
+              "y"
+            ],
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              }
+            }
+          },
+          "verbindungen": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "maxStufe": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "basisKosten": {
+            "type": "number"
+          },
+          "kostenFaktor": {
+            "type": "number"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "effekt": {
+            "type": "object",
+            "required": [
+              "ziel"
+            ],
+            "properties": {
+              "ziel": {
+                "type": "string"
+              },
+              "wert": {
+                "type": "number"
+              },
+              "rechenart": {
+                "enum": [
+                  "addieren",
+                  "multiplizieren"
+                ]
+              },
+              "flag": {
+                "type": "string"
+              },
+              "karte": {
+                "type": "string"
+              },
+              "gebaeude": {
+                "type": "string"
+              },
+              "patches": {
+                "type": "array",
+                "items": {
+                  "$ref": "common.schema.json#/definitions/patch"
+                }
+              }
+            }
+          },
+          "voraussetzung": {
+            "type": "object",
+            "properties": {
+              "karte": {
+                "type": "string"
+              }
+            }
+          },
+          "akt": {
+            "type": "integer",
+            "description": "1 = von Anfang an, 2 = erst nach dem Tor sichtbar"
+          },
+          "aufgabe": {
+            "type": "object",
+            "required": [
+              "statistik",
+              "anzahl"
+            ],
+            "properties": {
+              "statistik": {
+                "enum": [
+                  "packsGeoeffnet",
+                  "kills",
+                  "killsGegner",
+                  "kartenGefunden",
+                  "ueberleben",
+                  "foilMonsterBesiegt",
+                  "bossBesiegt",
+                  "tomesGenutzt"
+                ]
+              },
+              "filter": {
+                "type": "object"
+              },
+              "anzahl": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          "belohnung": {
+            "type": "object",
+            "properties": {
+              "tagesEinkommen": {
+                "type": "integer"
+              },
+              "mastery": {
+                "type": "integer"
+              },
+              "reliktpack": {
+                "type": "integer"
+              }
+            }
+          },
+          "nurAkt": {
+            "type": "integer",
+            "description": "Knoten existiert nur in diesem Akt (Tor-Knoten)"
+          }
+        }
+      }
+    }
+  }
+}

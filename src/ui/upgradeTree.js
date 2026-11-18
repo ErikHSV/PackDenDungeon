@@ -1,7 +1,13 @@
-// Reiter UPGRADE (14.2.5): Skill-Tree als Schaltplan über dem abgedunkelten Bild der eigenen Basis.
-// Quadratische Knoten (48 px), rechtwinklige gelbe Leitungen, Symbol + Eckabzeichen, Nebel (unentdeckte Knoten fehlen).
+// Reiter UPGRADE (11, 11.6, 14.2.5): Skill-Tree und Foil-Baum als Schaltplan.
+// - Skill-Tree über dem abgedunkelten Bild der eigenen Basis, gelbe rechtwinklige Leitungen, Mastery.
+// - Foil-Baum (Regenbogen-Kristall am rechten Rand): dunkles Feld mit Regenbogen-Schlieren, Regenbogen-Leitungen
+//   und -Ränder, gekaufte Knoten mit wanderndem Shiny-Glanz, Foil-Staub. Bleibt bei Akt-Wechseln erhalten.
+// Knotentypen: Upgrade, Freischaltung, Relikt, Quest (kostenlos, wird durch Spielen erfüllt), Tor (Akt-Wechsel).
 import { $, escapeHtml, show, stage, confirmDialog, countTo } from './dom.js';
-import { levelOf, nodeCost, nodeBlocker, buyNode, nodeReachable, describeNodeEffect, resetStarmap, nodeVisibleInAct, computeMods } from '../core/meta.js';
+import {
+  treeMap, treeIndex, treeLevel, nodeVisible, nodeCost, nodeBlocker, buyNode, describeNodeEffect, computeMods,
+  questProgress, questChapters, claimQuestNode, describeReward, changeAct, foilTreeUnlocked, prestigeAvailable, chapterUnlocked,
+} from '../core/meta.js';
 import { hash } from '../render/pixel.js';
 import { play } from '../audio.js';
 import { showUnlocks } from './reveal.js';
@@ -10,21 +16,26 @@ const NODE = 48;
 const ZMIN = 0.55, ZMAX = 1.5;
 const HOLD_INTERVAL = 150;
 const LINE = '#C8C24A', LINE_ON = '#FFD24A', FRAME = '#C8C24A';
-const TYPE_NAME = { klein: 'Knoten', gross: 'Großer Knoten', schluessel: 'Schlüsselknoten', freischalt: 'Freischaltung', start: 'Ursprung' };
-const costText = (c) => `${c.amount} ${c.waehrung === 'foilstaub' ? 'Foil-Staub' : 'MP'}${c.kristalle ? ` + ${c.kristalle} Kristalle` : ''}`;
+const TYPE_NAME = {
+  klein: 'Upgrade', gross: 'Großes Upgrade', schluessel: 'Schlüssel-Upgrade', freischalt: 'Freischaltung', start: 'Ursprung',
+  relikt: 'Relikt-Knoten', quest: 'Quest', tor: 'Tor',
+};
+const rainbow = (h, l = 62, a = 1) => `hsla(${((h % 360) + 360) % 360},90%,${l}%,${a})`;
+const fmtTime = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+const fmtNum = (n) => n.toLocaleString('de-DE');
 
 export class UpgradeTree {
   constructor(game) {
     this.game = game;
     this.canvas = $('#tree-canvas');
     this.ctx = this.canvas.getContext('2d');
-    this.cam = { x: 0, y: 0, zoom: 1 };
+    this.kind = 'skill';
+    this.cams = { skill: { x: 0, y: 0, zoom: 1, centered: false }, foil: { x: 0, y: 0, zoom: 1, centered: false } };
     this.anim = {};
     this.particles = [];
     this.hover = null;
     this.tapped = null;
     this.active = false;
-    this.jumpIndex = 0;
     this.t0 = performance.now();
     this.loop = this.loop.bind(this);
     this.bind();
@@ -32,7 +43,11 @@ export class UpgradeTree {
 
   get data() { return this.game.data; }
   get save() { return this.game.save; }
-  get map() { return this.game.data.starmap; }
+  get map() { return treeMap(this.kind, this.game.data); }
+  get index() { return treeIndex(this.kind, this.game.data); }
+  get cam() { return this.cams[this.kind]; }
+  get foil() { return this.kind === 'foil'; }
+  level(id) { return treeLevel(this.kind, this.save, id); }
 
   resize() {
     const r = this.canvas.getBoundingClientRect();
@@ -44,21 +59,40 @@ export class UpgradeTree {
   open() {
     this.active = true;
     this.resize();
-    if (!this.centered) {
-      this.centered = true;
-      this.centerOn(this.data.starIndex[this.save.lastBought] ?? this.data.starIndex[this.map.start]);
+    if (this.foil && !foilTreeUnlocked(this.save)) this.kind = 'skill';
+    if (!this.cam.centered) {
+      this.cam.centered = true;
+      this.centerOn((!this.foil && this.data.starIndex[this.save.lastBought]) || this.index[this.map.start]);
     }
     this.updateCurrency(false);
+    this.updateNav();
     show('#tree-info', false);
     cancelAnimationFrame(this.raf);
     this.raf = requestAnimationFrame(this.loop);
     if (!this.save.tutorial.starmapOpened) {
-      const n = this.map.knoten.find((k) => k.ast === 'cursor' && !nodeBlocker(k, this.save, this.data));
-      if (n) { this.save.tutorial.starmapOpened = true; this.game.persist(); this.hint = { node: n, until: performance.now() + 7000 }; }
+      const n = this.data.starIndex.q_holz2 ?? this.map.knoten.find((k) => k.ast === 'cursor');
+      if (n) { this.save.tutorial.starmapOpened = true; this.game.persist(); this.hint = { node: n, until: performance.now() + 7000, text: 'Quests erfüllst du durch Spielen!' }; }
     }
   }
 
   close() { this.active = false; this.hint = null; show('#tree-info', false); cancelAnimationFrame(this.raf); }
+
+  /** Umschalten Skill-Tree ↔ Foil-Baum mit kurzem Regenbogen-Wisch (0,3 s). */
+  toggleKind() {
+    if (!foilTreeUnlocked(this.save)) return;
+    this.kind = this.foil ? 'skill' : 'foil';
+    this.save.ui.foilTreeSeen = true;
+    this.game.persist();
+    const w = $('#tree-wipe');
+    w.classList.remove('go'); void w.offsetWidth; w.classList.add('go');
+    if (!this.cam.centered) { this.cam.centered = true; this.resize(); this.centerOn(this.index[this.map.start]); }
+    this.hover = null; this.tapped = null; this.hint = null;
+    this.skipAnimations();
+    show('#tree-info', false);
+    this.updateCurrency(false);
+    this.updateNav();
+    play(this.foil ? 'foil' : 'click');
+  }
 
   // ---------------------------------------------------------------------
   // Kamera
@@ -85,7 +119,6 @@ export class UpgradeTree {
     this.clampCam();
   }
 
-  /** Punkt im Canvas (lokale Koordinaten) aus einem Pointer-Ereignis. */
   local(ev) {
     const r = this.canvas.getBoundingClientRect();
     return { x: (ev.clientX - r.left) / stage.scale, y: (ev.clientY - r.top) / stage.scale };
@@ -95,24 +128,15 @@ export class UpgradeTree {
   // Zustände
   // ---------------------------------------------------------------------
 
-  cardMissing(node) {
-    const card = node.voraussetzung?.karte;
-    const c = card && this.save.collection[card];
-    return !!card && !((c?.normal || 0) + (c?.foil || 0) > 0);
-  }
-
-  /** Sichtbar = gekauft oder an einen gekauften Knoten angeschlossen. Alles andere bleibt im Dunkeln. */
-  visible(node) {
-    if (!nodeVisibleInAct(node, this.save)) return false;
-    return levelOf(this.save, node.id) > 0 || nodeReachable(node, this.save);
-  }
+  visible(node) { return nodeVisible(this.kind, node, this.save, this.data); }
 
   state(node) {
-    const lvl = levelOf(this.save, node.id);
+    const lvl = this.level(node.id);
     if (node.typ === 'start') return 'max';
+    if (node.typ === 'quest') return lvl > 0 ? 'max' : questProgress(node, this.data, this.save).done ? 'claimable' : 'quest';
+    if (node.typ === 'tor') return 'tor';
     if (lvl >= node.maxStufe) return 'max';
-    if (this.cardMissing(node)) return 'locked';
-    const blocked = nodeBlocker(node, this.save, this.data);
+    const blocked = nodeBlocker(this.kind, node, this.save, this.data);
     if (lvl > 0) return blocked ? 'bought' : 'boughtAffordable';
     return blocked ? 'expensive' : 'affordable';
   }
@@ -124,32 +148,39 @@ export class UpgradeTree {
   }
 
   // ---------------------------------------------------------------------
-  // Kaufen
+  // Kaufen, Abholen, Tor
   // ---------------------------------------------------------------------
+
+  burst(node, colorFn, n = 16) {
+    if (this.save.settings.skipAnimations) return;
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2, v = 80 + Math.random() * 200;
+      this.particles.push({ x: node.position.x, y: node.position.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0.5 + Math.random() * 0.4, age: 0, color: colorFn(i) });
+    }
+  }
+
+  /** Klick auf einen Knoten: kaufen, Quest abholen oder Tor öffnen. */
+  activate(node) {
+    if (node.typ === 'quest') return this.claim(node);
+    if (node.typ === 'tor') { this.openGate(node); return false; }
+    return this.tryBuy(node);
+  }
 
   tryBuy(node) {
     const save = this.save;
-    const firstTime = levelOf(save, node.id) === 0;
-    const before = { mp: save.mastery, kr: save.crystals, fs: save.foilDust };
-    if (!buyNode(node, save, this.data)) { play('error'); return false; }
+    if (node.typ === 'start') return false;
+    const firstTime = this.level(node.id) === 0;
+    const before = { mp: save.mastery, fs: save.foilDust };
+    const res = buyNode(this.kind, node, save, this.data);
+    if (!res) { play('error'); return false; }
     this.game.persist();
     const skip = save.settings.skipAnimations;
-    const color = this.data.branchIndex[node.ast]?.farbe ?? '#ffffff';
-    this.anim[node.id] = { pop: skip ? 0 : performance.now(), reveal: firstTime && !skip ? performance.now() : this.anim[node.id]?.reveal };
-    if (!skip) for (let i = 0; i < 16; i++) {
-      const a = Math.random() * Math.PI * 2, v = 80 + Math.random() * 200;
-      this.particles.push({ x: node.position.x, y: node.position.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0.5 + Math.random() * 0.4, age: 0, color });
-    }
+    const color = this.foil ? null : this.data.branchIndex[node.ast]?.farbe ?? '#ffffff';
+    this.anim[node.id] = { pop: skip ? 0 : performance.now() };
+    this.burst(node, (i) => color ?? rainbow(i * 40));
     if (skip) this.updateCurrency(false);
-    else { countTo($('#tree-mp'), before.mp, save.mastery, 350); countTo($('#tree-kr'), before.kr, save.crystals, 350); countTo($('#tree-fs'), before.fs, save.foilDust, 350); }
-    if (node.typ === 'schluessel' && !skip) {
-      play('keystone');
-      const b = $('#tree-banner');
-      b.innerHTML = `<h2>${escapeHtml(node.name)}</h2><p>${escapeHtml(node.beschreibung)}</p>`;
-      b.classList.remove('hidden');
-      clearTimeout(this.bannerTimer);
-      this.bannerTimer = setTimeout(() => b.classList.add('hidden'), 3000);
-    } else play('buy');
+    else { countTo($('#tree-mp'), before.mp, save.mastery, 350); countTo($('#tree-fs'), before.fs, save.foilDust, 350); }
+    if (node.typ === 'schluessel' && !skip) { play('keystone'); this.banner(node.name, node.beschreibung); } else play(this.foil ? 'foil' : 'buy');
     this.hint = null;
     this.showInfo(node);
     this.game.hub?.onUpgradeBought();
@@ -157,13 +188,89 @@ export class UpgradeTree {
       const b = this.data.buildingIndex[node.effekt.gebaeude];
       if (b) showUnlocks([{ title: 'NEUES GEBÄUDE!', name: `${b.name}: ${b.beschreibung}`, img: this.game.bank.url(this.game.bank.building(b.id)), w: 192, h: 192 }]);
     }
+    if (res.relic) showUnlocks([{ title: 'NEUES RELIKT!', name: `${res.relic.name}: ${res.relic.beschreibung}`, img: this.game.bank.iconUrl(res.relic.symbol), w: 180, h: 180 }]);
+    if (res.staub) this.game.toast(`Relikt schon im Besitz: +${res.staub} Schimmer`);
     return true;
   }
 
+  /** Erfüllte Quest abholen (kurze Belohnungs-Animation, per Klick überspringbar). */
+  claim(node) {
+    const before = { mp: this.save.mastery, fs: this.save.foilDust };
+    const res = claimQuestNode(node, this.data, this.save);
+    if (!res) { play('error'); this.showInfo(node); return false; }
+    this.game.persist();
+    play('questDone');
+    this.anim[node.id] = { pop: performance.now() };
+    this.burst(node, (i) => ['#FFD24A', '#fff6c0', '#5ED17A'][i % 3], 28);
+    countTo($('#tree-mp'), before.mp, this.save.mastery, 350);
+    countTo($('#tree-fs'), before.fs, this.save.foilDust, 350);
+    this.banner('QUEST ERFÜLLT!', `${node.name}: ${res.parts.join(', ') || 'neue Knoten freigeschaltet'}`);
+    this.showInfo(node);
+    this.game.hub?.onUpgradeBought();
+    const relics = res.relics.filter(Boolean);
+    if (relics.length) showUnlocks(relics.map((r) => ({ title: 'NEUES RELIKT!', name: `${r.name}: ${r.beschreibung}`, img: this.game.bank.iconUrl(r.symbol), w: 180, h: 180 })));
+    return true;
+  }
+
+  async openGate(node) {
+    const { data, save } = this;
+    const act = data.acts.find((a) => a.tor?.knoten === node.id);
+    const next = node.effekt.akt;
+    const text = act?.tor?.warnung ?? `Akt ${next} beginnen? Der Skill-Tree wird zurückgesetzt. Erhalten bleiben: Foil-Baum, Foil-Staub, Sammlung, Bestiarium, Relikte.`;
+    show('#tree-info', false);
+    if (!(await confirmDialog(text, `Akt ${next} beginnen`, 'Noch nicht'))) return;
+    const res = changeAct(node, data, save);
+    if (!res) { play('error'); return; }
+    this.game.persist();
+    play('keystone');
+    this.anim = {};
+    this.centerOn(this.data.starIndex[this.data.starmap.start]);
+    this.updateCurrency(false);
+    this.game.hub?.onActChanged();
+    const parts = [`${fmtNum(res.refund)} Mastery erstattet`];
+    if (res.bonus) parts.push(`+${fmtNum(res.bonus)} Mastery (Schneller Neubeginn)`);
+    showUnlocks([
+      { title: `AKT ${res.act}!`, name: `${data.actIndex[res.act]?.name ?? ''} – ${parts.join(', ')}.`, img: this.game.bank.iconUrl('gate'), w: 180, h: 180 },
+      { title: 'NEUE REITER!', name: 'BESTIARIUM und RELIKTE sind jetzt verfügbar.', img: this.game.bank.iconUrl('crown'), w: 160, h: 160 },
+    ]);
+  }
+
+  banner(title, text) {
+    const b = $('#tree-banner');
+    b.innerHTML = `<h2>${escapeHtml(title)}</h2><p>${escapeHtml(text)}</p>`;
+    b.classList.remove('hidden');
+    clearTimeout(this.bannerTimer);
+    this.bannerTimer = setTimeout(() => b.classList.add('hidden'), 2600);
+  }
+
+  /** Kauf- und Abhol-Animationen per Klick überspringen. */
+  skipAnimations() {
+    const had = this.particles.length > 0 || !$('#tree-banner').classList.contains('hidden');
+    this.particles = [];
+    $('#tree-banner').classList.add('hidden');
+    for (const a of Object.values(this.anim)) a.pop = 0;
+    return had;
+  }
+
   updateCurrency(animate = true) {
-    if (!animate) { $('#tree-mp').textContent = this.save.mastery; $('#tree-kr').textContent = this.save.crystals; $('#tree-fs').textContent = this.save.foilDust; }
-    const foilVisible = this.map.knoten.some((n) => n.waehrung === 'foilstaub' && this.visible(n)) || this.save.foilDust > 0;
-    $('#tree-fs-wrap').classList.toggle('hidden', !foilVisible);
+    if (!animate) { $('#tree-mp').textContent = this.save.mastery; $('#tree-fs').textContent = this.save.foilDust; }
+    $('.tree-cur').classList.toggle('foil-mode', this.foil);
+    $('#tree-fs-wrap').classList.toggle('hidden', !foilTreeUnlocked(this.save));
+  }
+
+  /** Navigationsleiste: Regenbogen-Kristall (Umschalten), ^ / vv (Ebenen), Prestige-Hinweis blinkt. */
+  updateNav() {
+    const btn = $('#tree-foil');
+    const unlocked = foilTreeUnlocked(this.save);
+    btn.classList.toggle('hidden', !unlocked);
+    btn.classList.toggle('on', this.foil);
+    btn.classList.toggle('blink', unlocked && !this.save.ui.foilTreeSeen);
+    $('#tree-up').classList.toggle('blink', this.prestigeCount() > (this.save.ui.prestigeSeen || 0));
+  }
+
+  prestigeCount() {
+    const { data, save } = this;
+    return data.chapters.filter((c) => chapterUnlocked(c, save, data)).reduce((s, c) => s + prestigeAvailable(c, save, data).length, 0);
   }
 
   // ---------------------------------------------------------------------
@@ -172,38 +279,56 @@ export class UpgradeTree {
 
   showInfo(node) {
     if (!node) { show('#tree-info', false); return; }
-    const save = this.save;
-    const lvl = levelOf(save, node.id);
+    const { save, data } = this;
+    const lvl = this.level(node.id);
     const st = this.state(node);
     const box = $('#tree-info');
-    const col = this.data.branchIndex[node.ast]?.farbe ?? '#fff';
-    let html = `<h3 style="color:${col}">${escapeHtml(this.cardMissing(node) ? '???' : node.name)}</h3>
-      <div class="typ">${TYPE_NAME[node.typ]} · ${escapeHtml(this.data.branchIndex[node.ast]?.name ?? '')}</div>`;
-    if (this.cardMissing(node)) html += '<div class="req">Finde diese Karte, um ihre Upgrades freizuschalten.</div>';
-    else {
+    const col = this.foil ? '#ff9ad8' : node.typ === 'quest' ? '#e8dcc0' : data.branchIndex[node.ast]?.farbe ?? '#fff';
+    const branch = this.foil ? data.foiltree.aeste.find((a) => a.id === node.ast)?.name : data.branchIndex[node.ast]?.name;
+    let html = `<h3 style="color:${col}">${escapeHtml(node.name)}</h3><div class="typ">${TYPE_NAME[node.typ] ?? ''}${branch ? ` · ${escapeHtml(branch)}` : ''}</div>`;
+    if (node.typ === 'quest') {
+      const p = questProgress(node, data, save);
+      const chs = questChapters(node, data);
+      const val = node.aufgabe.statistik === 'ueberleben' ? `${fmtTime(p.value)} / ${fmtTime(p.target)}` : `${fmtNum(p.value)} / ${fmtNum(p.target)}`;
+      html += `<div><b>Aufgabe:</b> ${escapeHtml(node.beschreibung)}</div>
+        <div class="qbar"><i style="width:${Math.round((p.value / p.target) * 100)}%"></i><span>${val}</span></div>
+        <div><b>Belohnung:</b> ${escapeHtml(describeReward(node.belohnung))}${node.verbindungen.length > 1 ? ' · schaltet neue Knoten frei' : ''}</div>
+        <div><b>Zählt in:</b> ${chs ? chs.map((id) => escapeHtml(this.game.hub?.chapterShort(data.chapterIndex[id]) ?? `Kapitel ${id}`)).join(', ') : 'allen Kapiteln'}</div>`;
+      if (st === 'max') html += '<div class="cost">ABGESCHLOSSEN ✓</div>';
+      else if (st === 'claimable') html += '<div class="cost">Erfüllt! Klicken zum Abholen</div>';
+      else html += '<div class="hint">Wird durch Spielen erfüllt. Fortschritt zählt nur, solange die Quest im Baum sichtbar ist.</div>';
+    } else if (node.typ === 'tor') {
+      html += `<div>${escapeHtml(node.beschreibung)}</div><div class="cost">Klicken, um Akt ${node.effekt.akt} zu beginnen</div>`;
+    } else {
       html += `<div>${escapeHtml(node.beschreibung)}</div>`;
+      if (node.effekt.ziel === 'relikt') {
+        const r = data.relicIndex[node.effekt.relikt];
+        if (save.relics.owned.includes(r.id)) html += `<div class="hint">Relikt schon im Besitz – Kauf gibt stattdessen ${data.balance.belohnungen.reliktDoppelt.foilStaub} Schimmer.</div>`;
+      }
       if (node.typ !== 'start') {
-        if ('wert' in node.effekt && node.maxStufe > 1) {
+        if (('wert' in node.effekt || node.effekt.ziel === 'tome') && node.maxStufe > 1) {
           html += `<div>Aktuell: ${escapeHtml(describeNodeEffect(node, lvl))}</div>`;
           if (lvl < node.maxStufe) html += `<div class="next">Nächste Stufe: ${escapeHtml(describeNodeEffect(node, lvl + 1))}</div>`;
         }
         html += `<div>Stufe ${lvl}/${node.maxStufe}</div>`;
         if (st === 'max') html += '<div class="cost">MAXIMUM ✓</div>';
         else {
-          const c = nodeCost(node, lvl);
-          const why = nodeBlocker(node, save, this.data);
-          html += `<div class="cost ${why ? 'no' : ''}">Kosten: ${costText(c)}</div>`;
+          const c = nodeCost(this.kind, node, lvl, data);
+          const why = nodeBlocker(this.kind, node, save, data);
+          html += `<div class="cost ${why ? 'no' : ''}">Kosten: ${fmtNum(c.amount)} <img src="${this.game.bank.iconUrl(this.foil ? 'crystal_regen' : 'mastery')}" alt=""> ${this.foil ? 'Schimmer' : 'Mastery'}</div>`;
           if (why && !/Zu wenig/.test(why)) html += `<div class="req">${escapeHtml(why)}</div>`;
-          else html += '<div class="hint">Klicken zum Kaufen · gedrückt halten für mehrere Stufen</div>';
+          else html += `<div class="hint">Klicken zum Kaufen${node.maxStufe > 1 ? ' · gedrückt halten für mehrere Stufen' : ''}</div>`;
         }
       }
     }
+    if (this.foil) html += '<div class="perm">Dauerhaft – bleibt bei Akt-Wechsel erhalten</div>';
     box.innerHTML = html;
+    box.classList.toggle('foil', this.foil);
     const p = this.toScreen(node.position.x, node.position.y);
     const r = (NODE / 2) * this.cam.zoom + 18;
     const left = p.x + r + 430 > this.W - 80 ? p.x - r - 430 : p.x + r;
     box.style.left = `${Math.max(10, left)}px`;
-    box.style.top = `${Math.max(70, Math.min(this.H - 260, p.y - 70))}px`;
+    box.style.top = `${Math.max(70, Math.min(this.H - 280, p.y - 70))}px`;
     show('#tree-info', true);
   }
 
@@ -229,7 +354,8 @@ export class UpgradeTree {
       }
       drag = { x: p.x, y: p.y, camX: this.cam.x, camY: this.cam.y, moved: false, type: ev.pointerType };
       const node = this.nodeAt(p.x, p.y);
-      if (node && ev.button === 0) {
+      // Gedrückt halten: mehrere Stufen kaufen (nur Upgrade-Knoten)
+      if (node && ev.button === 0 && node.maxStufe > 1 && !['quest', 'tor', 'start'].includes(node.typ)) {
         hold = { node, bought: 0, timer: setTimeout(() => {
           if (!hold) return;
           hold.iv = setInterval(() => { if (!hold || !this.tryBuy(hold.node)) stopHold(); else hold.bought++; }, HOLD_INTERVAL);
@@ -272,9 +398,9 @@ export class UpgradeTree {
       if (!d || d.moved || held || ev.button !== 0) return;
       const p = this.local(ev);
       const node = this.nodeAt(p.x, p.y);
-      if (!node) { this.tapped = null; show('#tree-info', false); return; }
-      if (d.type === 'mouse') { this.tryBuy(node); return; }
-      if (this.tapped === node) this.tryBuy(node); else { this.tapped = node; this.showInfo(node); }
+      if (!node) { if (!this.skipAnimations()) { this.tapped = null; show('#tree-info', false); } return; }
+      if (d.type === 'mouse') { this.activate(node); return; }
+      if (this.tapped === node) this.activate(node); else { this.tapped = node; this.showInfo(node); }
     };
     cv.addEventListener('pointerup', up);
     cv.addEventListener('pointercancel', up);
@@ -285,30 +411,25 @@ export class UpgradeTree {
       this.setZoom(this.cam.zoom * (ev.deltaY < 0 ? 1.15 : 1 / 1.15), this.local(ev));
       show('#tree-info', false);
     }, { passive: false });
+    $('#tree-banner').addEventListener('pointerdown', () => $('#tree-banner').classList.add('hidden'));
 
     // Navigationsleiste
-    $('#tree-jump').addEventListener('click', () => {
-      const list = this.map.knoten.filter((n) => this.visible(n) && n.typ !== 'start' && !nodeBlocker(n, this.save, this.data));
-      if (!list.length) { play('error'); this.game.toast('Gerade ist kein Knoten bezahlbar.', true); return; }
-      const n = list[this.jumpIndex++ % list.length];
-      this.centerOn(n);
-      this.hint = { node: n, until: performance.now() + 1500, quiet: true };
-      play('click');
-    });
+    $('#tree-foil').addEventListener('click', () => this.toggleKind());
     const pan = (dir) => { this.cam.y += dir * this.H * 0.6 / this.cam.zoom; this.clampCam(); play('click'); show('#tree-info', false); };
-    $('#tree-up').addEventListener('click', () => pan(-1));
-    $('#tree-down').addEventListener('click', () => pan(1));
-    $('#tree-reset').addEventListener('click', async () => {
-      if (!(await confirmDialog('Alle Punkte zurückerhalten? Alle gekauften Upgrades werden zurückgesetzt.', 'Zurücksetzen', 'Abbrechen'))) return;
-      const r = resetStarmap(this.data, this.save);
-      this.game.persist();
-      this.updateCurrency(false);
-      this.anim = {};
-      this.centerOn(this.data.starIndex[this.map.start]);
-      play('unlock');
-      if (r.mp || r.fs || r.kr) this.game.toast(`${r.mp} MP, ${r.kr} Kristalle und ${r.fs} Foil-Staub zurückerhalten`);
-      this.game.hub?.onUpgradeBought();
+    $('#tree-up').addEventListener('click', () => {
+      const n = this.prestigeCount();
+      if (n > (this.save.ui.prestigeSeen || 0)) {
+        this.save.ui.prestigeSeen = n;
+        this.game.persist();
+        this.updateNav();
+        this.game.hub?.selectNewestPrestige();
+        this.game.toast('Neue Prestige-Stufe! Sie ist links in der Kapitelwahl ausgewählt (römische Ziffer).');
+        play('unlock');
+        return;
+      }
+      pan(-1);
     });
+    $('#tree-down').addEventListener('click', () => pan(1));
   }
 
   // ---------------------------------------------------------------------
@@ -325,7 +446,7 @@ export class UpgradeTree {
     this.raf = requestAnimationFrame(this.loop);
   }
 
-  /** Abgedunkeltes Bild der eigenen Basis: Turm in der Mitte, gebaute Gebäude daneben. */
+  /** Skill-Tree: abgedunkeltes Bild der eigenen Basis (Turm, gebaute Gebäude) unter dem Startknoten. */
   drawBase(c, t) {
     const { bank, data } = this.game;
     c.fillStyle = '#120a16';
@@ -335,20 +456,52 @@ export class UpgradeTree {
       c.fillStyle = `rgba(244,235,217,${a.toFixed(2)})`;
       c.fillRect(Math.round(hash(i, 1) * this.W), Math.round(hash(i, 2) * this.H), 3, 3);
     }
-    const cx = this.W / 2, cy = this.H * 0.56;
+    const sp = this.index[this.map.start].position;
+    const s = this.toScreen(sp.x, sp.y);
+    const z = this.cam.zoom;
+    const cx = s.x, cy = s.y + 30 * z;
     c.fillStyle = '#1d1424';
-    c.beginPath(); c.ellipse(cx, cy + 40, 420, 150, 0, 0, Math.PI * 2); c.fill();
+    c.beginPath(); c.ellipse(cx, cy + 40 * z, 420 * z, 150 * z, 0, 0, Math.PI * 2); c.fill();
     const tower = bank.tower(0);
     c.globalAlpha = 0.4;
-    c.drawImage(tower, Math.round(cx - tower.width / 2), Math.round(cy - tower.height + 60));
-    const mods = this.mods ?? computeMods(data, this.save);
+    c.drawImage(tower, Math.round(cx - (tower.width * z) / 2), Math.round(cy - tower.height * z + 60 * z), tower.width * z, tower.height * z);
+    const mods = this.mods;
     data.buildings.forEach((b, i) => {
       if (!mods.gebaeude[b.id]) return;
       const img = bank.building(b.id);
-      const x = cx + (i - 1) * 240 + (i === 1 ? 0 : 0), y = cy + 60 + (i === 1 ? 70 : 0);
-      c.drawImage(img, Math.round(x - img.width * 2), Math.round(y - img.height * 2), img.width * 4, img.height * 4);
+      const x = cx + (i - 1) * 240 * z, y = cy + (60 + (i === 1 ? 70 : 0)) * z;
+      c.drawImage(img, Math.round(x - img.width * 2 * z), Math.round(y - img.height * 2 * z), img.width * 4 * z, img.height * 4 * z);
     });
     c.globalAlpha = 1;
+  }
+
+  /** Foil-Baum: dunkles Feld mit langsam schimmernden Regenbogen-Schlieren (sehr dezent). */
+  drawFoilBase(c, t) {
+    c.fillStyle = '#0d0912';
+    c.fillRect(0, 0, this.W, this.H);
+    c.save();
+    c.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 5; i++) {
+      const y = this.H * (0.12 + i * 0.19) + Math.sin(t * 0.25 + i * 1.7) * 60;
+      const g = c.createLinearGradient(0, y - 80, this.W, y + 80);
+      const h = t * 12 + i * 70;
+      g.addColorStop(0, rainbow(h, 55, 0));
+      g.addColorStop(0.35, rainbow(h + 60, 55, 0.07));
+      g.addColorStop(0.65, rainbow(h + 140, 55, 0.07));
+      g.addColorStop(1, rainbow(h + 200, 55, 0));
+      c.fillStyle = g;
+      c.beginPath();
+      c.moveTo(0, y);
+      for (let x = 0; x <= this.W; x += 40) c.lineTo(x, y + Math.sin(x / 180 + t * 0.4 + i) * 40);
+      for (let x = this.W; x >= 0; x -= 40) c.lineTo(x, y + 70 + Math.sin(x / 200 + t * 0.3 + i * 2) * 40);
+      c.closePath(); c.fill();
+    }
+    c.restore();
+    for (let i = 0; i < 60; i++) {
+      const a = 0.1 + 0.3 * Math.abs(Math.sin(t * (0.3 + hash(i, 9)) + i));
+      c.fillStyle = rainbow(hash(i, 4) * 360, 75, a);
+      c.fillRect(Math.round(hash(i, 5) * this.W), Math.round(hash(i, 6) * this.H), 2, 2);
+    }
   }
 
   draw(t, dt, now) {
@@ -356,7 +509,7 @@ export class UpgradeTree {
     c.setTransform(1, 0, 0, 1, 0, 0);
     c.imageSmoothingEnabled = false;
     this.mods = computeMods(this.data, this.save);
-    this.drawBase(c, t);
+    if (this.foil) this.drawFoilBase(c, t); else this.drawBase(c, t);
 
     const z = this.cam.zoom;
     c.save();
@@ -365,8 +518,9 @@ export class UpgradeTree {
     c.translate(-this.cam.x, -this.cam.y);
 
     const nodes = this.map.knoten;
-    const idx = this.data.starIndex;
+    const idx = this.index;
     const vis = Object.fromEntries(nodes.map((n) => [n.id, this.visible(n)]));
+    const startPos = idx[this.map.start].position;
 
     // Leitungen: rechtwinklig (senkrecht – waagerecht – senkrecht)
     const drawn = new Set();
@@ -378,15 +532,15 @@ export class UpgradeTree {
         drawn.add(key);
         const m = idx[id];
         if (!vis[n.id] && !vis[m.id]) continue;
-        // von oben nach unten bzw. vom Start weg zeichnen
-        const [a, b] = Math.abs(n.position.y - this.map.groesse.hoehe / 2) <= Math.abs(m.position.y - this.map.groesse.hoehe / 2) ? [n, m] : [m, n];
-        const both = levelOf(this.save, n.id) > 0 && levelOf(this.save, m.id) > 0;
-        const fade = !(vis[n.id] && vis[m.id]); // eine Seite im Dunkeln: Leitung endet im Dunkeln
-        this.wire(c, a.position, b.position, both ? LINE_ON : LINE, both ? 3 : 2, fade ? (vis[a.id] ? 'end' : 'start') : null);
+        const [a, b] = Math.abs(n.position.y - startPos.y) <= Math.abs(m.position.y - startPos.y) ? [n, m] : [m, n];
+        const both = this.level(n.id) > 0 && this.level(m.id) > 0;
+        const fade = !(vis[n.id] && vis[m.id]) ? (vis[a.id] ? 'end' : 'start') : null;
+        if (this.foil) this.wireRainbow(c, a.position, b.position, both ? 3 : 2, fade, t, both ? 1 : 0.65);
+        else this.wire(c, a.position, b.position, both ? LINE_ON : LINE, both ? 3 : 2, fade);
         if (both && !this.save.settings.skipAnimations) {
           const f = (t * 0.6 + hash(a.position.x, b.position.y)) % 1;
           const p = this.alongWire(a.position, b.position, f);
-          c.fillStyle = '#fff6c0';
+          c.fillStyle = this.foil ? rainbow(t * 120 + p.x * 0.3, 85) : '#fff6c0';
           c.fillRect(Math.round(p.x) - 3, Math.round(p.y) - 3, 6, 6);
         }
       }
@@ -404,17 +558,17 @@ export class UpgradeTree {
     this.particles = this.particles.filter((p) => p.age < p.life);
     c.restore();
 
-    if (this.hint && now < this.hint.until) {
+    if (this.hint && now < this.hint.until && vis[this.hint.node.id] && !this.foil) {
       const p = this.toScreen(this.hint.node.position.x, this.hint.node.position.y);
       const bob = Math.sin(t * 6) * 6;
       c.fillStyle = '#FFD24A';
       c.beginPath(); c.moveTo(p.x, p.y - 36 + bob); c.lineTo(p.x - 18, p.y - 66 + bob); c.lineTo(p.x + 18, p.y - 66 + bob); c.closePath(); c.fill();
-      if (!this.hint.quiet) {
-        c.font = 'bold 26px "Pixelify Sans", monospace';
+      if (this.hint.text) {
+        c.font = 'bold 26px "Jersey 10", "Pixelify Sans", monospace';
         c.textAlign = 'center';
         c.lineWidth = 6; c.strokeStyle = '#120a16';
-        c.strokeText('Verbessere deinen Runenkreis!', p.x, p.y - 78 + bob);
-        c.fillText('Verbessere deinen Runenkreis!', p.x, p.y - 78 + bob);
+        c.strokeText(this.hint.text, p.x, p.y - 78 + bob);
+        c.fillText(this.hint.text, p.x, p.y - 78 + bob);
       }
     }
   }
@@ -456,60 +610,130 @@ export class UpgradeTree {
     c.stroke();
   }
 
+  /** Regenbogen-Leitung (Foil-Baum): Farbton wandert langsam entlang der Leitung. */
+  wireRainbow(c, a, b, width, fade, t, alpha) {
+    const pts = this.wirePoints(a, b);
+    const g = c.createLinearGradient(a.x, a.y, b.x, b.y);
+    const h = t * 40 + (a.x + a.y) * 0.2;
+    const fa = (k) => (fade === 'end' ? Math.max(0, 1 - k / 0.55) : fade === 'start' ? Math.max(0, (k - 0.45) / 0.55) : 1) * alpha;
+    for (const k of [0, 0.25, 0.5, 0.75, 1]) g.addColorStop(k, rainbow(h + k * 160, 62, fa(k)));
+    c.strokeStyle = g;
+    c.lineWidth = width;
+    c.beginPath();
+    c.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length; i++) c.lineTo(pts[i].x, pts[i].y);
+    c.stroke();
+  }
+
   drawNode(n, t, now) {
     const c = this.ctx;
     const st = this.state(n);
-    const lvl = levelOf(this.save, n.id);
-    let size = n.typ === 'start' ? 64 : n.typ === 'schluessel' ? 56 : NODE;
+    const lvl = this.level(n.id);
+    let size = n.typ === 'start' ? 64 : n.typ === 'schluessel' || n.typ === 'tor' ? 56 : NODE;
     const a = this.anim[n.id];
     if (a?.pop) { const k = (now - a.pop) / 250; if (k < 1) size *= 1 + Math.sin(k * Math.PI) * 0.3; }
     const h = size / 2;
     const { x, y } = n.position;
-    const locked = st === 'locked';
     const bought = lvl > 0 || n.typ === 'start';
+    const quest = n.typ === 'quest';
 
-    // Rahmen-Leuchten
-    if (st === 'affordable' || st === 'boughtAffordable') {
-      const pulse = 0.35 + 0.35 * Math.sin(t * 4);
-      c.fillStyle = `rgba(255,246,160,${pulse.toFixed(2)})`;
-      c.fillRect(x - h - 6, y - h - 6, size + 12, size + 12);
+    // Leuchten: kaufbar, erfüllte Quest (pulsiert), Tor
+    if (st === 'affordable' || st === 'boughtAffordable' || st === 'claimable' || st === 'tor') {
+      const pulse = (st === 'claimable' ? 0.5 : 0.35) + 0.35 * Math.sin(t * (st === 'claimable' ? 7 : 4));
+      c.fillStyle = st === 'claimable' ? `rgba(255,210,74,${pulse.toFixed(2)})` : st === 'tor' ? `rgba(255,154,58,${pulse.toFixed(2)})` : this.foil ? rainbow(t * 90, 70, pulse) : `rgba(255,246,160,${pulse.toFixed(2)})`;
+      const g = st === 'claimable' ? 10 : 6;
+      c.fillRect(x - h - g, y - h - g, size + g * 2, size + g * 2);
     }
-    if (st === 'max' && n.typ !== 'start') { c.fillStyle = 'rgba(255,210,74,0.35)'; c.fillRect(x - h - 5, y - h - 5, size + 10, size + 10); }
-    c.fillStyle = '#1a1020';
+    if (st === 'max' && n.typ !== 'start' && !this.foil) { c.fillStyle = quest ? 'rgba(232,220,192,0.25)' : 'rgba(255,210,74,0.35)'; c.fillRect(x - h - 5, y - h - 5, size + 10, size + 10); }
+    c.fillStyle = quest ? '#2a2016' : '#1a1020';
     c.fillRect(x - h, y - h, size, size);
-    c.lineWidth = 3;
-    c.strokeStyle = locked ? '#55505c' : st === 'max' ? '#FFD24A' : bought ? '#FFD24A' : FRAME;
-    c.strokeRect(x - h + 1.5, y - h + 1.5, size - 3, size - 3);
+
+    // Rahmen
+    if (this.foil) this.rainbowFrame(c, x, y, size, t, bought ? 1 : 0.7);
+    else if (quest) {
+      // Schriftrollen-Rahmen: Pergament mit eingerollten Enden oben und unten
+      c.lineWidth = 3; c.strokeStyle = st === 'max' ? '#c8b890' : '#e8dcc0';
+      c.strokeRect(x - h + 1.5, y - h + 1.5, size - 3, size - 3);
+      c.fillStyle = st === 'max' ? '#a89870' : '#e8dcc0';
+      c.fillRect(x - h - 4, y - h - 3, size + 8, 6); c.fillRect(x - h - 4, y + h - 3, size + 8, 6);
+      c.fillStyle = '#8a6a3a';
+      c.fillRect(x - h - 4, y - h - 3, 4, 6); c.fillRect(x + h, y - h - 3, 4, 6); c.fillRect(x - h - 4, y + h - 3, 4, 6); c.fillRect(x + h, y + h - 3, 4, 6);
+    } else {
+      c.lineWidth = 3;
+      c.strokeStyle = n.typ === 'tor' ? '#FF9A3A' : n.typ === 'relikt' ? '#B23ED8' : bought ? '#FFD24A' : FRAME;
+      c.strokeRect(x - h + 1.5, y - h + 1.5, size - 3, size - 3);
+    }
 
     // Symbol
     const img = this.symbolImage(n);
     if (img) {
       const s = Math.round(size * 0.72);
-      c.globalAlpha = locked ? 0.3 : bought ? 1 : st === 'affordable' ? 0.85 : 0.5;
-      if (locked) c.filter = 'grayscale(1) brightness(0.6)';
+      c.globalAlpha = bought || quest || n.typ === 'tor' ? 1 : st === 'affordable' ? 0.85 : 0.5;
       c.drawImage(img, Math.round(x - s / 2), Math.round(y - s / 2), s, s);
-      c.filter = 'none';
       c.globalAlpha = 1;
     }
-    // Eckabzeichen oben rechts
-    if (n.abzeichen && !locked) {
+    // Gekaufte Foil-Knoten: wandernder Shiny-Glanz (diagonaler Streifen alle 1,5 s)
+    if (this.foil && bought) this.sheen(c, x, y, size, t);
+
+    // Eckabzeichen oben rechts bzw. Ausrufezeichen bei erfüllter Quest
+    const badge = st === 'claimable' ? 'exclam' : n.abzeichen;
+    if (badge) {
       const bs = 20;
       c.fillStyle = '#120a16';
       c.fillRect(x + h - bs + 4, y - h - 4, bs, bs);
-      c.drawImage(this.game.bank.icon(n.abzeichen), x + h - bs + 6, y - h - 2, bs - 4, bs - 4);
+      c.drawImage(this.game.bank.icon(badge), x + h - bs + 6, y - h - 2, bs - 4, bs - 4);
     }
-    // Maximal: kleiner Haken
     if (st === 'max' && n.typ !== 'start') c.drawImage(this.game.bank.icon('check'), x - h - 6, y + h - 14, 20, 20);
+
+    // Quest: Fortschrittsbalken unter dem Knoten
+    if (quest && st !== 'max') {
+      const p = questProgress(n, this.data, this.save);
+      const w = size + 8, bx = x - w / 2, by = y + h + 7;
+      c.fillStyle = '#120a16'; c.fillRect(bx - 2, by - 2, w + 4, 10);
+      c.fillStyle = st === 'claimable' ? '#5ED17A' : '#e8dcc0';
+      c.fillRect(bx, by, Math.round(w * (p.value / p.target)), 6);
+    }
     // Stufe
-    if (n.typ !== 'start' && n.maxStufe > 1 && lvl > 0) {
-      c.font = 'bold 16px "Pixelify Sans", monospace';
+    if (!quest && n.typ !== 'start' && n.maxStufe > 1 && lvl > 0) {
+      c.font = 'bold 18px "Jersey 10", "Pixelify Sans", monospace';
       c.textAlign = 'center';
       c.lineWidth = 4; c.strokeStyle = '#120a16';
       const label = `${lvl}/${n.maxStufe}`;
-      c.strokeText(label, x, y + h + 16);
+      c.strokeText(label, x, y + h + 17);
       c.fillStyle = lvl >= n.maxStufe ? '#FFD24A' : '#F4EBD9';
-      c.fillText(label, x, y + h + 16);
+      c.fillText(label, x, y + h + 17);
     }
+  }
+
+  /** Regenbogenrand: jede Seite in einem eigenen, langsam wandernden Farbton. */
+  rainbowFrame(c, x, y, size, t, alpha) {
+    const h = size / 2, w = 3;
+    const base = t * 60 + (x + y) * 0.1;
+    const sides = [[x - h, y - h, size, w], [x + h - w, y - h, w, size], [x - h, y + h - w, size, w], [x - h, y - h, w, size]];
+    sides.forEach(([sx, sy, sw, sh], i) => {
+      const g = sw > sh ? c.createLinearGradient(sx, sy, sx + sw, sy) : c.createLinearGradient(sx, sy, sx, sy + sh);
+      g.addColorStop(0, rainbow(base + i * 90, 62, alpha));
+      g.addColorStop(1, rainbow(base + i * 90 + 90, 62, alpha));
+      c.fillStyle = g;
+      c.fillRect(sx, sy, sw, sh);
+    });
+  }
+
+  /** Diagonaler Glanzstreifen, der alle 1,5 s über das Quadrat wandert. */
+  sheen(c, x, y, size, t) {
+    const k = ((t + hash(x, y) * 1.5) % 1.5) / 1.5;
+    if (k > 0.5) return;
+    const h = size / 2;
+    const p = -size + k * 4 * size;
+    c.save();
+    c.beginPath(); c.rect(x - h, y - h, size, size); c.clip();
+    const g = c.createLinearGradient(x - h + p, y - h, x - h + p + size * 0.6, y + h);
+    g.addColorStop(0, 'rgba(255,255,255,0)');
+    g.addColorStop(0.5, 'rgba(255,255,255,0.55)');
+    g.addColorStop(1, 'rgba(255,255,255,0)');
+    c.fillStyle = g;
+    c.fillRect(x - h, y - h, size, size);
+    c.restore();
   }
 
   symbolImage(n) {

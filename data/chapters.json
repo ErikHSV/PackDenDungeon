@@ -42,8 +42,7 @@
     "farbwelt": {
       "thema": "moor",
       "boden": "#14231C",
-      "turmlicht": "#7ab8ff",
-      "waehrung": "blau"
+      "turmlicht": "#7ab8ff"
     }
   },
   {
@@ -94,8 +93,7 @@
     "farbwelt": {
       "thema": "gruft",
       "boden": "#1C2430",
-      "turmlicht": "#7aff9a",
-      "waehrung": "blau"
+      "turmlicht": "#7aff9a"
     }
   },
   {
@@ -152,8 +150,7 @@
     "farbwelt": {
       "thema": "schmiede",
       "boden": "#2A1712",
-      "turmlicht": "#ff9a3a",
-      "waehrung": "rot"
+      "turmlicht": "#ff9a3a"
     }
   },
   {
@@ -227,8 +224,7 @@
     "farbwelt": {
       "thema": "frost",
       "boden": "#1E3A52",
-      "turmlicht": "#F4FBFF",
-      "waehrung": "weiss"
+      "turmlicht": "#F4FBFF"
     }
   },
   {
@@ -284,8 +280,7 @@
     "farbwelt": {
       "thema": "moor",
       "boden": "#14231C",
-      "turmlicht": "#c58cff",
-      "waehrung": "blau"
+      "turmlicht": "#c58cff"
     }
   }
 ]

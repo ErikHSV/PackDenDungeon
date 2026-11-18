@@ -56,7 +56,10 @@
               "wiederbeleben",
               "verstaerken",
               "rueckschaden",
-              "werte"
+              "werte",
+              "kettenblitz",
+              "skelett",
+              "spawnBetaeubung"
             ]
           }
         }
@@ -66,6 +69,10 @@
       },
       "nachteil": {
         "type": "string"
+      },
+      "nurBaum": {
+        "type": "boolean",
+        "description": "Nur über Relikt-Knoten im Skill-Tree erhältlich, nie aus Reliktpacks."
       }
     }
   }

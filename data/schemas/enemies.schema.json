@@ -15,7 +15,6 @@
       "magieResistenz",
       "fliegt",
       "immun",
-      "muenzen",
       "schaden",
       "angriffsIntervall",
       "groesse",
@@ -60,9 +59,6 @@
           ]
         }
       },
-      "muenzen": {
-        "type": "number"
-      },
       "schaden": {
         "type": "number"
       },
@@ -93,7 +89,7 @@
         "type": "object",
         "propertyNames": {
           "enum": [
-            "muenzenStehlen",
+            "masteryStehlen",
             "explodiertBeimTod",
             "frontSchild",
             "teiltSichBeimTod",

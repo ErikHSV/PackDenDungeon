@@ -3,7 +3,7 @@ import { frameAt } from './sprites.js';
 import { arenaFloor, worldOf } from './arena.js';
 import { whiteOut, makeCanvas } from './pixel.js';
 
-const PIXEL = '"Pixelify Sans", monospace';
+const PIXEL = '"Jersey 10", "Pixelify Sans", monospace';
 const RAINBOW = ['#ff5a5a', '#ffb347', '#fff06a', '#6ae87a', '#5aa9f0', '#b77aff'];
 
 export class Renderer {
@@ -37,6 +37,49 @@ export class Renderer {
       m.set(color, c);
     }
     return m.get(color);
+  }
+
+  /**
+   * Shiny-Glanz (7.5): diagonaler Regenbogen-Streifen wandert alle 1,5 s über die Figur (nur auf deren Pixeln).
+   * img wird an (dx, dy) in (w × h) gezeichnet – im aktuellen Koordinatensystem.
+   */
+  shinySheen(img, dx, dy, w, h, t, seed = 0) {
+    const k = ((t + seed * 0.37) % 1.5) / 1.5;
+    if (k > 0.55) return;
+    const W = Math.ceil(w), H = Math.ceil(h);
+    if (!this.sheenCanvas || this.sheenCanvas.width < W || this.sheenCanvas.height < H) this.sheenCanvas = makeCanvas(Math.max(W, 128), Math.max(H, 128));
+    const o = this.sheenCanvas.getContext('2d');
+    o.imageSmoothingEnabled = false;
+    o.globalCompositeOperation = 'source-over';
+    o.clearRect(0, 0, W, H);
+    o.drawImage(img, 0, 0, W, H);
+    o.globalCompositeOperation = 'source-atop';
+    const p = -W + (k / 0.55) * (W * 2 + H);
+    const g = o.createLinearGradient(p, 0, p + W * 0.7, H);
+    g.addColorStop(0, 'rgba(255,255,255,0)');
+    g.addColorStop(0.35, 'rgba(255,140,220,0.55)');
+    g.addColorStop(0.5, 'rgba(255,255,255,0.85)');
+    g.addColorStop(0.65, 'rgba(120,230,255,0.55)');
+    g.addColorStop(1, 'rgba(255,255,255,0)');
+    o.fillStyle = g;
+    o.fillRect(0, 0, W, H);
+    this.ctx.drawImage(this.sheenCanvas, 0, 0, W, H, dx, dy, w, h);
+  }
+
+  /** Feine Glitzerpartikel, die gelegentlich über Shiny-Figuren aufsteigen. */
+  glitter(x, top, w, h, t, seed) {
+    const c = this.ctx;
+    for (let i = 0; i < 3; i++) {
+      const ph = (t * 0.8 + i / 3 + seed * 0.13) % 1;
+      const r = ((Math.floor(t * 0.8 + i / 3 + seed * 0.13) * 7919 + i * 104729 + seed * 31) % 1000) / 1000;
+      const px = x - w / 2 + r * w, py = top + h * 0.8 - ph * (h + 14);
+      c.globalAlpha = Math.sin(ph * Math.PI);
+      c.fillStyle = RAINBOW[(i + Math.floor(t * 4)) % RAINBOW.length];
+      const s = ph > 0.4 && ph < 0.6 ? 3 : 2;
+      c.fillRect(Math.round(px), Math.round(py), s, s);
+      if (s === 3) { c.fillRect(Math.round(px) - 2, Math.round(py) + 1, 1, 1); c.fillRect(Math.round(px) + 4, Math.round(py) + 1, 1, 1); }
+    }
+    c.globalAlpha = 1;
   }
 
   /** Heller Umriss (Packs und Tomes müssen sich vom Boden abheben). */
@@ -129,6 +172,14 @@ export class Renderer {
       return;
     }
     c.drawImage(img, Math.round(x), Math.round(y));
+    // Bollwerk: Schild um den Turm, solange er hält
+    if (tw.shield > 0) {
+      const a = 0.25 + 0.15 * Math.sin(run.time * 4);
+      c.strokeStyle = `rgba(122,200,255,${(a + 0.3).toFixed(2)})`;
+      c.fillStyle = `rgba(122,200,255,${(a * 0.4).toFixed(2)})`;
+      c.lineWidth = 3;
+      c.beginPath(); c.ellipse(tw.x, tw.y - 24, 44, 60, 0, 0, Math.PI * 2); c.fill(); c.stroke();
+    }
   }
 
   /** Kleine Lebensleiste direkt über dem Turm – nur nach Schaden, verblasst nach 3 s. */
@@ -140,6 +191,7 @@ export class Renderer {
     if (age > 3.5) return;
     this.ctx.globalAlpha = age < 3 ? 1 : 1 - (age - 3) / 0.5;
     this.bar(tw.x - 24, tw.y - 78, 48, 4, tw.hp / tw.maxHp, '#E04848');
+    if (tw.shield > 0) this.bar(tw.x - 24, tw.y - 86, 48, 3, tw.shield / tw.maxShield, '#7ac8ff');
     this.ctx.globalAlpha = 1;
   }
 
@@ -191,7 +243,8 @@ export class Renderer {
     const x = tm.x, y = tm.y - 12;
     const glow = 0.35 + 0.25 * Math.sin(t * 3 + tm.bob);
     const g = c.createRadialGradient(x, y, 0, x, y, 34);
-    g.addColorStop(0, col + Math.round(glow * 255).toString(16).padStart(2, '0')); g.addColorStop(1, col + '00');
+    const gc = tm.foil ? RAINBOW[Math.floor(t * 6) % RAINBOW.length] : col;
+    g.addColorStop(0, gc + Math.round(glow * 255).toString(16).padStart(2, '0')); g.addColorStop(1, gc + '00');
     c.fillStyle = g; c.fillRect(x - 34, y - 34, 68, 68);
     const img = this.bank.tome(tm.id);
     const halo = this.halo(img);
@@ -200,7 +253,9 @@ export class Renderer {
     c.rotate(tm.rot || 0);
     for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) c.drawImage(halo, -18 + dx, -18 + dy, 36, 36);
     c.drawImage(img, -18, -18, 36, 36);
+    if (tm.foil) this.shinySheen(img, -18, -18, 36, 36, t, tm.uid);
     c.restore();
+    if (tm.foil) this.glitter(x, y - 20, 36, 36, t, tm.uid);
     const hover = ui.cursor && Math.hypot(ui.cursor.x - x, ui.cursor.y - y) < 34;
     if (hover) { c.strokeStyle = 'rgba(255,255,255,0.8)'; c.lineWidth = 2; c.beginPath(); c.arc(x, y, 26, 0, Math.PI * 2); c.stroke(); }
     if (tm.souls) this.text(`${tm.souls}`, x + 20, y - 14, 16, '#a6e3ff');
@@ -218,7 +273,7 @@ export class Renderer {
     c.translate(Math.round(card.x), Math.round(card.y));
     c.fillStyle = '#1a1422'; c.fillRect(-w / 2 - 2, -h / 2 - 2, w + 4, h + 4);
     if (card.flipped || card.shop) {
-      c.fillStyle = card.foil ? RAINBOW[Math.floor(k * 12) % 6] : col; c.fillRect(-w / 2, -h / 2, w, h);
+      c.fillStyle = card.foil ? RAINBOW[Math.floor(card.t * 14) % 6] : col; c.fillRect(-w / 2, -h / 2, w, h);
       c.fillStyle = '#2a2640'; c.fillRect(-w / 2 + 2, -h / 2 + 2, Math.max(0, w - 4), h - 4);
       if (w > 14) {
         const img = this.data.cardIndex[card.id].art === 'tome' ? this.bank.tome(card.id) : this.bank.unit(card.id).idle[0];
@@ -252,9 +307,11 @@ export class Renderer {
       for (const [dx, dy] of [[-scale, 0], [scale, 0], [0, -scale], [0, scale]]) c.drawImage(tint, -size / 2 + dx, -size + 4 + dy, size, size);
     }
     c.drawImage(img, -size / 2, -size + 4, size, size);
+    if (u.foil) this.shinySheen(img, -size / 2, -size + 4, size, size, t, u.uid);
     c.restore();
     c.globalAlpha = 1;
     const top = u.y - size + 4;
+    if (u.foil) this.glitter(u.x, top, size * 0.7, size, t, u.uid);
     if (u.frozen > 0) { c.fillStyle = 'rgba(166,227,255,0.45)'; c.fillRect(u.x - 12, top + 4, 24, size - 6); }
     // Grenzgänger: magentafarbenes Fragezeichen über der Figur
     if (u.def.rarity === 'grenzgaenger') c.drawImage(this.bank.icon('grenz'), Math.round(u.x - 7), Math.round(top - 16 + Math.sin(t * 4) * 2), 14, 14);
@@ -284,9 +341,11 @@ export class Renderer {
       c.globalAlpha = e.spawnAge < 0.4 ? e.spawnAge / 0.4 : 1;
     }
     c.drawImage(img, -size / 2, -size + 2, size, size);
+    if (e.foil) this.shinySheen(img, -size / 2, -size + 2, size, size, t, e.uid);
     c.restore();
     c.globalAlpha = 1;
     const top = e.y - lift - size + 2;
+    if (e.foil) this.glitter(e.x, top, size * 0.7, size, t, e.uid);
     // Statussymbole direkt am Monster
     const icons = [];
     if (e.st.slow.t > 0) icons.push('slow');
@@ -367,7 +426,14 @@ export class Renderer {
     const k = f.age / f.life;
     c.globalAlpha = Math.max(0, 1 - k);
     switch (f.type) {
-      case 'text': this.text(f.text, f.x, f.y - k * 40, f.size || 20, f.color); break;
+      case 'text': this.text(f.text, f.x, f.y - k * 40, f.size || 20, f.color === 'rainbow' ? RAINBOW[Math.floor(f.age * 10) % RAINBOW.length] : f.color); break;
+      case 'sparkles':
+        for (let i = 0; i < 18; i++) {
+          const a = (i / 18) * Math.PI * 2 + i;
+          c.fillStyle = RAINBOW[i % RAINBOW.length];
+          c.fillRect(Math.round(f.x + Math.cos(a) * 50 * k), Math.round(f.y + Math.sin(a) * 30 * k - k * 60), i % 3 ? 3 : 5, i % 3 ? 3 : 5);
+        }
+        break;
       case 'ring': c.strokeStyle = f.color; c.lineWidth = 6; c.beginPath(); c.ellipse(f.x, f.y, f.r * (0.4 + 0.6 * k), f.r * 0.6 * (0.4 + 0.6 * k), 0, 0, Math.PI * 2); c.stroke(); break;
       case 'burst':
         c.fillStyle = f.color;
@@ -375,7 +441,10 @@ export class Renderer {
         break;
       case 'flash': {
         const g = c.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r * (0.5 + k));
-        g.addColorStop(0, '#ffffff'); g.addColorStop(0.35, f.color); g.addColorStop(1, 'rgba(0,0,0,0)');
+        g.addColorStop(0, '#ffffff');
+        if (f.color === 'rainbow') RAINBOW.forEach((col, i) => g.addColorStop(0.2 + i * 0.12, col + 'cc'));
+        else g.addColorStop(0.35, f.color);
+        g.addColorStop(1, 'rgba(0,0,0,0)');
         c.fillStyle = g; c.fillRect(f.x - f.r * 2, f.y - f.r * 2, f.r * 4, f.r * 4);
         break;
       }

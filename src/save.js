@@ -4,31 +4,31 @@ const KEY = 'packdendungeon-save-v3';
 
 export function defaultSave(data) {
   return {
-    version: 4,
-    coins: data?.balance.wirtschaft.startMuenzen ?? 12,
-    bonusCoins: 0,      // Bonus-Münzen aus Quests und Relikten (werden zuerst ausgegeben)
-    dayBudget: data?.balance.wirtschaft.startMuenzen ?? 12, // Einkommen des aktuellen Tages (Anzeige "x+b/Budget")
-    mastery: 0,
-    crystals: 0,
-    foilDust: 0,
+    version: 5,
+    // Genau drei Währungen (Abschnitt 10)
+    coins: data?.balance.wirtschaft.startMuenzen ?? 3, // Münzen: nur für den Shop
+    bonusCoins: 0,      // Bonus-Münzen aus Relikten und Effekten (werden zuerst ausgegeben)
+    dayBudget: data?.balance.wirtschaft.startMuenzen ?? 3, // Einkommen des aktuellen Tages (Anzeige "x+b/Budget")
+    mastery: 0,         // Mastery (blauer Kristall): Skill-Tree
+    foilDust: 0,        // Foil-Staub („Schimmer“, Regenbogen-Kristall): Foil-Baum, bleibt bei Akt-Wechseln
     day: 1,
     act: 1,
-    starmap: {},
+    starmap: {},        // Skill-Tree: Knoten-ID -> Stufe (Quest-Knoten: 1 = abgeholt)
+    foiltree: {},       // Foil-Baum: Knoten-ID -> Stufe (dauerhaft)
+    questProgress: {},  // Quest-Knoten-ID -> Fortschritt (zählt nur, solange die Quest sichtbar ist)
     lastBought: null,
     collection: {},     // Karten-ID -> { normal, foil }
     bestiary: {},       // Gegner-ID -> { normal, foil } (Kills)
     relics: { owned: [], equipped: [], extraSlots: 0, destroyed: [], newCount: 0 },
-    quests: { claimed: [] },
-    questBonus: { tagesEinkommen: 0 },
     achievements: {},   // Erfolg-ID -> Tag der Freischaltung
     shop: { offers: [], rerolls: 0, freeUsed: 0, seen: [], uid: 0 },
     selection: { chapter: 1, prestige: 0, gesucht: false, modifier: null },
-    ui: { cardsSeen: 0, beastsSeen: 0 }, // für die roten Punkte an den Hub-Reitern
+    ui: { cardsSeen: 0, beastsSeen: 0, foilTreeSeen: false, prestigeSeen: 0 }, // rote Punkte, Blinken
     stats: {
       runs: 0, kills: 0, killsGegner: {}, zeitGesamt: 0, laengsterRun: 0, tomesGenutzt: 0, entwicklungen: 0,
       foilsGezogen: 0, foilMonsterBesiegt: 0, grenzgaengerGezogen: 0, packsGeoeffnet: {}, packsGesamt: 0,
       muenzenAusgegeben: 0, bossKills: {}, bosseBesiegt: {}, besteZeit: {}, prestige: {}, prestigeGeschafft: 0,
-      foilBossBesiegt: 0, torGeoeffnet: 0,
+      foilBossBesiegt: 0, torGeoeffnet: 0, foilStaubGesamt: 0, gesuchtSiege: {},
     },
     tutorial: { packHint: false, unitHint: false, tomeHint: false, starmapHint: false, firstRunDone: false },
     settings: {
@@ -40,7 +40,7 @@ export function defaultSave(data) {
 
 function merge(base, raw) {
   const out = { ...base, ...raw };
-  for (const k of ['stats', 'tutorial', 'settings', 'relics', 'shop', 'quests', 'questBonus', 'selection', 'ui']) out[k] = { ...base[k], ...(raw[k] || {}) };
+  for (const k of ['stats', 'tutorial', 'settings', 'relics', 'shop', 'selection', 'ui', 'foiltree', 'questProgress']) out[k] = { ...base[k], ...(raw[k] || {}) };
   return out;
 }
 
@@ -55,10 +55,35 @@ export function loadSave(data) {
       for (const b of s.shop.bag || []) s.coins += Math.round(b.preis || 0);
       s.shop = { ...base.shop, seen: s.shop.seen || [] };
     }
+    if ((raw.version || 0) < 5) migrateV5(s, raw, data);
     return s;
   } catch {
     return base;
   }
+}
+
+/**
+ * v5: nur noch drei Währungen, Quests als Knoten im Skill-Tree, neuer Foil-Baum.
+ * Kristalle werden zu Mastery, gekaufte Skill-Tree-Knoten werden erstattet (der Baum ist neu aufgebaut).
+ */
+function migrateV5(s, raw, data) {
+  let mp = (raw.crystals || 0) * 3;
+  const old = raw.starmap || {};
+  for (const [id, lvl] of Object.entries(old)) {
+    const n = data?.starIndex[id];
+    const base = n?.basisKosten ?? 5;
+    for (let l = 0; l < lvl; l++) mp += Math.round(base * Math.pow(1.45, l));
+  }
+  s.mastery = (s.mastery || 0) + mp;
+  s.starmap = {};
+  s.lastBought = null;
+  s.questProgress = {};
+  s.foiltree = {};
+  s.stats.foilStaubGesamt = s.foilDust || 0;
+  delete s.crystals; delete s.quests; delete s.questBonus;
+  s.coins = Math.min(s.coins || 0, 20);
+  s.shop = { offers: [], rerolls: 0, freeUsed: 0, seen: s.shop.seen || [], uid: s.shop.uid || 0 };
+  s.version = 5;
 }
 
 export function writeSave(save) {

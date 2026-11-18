@@ -2,7 +2,7 @@
 :root {
   --panel: #1E1B2E; --panel2: #2a2640; --frame: #C9A45C; --text: #F4EBD9; --muted: #b3a990;
   --gold: #FFD24A; --danger: #E04848; --heal: #5ED17A; --mana: #5AA9F0; --foil: #FF7AC8;
-  --pixel: 'Pixelify Sans', monospace; --body: 'Nunito', system-ui, sans-serif;
+  --pixel: 'Jersey 10', 'Pixelify Sans', monospace; --body: 'Nunito', system-ui, sans-serif;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; overflow: hidden; background: #0d0b14; color: var(--text); }
@@ -325,3 +325,52 @@ h1, h2, h3 { font-family: var(--pixel); margin: 0 0 12px; }
 .rotate-hint { display: none; position: fixed; inset: 0; z-index: 500; background: #1E1B2E; font-family: var(--pixel); font-size: 28px; text-align: center; align-content: center; line-height: 1.6; }
 @media (orientation: portrait) and (max-width: 900px) { .rotate-hint { display: grid; } }
 .load-error { position: fixed; inset: 0; background: #1E1B2E; display: grid; place-items: center; padding: 24px; text-align: center; z-index: 600; font-size: 20px; }
+
+/* ===== Shiny, Foil-Baum, gesperrte Reiter (7.5, 11.6, 14.2.5) ===== */
+:root { --rainbow: conic-gradient(from var(--ang, 0deg), #ff5f8a, #ffb03a, #ffe07a, #5ED17A, #5ac8ff, #8a6aff, #ff5fc8, #ff5f8a); }
+@property --ang { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+@keyframes spinang { to { --ang: 360deg; } }
+/* Regenbogenrand um Kacheln (Shop, Sammlung, Bestiarium) */
+.shiny-frame { position: relative; }
+.shiny-frame::before { content: ''; position: absolute; inset: -4px; border-radius: 10px; padding: 4px; background: var(--rainbow); animation: spinang 3s linear infinite;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; z-index: 1; }
+/* Wandernder Shiny-Glanz (diagonaler Streifen alle 1,5 s) */
+.shiny-sheen { position: relative; overflow: hidden; }
+.shiny-sheen::after { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 35%, #ffffff88 50%, transparent 65%); background-size: 300% 100%; animation: sheen 1.5s linear infinite; pointer-events: none; mix-blend-mode: screen; }
+@keyframes sheen { 0% { background-position: 150% 0; } 50%, 100% { background-position: -50% 0; } }
+.offer.glanz .field { background: radial-gradient(circle, #4a1a3e, #120a16 70%); border-color: #FF5FC8; }
+.offer .anzahl { position: absolute; left: 6px; top: 46px; font-family: var(--pixel); font-size: 22px; color: #FFD24A; text-shadow: 0 2px 0 #000; z-index: 2; }
+.offer .field img.hero.dup { position: absolute; transform: translate(-22px, 6px) scale(.8); filter: brightness(.7); }
+
+.hub-tab.locked { color: #5a5266; border-color: #3a3246; cursor: not-allowed; }
+.hub-tab .tab-lock { display: none; }
+.hub-tab.locked .tab-lock { display: inline-block; width: 22px; height: 22px; margin-left: 8px; vertical-align: -3px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' shape-rendering='crispEdges'%3E%3Cpath d='M3 1h6v1H3zM2 2h1v3H2zM9 2h1v3H9zM1 5h10v6H1z' fill='%236b5a7a'/%3E%3C/svg%3E") center/contain no-repeat; }
+
+.tree-cur .cur-fs img { filter: drop-shadow(0 0 4px #ff9ad8); }
+.tree-cur.foil-mode .cur-mp { font-size: 20px; opacity: .75; order: 2; }
+.tree-cur.foil-mode .cur-mp img { width: 20px; height: 20px; }
+.tree-cur.foil-mode .cur-fs { font-size: 40px; }
+.tree-cur.foil-mode .cur-fs img { width: 36px; height: 36px; }
+.tree-nav .foil-toggle.on { border-color: transparent; background: #2a1a34; box-shadow: 0 0 14px #ff9ad8, inset 0 0 10px #8a6aff; }
+.tree-nav .foil-toggle.on::before { content: ''; position: absolute; inset: -3px; border-radius: 12px; padding: 3px; background: var(--rainbow); animation: spinang 2s linear infinite;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.tree-nav .blink { animation: navblink .7s steps(2) 6; border-color: #FFD24A; }
+#tree-up.blink { animation-iteration-count: infinite; }
+@keyframes navblink { 50% { background: #FFD24A; } }
+.tree-wipe { position: absolute; inset: 0; z-index: 4; pointer-events: none; opacity: 0;
+  background: linear-gradient(100deg, transparent 0 30%, #ff5f8a88 38%, #ffe07a88 44%, #5ED17A88 50%, #5ac8ff88 56%, #8a6aff88 62%, transparent 70% 100%); background-size: 300% 100%; }
+.tree-wipe.go { animation: wipe .3s ease-out; }
+@keyframes wipe { 0% { opacity: 1; background-position: 100% 0; } 100% { opacity: 1; background-position: 0% 0; } }
+.tree-info.foil { border-color: #ff9ad8; }
+.tree-info .perm { margin-top: 6px; font-size: 14px; background: linear-gradient(90deg, #ff9ad8, #ffe07a, #7ae8ff); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 800; }
+.tree-info .cost img { width: 20px; height: 20px; vertical-align: -3px; }
+.tree-info .qbar { position: relative; height: 22px; margin: 6px 0; background: #120a16; border: 2px solid #e8dcc0; border-radius: 4px; overflow: hidden; }
+.tree-info .qbar i { position: absolute; left: 0; top: 0; bottom: 0; background: #8a6a3a; }
+.tree-info .qbar span { position: relative; display: block; text-align: center; font-family: var(--pixel); font-size: 17px; line-height: 18px; }
+.tree-banner { pointer-events: auto; cursor: pointer; }
+.rainbow-text { background: linear-gradient(90deg, #ff9ad8, #ffe07a, #7ae8ff, #b88cff); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 800; }
+.res-grid img.cur { width: 22px; height: 22px; vertical-align: -3px; }
+.nc-shiny { font-family: var(--pixel); font-size: 44px; letter-spacing: 6px; background: linear-gradient(90deg, #ff5f8a, #ffe07a, #5ED17A, #5ac8ff, #b88cff); -webkit-background-clip: text; background-clip: text; color: transparent; animation: bob 1s infinite; }
+.nc-sheen { position: absolute; left: 40px; top: 30px; width: 288px; height: 288px; background: linear-gradient(115deg, transparent 38%, #ffffffaa 50%, transparent 62%); background-size: 300% 100%; animation: sheen 1.5s linear infinite;
+  -webkit-mask: var(--fig) center/contain no-repeat; mask: var(--fig) center/contain no-repeat; mix-blend-mode: screen; pointer-events: none; }
+.nc-name.rainbow-text { text-shadow: none; filter: drop-shadow(0 4px 0 #000); background-image: linear-gradient(90deg, #ff5f8a, #ffe07a, #5ED17A, #5ac8ff, #b88cff); }

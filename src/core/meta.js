@@ -1,5 +1,10 @@
-// Meta-Ebene zwischen den Runs: Modifikatoren, Shop (Tage, Jackpots, Run-Tasche), Belohnungen,
-// Sternenkarte (Kaufen, Nebel, Reset), Tor/Akte, Prestige, Relikte, Quests, Erfolge.
+// Meta-Ebene zwischen den Runs: Modifikatoren, Shop (Tage, Jackpots beim Neu-Würfeln, Run-Tasche), Belohnungen,
+// Skill-Tree (Upgrade-, Freischalt-, Relikt-, Quest- und Tor-Knoten), Foil-Baum, Akt-Wechsel, Prestige, Relikte, Erfolge.
+//
+// Währungen (Abschnitt 10) – genau drei:
+//   save.coins / save.bonusCoins  Münzen, nur für den Shop (Tageseinkommen + Bonus-Münzen)
+//   save.mastery                  Mastery (blauer Kristall), Skill-Tree
+//   save.foilDust                 Foil-Staub („Schimmer“, Regenbogen-Kristall), Foil-Baum
 import { weightedPick } from './util.js';
 
 // ===========================================================================
@@ -10,22 +15,25 @@ export const MOD_DEFAULTS = {
   // Runenkreis
   cursorSchaden: 0, cursorSchadenMul: 1, cursorRadiusMul: 1, cursorTickMul: 1, cursorPackSchadenMul: 1, cursorKrit: 0,
   // Wirtschaft
-  tagesEinkommen: 0, bonusEinkommen: 0, muenzenMul: 1, shopPlaetze: 0, freieRerolls: 0, masteryMul: 1, jackpotChance: 0,
+  tagesEinkommen: 0, bonusEinkommen: 0, shopPlaetze: 0, freieRerolls: 0, masteryMul: 1, jackpotChance: 0, rabattChance: 0, masteryNeueKarte: 0,
   // Packs
-  packWiderstandMul: 1, foilChance: 0, foilChanceMul: 1, kartenProPack: 0, packImPack: 0, grenzgaengerChance: 0,
-  // Foil
-  foilStaerkeMul: 1, foilMonsterChance: 0,
+  packWiderstandMul: 1, foilChance: 0, foilChanceMul: 1, kartenProPack: 0, bonusKarteChance: 0, packImPack: 0, grenzgaengerChance: 0,
+  // Shiny / Foil-Baum
+  foilStaerkeMul: 1, foilMonsterChance: 0, reliktPlaetze: 0, zinsen: 0, aktStartMastery: 0, gesuchtStaub: 0,
   // Helden
   heldenSchadenMul: 1, heldenLebenMul: 1, heldenTempoMul: 1, bossSchadenMul: 1, heldenVerfallProSekunde: 0, heldenHeilungProKill: 0,
-  // Turm
-  turmLebenMul: 1, turmRegen: 0, turmSchuetze: 0, turmDornen: 0,
+  // Turm und Gebäude
+  turmLebenMul: 1, turmRegen: 0, turmSchuetze: 0, turmDornen: 0, gebaeudeIntervallMul: 1,
   // Tomes
   tomeWirkungMul: 1, tomeDauerMul: 1, tomeDoppeltChance: 0, tomeZweimalChance: 0, tomesErlaubt: true,
   // Kapitel-Modifikatoren
   gegnerTempoMul: 1, gegnerLebenMul: 1, gegnerSchadenMul: 1, elitewelleIntervallMul: 1, bossZeitMul: 1, erlaubteKI: null,
 };
 
+/** Stufe eines Skill-Tree-Knotens (Quest-/Relikt-/Tor-Knoten: 1 = abgeschlossen). */
 export const levelOf = (save, id) => (id === 'start' ? 1 : save.starmap[id] || 0);
+/** Stufe eines Foil-Baum-Knotens. */
+export const foilLevelOf = (save, id) => (id === 'f_start' ? 1 : save.foiltree?.[id] || 0);
 
 function applyOp(mods, ziel, op, wert, times = 1) {
   if (op === 'set') { mods[ziel] = wert; return; }
@@ -34,20 +42,32 @@ function applyOp(mods, ziel, op, wert, times = 1) {
   else mods[ziel] += wert * times;
 }
 
+function applyNodeEffect(mods, node, lvl) {
+  const e = node.effekt;
+  if (e.ziel === 'flag') mods.flags[e.flag] = true;
+  else if (e.ziel === 'gebaeude') mods.gebaeude[e.gebaeude] = (mods.gebaeude[e.gebaeude] || 0) + lvl;
+  else if (e.ziel === 'einheit') { const list = (mods.einheiten[e.karte] ||= []); for (let i = 0; i < lvl; i++) list.push(...e.patches); }
+  else if (e.ziel === 'tome') { const t = (mods.tomes[e.tome] ||= { wirkungMul: 1, dauerMul: 1 }); t[`${e.art}Mul`] += e.betrag * lvl; }
+  else if ('wert' in e && typeof e.wert === 'number') applyOp(mods, e.ziel, e.rechenart === 'multiplizieren' ? 'mul' : 'add', e.wert, lvl);
+}
+
 /**
  * @param {object} opts { modifierId, prestige, gesucht }
  */
 export function computeMods(data, save, opts = {}) {
-  const mods = { ...MOD_DEFAULTS, gebaeude: {}, einheiten: {}, flags: {}, modifierMastery: 1, prestige: null, gesucht: false };
+  const mods = { ...MOD_DEFAULTS, gebaeude: {}, einheiten: {}, tomes: {}, flags: {}, modifierMastery: 1, prestige: null, gesucht: false };
+  mods.tagesEinkommen = data.balance.wirtschaft.tagesEinkommen ?? 0;
   for (const node of data.starmap.knoten) {
     const lvl = levelOf(save, node.id);
-    if (!lvl || node.typ === 'start') continue;
-    const e = node.effekt;
-    if (e.ziel === 'flag') mods.flags[e.flag] = true;
-    else if (e.ziel === 'gebaeude') mods.gebaeude[e.gebaeude] = (mods.gebaeude[e.gebaeude] || 0) + lvl;
-    else if (e.ziel === 'einheit') { const list = (mods.einheiten[e.karte] ||= []); for (let i = 0; i < lvl; i++) list.push(...e.patches); }
-    else if ('wert' in e) applyOp(mods, e.ziel, e.rechenart === 'multiplizieren' ? 'mul' : 'add', e.wert, lvl);
+    if (!lvl || node.typ === 'start' || node.typ === 'relikt' || node.typ === 'tor') continue;
+    if (node.typ === 'quest') { mods.tagesEinkommen += node.belohnung?.tagesEinkommen || 0; continue; }
+    applyNodeEffect(mods, node, lvl);
   }
+  for (const node of data.foiltree.knoten) {
+    const lvl = foilLevelOf(save, node.id);
+    if (lvl && node.typ !== 'start') applyNodeEffect(mods, node, lvl);
+  }
+  // Relikte: zusätzliches Einkommen aus Relikten zählt als Bonus-Münzen
   const vorRelikten = mods.tagesEinkommen;
   for (const id of save.relics.equipped) {
     const r = data.relicIndex[id];
@@ -55,8 +75,8 @@ export function computeMods(data, save, opts = {}) {
     if (r.aktion.typ === 'wert') applyOp(mods, r.aktion.ziel, r.aktion.op, r.aktion.wert);
     if (r.aktion.typ === 'werte') for (const w of r.aktion.werte) applyOp(mods, w.ziel, w.op, w.wert);
   }
-  mods.bonusEinkommen = Math.max(0, mods.tagesEinkommen - vorRelikten) + (save.questBonus.tagesEinkommen || 0);
-  mods.tagesEinkommen += save.questBonus.tagesEinkommen || 0;
+  mods.bonusEinkommen = Math.max(0, mods.tagesEinkommen - vorRelikten);
+  mods.tagesEinkommen = vorRelikten;
   const m = opts.modifierId && data.modifierIndex[opts.modifierId];
   if (m) { for (const ef of m.effekte) applyOp(mods, ef.ziel, ef.op, ef.wert); mods.modifierMastery = m.belohnung.masteryMul ?? 1; }
   if (opts.prestige) mods.prestige = data.balance.prestige.stufen.find((s) => s.stufe === opts.prestige) ?? null;
@@ -65,18 +85,20 @@ export function computeMods(data, save, opts = {}) {
 }
 
 // ===========================================================================
-// Freischaltungen, Akte, Tor, Prestige
+// Freischaltungen, Akte, Prestige
 // ===========================================================================
 
 export function packUnlocked(pack, save) {
   const f = pack.freischaltung;
   if (f.typ === 'start') return true;
   if (f.typ === 'boss') return (save.stats.bossKills[f.kapitel] || 0) > 0;
+  if (f.typ === 'knoten') return levelOf(save, f.knoten) > 0 && (!f.kapitel || (save.stats.bossKills[f.kapitel] || 0) > 0);
+  if (f.typ === 'foilknoten') return foilLevelOf(save, f.knoten) > 0;
   return false;
 }
 
 export function chapterUnlocked(ch, save, data) {
-  if (ch.art === 'reliktjagd') return (save.stats.bossKills[ch.freischaltung?.boss ?? 1] || 0) > 0;
+  if (ch.art === 'reliktjagd') return save.act >= 2 && (save.stats.bossKills[ch.freischaltung?.boss ?? 1] || 0) > 0; // Relikte erst nach dem ersten Akt-Wechsel
   if (ch.art === 'riss') return save.act >= 2; // Elementar-Risse öffnen sich mit dem Tor
   if (ch.akt > save.act) return false;
   const act = data.actIndex[ch.akt];
@@ -90,22 +112,24 @@ export function highestChapter(save, data) {
   return Math.max(1, ...data.chapters.filter((c) => c.art === 'kapitel' && chapterUnlocked(c, save, data)).map((c) => (c.akt - 1) * 3 + (data.actIndex[c.akt].kapitel.indexOf(c.id) + 1)));
 }
 
-/** Schlüsselsteine des Tors (Akt 1): je besiegtem Boss einer. */
-export function gateState(data, save) {
-  const act = data.actIndex[1];
-  const stones = act.tor.schluesselsteine.map((s) => ({ ...s, owned: (save.stats.bossKills[s.kapitel] || 0) > 0 }));
-  return { tor: act.tor, stones, complete: stones.every((s) => s.owned), opened: save.act >= 2 };
+/**
+ * Akt-Wechsel über den Tor-Knoten (11.5): Skill-Tree zurücksetzen (volle Rückerstattung), Quest-Fortschritt neu.
+ * Erhalten bleiben Foil-Baum, Foil-Staub, Sammlung, Bestiarium, Relikte.
+ */
+export function changeAct(node, data, save) {
+  if (node?.typ !== 'tor' || !nodeVisible('skill', node, save, data)) return null;
+  const mods = computeMods(data, save);
+  const refund = data.balance.akte.sternenkarteResetBeiAktwechsel ? resetStarmap(data, save) : { mp: 0 };
+  save.questProgress = {};
+  save.act = Math.max(save.act, node.effekt.akt);
+  save.stats.torGeoeffnet = 1;
+  const bonus = Math.round(mods.aktStartMastery || 0);
+  save.mastery += bonus;
+  return { act: save.act, refund: refund.mp, bonus };
 }
 
-/** Tor öffnen → Akt 2. Die Sternenkarte wird zurückgesetzt (volle Rückerstattung). */
-export function openGate(data, save) {
-  const g = gateState(data, save);
-  if (!g.complete || g.opened) return false;
-  if (data.balance.akte.sternenkarteResetBeiAktwechsel) resetStarmap(data, save);
-  save.act = 2;
-  save.stats.torGeoeffnet = 1;
-  return true;
-}
+/** Reiter BESTIARIUM und RELIKTE schalten sich erst mit dem ersten Akt-Wechsel (Tor) frei. */
+export const tabUnlocked = (tab, save) => !['bestiarium', 'relikte'].includes(tab) || save.act >= 2;
 
 export function prestigeAvailable(ch, save, data) {
   if (!ch.prestige || !(save.stats.bossKills[ch.id] > 0)) return [];
@@ -118,10 +142,11 @@ export function modifiersAvailable(data, save) {
 }
 
 // ===========================================================================
-// Shop: Tage, Angebote, Jackpots, Einzelkarten, Rabatt, Kaufen/Rückgängig, Reset, Reroll
+// Shop: Tage, Angebote, Jackpots (nur beim Neu-Würfeln), Einzelkarten (Paar/Trio, Shiny), Glanzpack,
+// Rabatt, Kaufen/Rückgängig, Reset, Reroll
 // ===========================================================================
 //
-// save.shop.offers[] = { uid, kind: 'angebot'|'jackpot'|'karte', id, karte?, rabatt, neu, sold, paid: {coins, bonus}, opened }
+// save.shop.offers[] = { uid, kind: 'angebot'|'jackpot'|'karte'|'glanz', id, karte?, anzahl?, foil?, rabatt, neu, sold, paid: {coins, bonus}, opened }
 // Gekaufte Plätze bilden die Run-Tasche (bagItems). Relikt-Jackpots werden sofort geöffnet und sind endgültig.
 
 export function shopSlots(data, mods) {
@@ -129,17 +154,20 @@ export function shopSlots(data, mods) {
 }
 
 function priceFactor(data, save) {
-  return Math.pow(1 + data.balance.wirtschaft.preisWachstumProKapitel, highestChapter(save, data) - 1);
+  return Math.pow(1 + (data.balance.wirtschaft.preisWachstumProKapitel || 0), highestChapter(save, data) - 1);
 }
 
 /** Verfügbare Münzen gesamt (Tagesmünzen + Bonus-Münzen). */
 export const walletTotal = (save) => (save.coins || 0) + (save.bonusCoins || 0);
 
-/** Angebot eines Platzes: { kind, name, items:[{artikel|karte, anzahl}], preis, basisPreis, sold, rabatt, neu } */
+const condOk = (cond, mods) => !cond?.flag || !!mods?.flags?.[cond.flag];
+
+/** Angebot eines Platzes: { kind, name, items:[{artikel|karte, anzahl, foil}], preis, basisPreis, sold, rabatt, neu, foil } */
 export function describeOffer(slot, data, save) {
   if (!slot) return null;
   const f = priceFactor(data, save);
-  const base = { uid: slot.uid, sold: !!slot.sold, rabatt: !!slot.rabatt, neu: !!slot.neu, opened: !!slot.opened };
+  const S = data.balance.shop;
+  const base = { uid: slot.uid, sold: !!slot.sold, rabatt: !!slot.rabatt, neu: !!slot.neu, opened: !!slot.opened, foil: !!slot.foil };
   let o;
   if (slot.kind === 'jackpot') {
     const j = data.shop.jackpots.find((x) => x.id === slot.id);
@@ -149,15 +177,22 @@ export function describeOffer(slot, data, save) {
     const c = data.cardIndex[slot.karte];
     if (!c) return null;
     const E = data.shop.einzelkarten;
-    const p = E.preisNachSeltenheit[c.def.rarity] ?? 5;
-    o = { ...base, kind: 'karte', id: slot.karte, name: c.def.name, items: [{ karte: slot.karte, anzahl: 1 }], basisPreis: Math.max(1, Math.round((p + (c.art === 'tome' ? E.tomeAufschlag : 0)) * f)) };
+    const n = slot.anzahl || 1;
+    const p = (E.preisNachSeltenheit[c.def.rarity] ?? 3) + (c.art === 'tome' ? E.tomeAufschlag : 0);
+    const mul = n === 3 ? S.paar.trioPreisMul : n === 2 ? S.paar.preisMul : 1;
+    const label = n === 3 ? 'Trio: ' : n === 2 ? 'Paar: ' : '';
+    o = { ...base, kind: 'karte', id: slot.karte, anzahl: n, name: `${label}${c.def.name}${slot.foil ? ' (Shiny)' : ''}`, items: [{ karte: slot.karte, anzahl: n, foil: !!slot.foil }], basisPreis: Math.max(1, Math.round(p * mul * f)) };
+  } else if (slot.kind === 'glanz') {
+    const g = data.shop.glanzpack;
+    const pk = data.packIndex[g.artikel];
+    o = { ...base, kind: 'glanz', id: g.artikel, name: pk.name, items: [{ artikel: g.artikel, anzahl: 1 }], basisPreis: Math.max(1, Math.round(g.grundPreis * f)) };
   } else {
     const a = data.offerIndex[slot.id];
     if (!a) return null;
     const pk = data.packIndex[a.artikel];
     o = { ...base, kind: 'angebot', id: a.id, name: a.anzahl > 1 ? `${a.anzahl} × ${pk.name}` : pk.name, items: [{ artikel: a.artikel, anzahl: a.anzahl }], basisPreis: Math.max(1, Math.round(a.grundPreis * f)) };
   }
-  o.preis = o.rabatt ? Math.max(1, Math.round(o.basisPreis * data.balance.shop.rabatt.faktor)) : o.basisPreis;
+  o.preis = o.rabatt ? Math.max(1, Math.round(o.basisPreis * S.rabatt.faktor)) : o.basisPreis;
   if (slot.sold && slot.paid) o.preis = slot.paid.coins + slot.paid.bonus;
   return o;
 }
@@ -175,19 +210,30 @@ function rollSingleCard(data, save, rng) {
   return ids[Math.floor(rng() * ids.length)];
 }
 
-function rollSlot(data, save, mods, rng, index, uid) {
+/** Karten-Shiny-Chance (Grundchance + Foil-Baum + Relikte). */
+export const cardFoilChance = (data, mods) => (data.balance.karten.foilChance + (mods?.foilChance || 0)) * (mods?.foilChanceMul ?? 1);
+
+function rollSlot(data, save, mods, rng, index, uid, fromReroll) {
+  const S = data.balance.shop;
   const pool = data.shop.angebote.filter((o) => packUnlocked(data.packIndex[o.artikel], save));
-  const jpPool = data.shop.jackpots.filter((j) => j.inhalt.every((i) => { const p = data.packIndex[i.artikel]; return p.art === 'relikt' || packUnlocked(p, save); }));
-  const jpChance = data.balance.shop.jackpot.chance + mods.jackpotChance;
-  const E = data.shop.einzelkarten;
+  const jpPool = data.shop.jackpots.filter((j) => condOk(j.bedingung, mods) && j.inhalt.every((i) => { const p = data.packIndex[i.artikel]; return p.art === 'relikt' || packUnlocked(p, save); }));
+  const E = condOk(data.shop.einzelkarten.bedingung, mods) ? data.shop.einzelkarten : null;
   let slot;
-  if (index > 0 && jpPool.length && rng() < jpChance) slot = { kind: 'jackpot', id: weightedPick(jpPool.map((j) => [j.id, j.gewicht]), rng) };
-  else {
+  if (fromReroll && index > 0 && jpPool.length && rng() < S.jackpot.chance + (mods?.jackpotChance || 0)) {
+    slot = { kind: 'jackpot', id: weightedPick(jpPool.map((j) => [j.id, j.gewicht]), rng) };
+  } else if (index > 0 && mods?.flags?.glanzpack && rng() < S.glanzpack.chance) {
+    slot = { kind: 'glanz', id: data.shop.glanzpack.artikel };
+  } else {
     const total = pool.reduce((a, o) => a + o.gewicht, 0) + (E ? E.gewicht : 0);
-    let x = rng() * total;
+    const x = rng() * total;
     const karte = E && index > 0 && x >= total - E.gewicht ? rollSingleCard(data, save, rng) : null;
-    slot = karte ? { kind: 'karte', karte } : { kind: 'angebot', id: weightedPick(pool.map((o) => [o.id, o.gewicht]), rng) };
-    if (rng() < data.balance.shop.rabatt.chance) slot.rabatt = true;
+    if (karte) {
+      slot = { kind: 'karte', karte };
+      // Foil-Knoten Doppel-/Dreier-Angebot: Helden als Paar oder Trio
+      if (data.cardIndex[karte].art === 'einheit' && mods?.flags?.paarAngebot && rng() < S.paar.chance) slot.anzahl = mods.flags.trioAngebot && rng() < S.paar.trioChance ? 3 : 2;
+      if (rng() < cardFoilChance(data, mods) * (S.shinyEinzelkarte?.faktor ?? 1)) slot.foil = true;
+    } else slot = { kind: 'angebot', id: weightedPick(pool.map((o) => [o.id, o.gewicht]), rng) };
+    if (rng() < S.rabatt.chance + (mods?.rabattChance || 0)) slot.rabatt = true;
   }
   slot.uid = uid;
   const seen = (save.shop.seen ||= []);
@@ -198,14 +244,14 @@ function rollSlot(data, save, mods, rng, index, uid) {
 
 function nextUid(save) { save.shop.uid = (save.shop.uid || 0) + 1; return save.shop.uid; }
 
-/** Würfelt die Angebotsplätze für den neuen Tag (gekaufte bleiben stehen, falls keepSold). */
-export function rollOffers(data, save, mods, rng = Math.random, keepSold = false) {
+/** Würfelt die Angebotsplätze (gekaufte bleiben stehen, falls keepSold). Jackpots nur beim Neu-Würfeln. */
+export function rollOffers(data, save, mods, rng = Math.random, keepSold = false, fromReroll = false) {
   const n = shopSlots(data, mods);
   const old = save.shop.offers || [];
   const out = [];
   for (let i = 0; i < n; i++) {
-    if (keepSold && old[i]?.sold) out.push(old[i]);
-    else out.push(rollSlot(data, save, mods, rng, i, nextUid(save)));
+    if (keepSold && old[i] && (old[i].sold || !fromReroll)) out.push(old[i]);
+    else out.push(rollSlot(data, save, mods, rng, i, nextUid(save), fromReroll));
   }
   // Nie ohne Einstiegsangebot: Platz 0 ist ein Holzpack, wenn sonst keines da ist
   if (!keepSold && !out.some((o) => o.kind === 'angebot' && o.id === 'a_holz')) out[0] = { kind: 'angebot', id: 'a_holz', uid: nextUid(save), neu: !(save.shop.seen || []).includes('angebot:a_holz') };
@@ -221,7 +267,7 @@ export function rerollCost(data, save, mods) {
   return Math.max(1, Math.round(r.grundKosten * Math.pow(r.wachstum, save.shop.rerolls || 0)));
 }
 
-/** Pay with bonus coins first, then normal coins. Returns the split for an exact refund. */
+/** Bonus-Münzen zuerst, dann normale Münzen. Gibt die Aufteilung für eine exakte Erstattung zurück. */
 function pay(save, amount) {
   const bonus = Math.min(save.bonusCoins || 0, amount);
   save.bonusCoins = (save.bonusCoins || 0) - bonus;
@@ -236,14 +282,14 @@ function refund(save, paid) {
   save.stats.muenzenAusgegeben -= paid.bonus + paid.coins;
 }
 
-/** Würfelt alle nicht gekauften Angebote neu. */
+/** Würfelt alle nicht gekauften Angebote neu (nur hier können Jackpots entstehen). */
 export function reroll(data, save, mods, rng = Math.random) {
   if (!canReroll(mods)) return false;
   const cost = rerollCost(data, save, mods);
   if (walletTotal(save) < cost) return false;
   if (cost === 0) save.shop.freeUsed = (save.shop.freeUsed || 0) + 1;
   else { pay(save, cost); save.shop.rerolls = (save.shop.rerolls || 0) + 1; }
-  rollOffers(data, save, mods, rng, true);
+  rollOffers(data, save, mods, rng, true, true);
   return true;
 }
 
@@ -280,14 +326,14 @@ export function resetPurchases(data, save) {
   return n;
 }
 
-/** Inhalt der Run-Tasche: Pack-/Kisten-IDs und Einzelkarten als "karte:<id>". */
+/** Inhalt der Run-Tasche: Pack-/Kisten-IDs und Einzelkarten als "karte:<id>" bzw. "karte:<id>:foil". */
 export function bagItems(data, save) {
   const out = [];
   for (const slot of save.shop.offers) {
     if (!slot.sold) continue;
     const o = describeOffer(slot, data, save);
     for (const i of o.items) for (let k = 0; k < i.anzahl; k++) {
-      if (i.karte) out.push(`karte:${i.karte}`);
+      if (i.karte) out.push(`karte:${i.karte}${i.foil ? ':foil' : ''}`);
       else if (data.packIndex[i.artikel].art !== 'relikt') out.push(i.artikel);
     }
   }
@@ -303,31 +349,36 @@ export function consumeBag(save) {
 // Belohnungen nach einem Run
 // ===========================================================================
 
+/** Mastery eines Runs. result.kills zählt Shiny-Monster bereits mehrfach (killWert). */
 export function masteryFor(result, data, mods) {
   const B = data.balance.belohnungen;
-  const base = result.zeit * B.masteryProSekunde + result.kills * B.masteryProKill + result.elitewellen * B.masteryProElitewelle + (result.sieg ? B.masteryProBoss : 0);
+  const base = result.zeit * B.masteryProSekunde + result.kills * B.masteryProKill + result.elitewellen * B.masteryProElitewelle + (result.sieg ? B.masteryProBoss : 0)
+    + (result.packs || 0) * (B.masteryProPack || 0);
   const kapitelMul = data.chapterIndex[result.kapitel]?.wellen.muenzenMul ?? 1; // höhere Kapitel geben mehr Mastery
   return Math.round(base * kapitelMul * mods.masteryMul * mods.modifierMastery * (mods.prestige?.belohnungMul ?? 1));
 }
 
-/** Überträgt das Ergebnis in den Spielstand. Ein Run = ein Tag. */
+/** Überträgt das Ergebnis in den Spielstand. Ein Run = ein Tag; danach beginnt der nächste Tag. */
 export function applyRunResult(result, data, save, mods, rng = Math.random) {
   const s = save.stats;
-  const out = { neueKarten: result.neueKarten, kapitelFrei: null, packsFrei: [], relikt: null, schluesselstein: null };
-  const prestMul = mods.prestige?.belohnungMul ?? 1;
-  out.muenzen = Math.round(result.muenzen * prestMul);
-  out.einkommen = mods.tagesEinkommen;
-  out.mastery = masteryFor(result, data, mods);
-  out.kristalle = Math.round(result.kristalle * prestMul) + (result.sieg && mods.gesucht ? data.balance.gesucht.kristalle : 0);
-  out.foilStaub = result.foilStaub + (result.sieg && mods.gesucht ? data.balance.gesucht.foilStaub : 0);
-  // Tagesbudget = Münzen aus dem Run + Einkommen aus der Sternenkarte; Bonus-Münzen = Einkommen aus Quests und Relikten
-  out.bonus = Math.min(out.einkommen, mods.bonusEinkommen || 0);
-  save.coins += out.muenzen + out.einkommen - out.bonus;
-  save.bonusCoins = (save.bonusCoins || 0) + out.bonus;
-  save.dayBudget = out.muenzen + out.einkommen - out.bonus;
+  const G = data.balance.gesucht;
+  const out = { neueKarten: result.neueKarten, kapitelFrei: null, packsFrei: [], relikt: null, reliktStaub: 0, questsFertig: [] };
+  // Quest-Knoten: Fortschritt zählt nur, wenn die Quest beim Spielen schon sichtbar war
+  out.questsFertig = advanceQuests(result, data, save);
+
+  const packs = Object.values(result.packsGeoeffnet).reduce((a, b) => a + b, 0);
+  out.mastery = Math.max(0, masteryFor({ ...result, kills: result.killWert ?? result.kills, packs }, data, mods) + (result.bonusMastery || 0));
+  out.foilStaub = result.foilStaub || 0;
+  if (result.sieg && mods.gesucht) {
+    out.foilStaub += G.foilStaub + (mods.gesuchtStaub || 0);
+    const first = !(s.gesuchtSiege?.[result.boss] > 0);
+    (s.gesuchtSiege ||= {})[result.boss] = (s.gesuchtSiege[result.boss] || 0) + 1;
+    if (first) { out.mastery += G.erstsiegMastery; out.gesuchtErstsieg = G.erstsiegMastery; }
+  }
   save.mastery += out.mastery;
-  save.crystals += out.kristalle;
   save.foilDust += out.foilStaub;
+  s.foilStaubGesamt = (s.foilStaubGesamt || 0) + out.foilStaub;
+  out.bonusAusRun = Math.round(result.muenzen || 0); // Bonus-Münzen aus Fähigkeiten/Effekten im Run
 
   s.runs++;
   s.kills += result.kills;
@@ -358,18 +409,27 @@ export function applyRunResult(result, data, save, mods, rng = Math.random) {
     if (mods.prestige) { s.prestige[result.kapitel] = Math.max(s.prestige[result.kapitel] || 0, mods.prestige.stufe); s.prestigeGeschafft++; }
     if (mods.gesucht) { s.foilBossBesiegt++; const b = (save.bestiary[result.boss] ||= { normal: 0, foil: 0 }); b.foil++; }
     const ch = data.chapterIndex[result.kapitel];
-    if (ch.belohnung?.fehlendesRelikt) out.relikt = openRelicPack(data, save, rng);
+    if (ch.belohnung?.fehlendesRelikt) { const before = save.foilDust; out.relikt = openRelicPack(data, save, rng); out.reliktStaub = save.foilDust - before; }
     if (first && ch.art === 'kapitel') {
       const act = data.actIndex[ch.akt];
       const next = act.kapitel[act.kapitel.indexOf(ch.id) + 1];
       if (next) out.kapitelFrei = data.chapterIndex[next];
       out.packsFrei = data.packs.filter((p) => p.freischaltung.typ === 'boss' && p.freischaltung.kapitel === ch.id);
-      out.schluesselstein = act.tor?.schluesselsteine.find((st) => st.kapitel === ch.id) ?? null;
     }
   }
   out.erfolge = checkAchievements(data, save);
-  // Neuer Tag: Tageseinkommen ist gutgeschrieben, Shop würfelt neu
+
+  // Neuer Tag: Tageseinkommen wird gutgeschrieben (Bonus-Münzen getrennt), Zinsen auf ungenutzte Mastery, Shop würfelt neu
   save.day++;
+  out.einkommen = mods.tagesEinkommen;
+  out.bonus = (mods.bonusEinkommen || 0) + out.bonusAusRun;
+  save.coins += out.einkommen;
+  save.bonusCoins = (save.bonusCoins || 0) + out.bonus;
+  save.dayBudget = out.einkommen;
+  if (mods.zinsen > 0) {
+    out.zinsen = Math.min(data.balance.foilbaum.zinsenMax, Math.floor(save.mastery * mods.zinsen));
+    save.mastery += out.zinsen;
+  }
   save.shop.rerolls = 0;
   save.shop.freeUsed = 0;
   rollOffers(data, save, mods, rng);
@@ -377,79 +437,202 @@ export function applyRunResult(result, data, save, mods, rng = Math.random) {
 }
 
 // ===========================================================================
-// Sternenkarte
+// Quest-Knoten (11.3)
 // ===========================================================================
 
-export function nodeVisibleInAct(node, save) {
-  return (node.akt ?? 1) <= save.act;
-}
-
-export function nodeReachable(node, save) {
-  return node.typ === 'start' || node.verbindungen.some((id) => levelOf(save, id) > 0);
-}
-
-export function nodeCost(node, level) {
-  return { amount: Math.round(node.basisKosten * Math.pow(node.kostenFaktor ?? 1.45, level)), waehrung: node.waehrung ?? 'mastery', kristalle: node.kristallKosten || 0 };
-}
-
-const wallet = (save, w) => (w === 'foilstaub' ? save.foilDust : save.mastery);
-
-export function nodeBlocker(node, save, data) {
-  const lvl = levelOf(save, node.id);
-  if (!nodeVisibleInAct(node, save)) return 'Erst nach dem Tor verfügbar';
-  if (lvl >= node.maxStufe) return 'Maximum erreicht';
-  if (!nodeReachable(node, save)) return `Benötigt: ${node.verbindungen.map((id) => data.starIndex[id]?.name).filter(Boolean).join(' oder ')} Stufe 1`;
-  const card = node.voraussetzung?.karte;
-  if (card && !((save.collection[card]?.normal || 0) + (save.collection[card]?.foil || 0) > 0)) return `Finde die Karte ${data.cardIndex[card]?.def.name ?? card}`;
-  const c = nodeCost(node, lvl);
-  if (wallet(save, c.waehrung) < c.amount) return c.waehrung === 'foilstaub' ? 'Zu wenig Foil-Staub' : 'Zu wenig Mastery-Punkte';
-  if (save.crystals < c.kristalle) return 'Zu wenig Kristalle';
+/** Kapitel, in denen eine Quest zählt (null = überall). */
+export function questChapters(node, data) {
+  const a = node.aufgabe, f = a.filter || {};
+  if (f.kapitel) return [f.kapitel];
+  if (a.statistik === 'killsGegner') return data.chapters.filter((c) => c.art === 'kapitel' && (c.gegner.some((g) => g.id === f.gegner) || c.boss === f.gegner)).map((c) => c.id);
+  if (a.statistik === 'bossBesiegt' && f.boss) return data.chapters.filter((c) => c.art === 'kapitel' && c.boss === f.boss).map((c) => c.id);
   return null;
 }
 
-export function buyNode(node, save, data) {
-  if (nodeBlocker(node, save, data)) return false;
-  const lvl = levelOf(save, node.id);
-  const c = nodeCost(node, lvl);
-  if (c.waehrung === 'foilstaub') save.foilDust -= c.amount; else save.mastery -= c.amount;
-  save.crystals -= c.kristalle;
-  save.starmap[node.id] = lvl + 1;
-  save.lastBought = node.id;
-  return true;
+/** Beitrag eines Runs (bzw. Live-Werte eines laufenden Runs) zu einer Quest. */
+export function questRunValue(node, r, data) {
+  const a = node.aufgabe, f = a.filter || {};
+  const chs = questChapters(node, data);
+  if (chs && !chs.includes(r.kapitel)) return 0;
+  switch (a.statistik) {
+    case 'packsGeoeffnet': return f.pack ? r.packsGeoeffnet[f.pack] || 0 : Object.values(r.packsGeoeffnet).reduce((x, y) => x + y, 0);
+    case 'kills': return r.kills;
+    case 'killsGegner': { const k = r.killsNachArt[f.gegner]; return k ? k.normal + k.foil : 0; }
+    case 'kartenGefunden': { const g = r.gezogen[f.karte]; return g ? g.normal + g.foil : 0; }
+    case 'ueberleben': return Math.floor(r.zeit);
+    case 'foilMonsterBesiegt': return r.foilMonster;
+    case 'bossBesiegt': return r.sieg && (!f.boss || r.boss === f.boss) ? 1 : 0;
+    case 'tomesGenutzt': return r.tomesGenutzt;
+    default: return 0;
+  }
 }
 
-export function resetStarmap(data, save) {
-  let mp = 0, fs = 0, kr = 0;
-  for (const node of data.starmap.knoten) {
-    for (let l = 0; l < (save.starmap[node.id] || 0); l++) {
-      const c = nodeCost(node, l);
-      if (c.waehrung === 'foilstaub') fs += c.amount; else mp += c.amount;
-      kr += c.kristalle;
-    }
+/** Fortschritt einer Quest. „ueberleben“ zählt den besten Run, alle anderen werden aufsummiert. */
+export function questProgress(node, data, save, live = null) {
+  const target = node.aufgabe.anzahl;
+  let value = save.questProgress?.[node.id] || 0;
+  if (live) {
+    const v = questRunValue(node, live, data);
+    value = node.aufgabe.statistik === 'ueberleben' ? Math.max(value, v) : value + v;
   }
-  save.mastery += mp; save.foilDust += fs; save.crystals += kr;
+  if (levelOf(save, node.id) > 0) value = target;
+  return { value: Math.min(target, value), target, done: value >= target };
+}
+
+function advanceQuests(result, data, save) {
+  const fresh = [];
+  save.questProgress ||= {};
+  for (const n of data.starmap.knoten) {
+    if (n.typ !== 'quest' || levelOf(save, n.id) > 0 || !nodeVisible('skill', n, save, data)) continue;
+    const before = questProgress(n, data, save);
+    const v = questRunValue(n, result, data);
+    save.questProgress[n.id] = n.aufgabe.statistik === 'ueberleben' ? Math.max(save.questProgress[n.id] || 0, v) : (save.questProgress[n.id] || 0) + v;
+    if (!before.done && questProgress(n, data, save).done) fresh.push(n);
+  }
+  return fresh;
+}
+
+/** Erfüllte Quest abholen: Belohnung gutschreiben, Knoten gilt als abgeschlossen. */
+export function claimQuestNode(node, data, save, rng = Math.random) {
+  if (node.typ !== 'quest' || levelOf(save, node.id) > 0 || !questProgress(node, data, save).done) return null;
+  save.starmap[node.id] = 1;
+  save.lastBought = node.id;
+  const b = node.belohnung || {};
+  const out = { parts: [], relics: [] };
+  if (b.tagesEinkommen) out.parts.push(`+${b.tagesEinkommen} Tageseinkommen (dauerhaft)`);
+  if (b.mastery) { save.mastery += b.mastery; out.parts.push(`+${b.mastery} Mastery`); }
+  for (let i = 0; i < (b.reliktpack || 0); i++) {
+    const before = save.foilDust;
+    const r = openRelicPack(data, save, rng);
+    out.relics.push(r);
+    out.parts.push(r ? `Relikt: ${r.name}` : `+${save.foilDust - before} Schimmer`);
+  }
+  return out;
+}
+
+export function describeReward(b = {}) {
+  const p = [];
+  if (b.tagesEinkommen) p.push(`+${b.tagesEinkommen} Tageseinkommen`);
+  if (b.mastery) p.push(`+${b.mastery} Mastery`);
+  if (b.reliktpack) p.push(b.reliktpack > 1 ? `${b.reliktpack} Reliktpacks` : 'Reliktpack');
+  return p.join(', ') || 'Neue Knoten';
+}
+
+export function claimableQuests(data, save) {
+  return data.starmap.knoten.filter((n) => n.typ === 'quest' && levelOf(save, n.id) === 0 && nodeVisible('skill', n, save, data) && questProgress(n, data, save).done).length;
+}
+
+// ===========================================================================
+// Skill-Tree und Foil-Baum
+// ===========================================================================
+
+const TREE = {
+  skill: { map: (d) => d.starmap, index: (d) => d.starIndex, store: 'starmap', level: levelOf, wallet: 'mastery', faktor: (d) => d.balance.skilltree.kostenFaktorStandard },
+  foil: { map: (d) => d.foiltree, index: (d) => d.foilIndex, store: 'foiltree', level: foilLevelOf, wallet: 'foilDust', faktor: (d) => d.balance.foilbaum.kostenFaktorStandard },
+};
+export const treeMap = (kind, data) => TREE[kind].map(data);
+export const treeIndex = (kind, data) => TREE[kind].index(data);
+export const treeLevel = (kind, save, id) => TREE[kind].level(save, id);
+
+/** Foil-Baum sichtbar ab dem ersten Foil-Staub (11.6.3). */
+export const foilTreeUnlocked = (save) => (save.stats.foilStaubGesamt || 0) > 0 || save.foilDust > 0;
+
+/** Karte, die ein Knoten voraussetzt (Einheiten- und Tome-Blöcke erscheinen erst mit der Karte). */
+export const nodeCard = (node) => node.voraussetzung?.karte ?? null;
+
+export function nodeInAct(node, save) {
+  if (node.nurAkt != null && node.nurAkt !== save.act) return false;
+  return (node.akt ?? 1) <= save.act;
+}
+
+export function nodeReachable(kind, node, save) {
+  const lvl = TREE[kind].level;
+  return node.typ === 'start' || node.verbindungen.some((id) => lvl(save, id) > 0);
+}
+
+/** Sichtbar = im aktuellen Akt, gekauft oder an einen gekauften/abgeschlossenen Knoten angeschlossen, Karte vorhanden. */
+export function nodeVisible(kind, node, save, data) {
+  if (kind === 'foil' && !foilTreeUnlocked(save)) return false;
+  if (!nodeInAct(node, save)) return false;
+  const card = nodeCard(node);
+  if (card && !((save.collection[card]?.normal || 0) + (save.collection[card]?.foil || 0) > 0)) return false;
+  return TREE[kind].level(save, node.id) > 0 || nodeReachable(kind, node, save);
+}
+
+export function nodeCost(kind, node, level, data) {
+  const f = node.kostenFaktor ?? TREE[kind].faktor(data);
+  return { amount: Math.round(node.basisKosten * Math.pow(f, level)), waehrung: TREE[kind].wallet };
+}
+
+export function nodeBlocker(kind, node, save, data) {
+  const lvl = TREE[kind].level(save, node.id);
+  if (!nodeInAct(node, save)) return `Erst ab Akt ${node.akt}`;
+  if (node.typ === 'start') return 'Ursprung';
+  if (lvl >= node.maxStufe) return node.typ === 'quest' ? 'Abgeschlossen' : 'Maximum erreicht';
+  if (!nodeReachable(kind, node, save)) return 'Noch nicht erreichbar';
+  if (node.typ === 'quest') return questProgress(node, data, save).done ? null : 'Aufgabe noch nicht erfüllt';
+  if (node.typ === 'tor') return null;
+  const c = nodeCost(kind, node, lvl, data);
+  if (save[c.waehrung] < c.amount) return kind === 'foil' ? 'Zu wenig Schimmer' : 'Zu wenig Mastery';
+  return null;
+}
+
+/**
+ * Upgrade-, Freischalt- oder Relikt-Knoten kaufen. Quest-Knoten: claimQuestNode, Tor-Knoten: changeAct.
+ * Rückgabe: false oder { relic, staub }.
+ */
+export function buyNode(kind, node, save, data) {
+  if (node.typ === 'quest' || node.typ === 'tor' || nodeBlocker(kind, node, save, data)) return false;
+  const T = TREE[kind];
+  const lvl = T.level(save, node.id);
+  const c = nodeCost(kind, node, lvl, data);
+  save[c.waehrung] -= c.amount;
+  (save[T.store] ||= {})[node.id] = lvl + 1;
+  if (kind === 'skill') save.lastBought = node.id;
+  const out = { relic: null, staub: 0 };
+  if (node.effekt.ziel === 'relikt') {
+    const r = data.relicIndex[node.effekt.relikt];
+    if (save.relics.owned.includes(r.id) || save.relics.destroyed?.includes(r.id)) {
+      out.staub = data.balance.belohnungen.reliktDoppelt.foilStaub;
+      save.foilDust += out.staub;
+      save.stats.foilStaubGesamt = (save.stats.foilStaubGesamt || 0) + out.staub;
+    } else { giveRelic(r, data, save); out.relic = r; }
+  }
+  return out;
+}
+
+/** Skill-Tree zurücksetzen (volle Rückerstattung der Mastery). Quest-Knoten gelten wieder als offen. */
+export function resetStarmap(data, save) {
+  let mp = 0;
+  for (const node of data.starmap.knoten) {
+    if (node.typ === 'quest' || node.typ === 'tor') continue;
+    for (let l = 0; l < (save.starmap[node.id] || 0); l++) mp += nodeCost('skill', node, l, data).amount;
+  }
+  save.mastery += mp;
   save.starmap = {};
   save.lastBought = null;
-  return { mp, fs, kr };
+  return { mp };
 }
 
-export function anyNodeAffordable(data, save) {
-  return data.starmap.knoten.some((n) => !nodeBlocker(n, save, data));
+export function anyNodeAffordable(data, save, kind = 'skill') {
+  return treeMap(kind, data).knoten.some((n) => n.typ !== 'tor' && nodeVisible(kind, n, save, data) && !nodeBlocker(kind, n, save, data));
 }
 
 export function describeNodeEffect(node, level) {
   const e = node.effekt;
+  if (e.ziel === 'tome') return level ? `+${Math.round(e.betrag * level * 100)} %` : '–';
   if (!('wert' in e) || e.ziel === 'gebaeude') return level > 0 ? (e.ziel === 'gebaeude' ? `Stufe ${level}` : 'Aktiv') : '–';
   const v = e.rechenart === 'multiplizieren' ? Math.pow(e.wert, level) : e.wert * level;
   const pct = (x) => `${x >= 0 ? '+' : ''}${(Math.round(x * 1000) / 10).toString().replace('.', ',')} %`;
   switch (e.ziel) {
     case 'cursorSchaden': return `+${v} Runen-Schaden`;
     case 'tagesEinkommen': return `+${v} Münzen pro Tag`;
-    case 'shopPlaetze': case 'kartenProPack': case 'freieRerolls': return level ? `+${v}` : '–';
+    case 'shopPlaetze': case 'kartenProPack': case 'freieRerolls': case 'reliktPlaetze': case 'gesuchtStaub': return level ? `+${v}` : '–';
+    case 'aktStartMastery': return `+${v} Mastery`;
+    case 'masteryNeueKarte': return `+${v} Mastery pro neuer Karte`;
     case 'turmSchuetze': return `Stufe ${v}`;
     case 'turmDornen': return `${v} Schaden zurück`;
     case 'turmRegen': return `${pct(v)} Leben/s`;
-    case 'foilChance': case 'grenzgaengerChance': case 'foilMonsterChance': case 'jackpotChance': return `${pct(v)}`;
     default: return pct(v);
   }
 }
@@ -459,18 +642,29 @@ export function describeNodeEffect(node, level) {
 // ===========================================================================
 
 export function relicSlots(data, save) {
-  return Math.min(data.balance.relikte.plaetzeMax, data.balance.relikte.plaetzeStart + (save.relics.extraSlots || 0));
+  const R = data.balance.relikte;
+  const foil = data.foiltree.knoten.filter((n) => n.effekt.ziel === 'reliktPlaetze').reduce((s, n) => s + foilLevelOf(save, n.id) * n.effekt.wert, 0);
+  return Math.min(R.plaetzeMax, R.plaetzeStart + (save.relics.extraSlots || 0)) + foil;
 }
 
-/** Reliktpack öffnen: bevorzugt ein noch fehlendes Relikt. */
-export function openRelicPack(data, save, rng = Math.random) {
-  const destroyed = save.relics.destroyed || [];
-  const free = data.relics.filter((r) => !save.relics.owned.includes(r.id) && !destroyed.includes(r.id));
-  if (!free.length) { save.crystals += 10; return null; }
-  const r = free[Math.floor(rng() * free.length)];
+function giveRelic(r, data, save) {
   save.relics.owned.push(r.id);
   save.relics.newCount = (save.relics.newCount || 0) + 1;
   if (save.relics.equipped.length < relicSlots(data, save)) save.relics.equipped.push(r.id);
+}
+
+/** Reliktpack öffnen: ein noch fehlendes, zufällig erhältliches Relikt – sonst Foil-Staub. */
+export function openRelicPack(data, save, rng = Math.random) {
+  const destroyed = save.relics.destroyed || [];
+  const free = data.relics.filter((r) => !r.nurBaum && !save.relics.owned.includes(r.id) && !destroyed.includes(r.id));
+  if (!free.length) {
+    const st = data.balance.belohnungen.reliktpackOhneRelikt.foilStaub;
+    save.foilDust += st;
+    save.stats.foilStaubGesamt = (save.stats.foilStaubGesamt || 0) + st;
+    return null;
+  }
+  const r = free[Math.floor(rng() * free.length)];
+  giveRelic(r, data, save);
   return r;
 }
 
@@ -488,12 +682,23 @@ export function destroyRelic(id, data, save) {
   save.relics.owned = save.relics.owned.filter((x) => x !== id);
   save.relics.equipped = save.relics.equipped.filter((x) => x !== id);
   (save.relics.destroyed ||= []).push(id);
-  if (data.balance.relikte.zerstoerenGibtPlatz && relicSlots(data, save) < data.balance.relikte.plaetzeMax) save.relics.extraSlots = (save.relics.extraSlots || 0) + 1;
+  const R = data.balance.relikte;
+  if (R.zerstoerenGibtPlatz && R.plaetzeStart + (save.relics.extraSlots || 0) < R.plaetzeMax) save.relics.extraSlots = (save.relics.extraSlots || 0) + 1;
+  return true;
+}
+
+/** Foil-Knoten „Relikt-Wiederherstellung“: zerstörtes Relikt gegen Foil-Staub zurückholen. */
+export function repairRelic(id, data, save, mods) {
+  const cost = data.balance.foilbaum.reliktReparaturKosten;
+  if (!mods.flags.reliktReparatur || !save.relics.destroyed?.includes(id) || save.foilDust < cost) return false;
+  save.foilDust -= cost;
+  save.relics.destroyed = save.relics.destroyed.filter((x) => x !== id);
+  giveRelic(data.relicIndex[id], data, save);
   return true;
 }
 
 // ===========================================================================
-// Quests und Erfolge
+// Erfolge
 // ===========================================================================
 
 function statValue(z, data, save) {
@@ -506,6 +711,7 @@ function statValue(z, data, save) {
     case 'laengsterRun': return Math.floor(s.laengsterRun);
     case 'kartenArten': return data.allCards.filter((id) => (save.collection[id]?.normal || 0) + (save.collection[id]?.foil || 0) > 0).length;
     case 'foilArten': return data.allCards.filter((id) => save.collection[id]?.foil > 0).length;
+    case 'foilMonsterArten': return data.enemies.filter((e) => save.bestiary[e.id]?.foil > 0).length;
     case 'grenzgaengerArten': return data.units.filter((u) => u.rarity === 'grenzgaenger' && save.collection[u.id]).length;
     case 'monsterArten': return data.enemies.filter((e) => save.bestiary[e.id]?.normal > 0).length;
     case 'reliktArten': return save.relics.owned.length;
@@ -518,7 +724,7 @@ function statTarget(z, data) {
   switch (z.statistik) {
     case 'kartenArten': case 'foilArten': return data.allCards.length;
     case 'grenzgaengerArten': return data.units.filter((u) => u.rarity === 'grenzgaenger').length;
-    case 'monsterArten': return data.enemies.length;
+    case 'monsterArten': case 'foilMonsterArten': return data.enemies.length;
     case 'reliktArten': return data.relics.length;
     default: return 1;
   }
@@ -527,23 +733,6 @@ function statTarget(z, data) {
 export function progressOf(item, data, save) {
   const target = statTarget(item.ziel, data);
   return { value: Math.min(target, statValue(item.ziel, data, save)), target };
-}
-
-export const questDone = (q, data, save) => { const p = progressOf(q, data, save); return p.value >= p.target; };
-
-export function claimQuest(q, data, save, rng = Math.random) {
-  if (save.quests.claimed.includes(q.id) || !questDone(q, data, save)) return null;
-  save.quests.claimed.push(q.id);
-  const b = q.belohnung;
-  const parts = [];
-  if (b.tagesEinkommen) { save.questBonus.tagesEinkommen = (save.questBonus.tagesEinkommen || 0) + b.tagesEinkommen; parts.push(`+${b.tagesEinkommen} Tageseinkommen`); }
-  if (b.kristalle) { save.crystals += b.kristalle; parts.push(`+${b.kristalle} Kristalle`); }
-  for (let i = 0; i < (b.reliktpack || 0); i++) { const r = openRelicPack(data, save, rng); parts.push(r ? `Relikt: ${r.name}` : '+10 Kristalle'); }
-  return parts.join(', ');
-}
-
-export function claimableQuests(data, save) {
-  return data.quests.filter((q) => !save.quests.claimed.includes(q.id) && questDone(q, data, save)).length;
 }
 
 /** Prüft Erfolge und schaltet neue frei. Gibt die neu freigeschalteten zurück. */

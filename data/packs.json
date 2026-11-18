@@ -10,7 +10,6 @@
     },
     "widerstand": 10,
     "kartenProPack": 3,
-    "kristalle": 1,
     "pool": [
       "stalljunge",
       "kettenschwinger",
@@ -32,13 +31,13 @@
     "beschreibung": "Drei Holzpacks auf einmal.",
     "farbe": "#6b4423",
     "freischaltung": {
-      "typ": "start"
+      "typ": "knoten",
+      "knoten": "p_kiste_holz"
     },
     "inhalt": {
       "pack": "holzpack",
       "anzahl": 3
-    },
-    "kristalle": 3
+    }
   },
   {
     "id": "silberpack",
@@ -52,7 +51,6 @@
     },
     "widerstand": 25,
     "kartenProPack": 3,
-    "kristalle": 2,
     "pool": [
       "kettenschwinger",
       "schleuderin",
@@ -77,14 +75,14 @@
     "beschreibung": "Drei Silberpacks auf einmal.",
     "farbe": "#8a96a4",
     "freischaltung": {
-      "typ": "boss",
-      "kapitel": 2
+      "typ": "knoten",
+      "knoten": "p_kiste_silber",
+      "kapitel": 1
     },
     "inhalt": {
       "pack": "silberpack",
       "anzahl": 3
-    },
-    "kristalle": 6
+    }
   },
   {
     "id": "sternenpack",
@@ -98,7 +96,6 @@
     },
     "widerstand": 60,
     "kartenProPack": 3,
-    "kristalle": 4,
     "pool": [
       "windlaeufer",
       "glutweberin",
@@ -119,6 +116,26 @@
     }
   },
   {
+    "id": "glanzpack",
+    "name": "Glanzpack",
+    "art": "pack",
+    "farbe": "#FF5FC8",
+    "beschreibung": "Pinkes Sonderpack: enthält gezielt seltene Karten, die dir noch fehlen.",
+    "freischaltung": {
+      "typ": "foilknoten",
+      "knoten": "f_glanzpack"
+    },
+    "widerstand": 30,
+    "kartenProPack": 2,
+    "nurFehlende": true,
+    "pool": [],
+    "seltenheitsGewichte": {
+      "rare": 60,
+      "epic": 32,
+      "legendary": 8
+    }
+  },
+  {
     "id": "tomepack",
     "name": "Tomepack",
     "art": "pack",
@@ -129,7 +146,6 @@
     },
     "widerstand": 30,
     "kartenProPack": 3,
-    "kristalle": 2,
     "pool": [
       "hagelschauer",
       "knochenruf",
@@ -160,8 +176,7 @@
     },
     "inhalt": {
       "relikte": 1
-    },
-    "kristalle": 0
+    }
   },
   {
     "id": "grosses_reliktpack",
@@ -175,7 +190,6 @@
     "inhalt": {
       "relikte": 1,
       "auswahl": 3
-    },
-    "kristalle": 0
+    }
   }
 ]

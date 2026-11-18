@@ -1,8 +1,8 @@
 {
-  "$kommentar": "Sternenkarte als Schaltplan (14.2.5). Positionen und Symbole erzeugt tools/layout-starmap.mjs – danach von Hand anpassbar. abzeichen: clock|sword|heart|plus|arrow|bolt|star.",
+  "$kommentar": "Skill-Tree als Schaltplan (11, 14.2.5). Knotentypen: start, klein/gross/schluessel (Upgrade), freischalt, relikt, quest (aufgabe + belohnung, kostenlos), tor (Akt-Wechsel). Positionen und Symbole erzeugt tools/layout-starmap.mjs – danach von Hand anpassbar. abzeichen: clock|sword|heart|plus|arrow|bolt|star.",
   "groesse": {
-    "breite": 2304,
-    "hoehe": 1728
+    "breite": 3264,
+    "hoehe": 1824
   },
   "start": "start",
   "aeste": [
@@ -42,9 +42,9 @@
       "farbe": "#3ED6C4"
     },
     {
-      "id": "foil",
-      "name": "Foil",
-      "farbe": "#FF7AC8"
+      "id": "akt",
+      "name": "Akt-Ende",
+      "farbe": "#FF9A3A"
     },
     {
       "id": "start",
@@ -56,54 +56,383 @@
     {
       "id": "start",
       "name": "Erwachen",
-      "beschreibung": "Der Ursprung deiner Macht. Von hier wächst die Sternenkarte.",
+      "beschreibung": "Der Ursprung deiner Macht. Von hier wächst der Skill-Tree.",
       "typ": "start",
       "ast": "start",
       "akt": 1,
       "position": {
-        "x": 1200,
+        "x": 1680,
         "y": 864
       },
       "verbindungen": [
         "c_schaden",
-        "w_einkommen",
+        "q_holz2",
         "p_widerstand",
         "b_taverne",
         "t_leben",
         "to_wirkung",
         "e_kampf",
-        "f_chance"
+        "q_trommler"
       ],
       "maxStufe": 1,
       "basisKosten": 0,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "keiner"
       },
       "symbol": "tower"
     },
     {
-      "id": "c_schaden",
-      "name": "Runenschärfe",
-      "beschreibung": "+1 Schaden des Runenkreises.",
-      "typ": "klein",
-      "ast": "cursor",
+      "id": "q_holz2",
+      "name": "Erste Beute",
+      "beschreibung": "Öffne 2 Holzpacks.",
+      "typ": "quest",
+      "ast": "wirtschaft",
       "akt": 1,
       "position": {
-        "x": 528,
+        "x": 1296,
         "y": 768
       },
       "verbindungen": [
         "start",
-        "c_radius"
+        "w_wuerfeln",
+        "q_holz10",
+        "w_sammler"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 0,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "quest"
+      },
+      "aufgabe": {
+        "statistik": "packsGeoeffnet",
+        "filter": {
+          "pack": "holzpack"
+        },
+        "anzahl": 2
+      },
+      "belohnung": {
+        "tagesEinkommen": 1
+      },
+      "symbol": "quest"
+    },
+    {
+      "id": "w_wuerfeln",
+      "name": "Würfelbecher",
+      "beschreibung": "Schaltet den REROLL-Knopf im Shop frei. Nur beim Neu-Würfeln können Jackpots erscheinen.",
+      "typ": "freischalt",
+      "ast": "wirtschaft",
+      "akt": 1,
+      "position": {
+        "x": 1152,
+        "y": 672
+      },
+      "verbindungen": [
+        "q_holz2",
+        "w_jackpot",
+        "w_rabatt"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 15,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "flag",
+        "flag": "neuWuerfeln"
+      },
+      "symbol": "coin",
+      "abzeichen": "bolt"
+    },
+    {
+      "id": "w_jackpot",
+      "name": "Glückssträhne",
+      "beschreibung": "+3 % Jackpot-Chance beim Neu-Würfeln je Stufe.",
+      "typ": "klein",
+      "ast": "wirtschaft",
+      "akt": 1,
+      "position": {
+        "x": 1104,
+        "y": 576
+      },
+      "verbindungen": [
+        "w_wuerfeln"
+      ],
+      "maxStufe": 3,
+      "basisKosten": 32,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "jackpotChance",
+        "wert": 0.03,
+        "rechenart": "addieren"
+      },
+      "symbol": "coin",
+      "abzeichen": "star"
+    },
+    {
+      "id": "w_rabatt",
+      "name": "Feilschen",
+      "beschreibung": "+4 % Chance auf Rabatt-Angebote je Stufe.",
+      "typ": "klein",
+      "ast": "wirtschaft",
+      "akt": 1,
+      "position": {
+        "x": 1200,
+        "y": 576
+      },
+      "verbindungen": [
+        "w_wuerfeln"
+      ],
+      "maxStufe": 3,
+      "basisKosten": 32,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "rabattChance",
+        "wert": 0.04,
+        "rechenart": "addieren"
+      },
+      "symbol": "coin",
+      "abzeichen": "star"
+    },
+    {
+      "id": "q_holz10",
+      "name": "Holzhändler",
+      "beschreibung": "Öffne 10 Holzpacks.",
+      "typ": "quest",
+      "ast": "wirtschaft",
+      "akt": 1,
+      "position": {
+        "x": 1344,
+        "y": 672
+      },
+      "verbindungen": [
+        "q_holz2",
+        "w_platz",
+        "q_kills300"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 0,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "quest"
+      },
+      "aufgabe": {
+        "statistik": "packsGeoeffnet",
+        "filter": {
+          "pack": "holzpack"
+        },
+        "anzahl": 10
+      },
+      "belohnung": {
+        "tagesEinkommen": 1
+      },
+      "symbol": "quest"
+    },
+    {
+      "id": "w_platz",
+      "name": "Händlerplatz",
+      "beschreibung": "+1 Shop-Platz.",
+      "typ": "freischalt",
+      "ast": "wirtschaft",
+      "akt": 1,
+      "position": {
+        "x": 1296,
+        "y": 576
+      },
+      "verbindungen": [
+        "q_holz10",
+        "w_einkommen"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 150,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "shopPlaetze",
+        "wert": 1,
+        "rechenart": "addieren"
+      },
+      "symbol": "coin",
+      "abzeichen": "plus"
+    },
+    {
+      "id": "w_einkommen",
+      "name": "Marktstand",
+      "beschreibung": "+1 Tageseinkommen je Stufe.",
+      "typ": "klein",
+      "ast": "wirtschaft",
+      "akt": 1,
+      "position": {
+        "x": 1296,
+        "y": 480
+      },
+      "verbindungen": [
+        "w_platz",
+        "a2_einkommen"
+      ],
+      "maxStufe": 3,
+      "basisKosten": 58,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "tagesEinkommen",
+        "wert": 1,
+        "rechenart": "addieren"
+      },
+      "symbol": "coin",
+      "abzeichen": "plus"
+    },
+    {
+      "id": "a2_einkommen",
+      "name": "Handelsroute",
+      "beschreibung": "+1 Tageseinkommen je Stufe.",
+      "typ": "klein",
+      "ast": "wirtschaft",
+      "akt": 2,
+      "position": {
+        "x": 1296,
+        "y": 384
+      },
+      "verbindungen": [
+        "w_einkommen",
+        "q_a2_relikt"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 1300,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "tagesEinkommen",
+        "wert": 1,
+        "rechenart": "addieren"
+      },
+      "symbol": "coin",
+      "abzeichen": "plus"
+    },
+    {
+      "id": "q_a2_relikt",
+      "name": "Schatzsucher",
+      "beschreibung": "Besiege 1.000 Monster.",
+      "typ": "quest",
+      "ast": "wirtschaft",
+      "akt": 2,
+      "position": {
+        "x": 1296,
+        "y": 288
+      },
+      "verbindungen": [
+        "a2_einkommen"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 0,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "quest"
+      },
+      "aufgabe": {
+        "statistik": "kills",
+        "anzahl": 1000
+      },
+      "belohnung": {
+        "reliktpack": 1
+      },
+      "symbol": "quest"
+    },
+    {
+      "id": "q_kills300",
+      "name": "Monsterjäger",
+      "beschreibung": "Besiege 300 Monster.",
+      "typ": "quest",
+      "ast": "wirtschaft",
+      "akt": 1,
+      "position": {
+        "x": 1392,
+        "y": 576
+      },
+      "verbindungen": [
+        "q_holz10"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 0,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "quest"
+      },
+      "aufgabe": {
+        "statistik": "kills",
+        "anzahl": 300
+      },
+      "belohnung": {
+        "tagesEinkommen": 1
+      },
+      "symbol": "quest"
+    },
+    {
+      "id": "w_sammler",
+      "name": "Sammlerfreude",
+      "beschreibung": "+5 Mastery für jede neu entdeckte Karte je Stufe.",
+      "typ": "klein",
+      "ast": "wirtschaft",
+      "akt": 1,
+      "position": {
+        "x": 1488,
+        "y": 672
+      },
+      "verbindungen": [
+        "q_holz2",
+        "w_schueler"
+      ],
+      "maxStufe": 3,
+      "basisKosten": 18,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "masteryNeueKarte",
+        "wert": 5,
+        "rechenart": "addieren"
+      },
+      "symbol": "coin",
+      "abzeichen": "star"
+    },
+    {
+      "id": "w_schueler",
+      "name": "Meisterschüler",
+      "beschreibung": "+10 % Mastery je Stufe.",
+      "typ": "gross",
+      "ast": "wirtschaft",
+      "akt": 1,
+      "position": {
+        "x": 1488,
+        "y": 576
+      },
+      "verbindungen": [
+        "w_sammler"
+      ],
+      "maxStufe": 3,
+      "basisKosten": 81,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "masteryMul",
+        "wert": 0.1,
+        "rechenart": "addieren"
+      },
+      "symbol": "coin",
+      "abzeichen": "star"
+    },
+    {
+      "id": "c_schaden",
+      "name": "Schärfere Klinge",
+      "beschreibung": "+1 Runen-Schaden je Stufe.",
+      "typ": "klein",
+      "ast": "cursor",
+      "akt": 1,
+      "position": {
+        "x": 816,
+        "y": 768
+      },
+      "verbindungen": [
+        "start",
+        "c_tempo",
+        "q_kraehen"
       ],
       "maxStufe": 10,
-      "basisKosten": 2,
+      "basisKosten": 10,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "cursorSchaden",
         "wert": 1,
@@ -113,54 +442,24 @@
       "abzeichen": "sword"
     },
     {
-      "id": "c_radius",
-      "name": "Weiter Kreis",
-      "beschreibung": "+8 % Radius des Runenkreises.",
+      "id": "c_tempo",
+      "name": "Flinke Hand",
+      "beschreibung": "Runenkreis trifft 4 % schneller je Stufe.",
       "typ": "klein",
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 528,
+        "x": 768,
         "y": 672
       },
       "verbindungen": [
         "c_schaden",
-        "c_tempo",
-        "c_packbrecher"
-      ],
-      "maxStufe": 8,
-      "basisKosten": 3,
-      "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
-      "effekt": {
-        "ziel": "cursorRadiusMul",
-        "wert": 0.08,
-        "rechenart": "addieren"
-      },
-      "symbol": "hand",
-      "abzeichen": "arrow"
-    },
-    {
-      "id": "c_tempo",
-      "name": "Schneller Puls",
-      "beschreibung": "−4 % Abstand zwischen Runen-Ticks.",
-      "typ": "klein",
-      "ast": "cursor",
-      "akt": 1,
-      "position": {
-        "x": 480,
-        "y": 576
-      },
-      "verbindungen": [
         "c_radius",
         "c_krit"
       ],
-      "maxStufe": 8,
-      "basisKosten": 3,
+      "maxStufe": 5,
+      "basisKosten": 18,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "cursorTickMul",
         "wert": -0.04,
@@ -170,25 +469,49 @@
       "abzeichen": "clock"
     },
     {
-      "id": "c_packbrecher",
-      "name": "Packbrecher",
-      "beschreibung": "+25 % Runen-Schaden gegen Packs.",
+      "id": "c_radius",
+      "name": "Weiter Griff",
+      "beschreibung": "+8 % Radius des Runenkreises je Stufe.",
       "typ": "klein",
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 576,
+        "x": 720,
         "y": 576
+      },
+      "verbindungen": [
+        "c_tempo",
+        "c_packreisser"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 32,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "cursorRadiusMul",
+        "wert": 0.08,
+        "rechenart": "addieren"
+      },
+      "symbol": "hand",
+      "abzeichen": "arrow"
+    },
+    {
+      "id": "c_packreisser",
+      "name": "Packreißer",
+      "beschreibung": "+25 % Schaden gegen Packs je Stufe (bis +100 %).",
+      "typ": "klein",
+      "ast": "cursor",
+      "akt": 1,
+      "position": {
+        "x": 720,
+        "y": 480
       },
       "verbindungen": [
         "c_radius",
         "c_zwilling"
       ],
-      "maxStufe": 8,
-      "basisKosten": 2,
+      "maxStufe": 4,
+      "basisKosten": 58,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "cursorPackSchadenMul",
         "wert": 0.25,
@@ -199,24 +522,22 @@
     },
     {
       "id": "c_krit",
-      "name": "Glückstreffer",
-      "beschreibung": "+3 % kritische Chance (Krit = doppelter Schaden).",
+      "name": "Glückshieb",
+      "beschreibung": "+3 % Chance auf kritische Treffer (doppelter Schaden) je Stufe.",
       "typ": "klein",
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 480,
-        "y": 480
+        "x": 816,
+        "y": 576
       },
       "verbindungen": [
         "c_tempo",
         "c_glut"
       ],
       "maxStufe": 5,
-      "basisKosten": 4,
+      "basisKosten": 32,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "cursorKrit",
         "wert": 0.03,
@@ -233,18 +554,16 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 480,
-        "y": 384
+        "x": 816,
+        "y": 480
       },
       "verbindungen": [
         "c_krit",
         "a2_cursor"
       ],
       "maxStufe": 1,
-      "basisKosten": 25,
+      "basisKosten": 350,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 5,
       "effekt": {
         "ziel": "flag",
         "flag": "glutkreis"
@@ -260,17 +579,16 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 576,
-        "y": 480
+        "x": 720,
+        "y": 384
       },
       "verbindungen": [
-        "c_packbrecher"
+        "c_packreisser",
+        "r_funkennadel"
       ],
       "maxStufe": 1,
-      "basisKosten": 35,
+      "basisKosten": 630,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 8,
       "effekt": {
         "ziel": "flag",
         "flag": "zwillingsrune"
@@ -279,223 +597,107 @@
       "abzeichen": "bolt"
     },
     {
-      "id": "w_einkommen",
-      "name": "Tageseinkommen",
-      "beschreibung": "+2 Münzen Tageseinkommen.",
+      "id": "a2_cursor",
+      "name": "Meisterrune",
+      "beschreibung": "+3 Schaden des Runenkreises.",
       "typ": "klein",
-      "ast": "wirtschaft",
-      "akt": 1,
+      "ast": "cursor",
+      "akt": 2,
       "position": {
-        "x": 912,
-        "y": 768
+        "x": 816,
+        "y": 384
       },
       "verbindungen": [
-        "start",
-        "w_kill"
+        "c_glut"
       ],
-      "maxStufe": 10,
-      "basisKosten": 2,
+      "maxStufe": 5,
+      "basisKosten": 1300,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
-        "ziel": "tagesEinkommen",
-        "wert": 2,
+        "ziel": "cursorSchaden",
+        "wert": 3,
         "rechenart": "addieren"
       },
-      "symbol": "coin",
-      "abzeichen": "plus"
+      "symbol": "claw",
+      "abzeichen": "sword"
     },
     {
-      "id": "w_kill",
-      "name": "Beutegier",
-      "beschreibung": "+5 % Münzen pro besiegtem Monster.",
-      "typ": "klein",
-      "ast": "wirtschaft",
+      "id": "q_kraehen",
+      "name": "Vogelscheuche",
+      "beschreibung": "Besiege 50 Krähen.",
+      "typ": "quest",
+      "ast": "cursor",
       "akt": 1,
       "position": {
         "x": 912,
         "y": 672
       },
       "verbindungen": [
-        "w_einkommen",
-        "g_wuerfeln",
-        "w_platz4",
-        "w_freiwurf"
-      ],
-      "maxStufe": 10,
-      "basisKosten": 3,
-      "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
-      "effekt": {
-        "ziel": "muenzenMul",
-        "wert": 0.05,
-        "rechenart": "addieren"
-      },
-      "symbol": "coin",
-      "abzeichen": "plus"
-    },
-    {
-      "id": "g_wuerfeln",
-      "name": "Neu würfeln",
-      "beschreibung": "Schaltet den Knopf „Neu würfeln“ im Shop frei.",
-      "typ": "freischalt",
-      "ast": "wirtschaft",
-      "akt": 1,
-      "position": {
-        "x": 768,
-        "y": 576
-      },
-      "verbindungen": [
-        "w_kill",
-        "w_schueler"
+        "c_schaden"
       ],
       "maxStufe": 1,
-      "basisKosten": 8,
+      "basisKosten": 0,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
-        "ziel": "flag",
-        "flag": "neuWuerfeln"
+        "ziel": "quest"
       },
-      "symbol": "coin",
-      "abzeichen": "bolt"
+      "aufgabe": {
+        "statistik": "killsGegner",
+        "filter": {
+          "gegner": "kraehe",
+          "kapitel": 1
+        },
+        "anzahl": 50
+      },
+      "belohnung": {
+        "tagesEinkommen": 1
+      },
+      "symbol": "quest"
     },
     {
-      "id": "w_platz4",
-      "name": "Vierter Angebotsplatz",
-      "beschreibung": "+1 Angebotsplatz im Shop.",
-      "typ": "freischalt",
-      "ast": "wirtschaft",
-      "akt": 1,
+      "id": "r_funkennadel",
+      "name": "Funkennadel",
+      "beschreibung": "Relikt „Funkennadel“: Cursor-Treffer springen mit Chance als Kettenblitz auf weitere Gegner über. Gibt es nur hier.",
+      "typ": "relikt",
+      "ast": "cursor",
+      "akt": 2,
       "position": {
-        "x": 912,
-        "y": 576
+        "x": 720,
+        "y": 288
       },
       "verbindungen": [
-        "w_kill",
-        "w_platz5",
-        "w_jackpot"
+        "c_zwilling"
       ],
       "maxStufe": 1,
-      "basisKosten": 12,
+      "basisKosten": 9100,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
-        "ziel": "shopPlaetze",
-        "wert": 1,
-        "rechenart": "addieren"
+        "ziel": "relikt",
+        "relikt": "funkennadel"
       },
-      "symbol": "coin",
-      "abzeichen": "plus"
-    },
-    {
-      "id": "w_platz5",
-      "name": "Fünfter Angebotsplatz",
-      "beschreibung": "+1 Angebotsplatz im Shop.",
-      "typ": "freischalt",
-      "ast": "wirtschaft",
-      "akt": 1,
-      "position": {
-        "x": 864,
-        "y": 480
-      },
-      "verbindungen": [
-        "w_platz4",
-        "w_platz6"
-      ],
-      "maxStufe": 1,
-      "basisKosten": 25,
-      "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
-      "effekt": {
-        "ziel": "shopPlaetze",
-        "wert": 1,
-        "rechenart": "addieren"
-      },
-      "symbol": "coin",
-      "abzeichen": "plus"
-    },
-    {
-      "id": "w_platz6",
-      "name": "Sechster Angebotsplatz",
-      "beschreibung": "+1 Angebotsplatz im Shop.",
-      "typ": "freischalt",
-      "ast": "wirtschaft",
-      "akt": 1,
-      "position": {
-        "x": 864,
-        "y": 384
-      },
-      "verbindungen": [
-        "w_platz5",
-        "a2_einkommen"
-      ],
-      "maxStufe": 1,
-      "basisKosten": 45,
-      "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
-      "effekt": {
-        "ziel": "shopPlaetze",
-        "wert": 1,
-        "rechenart": "addieren"
-      },
-      "symbol": "coin",
-      "abzeichen": "plus"
-    },
-    {
-      "id": "w_schueler",
-      "name": "Meisterschüler",
-      "beschreibung": "+10 % Mastery-Punkte am Ende jedes Runs.",
-      "typ": "gross",
-      "ast": "wirtschaft",
-      "akt": 1,
-      "position": {
-        "x": 768,
-        "y": 480
-      },
-      "verbindungen": [
-        "g_wuerfeln"
-      ],
-      "maxStufe": 3,
-      "basisKosten": 15,
-      "kostenFaktor": 1.8,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
-      "effekt": {
-        "ziel": "masteryMul",
-        "wert": 0.1,
-        "rechenart": "addieren"
-      },
-      "symbol": "coin",
+      "symbol": "bolt",
       "abzeichen": "star"
     },
     {
       "id": "p_widerstand",
       "name": "Dünne Folie",
-      "beschreibung": "−5 % Widerstand aller Packs.",
+      "beschreibung": "Packs haben 5 % weniger Widerstand je Stufe.",
       "typ": "klein",
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 1344,
+        "x": 1872,
         "y": 768
       },
       "verbindungen": [
         "start",
-        "p_foil",
-        "p_karten"
+        "p_bonuskarte",
+        "p_kiste_holz",
+        "p_aufplatzen"
       ],
       "maxStufe": 8,
-      "basisKosten": 2,
+      "basisKosten": 10,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "packWiderstandMul",
         "wert": -0.05,
@@ -505,81 +707,49 @@
       "abzeichen": "sword"
     },
     {
-      "id": "p_foil",
-      "name": "Glanzpapier",
-      "beschreibung": "+0,5 Prozentpunkte Foil-Chance.",
+      "id": "p_bonuskarte",
+      "name": "Bonuskarte",
+      "beschreibung": "+10 % Chance je Stufe auf eine zusätzliche Karte pro Pack.",
       "typ": "klein",
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 1296,
+        "x": 1728,
         "y": 672
       },
       "verbindungen": [
         "p_widerstand",
-        "p_aufplatzen",
-        "p_grenz"
+        "p_packimpack",
+        "q_shiny5"
       ],
-      "maxStufe": 6,
-      "basisKosten": 4,
+      "maxStufe": 5,
+      "basisKosten": 18,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
-        "ziel": "foilChance",
-        "wert": 0.005,
+        "ziel": "bonusKarteChance",
+        "wert": 0.1,
         "rechenart": "addieren"
       },
       "symbol": "pack",
-      "abzeichen": "star"
-    },
-    {
-      "id": "p_karten",
-      "name": "Dicke Packs",
-      "beschreibung": "+1 Karte pro Pack.",
-      "typ": "gross",
-      "ast": "packs",
-      "akt": 1,
-      "position": {
-        "x": 1440,
-        "y": 672
-      },
-      "verbindungen": [
-        "p_widerstand",
-        "p_packimpack"
-      ],
-      "maxStufe": 2,
-      "basisKosten": 20,
-      "kostenFaktor": 2.5,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
-      "effekt": {
-        "ziel": "kartenProPack",
-        "wert": 1,
-        "rechenart": "addieren"
-      },
-      "symbol": "pack",
-      "abzeichen": "plus"
+      "abzeichen": "bolt"
     },
     {
       "id": "p_packimpack",
       "name": "Pack im Pack",
-      "beschreibung": "+10 % Chance, dass ein Silberpack zusätzlich ein Holzpack fallen lässt.",
+      "beschreibung": "Silberpacks lassen mit 10 % Chance je Stufe ein Holzpack fallen.",
       "typ": "gross",
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 1440,
+        "x": 1680,
         "y": 576
       },
       "verbindungen": [
-        "p_karten"
+        "p_bonuskarte"
       ],
       "maxStufe": 3,
-      "basisKosten": 15,
-      "kostenFaktor": 1.8,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
+      "basisKosten": 81,
+      "kostenFaktor": 1.45,
       "effekt": {
         "ziel": "packImPack",
         "wert": 0.1,
@@ -589,6 +759,81 @@
       "abzeichen": "plus"
     },
     {
+      "id": "p_kiste_holz",
+      "name": "Holzkisten",
+      "beschreibung": "Im Shop erscheinen Kisten mit 3 Holzpacks (ein Platz, drei Packs).",
+      "typ": "freischalt",
+      "ast": "packs",
+      "akt": 1,
+      "position": {
+        "x": 1920,
+        "y": 672
+      },
+      "verbindungen": [
+        "p_widerstand",
+        "p_einzel",
+        "q_holz25"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 20,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "flag",
+        "flag": "kisteHolz"
+      },
+      "symbol": "pack",
+      "abzeichen": "bolt"
+    },
+    {
+      "id": "p_einzel",
+      "name": "Einzelhelden",
+      "beschreibung": "Im Shop erscheinen einzelne Helden und Tomes zum Festpreis.",
+      "typ": "freischalt",
+      "ast": "packs",
+      "akt": 1,
+      "position": {
+        "x": 1872,
+        "y": 576
+      },
+      "verbindungen": [
+        "p_kiste_holz",
+        "p_kiste_silber"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 120,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "flag",
+        "flag": "einzelkarten"
+      },
+      "symbol": "pack",
+      "abzeichen": "bolt"
+    },
+    {
+      "id": "p_kiste_silber",
+      "name": "Silberkisten",
+      "beschreibung": "Im Shop erscheinen Kisten mit 3 Silberpacks (sobald Silberpacks freigeschaltet sind).",
+      "typ": "freischalt",
+      "ast": "packs",
+      "akt": 1,
+      "position": {
+        "x": 1872,
+        "y": 480
+      },
+      "verbindungen": [
+        "p_einzel"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 500,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "flag",
+        "flag": "kisteSilber"
+      },
+      "symbol": "pack",
+      "abzeichen": "bolt"
+    },
+    {
       "id": "p_aufplatzen",
       "name": "Aufplatzen",
       "beschreibung": "Beim Öffnen eines Packs entsteht eine Schockwelle.",
@@ -596,23 +841,108 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 1248,
-        "y": 576
+        "x": 2064,
+        "y": 672
       },
       "verbindungen": [
-        "p_foil"
+        "p_widerstand",
+        "p_grenz"
       ],
       "maxStufe": 1,
-      "basisKosten": 30,
+      "basisKosten": 110,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 6,
       "effekt": {
         "ziel": "flag",
         "flag": "aufplatzen"
       },
       "symbol": "pack",
       "abzeichen": "bolt"
+    },
+    {
+      "id": "p_grenz",
+      "name": "Riss im Papier",
+      "beschreibung": "+0,1 Prozentpunkte Grenzgänger-Chance pro Karte.",
+      "typ": "klein",
+      "ast": "packs",
+      "akt": 1,
+      "position": {
+        "x": 2064,
+        "y": 576
+      },
+      "verbindungen": [
+        "p_aufplatzen"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 32,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "grenzgaengerChance",
+        "wert": 0.001,
+        "rechenart": "addieren"
+      },
+      "symbol": "pack",
+      "abzeichen": "star"
+    },
+    {
+      "id": "q_holz25",
+      "name": "Holzfäller",
+      "beschreibung": "Öffne 25 Holzpacks.",
+      "typ": "quest",
+      "ast": "packs",
+      "akt": 1,
+      "position": {
+        "x": 1968,
+        "y": 576
+      },
+      "verbindungen": [
+        "p_kiste_holz"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 0,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "quest"
+      },
+      "aufgabe": {
+        "statistik": "packsGeoeffnet",
+        "filter": {
+          "pack": "holzpack"
+        },
+        "anzahl": 25
+      },
+      "belohnung": {
+        "tagesEinkommen": 1
+      },
+      "symbol": "quest"
+    },
+    {
+      "id": "q_shiny5",
+      "name": "Glanzjagd",
+      "beschreibung": "Besiege 5 Shiny-Monster.",
+      "typ": "quest",
+      "ast": "packs",
+      "akt": 1,
+      "position": {
+        "x": 1776,
+        "y": 576
+      },
+      "verbindungen": [
+        "p_bonuskarte"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 0,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "quest"
+      },
+      "aufgabe": {
+        "statistik": "foilMonsterBesiegt",
+        "anzahl": 5
+      },
+      "belohnung": {
+        "mastery": 300
+      },
+      "symbol": "quest"
     },
     {
       "id": "b_taverne",
@@ -622,7 +952,7 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 1728,
+        "x": 2400,
         "y": 768
       },
       "verbindungen": [
@@ -631,10 +961,8 @@
         "b_kaserne"
       ],
       "maxStufe": 1,
-      "basisKosten": 10,
+      "basisKosten": 40,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 3,
       "effekt": {
         "ziel": "gebaeude",
         "gebaeude": "taverne",
@@ -646,23 +974,21 @@
     },
     {
       "id": "b_taverne_aus",
-      "name": "Taverne ausbauen",
-      "beschreibung": "Kürzere Intervalle, später Chance auf Kisten.",
+      "name": "Taverne: schneller Wirt",
+      "beschreibung": "Die Taverne wirft ihre Holzpacks öfter (kürzeres Intervall, später auch Kisten).",
       "typ": "gross",
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 1632,
+        "x": 2256,
         "y": 672
       },
       "verbindungen": [
         "b_taverne"
       ],
       "maxStufe": 3,
-      "basisKosten": 13,
+      "basisKosten": 45,
       "kostenFaktor": 1.8,
-      "waehrung": "mastery",
-      "kristallKosten": 2,
       "effekt": {
         "ziel": "gebaeude",
         "gebaeude": "taverne",
@@ -680,7 +1006,7 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 1776,
+        "x": 2448,
         "y": 672
       },
       "verbindungen": [
@@ -689,10 +1015,8 @@
         "b_sternwarte"
       ],
       "maxStufe": 1,
-      "basisKosten": 30,
+      "basisKosten": 600,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 8,
       "effekt": {
         "ziel": "gebaeude",
         "gebaeude": "kaserne",
@@ -704,23 +1028,21 @@
     },
     {
       "id": "b_kaserne_aus",
-      "name": "Kaserne ausbauen",
-      "beschreibung": "Kürzere Intervalle, später Chance auf Kisten.",
+      "name": "Kaserne: Drill",
+      "beschreibung": "Die Kaserne wirft ihre Silberpacks öfter.",
       "typ": "gross",
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 1728,
+        "x": 2352,
         "y": 576
       },
       "verbindungen": [
         "b_kaserne"
       ],
       "maxStufe": 3,
-      "basisKosten": 23,
+      "basisKosten": 400,
       "kostenFaktor": 1.8,
-      "waehrung": "mastery",
-      "kristallKosten": 5,
       "effekt": {
         "ziel": "gebaeude",
         "gebaeude": "kaserne",
@@ -738,18 +1060,17 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 1824,
+        "x": 2496,
         "y": 576
       },
       "verbindungen": [
         "b_kaserne",
-        "b_sternwarte_aus"
+        "b_sternwarte_aus",
+        "r_balliste"
       ],
       "maxStufe": 1,
-      "basisKosten": 60,
+      "basisKosten": 2500,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 15,
       "effekt": {
         "ziel": "gebaeude",
         "gebaeude": "sternwarte",
@@ -761,23 +1082,21 @@
     },
     {
       "id": "b_sternwarte_aus",
-      "name": "Sternwarte ausbauen",
-      "beschreibung": "Kürzere Intervalle, später Chance auf Kisten.",
+      "name": "Sternwarte: Fernrohr",
+      "beschreibung": "Die Sternwarte wirft ihre Sternenpacks öfter.",
       "typ": "gross",
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 1824,
+        "x": 2448,
         "y": 480
       },
       "verbindungen": [
         "b_sternwarte"
       ],
       "maxStufe": 2,
-      "basisKosten": 38,
+      "basisKosten": 1500,
       "kostenFaktor": 1.8,
-      "waehrung": "mastery",
-      "kristallKosten": 8,
       "effekt": {
         "ziel": "gebaeude",
         "gebaeude": "sternwarte",
@@ -788,26 +1107,49 @@
       "abzeichen": "clock"
     },
     {
+      "id": "r_balliste",
+      "name": "Selbstschuss-Balliste",
+      "beschreibung": "Relikt „Selbstschuss-Balliste“: eine kleine Balliste neben dem Turm schießt auf Gegner. Gibt es nur hier.",
+      "typ": "relikt",
+      "ast": "gebaeude",
+      "akt": 2,
+      "position": {
+        "x": 2544,
+        "y": 480
+      },
+      "verbindungen": [
+        "b_sternwarte"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 2800,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "relikt",
+        "relikt": "balliste"
+      },
+      "symbol": "bow",
+      "abzeichen": "star"
+    },
+    {
       "id": "t_leben",
       "name": "Dicke Mauern",
-      "beschreibung": "+8 % Turm-Leben.",
+      "beschreibung": "+8 % Turmleben je Stufe.",
       "typ": "klein",
       "ast": "turm",
       "akt": 1,
       "position": {
-        "x": 1392,
+        "x": 1584,
         "y": 960
       },
       "verbindungen": [
         "start",
-        "t_regen",
-        "t_schuetze"
+        "t_dornen",
+        "t_schuetze",
+        "q_ueberleben"
       ],
       "maxStufe": 10,
-      "basisKosten": 2,
+      "basisKosten": 10,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "turmLebenMul",
         "wert": 0.08,
@@ -817,6 +1159,32 @@
       "abzeichen": "heart"
     },
     {
+      "id": "t_dornen",
+      "name": "Dornenring",
+      "beschreibung": "Angreifer erleiden 2 Rückschaden je Stufe.",
+      "typ": "klein",
+      "ast": "turm",
+      "akt": 1,
+      "position": {
+        "x": 1440,
+        "y": 1056
+      },
+      "verbindungen": [
+        "t_leben",
+        "t_regen"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 18,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "turmDornen",
+        "wert": 2,
+        "rechenart": "addieren"
+      },
+      "symbol": "tower",
+      "abzeichen": "sword"
+    },
+    {
       "id": "t_regen",
       "name": "Mörtel",
       "beschreibung": "Turm regeneriert 0,5 % Leben pro Sekunde.",
@@ -824,18 +1192,15 @@
       "ast": "turm",
       "akt": 1,
       "position": {
-        "x": 1344,
-        "y": 1056
+        "x": 1440,
+        "y": 1152
       },
       "verbindungen": [
-        "t_leben",
         "t_dornen"
       ],
       "maxStufe": 5,
-      "basisKosten": 3,
+      "basisKosten": 32,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "turmRegen",
         "wert": 0.005,
@@ -847,12 +1212,12 @@
     {
       "id": "t_schuetze",
       "name": "Turmschütze",
-      "beschreibung": "Der Turm schießt selbst. Jede Stufe: mehr Schaden und Tempo.",
+      "beschreibung": "Der Turm schießt selbst auf nahe Gegner (je Stufe schneller).",
       "typ": "gross",
       "ast": "turm",
       "akt": 1,
       "position": {
-        "x": 1440,
+        "x": 1584,
         "y": 1056
       },
       "verbindungen": [
@@ -860,10 +1225,8 @@
         "t_blitz"
       ],
       "maxStufe": 3,
-      "basisKosten": 8,
+      "basisKosten": 45,
       "kostenFaktor": 1.8,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "turmSchuetze",
         "wert": 1,
@@ -873,52 +1236,24 @@
       "abzeichen": "sword"
     },
     {
-      "id": "t_dornen",
-      "name": "Dornen",
-      "beschreibung": "Monster, die den Turm angreifen, erleiden 2 Schaden pro Stufe.",
-      "typ": "klein",
-      "ast": "turm",
-      "akt": 1,
-      "position": {
-        "x": 1344,
-        "y": 1152
-      },
-      "verbindungen": [
-        "t_regen"
-      ],
-      "maxStufe": 5,
-      "basisKosten": 3,
-      "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
-      "effekt": {
-        "ziel": "turmDornen",
-        "wert": 2,
-        "rechenart": "addieren"
-      },
-      "symbol": "tower",
-      "abzeichen": "sword"
-    },
-    {
       "id": "t_blitz",
-      "name": "Blitzableiter",
-      "beschreibung": "Alle 6 Sekunden schlägt ein Blitz in einen Gegner nahe dem Turm ein.",
+      "name": "Sturmspitze",
+      "beschreibung": "Alle 5 s schlägt ein Blitz in einen zufälligen Gegner in der Nähe des Turms ein.",
       "typ": "schluessel",
       "ast": "turm",
       "akt": 1,
       "position": {
-        "x": 1440,
+        "x": 1584,
         "y": 1152
       },
       "verbindungen": [
         "t_schuetze",
+        "t_bollwerk",
         "a2_turm"
       ],
       "maxStufe": 1,
-      "basisKosten": 30,
+      "basisKosten": 190,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 6,
       "effekt": {
         "ziel": "flag",
         "flag": "blitzableiter"
@@ -927,88 +1262,110 @@
       "abzeichen": "bolt"
     },
     {
-      "id": "to_wirkung",
-      "name": "Gebundene Macht",
-      "beschreibung": "+10 % Wirkung aller Tomes.",
-      "typ": "klein",
-      "ast": "tomes",
+      "id": "t_bollwerk",
+      "name": "Bollwerk",
+      "beschreibung": "Zu Kampfbeginn schützt ein Schild mit 50 % des Turmlebens. Zerbricht er, betäubt eine Schockwelle alle Gegner auf dem Bildschirm.",
+      "typ": "schluessel",
+      "ast": "turm",
       "akt": 1,
       "position": {
-        "x": 1680,
-        "y": 960
+        "x": 1536,
+        "y": 1248
       },
       "verbindungen": [
-        "start",
-        "to_doppelt",
-        "to_dauer"
+        "t_blitz"
       ],
-      "maxStufe": 8,
-      "basisKosten": 3,
+      "maxStufe": 1,
+      "basisKosten": 25000,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
-        "ziel": "tomeWirkungMul",
-        "wert": 0.1,
-        "rechenart": "addieren"
+        "ziel": "flag",
+        "flag": "bollwerk"
       },
-      "symbol": "book",
+      "symbol": "tower",
       "abzeichen": "bolt"
     },
     {
-      "id": "to_doppelt",
-      "name": "Echo der Seiten",
-      "beschreibung": "+5 % Chance, dass ein Tome doppelt ausgelöst wird.",
+      "id": "a2_turm",
+      "name": "Bastion",
+      "beschreibung": "+20 % Turm-Leben.",
       "typ": "klein",
-      "ast": "tomes",
-      "akt": 1,
+      "ast": "turm",
+      "akt": 2,
       "position": {
         "x": 1632,
+        "y": 1248
+      },
+      "verbindungen": [
+        "t_blitz",
+        "r_knochenecho"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 700,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "turmLebenMul",
+        "wert": 0.2,
+        "rechenart": "addieren"
+      },
+      "symbol": "bigheart",
+      "abzeichen": "heart"
+    },
+    {
+      "id": "q_ueberleben",
+      "name": "Zähes Mauerwerk",
+      "beschreibung": "Überlebe 2 Minuten in Kapitel 2.",
+      "typ": "quest",
+      "ast": "turm",
+      "akt": 1,
+      "position": {
+        "x": 1728,
         "y": 1056
       },
       "verbindungen": [
-        "to_wirkung",
-        "to_doppelseite"
-      ],
-      "maxStufe": 5,
-      "basisKosten": 4,
-      "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
-      "effekt": {
-        "ziel": "tomeDoppeltChance",
-        "wert": 0.05,
-        "rechenart": "addieren"
-      },
-      "symbol": "book",
-      "abzeichen": "plus"
-    },
-    {
-      "id": "to_doppelseite",
-      "name": "Doppelseite",
-      "beschreibung": "Tomes erscheinen mit 15 % Chance zweimal.",
-      "typ": "gross",
-      "ast": "tomes",
-      "akt": 1,
-      "position": {
-        "x": 1632,
-        "y": 1152
-      },
-      "verbindungen": [
-        "to_doppelt"
+        "t_leben"
       ],
       "maxStufe": 1,
-      "basisKosten": 20,
+      "basisKosten": 0,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
-        "ziel": "tomeZweimalChance",
-        "wert": 0.15,
-        "rechenart": "addieren"
+        "ziel": "quest"
       },
-      "symbol": "book",
-      "abzeichen": "plus"
+      "aufgabe": {
+        "statistik": "ueberleben",
+        "filter": {
+          "kapitel": 2
+        },
+        "anzahl": 120
+      },
+      "belohnung": {
+        "mastery": 500
+      },
+      "symbol": "quest"
+    },
+    {
+      "id": "r_knochenecho",
+      "name": "Knochenecho",
+      "beschreibung": "Relikt „Knochenecho“: gefallene Helden kehren mit Chance als Skelett zurück. Gibt es nur hier.",
+      "typ": "relikt",
+      "ast": "turm",
+      "akt": 2,
+      "position": {
+        "x": 1632,
+        "y": 1344
+      },
+      "verbindungen": [
+        "a2_turm"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 5000,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "relikt",
+        "relikt": "knochenecho"
+      },
+      "symbol": "skull",
+      "abzeichen": "star"
     },
     {
       "id": "e_kampf",
@@ -1018,7 +1375,7 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 720,
+        "x": 768,
         "y": 960
       },
       "verbindungen": [
@@ -1027,10 +1384,8 @@
         "e_tempo"
       ],
       "maxStufe": 10,
-      "basisKosten": 2,
+      "basisKosten": 10,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "heldenSchadenMul",
         "wert": 0.04,
@@ -1059,10 +1414,8 @@
         "u_windlaeufer_1"
       ],
       "maxStufe": 10,
-      "basisKosten": 2,
+      "basisKosten": 18,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "heldenLebenMul",
         "wert": 0.05,
@@ -1079,11 +1432,12 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 960,
+        "x": 1008,
         "y": 1056
       },
       "verbindungen": [
         "e_kampf",
+        "q_windlaeufer",
         "u_glutweberin_1",
         "u_bannertraeger_1",
         "u_moorhexer_1",
@@ -1091,10 +1445,8 @@
         "u_glockenmoench_1"
       ],
       "maxStufe": 8,
-      "basisKosten": 3,
+      "basisKosten": 18,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "heldenTempoMul",
         "wert": 0.03,
@@ -1104,9 +1456,41 @@
       "abzeichen": "clock"
     },
     {
+      "id": "q_windlaeufer",
+      "name": "Wind im Rücken",
+      "beschreibung": "Finde 4 Windläufer.",
+      "typ": "quest",
+      "ast": "einheiten",
+      "akt": 1,
+      "position": {
+        "x": 768,
+        "y": 1152
+      },
+      "verbindungen": [
+        "e_tempo"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 0,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "quest"
+      },
+      "aufgabe": {
+        "statistik": "kartenGefunden",
+        "filter": {
+          "karte": "windlaeufer"
+        },
+        "anzahl": 4
+      },
+      "belohnung": {
+        "tagesEinkommen": 1
+      },
+      "symbol": "quest"
+    },
+    {
       "id": "u_stalljunge_1",
-      "name": "Stalljunge: Frühreif",
-      "beschreibung": "Entwickelt sich schon nach 1 Kill.",
+      "name": "Stalljunge: Zähigkeit",
+      "beschreibung": "+15 % Leben.",
       "typ": "klein",
       "ast": "einheiten",
       "akt": 1,
@@ -1118,48 +1502,9 @@
         "e_leben",
         "u_stalljunge_2"
       ],
-      "maxStufe": 1,
-      "basisKosten": 3,
-      "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
-      "effekt": {
-        "ziel": "einheit",
-        "karte": "stalljunge",
-        "patches": [
-          {
-            "pfad": "entwicklung.bedingung.anzahl",
-            "op": "set",
-            "wert": 1
-          }
-        ]
-      },
-      "voraussetzung": {
-        "karte": "stalljunge"
-      },
-      "symbol": "card:stalljunge",
-      "abzeichen": "clock"
-    },
-    {
-      "id": "u_stalljunge_2",
-      "name": "Stalljunge: Abgehärtet",
-      "beschreibung": "+15 % Leben.",
-      "typ": "klein",
-      "ast": "einheiten",
-      "akt": 1,
-      "position": {
-        "x": 288,
-        "y": 1248
-      },
-      "verbindungen": [
-        "u_stalljunge_1",
-        "u_stalljunge_3"
-      ],
       "maxStufe": 5,
-      "basisKosten": 5,
+      "basisKosten": 32,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "stalljunge",
@@ -1178,24 +1523,23 @@
       "abzeichen": "heart"
     },
     {
-      "id": "u_stalljunge_3",
-      "name": "Stalljunge: Scharfe Klinge",
+      "id": "u_stalljunge_2",
+      "name": "Stalljunge: Klingenhieb",
       "beschreibung": "+15 % Schaden.",
       "typ": "klein",
       "ast": "einheiten",
       "akt": 1,
       "position": {
         "x": 288,
-        "y": 1344
+        "y": 1248
       },
       "verbindungen": [
-        "u_stalljunge_2"
+        "u_stalljunge_1",
+        "u_stalljunge_3"
       ],
       "maxStufe": 5,
-      "basisKosten": 7,
+      "basisKosten": 58,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "stalljunge",
@@ -1214,6 +1558,78 @@
       "abzeichen": "sword"
     },
     {
+      "id": "u_stalljunge_3",
+      "name": "Stalljunge: Frühreif",
+      "beschreibung": "Entwickelt sich schon nach 1 Kill zum Waffenknecht.",
+      "typ": "gross",
+      "ast": "einheiten",
+      "akt": 1,
+      "position": {
+        "x": 288,
+        "y": 1344
+      },
+      "verbindungen": [
+        "u_stalljunge_2",
+        "u_stalljunge_4"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 260,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "einheit",
+        "karte": "stalljunge",
+        "patches": [
+          {
+            "pfad": "entwicklung.bedingung.anzahl",
+            "op": "set",
+            "wert": 1
+          }
+        ]
+      },
+      "voraussetzung": {
+        "karte": "stalljunge"
+      },
+      "symbol": "card:stalljunge",
+      "abzeichen": "clock"
+    },
+    {
+      "id": "u_stalljunge_4",
+      "name": "Stalljunge: Kampfrausch",
+      "beschreibung": "Der Waffenknecht heilt sich bei jedem Kill um 10 % seines Lebens.",
+      "typ": "gross",
+      "ast": "einheiten",
+      "akt": 1,
+      "position": {
+        "x": 288,
+        "y": 1440
+      },
+      "verbindungen": [
+        "u_stalljunge_3"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 470,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "einheit",
+        "karte": "stalljunge",
+        "patches": [
+          {
+            "pfad": "faehigkeiten.killHeilung",
+            "op": "set",
+            "wert": {
+              "anteil": 0.1,
+              "nurEntwickelt": true
+            }
+          }
+        ]
+      },
+      "voraussetzung": {
+        "karte": "stalljunge"
+      },
+      "symbol": "card:stalljunge",
+      "abzeichen": "bolt"
+    },
+    {
       "id": "u_kettenschwinger_1",
       "name": "Kettenschwinger: Längere Kette",
       "beschreibung": "+10 % Schlagradius.",
@@ -1229,10 +1645,8 @@
         "u_kettenschwinger_2"
       ],
       "maxStufe": 5,
-      "basisKosten": 4,
+      "basisKosten": 32,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "kettenschwinger",
@@ -1266,10 +1680,8 @@
         "u_kettenschwinger_3"
       ],
       "maxStufe": 1,
-      "basisKosten": 6,
+      "basisKosten": 58,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "kettenschwinger",
@@ -1299,13 +1711,12 @@
         "y": 1344
       },
       "verbindungen": [
-        "u_kettenschwinger_2"
+        "u_kettenschwinger_2",
+        "u_kettenschwinger_4"
       ],
       "maxStufe": 5,
-      "basisKosten": 8,
+      "basisKosten": 100,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "kettenschwinger",
@@ -1324,6 +1735,40 @@
       "abzeichen": "sword"
     },
     {
+      "id": "u_kettenschwinger_4",
+      "name": "Kettenschwinger: Zäh",
+      "beschreibung": "+12 % Leben.",
+      "typ": "klein",
+      "ast": "einheiten",
+      "akt": 1,
+      "position": {
+        "x": 384,
+        "y": 1440
+      },
+      "verbindungen": [
+        "u_kettenschwinger_3"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 190,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "einheit",
+        "karte": "kettenschwinger",
+        "patches": [
+          {
+            "pfad": "werte.leben",
+            "op": "mul",
+            "wert": 1.12
+          }
+        ]
+      },
+      "voraussetzung": {
+        "karte": "kettenschwinger"
+      },
+      "symbol": "card:kettenschwinger",
+      "abzeichen": "heart"
+    },
+    {
       "id": "u_schleuderin_1",
       "name": "Schleuderin: Abpraller",
       "beschreibung": "+1 Abpraller.",
@@ -1339,10 +1784,8 @@
         "u_schleuderin_2"
       ],
       "maxStufe": 1,
-      "basisKosten": 4,
+      "basisKosten": 32,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "schleuderin",
@@ -1376,10 +1819,8 @@
         "u_schleuderin_3"
       ],
       "maxStufe": 5,
-      "basisKosten": 6,
+      "basisKosten": 58,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "schleuderin",
@@ -1409,13 +1850,12 @@
         "y": 1344
       },
       "verbindungen": [
-        "u_schleuderin_2"
+        "u_schleuderin_2",
+        "u_schleuderin_4"
       ],
       "maxStufe": 3,
-      "basisKosten": 8,
+      "basisKosten": 100,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "schleuderin",
@@ -1434,9 +1874,43 @@
       "abzeichen": "arrow"
     },
     {
+      "id": "u_schleuderin_4",
+      "name": "Schleuderin: Zäh",
+      "beschreibung": "+12 % Leben.",
+      "typ": "klein",
+      "ast": "einheiten",
+      "akt": 1,
+      "position": {
+        "x": 480,
+        "y": 1440
+      },
+      "verbindungen": [
+        "u_schleuderin_3"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 190,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "einheit",
+        "karte": "schleuderin",
+        "patches": [
+          {
+            "pfad": "werte.leben",
+            "op": "mul",
+            "wert": 1.12
+          }
+        ]
+      },
+      "voraussetzung": {
+        "karte": "schleuderin"
+      },
+      "symbol": "card:schleuderin",
+      "abzeichen": "heart"
+    },
+    {
       "id": "u_torwaechterin_1",
-      "name": "Torwächterin: Schildwall",
-      "beschreibung": "+10 Prozentpunkte Block-Chance.",
+      "name": "Torwächterin: Schildarm",
+      "beschreibung": "+5 % Blockchance je Stufe.",
       "typ": "klein",
       "ast": "einheiten",
       "akt": 1,
@@ -1448,11 +1922,9 @@
         "e_leben",
         "u_torwaechterin_2"
       ],
-      "maxStufe": 3,
-      "basisKosten": 4,
+      "maxStufe": 4,
+      "basisKosten": 32,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "torwaechterin",
@@ -1460,7 +1932,7 @@
           {
             "pfad": "faehigkeiten.blocken.chance",
             "op": "add",
-            "wert": 0.1
+            "wert": 0.05
           }
         ]
       },
@@ -1486,10 +1958,8 @@
         "u_torwaechterin_3"
       ],
       "maxStufe": 5,
-      "basisKosten": 6,
+      "basisKosten": 58,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "torwaechterin",
@@ -1509,9 +1979,9 @@
     },
     {
       "id": "u_torwaechterin_3",
-      "name": "Torwächterin: Blitzblock",
-      "beschreibung": "Blocks lösen Blitze aus, die den Angreifer treffen.",
-      "typ": "klein",
+      "name": "Torwächterin: Schildstoß",
+      "beschreibung": "Ein Block betäubt alle Gegner im Umkreis kurz.",
+      "typ": "gross",
       "ast": "einheiten",
       "akt": 1,
       "position": {
@@ -1519,13 +1989,49 @@
         "y": 1344
       },
       "verbindungen": [
-        "u_torwaechterin_2"
+        "u_torwaechterin_2",
+        "u_torwaechterin_4"
       ],
       "maxStufe": 1,
-      "basisKosten": 8,
+      "basisKosten": 260,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
+      "effekt": {
+        "ziel": "einheit",
+        "karte": "torwaechterin",
+        "patches": [
+          {
+            "pfad": "faehigkeiten.blocken.umkreis",
+            "op": "set",
+            "wert": {
+              "radius": 80,
+              "dauer": 1.2
+            }
+          }
+        ]
+      },
+      "voraussetzung": {
+        "karte": "torwaechterin"
+      },
+      "symbol": "card:torwaechterin",
+      "abzeichen": "bolt"
+    },
+    {
+      "id": "u_torwaechterin_4",
+      "name": "Torwächterin: Blitzblock",
+      "beschreibung": "Ein Block löst mit 35 % Chance einen Blitz auf den Angreifer aus.",
+      "typ": "gross",
+      "ast": "einheiten",
+      "akt": 1,
+      "position": {
+        "x": 576,
+        "y": 1440
+      },
+      "verbindungen": [
+        "u_torwaechterin_3"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 470,
+      "kostenFaktor": 1.45,
       "effekt": {
         "ziel": "einheit",
         "karte": "torwaechterin",
@@ -1534,6 +2040,11 @@
             "pfad": "faehigkeiten.blocken.blitz",
             "op": "set",
             "wert": 25
+          },
+          {
+            "pfad": "faehigkeiten.blocken.blitzChance",
+            "op": "set",
+            "wert": 0.35
           }
         ]
       },
@@ -1545,8 +2056,8 @@
     },
     {
       "id": "u_windlaeufer_1",
-      "name": "Windläufer: Rückenwind",
-      "beschreibung": "+15 % Sprintlänge.",
+      "name": "Windläufer: Klingenwind",
+      "beschreibung": "+15 % Schaden.",
       "typ": "klein",
       "ast": "einheiten",
       "akt": 1,
@@ -1558,84 +2069,9 @@
         "e_leben",
         "u_windlaeufer_2"
       ],
-      "maxStufe": 3,
-      "basisKosten": 6,
-      "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
-      "effekt": {
-        "ziel": "einheit",
-        "karte": "windlaeufer",
-        "patches": [
-          {
-            "pfad": "faehigkeiten.sprint.laenge",
-            "op": "mul",
-            "wert": 1.15
-          }
-        ]
-      },
-      "voraussetzung": {
-        "karte": "windlaeufer"
-      },
-      "symbol": "card:windlaeufer",
-      "abzeichen": "arrow"
-    },
-    {
-      "id": "u_windlaeufer_2",
-      "name": "Windläufer: Sturmstoß",
-      "beschreibung": "+25 % Rückstoß beim Sprint.",
-      "typ": "klein",
-      "ast": "einheiten",
-      "akt": 1,
-      "position": {
-        "x": 672,
-        "y": 1248
-      },
-      "verbindungen": [
-        "u_windlaeufer_1",
-        "u_windlaeufer_3"
-      ],
-      "maxStufe": 3,
-      "basisKosten": 8,
-      "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
-      "effekt": {
-        "ziel": "einheit",
-        "karte": "windlaeufer",
-        "patches": [
-          {
-            "pfad": "faehigkeiten.sprint.rueckstoss",
-            "op": "mul",
-            "wert": 1.25
-          }
-        ]
-      },
-      "voraussetzung": {
-        "karte": "windlaeufer"
-      },
-      "symbol": "card:windlaeufer",
-      "abzeichen": "bolt"
-    },
-    {
-      "id": "u_windlaeufer_3",
-      "name": "Windläufer: Klingenwind",
-      "beschreibung": "+15 % Schaden.",
-      "typ": "klein",
-      "ast": "einheiten",
-      "akt": 1,
-      "position": {
-        "x": 672,
-        "y": 1344
-      },
-      "verbindungen": [
-        "u_windlaeufer_2"
-      ],
       "maxStufe": 5,
-      "basisKosten": 10,
+      "basisKosten": 32,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "windlaeufer",
@@ -1654,6 +2090,113 @@
       "abzeichen": "sword"
     },
     {
+      "id": "u_windlaeufer_2",
+      "name": "Windläufer: Rückenwind",
+      "beschreibung": "+10 % Angriffstempo.",
+      "typ": "klein",
+      "ast": "einheiten",
+      "akt": 1,
+      "position": {
+        "x": 672,
+        "y": 1248
+      },
+      "verbindungen": [
+        "u_windlaeufer_1",
+        "u_windlaeufer_3"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 58,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "einheit",
+        "karte": "windlaeufer",
+        "patches": [
+          {
+            "pfad": "werte.angriffsTempo",
+            "op": "mul",
+            "wert": 1.1
+          }
+        ]
+      },
+      "voraussetzung": {
+        "karte": "windlaeufer"
+      },
+      "symbol": "card:windlaeufer",
+      "abzeichen": "clock"
+    },
+    {
+      "id": "u_windlaeufer_3",
+      "name": "Windläufer: Doppelsprint",
+      "beschreibung": "+1 Sprint pro Angriff.",
+      "typ": "gross",
+      "ast": "einheiten",
+      "akt": 1,
+      "position": {
+        "x": 672,
+        "y": 1344
+      },
+      "verbindungen": [
+        "u_windlaeufer_2",
+        "u_windlaeufer_4"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 260,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "einheit",
+        "karte": "windlaeufer",
+        "patches": [
+          {
+            "pfad": "faehigkeiten.sprint.anzahl",
+            "op": "add",
+            "wert": 1
+          }
+        ]
+      },
+      "voraussetzung": {
+        "karte": "windlaeufer"
+      },
+      "symbol": "card:windlaeufer",
+      "abzeichen": "plus"
+    },
+    {
+      "id": "u_windlaeufer_4",
+      "name": "Windläufer: Aufprall",
+      "beschreibung": "Geschleuderte Gegner verletzen beim Aufprall andere Gegner.",
+      "typ": "gross",
+      "ast": "einheiten",
+      "akt": 1,
+      "position": {
+        "x": 672,
+        "y": 1440
+      },
+      "verbindungen": [
+        "u_windlaeufer_3"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 470,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "einheit",
+        "karte": "windlaeufer",
+        "patches": [
+          {
+            "pfad": "faehigkeiten.sprint.aufprall",
+            "op": "set",
+            "wert": {
+              "radius": 50,
+              "schadenMul": 0.5
+            }
+          }
+        ]
+      },
+      "voraussetzung": {
+        "karte": "windlaeufer"
+      },
+      "symbol": "card:windlaeufer",
+      "abzeichen": "bolt"
+    },
+    {
       "id": "u_glutweberin_1",
       "name": "Glutweberin: Große Glut",
       "beschreibung": "+15 % Explosionsradius.",
@@ -1661,7 +2204,7 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 768,
+        "x": 864,
         "y": 1152
       },
       "verbindungen": [
@@ -1669,10 +2212,8 @@
         "u_glutweberin_2"
       ],
       "maxStufe": 3,
-      "basisKosten": 6,
+      "basisKosten": 32,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "glutweberin",
@@ -1698,7 +2239,7 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 768,
+        "x": 864,
         "y": 1248
       },
       "verbindungen": [
@@ -1706,10 +2247,8 @@
         "u_glutweberin_3"
       ],
       "maxStufe": 5,
-      "basisKosten": 8,
+      "basisKosten": 58,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "glutweberin",
@@ -1729,31 +2268,34 @@
     },
     {
       "id": "u_glutweberin_3",
-      "name": "Glutweberin: Funkenflug",
-      "beschreibung": "+10 % Angriffstempo.",
-      "typ": "klein",
+      "name": "Glutweberin: Brandspur",
+      "beschreibung": "Feuerkugeln hinterlassen Brandflächen.",
+      "typ": "gross",
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 768,
+        "x": 864,
         "y": 1344
       },
       "verbindungen": [
-        "u_glutweberin_2"
+        "u_glutweberin_2",
+        "u_glutweberin_4"
       ],
-      "maxStufe": 5,
-      "basisKosten": 10,
+      "maxStufe": 1,
+      "basisKosten": 260,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "glutweberin",
         "patches": [
           {
-            "pfad": "werte.angriffsTempo",
-            "op": "mul",
-            "wert": 1.1
+            "pfad": "angriff.flaeche",
+            "op": "set",
+            "wert": {
+              "radius": 55,
+              "dauer": 3,
+              "schadenProSekunde": 6
+            }
           }
         ]
       },
@@ -1761,7 +2303,41 @@
         "karte": "glutweberin"
       },
       "symbol": "card:glutweberin",
-      "abzeichen": "clock"
+      "abzeichen": "bolt"
+    },
+    {
+      "id": "u_glutweberin_4",
+      "name": "Glutweberin: Zwillingsglut",
+      "beschreibung": "Mit 30 % Chance fliegt eine zweite Feuerkugel.",
+      "typ": "gross",
+      "ast": "einheiten",
+      "akt": 1,
+      "position": {
+        "x": 864,
+        "y": 1440
+      },
+      "verbindungen": [
+        "u_glutweberin_3"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 470,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "einheit",
+        "karte": "glutweberin",
+        "patches": [
+          {
+            "pfad": "angriff.zweitschussChance",
+            "op": "set",
+            "wert": 0.3
+          }
+        ]
+      },
+      "voraussetzung": {
+        "karte": "glutweberin"
+      },
+      "symbol": "card:glutweberin",
+      "abzeichen": "bolt"
     },
     {
       "id": "u_bannertraeger_1",
@@ -1771,7 +2347,7 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 864,
+        "x": 960,
         "y": 1152
       },
       "verbindungen": [
@@ -1779,10 +2355,8 @@
         "u_bannertraeger_2"
       ],
       "maxStufe": 3,
-      "basisKosten": 6,
+      "basisKosten": 32,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "bannertraeger",
@@ -1808,7 +2382,7 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 864,
+        "x": 960,
         "y": 1248
       },
       "verbindungen": [
@@ -1816,10 +2390,8 @@
         "u_bannertraeger_3"
       ],
       "maxStufe": 3,
-      "basisKosten": 8,
+      "basisKosten": 58,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "bannertraeger",
@@ -1845,17 +2417,16 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 864,
+        "x": 960,
         "y": 1344
       },
       "verbindungen": [
-        "u_bannertraeger_2"
+        "u_bannertraeger_2",
+        "u_bannertraeger_4"
       ],
       "maxStufe": 5,
-      "basisKosten": 10,
+      "basisKosten": 100,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "bannertraeger",
@@ -1874,6 +2445,40 @@
       "abzeichen": "heart"
     },
     {
+      "id": "u_bannertraeger_4",
+      "name": "Bannerträger: Veteran",
+      "beschreibung": "+8 % Schaden.",
+      "typ": "klein",
+      "ast": "einheiten",
+      "akt": 1,
+      "position": {
+        "x": 960,
+        "y": 1440
+      },
+      "verbindungen": [
+        "u_bannertraeger_3"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 190,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "einheit",
+        "karte": "bannertraeger",
+        "patches": [
+          {
+            "pfad": "werte.schaden",
+            "op": "mul",
+            "wert": 1.08
+          }
+        ]
+      },
+      "voraussetzung": {
+        "karte": "bannertraeger"
+      },
+      "symbol": "card:bannertraeger",
+      "abzeichen": "sword"
+    },
+    {
       "id": "u_moorhexer_1",
       "name": "Moorhexer: Faulige Explosion",
       "beschreibung": "+25 % Explosionsschaden.",
@@ -1881,7 +2486,7 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 960,
+        "x": 1056,
         "y": 1152
       },
       "verbindungen": [
@@ -1889,10 +2494,8 @@
         "u_moorhexer_2"
       ],
       "maxStufe": 5,
-      "basisKosten": 8,
+      "basisKosten": 32,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "moorhexer",
@@ -1918,7 +2521,7 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 960,
+        "x": 1056,
         "y": 1248
       },
       "verbindungen": [
@@ -1926,10 +2529,8 @@
         "u_moorhexer_3"
       ],
       "maxStufe": 3,
-      "basisKosten": 10,
+      "basisKosten": 58,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "moorhexer",
@@ -1955,17 +2556,16 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 960,
+        "x": 1056,
         "y": 1344
       },
       "verbindungen": [
-        "u_moorhexer_2"
+        "u_moorhexer_2",
+        "u_moorhexer_4"
       ],
       "maxStufe": 5,
-      "basisKosten": 12,
+      "basisKosten": 100,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "moorhexer",
@@ -1984,6 +2584,40 @@
       "abzeichen": "clock"
     },
     {
+      "id": "u_moorhexer_4",
+      "name": "Moorhexer: Zäh",
+      "beschreibung": "+12 % Leben.",
+      "typ": "klein",
+      "ast": "einheiten",
+      "akt": 1,
+      "position": {
+        "x": 1056,
+        "y": 1440
+      },
+      "verbindungen": [
+        "u_moorhexer_3"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 190,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "einheit",
+        "karte": "moorhexer",
+        "patches": [
+          {
+            "pfad": "werte.leben",
+            "op": "mul",
+            "wert": 1.12
+          }
+        ]
+      },
+      "voraussetzung": {
+        "karte": "moorhexer"
+      },
+      "symbol": "card:moorhexer",
+      "abzeichen": "heart"
+    },
+    {
       "id": "u_wolkenhirtin_1",
       "name": "Wolkenhirtin: Sturmherde",
       "beschreibung": "Wirbelstürme 15 % häufiger.",
@@ -1991,7 +2625,7 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1056,
+        "x": 1152,
         "y": 1152
       },
       "verbindungen": [
@@ -1999,10 +2633,8 @@
         "u_wolkenhirtin_2"
       ],
       "maxStufe": 3,
-      "basisKosten": 8,
+      "basisKosten": 32,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "wolkenhirtin",
@@ -2028,7 +2660,7 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1056,
+        "x": 1152,
         "y": 1248
       },
       "verbindungen": [
@@ -2036,10 +2668,8 @@
         "u_wolkenhirtin_3"
       ],
       "maxStufe": 3,
-      "basisKosten": 10,
+      "basisKosten": 58,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "wolkenhirtin",
@@ -2065,18 +2695,16 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1056,
+        "x": 1152,
         "y": 1344
       },
       "verbindungen": [
         "u_wolkenhirtin_2",
-        "a2_helden"
+        "u_wolkenhirtin_4"
       ],
       "maxStufe": 3,
-      "basisKosten": 12,
+      "basisKosten": 100,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "wolkenhirtin",
@@ -2095,6 +2723,41 @@
       "abzeichen": "clock"
     },
     {
+      "id": "u_wolkenhirtin_4",
+      "name": "Wolkenhirtin: Zäh",
+      "beschreibung": "+12 % Leben.",
+      "typ": "klein",
+      "ast": "einheiten",
+      "akt": 1,
+      "position": {
+        "x": 1152,
+        "y": 1440
+      },
+      "verbindungen": [
+        "u_wolkenhirtin_3",
+        "a2_helden"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 190,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "einheit",
+        "karte": "wolkenhirtin",
+        "patches": [
+          {
+            "pfad": "werte.leben",
+            "op": "mul",
+            "wert": 1.12
+          }
+        ]
+      },
+      "voraussetzung": {
+        "karte": "wolkenhirtin"
+      },
+      "symbol": "card:wolkenhirtin",
+      "abzeichen": "heart"
+    },
+    {
       "id": "u_glockenmoench_1",
       "name": "Glockenmönch: Schneller Schlag",
       "beschreibung": "Glocke 10 % häufiger.",
@@ -2102,7 +2765,7 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1152,
+        "x": 1248,
         "y": 1152
       },
       "verbindungen": [
@@ -2110,10 +2773,8 @@
         "u_glockenmoench_2"
       ],
       "maxStufe": 3,
-      "basisKosten": 12,
+      "basisKosten": 32,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "glockenmoench",
@@ -2139,7 +2800,7 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1152,
+        "x": 1248,
         "y": 1248
       },
       "verbindungen": [
@@ -2147,10 +2808,8 @@
         "u_glockenmoench_3"
       ],
       "maxStufe": 3,
-      "basisKosten": 14,
+      "basisKosten": 58,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "glockenmoench",
@@ -2176,18 +2835,16 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1152,
+        "x": 1248,
         "y": 1344
       },
       "verbindungen": [
         "u_glockenmoench_2",
-        "a2_helden"
+        "u_glockenmoench_4"
       ],
       "maxStufe": 3,
-      "basisKosten": 16,
+      "basisKosten": 100,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "einheit",
         "karte": "glockenmoench",
@@ -2206,224 +2863,39 @@
       "abzeichen": "arrow"
     },
     {
-      "id": "p_grenz",
-      "name": "Riss im Papier",
-      "beschreibung": "+0,1 Prozentpunkte Grenzgänger-Chance pro Karte.",
+      "id": "u_glockenmoench_4",
+      "name": "Glockenmönch: Zäh",
+      "beschreibung": "+12 % Leben.",
       "typ": "klein",
-      "ast": "packs",
+      "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1344,
-        "y": 576
+        "x": 1248,
+        "y": 1440
       },
       "verbindungen": [
-        "p_foil"
+        "u_glockenmoench_3",
+        "a2_helden"
       ],
       "maxStufe": 5,
-      "basisKosten": 6,
+      "basisKosten": 190,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
-        "ziel": "grenzgaengerChance",
-        "wert": 0.001,
-        "rechenart": "addieren"
+        "ziel": "einheit",
+        "karte": "glockenmoench",
+        "patches": [
+          {
+            "pfad": "werte.leben",
+            "op": "mul",
+            "wert": 1.12
+          }
+        ]
       },
-      "symbol": "pack",
-      "abzeichen": "star"
-    },
-    {
-      "id": "w_jackpot",
-      "name": "Glückssträhne",
-      "beschreibung": "+1 Prozentpunkt Jackpot-Chance pro Angebotsplatz.",
-      "typ": "klein",
-      "ast": "wirtschaft",
-      "akt": 1,
-      "position": {
-        "x": 960,
-        "y": 480
+      "voraussetzung": {
+        "karte": "glockenmoench"
       },
-      "verbindungen": [
-        "w_platz4"
-      ],
-      "maxStufe": 5,
-      "basisKosten": 6,
-      "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
-      "effekt": {
-        "ziel": "jackpotChance",
-        "wert": 0.01,
-        "rechenart": "addieren"
-      },
-      "symbol": "coin",
-      "abzeichen": "star"
-    },
-    {
-      "id": "to_dauer",
-      "name": "Lange Lektüre",
-      "beschreibung": "+10 % Dauer aller Tome-Effekte.",
-      "typ": "klein",
-      "ast": "tomes",
-      "akt": 1,
-      "position": {
-        "x": 1728,
-        "y": 1056
-      },
-      "verbindungen": [
-        "to_wirkung"
-      ],
-      "maxStufe": 5,
-      "basisKosten": 3,
-      "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
-      "effekt": {
-        "ziel": "tomeDauerMul",
-        "wert": 0.1,
-        "rechenart": "addieren"
-      },
-      "symbol": "book",
-      "abzeichen": "clock"
-    },
-    {
-      "id": "f_chance",
-      "name": "Schimmernde Folie",
-      "beschreibung": "+0,5 Prozentpunkte Foil-Chance.",
-      "typ": "klein",
-      "ast": "foil",
-      "akt": 1,
-      "position": {
-        "x": 1968,
-        "y": 960
-      },
-      "verbindungen": [
-        "start",
-        "f_staerke",
-        "f_monster"
-      ],
-      "maxStufe": 6,
-      "basisKosten": 1,
-      "kostenFaktor": 1.45,
-      "waehrung": "foilstaub",
-      "kristallKosten": 0,
-      "effekt": {
-        "ziel": "foilChance",
-        "wert": 0.005,
-        "rechenart": "addieren"
-      },
-      "symbol": "dust",
-      "abzeichen": "star"
-    },
-    {
-      "id": "f_staerke",
-      "name": "Prismenkraft",
-      "beschreibung": "Foil-Einheiten: +10 % Leben und Schaden.",
-      "typ": "klein",
-      "ast": "foil",
-      "akt": 1,
-      "position": {
-        "x": 1920,
-        "y": 1056
-      },
-      "verbindungen": [
-        "f_chance",
-        "f_prisma"
-      ],
-      "maxStufe": 5,
-      "basisKosten": 2,
-      "kostenFaktor": 1.45,
-      "waehrung": "foilstaub",
-      "kristallKosten": 0,
-      "effekt": {
-        "ziel": "foilStaerkeMul",
-        "wert": 0.1,
-        "rechenart": "addieren"
-      },
-      "symbol": "dust",
-      "abzeichen": "star"
-    },
-    {
-      "id": "f_monster",
-      "name": "Glanzjäger",
-      "beschreibung": "+0,5 Prozentpunkte Foil-Monster-Chance.",
-      "typ": "klein",
-      "ast": "foil",
-      "akt": 1,
-      "position": {
-        "x": 2016,
-        "y": 1056
-      },
-      "verbindungen": [
-        "f_chance",
-        "f_prisma"
-      ],
-      "maxStufe": 5,
-      "basisKosten": 2,
-      "kostenFaktor": 1.45,
-      "waehrung": "foilstaub",
-      "kristallKosten": 0,
-      "effekt": {
-        "ziel": "foilMonsterChance",
-        "wert": 0.005,
-        "rechenart": "addieren"
-      },
-      "symbol": "dust",
-      "abzeichen": "star"
-    },
-    {
-      "id": "f_prisma",
-      "name": "Prismenglanz",
-      "beschreibung": "Foil-Einheiten geben +2 Münzen pro Kill.",
-      "typ": "schluessel",
-      "ast": "foil",
-      "akt": 1,
-      "position": {
-        "x": 1920,
-        "y": 1152
-      },
-      "verbindungen": [
-        "f_staerke",
-        "f_monster"
-      ],
-      "maxStufe": 1,
-      "basisKosten": 6,
-      "kostenFaktor": 1.45,
-      "waehrung": "foilstaub",
-      "kristallKosten": 4,
-      "effekt": {
-        "ziel": "flag",
-        "flag": "prismenglanz"
-      },
-      "symbol": "dust",
-      "abzeichen": "bolt"
-    },
-    {
-      "id": "a2_cursor",
-      "name": "Meisterrune",
-      "beschreibung": "+3 Schaden des Runenkreises.",
-      "typ": "klein",
-      "ast": "cursor",
-      "akt": 2,
-      "position": {
-        "x": 480,
-        "y": 288
-      },
-      "verbindungen": [
-        "c_glut"
-      ],
-      "maxStufe": 5,
-      "basisKosten": 20,
-      "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
-      "effekt": {
-        "ziel": "cursorSchaden",
-        "wert": 3,
-        "rechenart": "addieren"
-      },
-      "symbol": "claw",
-      "abzeichen": "sword"
+      "symbol": "card:glockenmoench",
+      "abzeichen": "heart"
     },
     {
       "id": "a2_helden",
@@ -2433,18 +2905,16 @@
       "ast": "einheiten",
       "akt": 2,
       "position": {
-        "x": 1056,
-        "y": 1440
+        "x": 1152,
+        "y": 1536
       },
       "verbindungen": [
-        "u_glockenmoench_3",
-        "u_wolkenhirtin_3"
+        "u_wolkenhirtin_4",
+        "u_glockenmoench_4"
       ],
       "maxStufe": 10,
-      "basisKosten": 15,
+      "basisKosten": 4100,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
         "ziel": "heldenSchadenMul",
         "wert": 0.08,
@@ -2454,85 +2924,673 @@
       "abzeichen": "sword"
     },
     {
-      "id": "a2_einkommen",
-      "name": "Handelsroute",
-      "beschreibung": "+5 Münzen Tageseinkommen.",
+      "id": "to_wirkung",
+      "name": "Gebundene Macht",
+      "beschreibung": "+10 % Wirkung aller Tomes.",
       "typ": "klein",
-      "ast": "wirtschaft",
-      "akt": 2,
+      "ast": "tomes",
+      "akt": 1,
       "position": {
-        "x": 864,
-        "y": 288
+        "x": 2304,
+        "y": 960
       },
       "verbindungen": [
-        "w_platz6"
+        "start",
+        "to_doppelt",
+        "to_dauer",
+        "q_tomes10",
+        "to_hagelschauer_w",
+        "to_knochenruf_w",
+        "to_blutrausch_w",
+        "to_seelenkrug_w",
+        "to_riesenwuchs_w",
+        "to_zeitbruch_w"
       ],
-      "maxStufe": 5,
-      "basisKosten": 20,
+      "maxStufe": 8,
+      "basisKosten": 10,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
-        "ziel": "tagesEinkommen",
-        "wert": 5,
+        "ziel": "tomeWirkungMul",
+        "wert": 0.1,
         "rechenart": "addieren"
       },
-      "symbol": "coin",
+      "symbol": "book",
+      "abzeichen": "bolt"
+    },
+    {
+      "id": "to_doppelt",
+      "name": "Echo der Seiten",
+      "beschreibung": "+5 % Chance, dass ein Tome doppelt ausgelöst wird.",
+      "typ": "klein",
+      "ast": "tomes",
+      "akt": 1,
+      "position": {
+        "x": 1920,
+        "y": 1056
+      },
+      "verbindungen": [
+        "to_wirkung",
+        "to_doppelseite"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 18,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "tomeDoppeltChance",
+        "wert": 0.05,
+        "rechenart": "addieren"
+      },
+      "symbol": "book",
       "abzeichen": "plus"
     },
     {
-      "id": "a2_turm",
-      "name": "Bastion",
-      "beschreibung": "+20 % Turm-Leben.",
-      "typ": "klein",
-      "ast": "turm",
-      "akt": 2,
+      "id": "to_doppelseite",
+      "name": "Doppelseite",
+      "beschreibung": "Tomes erscheinen mit 15 % Chance zweimal.",
+      "typ": "gross",
+      "ast": "tomes",
+      "akt": 1,
       "position": {
-        "x": 1440,
+        "x": 1920,
+        "y": 1152
+      },
+      "verbindungen": [
+        "to_doppelt"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 81,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "tomeZweimalChance",
+        "wert": 0.15,
+        "rechenart": "addieren"
+      },
+      "symbol": "book",
+      "abzeichen": "plus"
+    },
+    {
+      "id": "to_dauer",
+      "name": "Lange Lektüre",
+      "beschreibung": "+10 % Dauer aller Tome-Effekte.",
+      "typ": "klein",
+      "ast": "tomes",
+      "akt": 1,
+      "position": {
+        "x": 2016,
+        "y": 1056
+      },
+      "verbindungen": [
+        "to_wirkung"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 18,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "tomeDauerMul",
+        "wert": 0.1,
+        "rechenart": "addieren"
+      },
+      "symbol": "book",
+      "abzeichen": "clock"
+    },
+    {
+      "id": "q_tomes10",
+      "name": "Bücherwurm",
+      "beschreibung": "Löse 10 Tomes aus.",
+      "typ": "quest",
+      "ast": "tomes",
+      "akt": 1,
+      "position": {
+        "x": 2112,
+        "y": 1056
+      },
+      "verbindungen": [
+        "to_wirkung"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 0,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "quest"
+      },
+      "aufgabe": {
+        "statistik": "tomesGenutzt",
+        "anzahl": 10
+      },
+      "belohnung": {
+        "mastery": 200
+      },
+      "symbol": "quest"
+    },
+    {
+      "id": "to_hagelschauer_w",
+      "name": "Hagelschauer: Stärke",
+      "beschreibung": "+12 % Wirkung von „Hagelschauer“ je Stufe.",
+      "typ": "klein",
+      "ast": "tomes",
+      "akt": 1,
+      "position": {
+        "x": 2208,
+        "y": 1056
+      },
+      "verbindungen": [
+        "to_wirkung",
+        "to_hagelschauer_d"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 18,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "tome",
+        "tome": "hagelschauer",
+        "art": "wirkung",
+        "betrag": 0.12
+      },
+      "voraussetzung": {
+        "karte": "hagelschauer"
+      },
+      "symbol": "card:hagelschauer",
+      "abzeichen": "bolt"
+    },
+    {
+      "id": "to_hagelschauer_d",
+      "name": "Hagelschauer: Dauer",
+      "beschreibung": "+12 % Dauer von „Hagelschauer“ je Stufe.",
+      "typ": "klein",
+      "ast": "tomes",
+      "akt": 1,
+      "position": {
+        "x": 2208,
+        "y": 1152
+      },
+      "verbindungen": [
+        "to_hagelschauer_w"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 32,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "tome",
+        "tome": "hagelschauer",
+        "art": "dauer",
+        "betrag": 0.12
+      },
+      "voraussetzung": {
+        "karte": "hagelschauer"
+      },
+      "symbol": "card:hagelschauer",
+      "abzeichen": "clock"
+    },
+    {
+      "id": "to_knochenruf_w",
+      "name": "Knochenruf: Stärke",
+      "beschreibung": "+12 % Wirkung von „Knochenruf“ je Stufe.",
+      "typ": "klein",
+      "ast": "tomes",
+      "akt": 1,
+      "position": {
+        "x": 2304,
+        "y": 1056
+      },
+      "verbindungen": [
+        "to_wirkung",
+        "to_knochenruf_d"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 18,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "tome",
+        "tome": "knochenruf",
+        "art": "wirkung",
+        "betrag": 0.12
+      },
+      "voraussetzung": {
+        "karte": "knochenruf"
+      },
+      "symbol": "card:knochenruf",
+      "abzeichen": "bolt"
+    },
+    {
+      "id": "to_knochenruf_d",
+      "name": "Knochenruf: Dauer",
+      "beschreibung": "+12 % Dauer von „Knochenruf“ je Stufe.",
+      "typ": "klein",
+      "ast": "tomes",
+      "akt": 1,
+      "position": {
+        "x": 2304,
+        "y": 1152
+      },
+      "verbindungen": [
+        "to_knochenruf_w",
+        "to_knochenruf_s"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 32,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "tome",
+        "tome": "knochenruf",
+        "art": "dauer",
+        "betrag": 0.12
+      },
+      "voraussetzung": {
+        "karte": "knochenruf"
+      },
+      "symbol": "card:knochenruf",
+      "abzeichen": "clock"
+    },
+    {
+      "id": "to_blutrausch_w",
+      "name": "Blutrausch: Stärke",
+      "beschreibung": "+12 % Wirkung von „Blutrausch“ je Stufe.",
+      "typ": "klein",
+      "ast": "tomes",
+      "akt": 1,
+      "position": {
+        "x": 2400,
+        "y": 1056
+      },
+      "verbindungen": [
+        "to_wirkung",
+        "to_blutrausch_d"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 18,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "tome",
+        "tome": "blutrausch",
+        "art": "wirkung",
+        "betrag": 0.12
+      },
+      "voraussetzung": {
+        "karte": "blutrausch"
+      },
+      "symbol": "card:blutrausch",
+      "abzeichen": "bolt"
+    },
+    {
+      "id": "to_blutrausch_d",
+      "name": "Blutrausch: Dauer",
+      "beschreibung": "+12 % Dauer von „Blutrausch“ je Stufe.",
+      "typ": "klein",
+      "ast": "tomes",
+      "akt": 1,
+      "position": {
+        "x": 2400,
+        "y": 1152
+      },
+      "verbindungen": [
+        "to_blutrausch_w"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 32,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "tome",
+        "tome": "blutrausch",
+        "art": "dauer",
+        "betrag": 0.12
+      },
+      "voraussetzung": {
+        "karte": "blutrausch"
+      },
+      "symbol": "card:blutrausch",
+      "abzeichen": "clock"
+    },
+    {
+      "id": "to_seelenkrug_w",
+      "name": "Seelenkrug: Stärke",
+      "beschreibung": "+12 % Wirkung von „Seelenkrug“ je Stufe.",
+      "typ": "klein",
+      "ast": "tomes",
+      "akt": 1,
+      "position": {
+        "x": 2496,
+        "y": 1056
+      },
+      "verbindungen": [
+        "to_wirkung",
+        "to_seelenkrug_d"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 18,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "tome",
+        "tome": "seelenkrug",
+        "art": "wirkung",
+        "betrag": 0.12
+      },
+      "voraussetzung": {
+        "karte": "seelenkrug"
+      },
+      "symbol": "card:seelenkrug",
+      "abzeichen": "bolt"
+    },
+    {
+      "id": "to_seelenkrug_d",
+      "name": "Seelenkrug: Dauer",
+      "beschreibung": "+12 % Dauer von „Seelenkrug“ je Stufe.",
+      "typ": "klein",
+      "ast": "tomes",
+      "akt": 1,
+      "position": {
+        "x": 2496,
+        "y": 1152
+      },
+      "verbindungen": [
+        "to_seelenkrug_w"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 32,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "tome",
+        "tome": "seelenkrug",
+        "art": "dauer",
+        "betrag": 0.12
+      },
+      "voraussetzung": {
+        "karte": "seelenkrug"
+      },
+      "symbol": "card:seelenkrug",
+      "abzeichen": "clock"
+    },
+    {
+      "id": "to_riesenwuchs_w",
+      "name": "Riesenwuchs: Stärke",
+      "beschreibung": "+12 % Wirkung von „Riesenwuchs“ je Stufe.",
+      "typ": "klein",
+      "ast": "tomes",
+      "akt": 1,
+      "position": {
+        "x": 2592,
+        "y": 1056
+      },
+      "verbindungen": [
+        "to_wirkung",
+        "to_riesenwuchs_d"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 18,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "tome",
+        "tome": "riesenwuchs",
+        "art": "wirkung",
+        "betrag": 0.12
+      },
+      "voraussetzung": {
+        "karte": "riesenwuchs"
+      },
+      "symbol": "card:riesenwuchs",
+      "abzeichen": "bolt"
+    },
+    {
+      "id": "to_riesenwuchs_d",
+      "name": "Riesenwuchs: Dauer",
+      "beschreibung": "+12 % Dauer von „Riesenwuchs“ je Stufe.",
+      "typ": "klein",
+      "ast": "tomes",
+      "akt": 1,
+      "position": {
+        "x": 2592,
+        "y": 1152
+      },
+      "verbindungen": [
+        "to_riesenwuchs_w"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 32,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "tome",
+        "tome": "riesenwuchs",
+        "art": "dauer",
+        "betrag": 0.12
+      },
+      "voraussetzung": {
+        "karte": "riesenwuchs"
+      },
+      "symbol": "card:riesenwuchs",
+      "abzeichen": "clock"
+    },
+    {
+      "id": "to_zeitbruch_w",
+      "name": "Zeitbruch: Stärke",
+      "beschreibung": "+12 % Wirkung von „Zeitbruch“ je Stufe.",
+      "typ": "klein",
+      "ast": "tomes",
+      "akt": 1,
+      "position": {
+        "x": 2688,
+        "y": 1056
+      },
+      "verbindungen": [
+        "to_wirkung",
+        "to_zeitbruch_d"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 18,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "tome",
+        "tome": "zeitbruch",
+        "art": "wirkung",
+        "betrag": 0.12
+      },
+      "voraussetzung": {
+        "karte": "zeitbruch"
+      },
+      "symbol": "card:zeitbruch",
+      "abzeichen": "bolt"
+    },
+    {
+      "id": "to_zeitbruch_d",
+      "name": "Zeitbruch: Dauer",
+      "beschreibung": "+12 % Dauer von „Zeitbruch“ je Stufe.",
+      "typ": "klein",
+      "ast": "tomes",
+      "akt": 1,
+      "position": {
+        "x": 2688,
+        "y": 1152
+      },
+      "verbindungen": [
+        "to_zeitbruch_w"
+      ],
+      "maxStufe": 5,
+      "basisKosten": 32,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "tome",
+        "tome": "zeitbruch",
+        "art": "dauer",
+        "betrag": 0.12
+      },
+      "voraussetzung": {
+        "karte": "zeitbruch"
+      },
+      "symbol": "card:zeitbruch",
+      "abzeichen": "clock"
+    },
+    {
+      "id": "to_knochenruf_s",
+      "name": "Knochenruf: Knochensplitter",
+      "beschreibung": "Beschworene Skelette explodieren beim Tod und verletzen Gegner in der Nähe.",
+      "typ": "gross",
+      "ast": "tomes",
+      "akt": 1,
+      "position": {
+        "x": 2304,
         "y": 1248
       },
       "verbindungen": [
-        "t_blitz"
+        "to_knochenruf_d"
       ],
-      "maxStufe": 5,
-      "basisKosten": 20,
+      "maxStufe": 1,
+      "basisKosten": 150,
       "kostenFaktor": 1.45,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
       "effekt": {
-        "ziel": "turmLebenMul",
-        "wert": 0.2,
-        "rechenart": "addieren"
+        "ziel": "flag",
+        "flag": "knochenExplosion"
       },
-      "symbol": "bigheart",
-      "abzeichen": "heart"
+      "voraussetzung": {
+        "karte": "knochenruf"
+      },
+      "symbol": "card:knochenruf",
+      "abzeichen": "bolt"
     },
     {
-      "id": "w_freiwurf",
-      "name": "Glückswürfel",
-      "beschreibung": "+1 kostenloser Reroll pro Tag (benötigt „Neu würfeln“).",
-      "typ": "klein",
-      "ast": "wirtschaft",
+      "id": "q_trommler",
+      "name": "Stille im Moor",
+      "beschreibung": "Besiege den Trommler (Boss von Kapitel 1).",
+      "typ": "quest",
+      "ast": "akt",
       "akt": 1,
       "position": {
-        "x": 1056,
-        "y": 576
+        "x": 2928,
+        "y": 960
       },
       "verbindungen": [
-        "w_kill"
+        "start",
+        "q_aebtissin",
+        "r_portalsiegel"
       ],
-      "maxStufe": 3,
-      "basisKosten": 8,
-      "kostenFaktor": 1.8,
-      "waehrung": "mastery",
-      "kristallKosten": 0,
+      "maxStufe": 1,
+      "basisKosten": 0,
+      "kostenFaktor": 1.45,
       "effekt": {
-        "ziel": "freieRerolls",
-        "wert": 1,
-        "rechenart": "addieren"
+        "ziel": "quest"
       },
-      "symbol": "coin",
-      "abzeichen": "plus"
+      "aufgabe": {
+        "statistik": "bossBesiegt",
+        "filter": {
+          "boss": "trommler"
+        },
+        "anzahl": 1
+      },
+      "belohnung": {
+        "tagesEinkommen": 1
+      },
+      "symbol": "quest"
+    },
+    {
+      "id": "q_aebtissin",
+      "name": "Ende des Schreis",
+      "beschreibung": "Besiege die Graue Äbtissin (Boss von Kapitel 2).",
+      "typ": "quest",
+      "ast": "akt",
+      "akt": 1,
+      "position": {
+        "x": 2880,
+        "y": 1056
+      },
+      "verbindungen": [
+        "q_trommler",
+        "q_schmied"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 0,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "quest"
+      },
+      "aufgabe": {
+        "statistik": "bossBesiegt",
+        "filter": {
+          "boss": "graue_aebtissin"
+        },
+        "anzahl": 1
+      },
+      "belohnung": {
+        "tagesEinkommen": 1
+      },
+      "symbol": "quest"
+    },
+    {
+      "id": "q_schmied",
+      "name": "Kalte Esse",
+      "beschreibung": "Besiege den Schmied (Boss von Kapitel 3).",
+      "typ": "quest",
+      "ast": "akt",
+      "akt": 1,
+      "position": {
+        "x": 2880,
+        "y": 1152
+      },
+      "verbindungen": [
+        "q_aebtissin",
+        "tor_1"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 0,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "quest"
+      },
+      "aufgabe": {
+        "statistik": "bossBesiegt",
+        "filter": {
+          "boss": "schmied"
+        },
+        "anzahl": 1
+      },
+      "belohnung": {
+        "mastery": 1000
+      },
+      "symbol": "quest"
+    },
+    {
+      "id": "tor_1",
+      "name": "Das Alte Tor",
+      "beschreibung": "Öffnet Akt 2. Der Skill-Tree wird zurückgesetzt; Foil-Baum, Foil-Staub, Sammlung, Bestiarium und Relikte bleiben.",
+      "typ": "tor",
+      "ast": "akt",
+      "akt": 1,
+      "position": {
+        "x": 2880,
+        "y": 1248
+      },
+      "verbindungen": [
+        "q_schmied"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 0,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "tor",
+        "akt": 2
+      },
+      "nurAkt": 1,
+      "symbol": "gate"
+    },
+    {
+      "id": "r_portalsiegel",
+      "name": "Portalsiegel",
+      "beschreibung": "Relikt „Portalsiegel“: Monster sind beim Erscheinen kurz betäubt. Gibt es nur hier.",
+      "typ": "relikt",
+      "ast": "akt",
+      "akt": 2,
+      "position": {
+        "x": 2976,
+        "y": 1056
+      },
+      "verbindungen": [
+        "q_trommler"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 860,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "relikt",
+        "relikt": "portalsiegel"
+      },
+      "symbol": "rune",
+      "abzeichen": "star"
     }
   ]
 }

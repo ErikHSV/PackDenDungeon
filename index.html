@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;700&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+  <!-- Nur die Ziffern aus „Jersey 10“: Pixelify-„2“ und „5“ sehen aus wie Z und S -->
+  <link href="https://fonts.googleapis.com/css2?family=Jersey+10&text=0123456789&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -50,11 +52,10 @@
       <div class="hub-tabs" id="hub-tabs">
         <button class="hub-tab" data-tab="upgrade" style="--tab:#3B78D8">UPGRADE<span class="red-dot hidden"></span></button>
         <button class="hub-tab" data-tab="sammlung" style="--tab:#D8D8E0">SAMMLUNG<span class="red-dot hidden"></span></button>
-        <button class="hub-tab" data-tab="bestiarium" style="--tab:#E0603A">BESTIARIUM<span class="red-dot hidden"></span></button>
-        <button class="hub-tab" data-tab="relikte" style="--tab:#B23ED8">RELIKTE<span class="red-dot hidden"></span></button>
+        <button class="hub-tab" data-tab="bestiarium" style="--tab:#E0603A">BESTIARIUM<span class="red-dot hidden"></span><span class="tab-lock" title="Ab Akt 2"></span></button>
+        <button class="hub-tab" data-tab="relikte" style="--tab:#B23ED8">RELIKTE<span class="red-dot hidden"></span><span class="tab-lock" title="Ab Akt 2"></span></button>
       </div>
       <div class="hub-icons">
-        <button class="icon-btn" data-goto="quests" title="Quests"><img data-icon="quest" alt=""><span class="red-dot hidden" id="dot-quests"></span></button>
         <button class="icon-btn" data-goto="achievements" title="Erfolge"><img data-icon="crown" alt=""></button>
         <button class="icon-btn" data-goto="settings" title="Einstellungen"><img data-icon="settings" alt=""></button>
       </div>
@@ -63,16 +64,15 @@
         <!-- UPGRADE -->
         <div class="tab-page" data-page="upgrade">
           <canvas id="tree-canvas"></canvas>
+          <div class="tree-wipe" id="tree-wipe"></div>
           <div class="tree-cur">
-            <span title="Mastery-Punkte"><b id="tree-mp">0</b><img data-icon="mastery" alt=""></span>
-            <span title="Kristalle"><b id="tree-kr">0</b><img data-icon="gem" alt=""></span>
-            <span title="Foil-Staub" id="tree-fs-wrap"><b id="tree-fs">0</b><img data-icon="dust" alt=""></span>
+            <span class="cur-mp" title="Mastery (blauer Kristall)"><b id="tree-mp">0</b><img data-icon="mastery" alt=""></span>
+            <span class="cur-fs" title="Schimmer (Foil-Staub, Regenbogen-Kristall)" id="tree-fs-wrap"><b id="tree-fs">0</b><img data-icon="crystal_regen" alt=""></span>
           </div>
           <div class="tree-nav">
-            <button class="icon-btn" id="tree-jump" title="Zu kaufbaren Knoten springen"><img data-icon="mastery" alt=""></button>
-            <button class="icon-btn" id="tree-up" title="Nach oben"><img data-icon="up" alt=""></button>
-            <button class="icon-btn" id="tree-down" title="Nach unten"><img data-icon="down2" alt=""></button>
-            <button class="icon-btn" id="tree-reset" title="Alle Punkte zurückerhalten">↺</button>
+            <button class="icon-btn foil-toggle hidden" id="tree-foil" title="Foil-Baum ein/aus"><img data-icon="crystal_regen" alt=""></button>
+            <button class="icon-btn" id="tree-up" title="Ebene nach oben"><img data-icon="up" alt=""></button>
+            <button class="icon-btn" id="tree-down" title="Ebene nach unten"><img data-icon="down2" alt=""></button>
           </div>
           <div class="tree-info panel hidden" id="tree-info"></div>
           <div class="tree-banner hidden" id="tree-banner"></div>
@@ -112,7 +112,7 @@
       <div class="info-pop panel hidden" id="info-pop"></div>
       <div class="debug-panel panel hidden" id="debug-panel">
         <b>Debug</b>
-        <button class="btn" data-debug="coins">+500 Münzen</button>
+        <button class="btn" data-debug="shiny">Shiny-Monster</button>
         <button class="btn" data-debug="time">+30 s</button>
         <button class="btn" data-debug="boss">Boss jetzt</button>
         <button class="btn" data-debug="pack">+Silberpack</button>
@@ -120,12 +120,7 @@
       </div>
     </section>
 
-    <!-- 14.12 Quests / Erfolge -->
-    <section id="screen-quests" class="screen screen-plain">
-      <button class="btn back-btn" data-goto="hub">← Zurück</button>
-      <h1 class="screen-title">Quests</h1>
-      <div class="list" id="quest-list"></div>
-    </section>
+    <!-- 14.12 Erfolge (Quests gibt es nur als Knoten im Skill-Tree) -->
     <section id="screen-achievements" class="screen screen-plain">
       <button class="btn back-btn" data-goto="hub">← Zurück</button>
       <h1 class="screen-title">Erfolge <span id="ach-progress"></span></h1>
@@ -159,9 +154,10 @@
     <!-- 14.6 Neue-Karte-Präsentation -->
     <div class="overlay hidden" id="overlay-newcard">
       <div class="nc">
+        <div class="nc-shiny hidden" id="nc-shiny">SHINY!</div>
         <div class="nc-name" id="nc-name"></div>
         <div class="nc-ability" id="nc-ability"></div>
-        <div class="nc-stage"><canvas id="nc-blob" width="420" height="420"></canvas><img id="nc-fig" alt=""></div>
+        <div class="nc-stage"><canvas id="nc-blob" width="420" height="420"></canvas><img id="nc-fig" alt=""><div class="nc-sheen hidden" id="nc-sheen"></div></div>
         <div class="nc-next">&gt;</div>
       </div>
       <div class="nc-hint">Klicken zum Fortfahren</div>

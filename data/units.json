@@ -465,7 +465,7 @@
     "rolle": "Grenzgänger",
     "rollenSymbol": "staff",
     "ki": "bewachen",
-    "beschreibung": "Öffnet Risse im Boden, die Gegner verschlucken und Münzen ausspucken.",
+    "beschreibung": "Öffnet Risse im Boden, die Gegner verschlucken und Bonus-Münzen für den nächsten Tag ausspucken.",
     "farbe": "#7a4aff",
     "sprite": "leerlaeufer",
     "werte": {

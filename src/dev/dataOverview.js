@@ -44,13 +44,13 @@ function render(data) {
     data.tomes.map((t) => [`${sw(t.farbe)}<b>${esc(t.name)}</b>`, rar(t.rarity), esc(t.beschreibung), esc(t.effekt.typ)])));
 
   // Packs + Shop
-  section('packs', 'Packs und Kisten', table(['Name', 'Art', 'Freischaltung', 'Widerstand', 'Karten', 'Kristalle', 'Pool', 'Seltenheits-Gewichte'],
+  section('packs', 'Packs und Kisten', table(['Name', 'Art', 'Freischaltung', 'Widerstand', 'Karten', 'Pool', 'Seltenheits-Gewichte'],
     data.packs.map((p) => [
       `${sw(p.farbe)}<b>${esc(p.name)}</b>`, esc(p.art),
-      esc(p.freischaltung.typ === 'boss' ? `nach Boss Kapitel ${p.freischaltung.kapitel}` : p.freischaltung.typ),
+      esc(p.freischaltung.typ === 'boss' ? `nach Boss Kapitel ${p.freischaltung.kapitel}` : p.freischaltung.knoten ? `${p.freischaltung.typ === 'foilknoten' ? 'Foil-Knoten' : 'Knoten'} ${p.freischaltung.knoten}` : p.freischaltung.typ),
       p.widerstand ?? (p.inhalt?.pack ? `${p.inhalt.anzahl} × ${name(p.inhalt.pack)}` : '–'),
-      p.kartenProPack ?? (p.inhalt?.relikte ? `${p.inhalt.relikte} Relikt` : '–'), p.kristalle,
-      (p.pool || []).map(name).join(', ') || '–',
+      p.kartenProPack ?? (p.inhalt?.relikte ? `${p.inhalt.relikte} Relikt` : '–'),
+      p.nurFehlende ? 'seltene, noch fehlende Karten' : (p.pool || []).map(name).join(', ') || '–',
       Object.entries(p.seltenheitsGewichte || {}).map(([r, w]) => `${rar(r)} ${w} %`).join(' ') || '–',
     ])));
   const pw = data.balance.wirtschaft.preisWachstumProKapitel;
@@ -60,12 +60,12 @@ function render(data) {
     `Startplätze: ${data.balance.shop.angebotsPlaetzeStart}, maximal ${data.balance.shop.angebotsPlaetzeMax}. „Neu würfeln“ kostet ${data.balance.shop.neuWuerfeln.grundKosten} Münzen (×${data.balance.shop.neuWuerfeln.wachstum} pro Nutzung).`);
 
   // Gegner + Kapitel
-  section('gegner', 'Gegner und Bosse', table(['Name', 'Leben', 'Tempo', 'Rüstung / MR', 'Besonderheiten', 'Münzen', 'Größe'],
+  section('gegner', 'Gegner und Bosse', table(['Name', 'Leben', 'Tempo', 'Rüstung / MR', 'Besonderheiten', 'Größe'],
     data.enemies.map((g) => [
       `${sw(g.farbe)}<b>${esc(g.name)}</b>${g.boss ? ' <span class="rar" style="background:#E04848">Boss</span>' : ''}`,
       g.leben, g.tempo, `${g.ruestung} / ${Math.round(g.magieResistenz * 100)} %`,
       esc([g.fliegt && 'fliegt', g.immun.length && `immun: ${g.immun.join(', ')}`, ...Object.keys(g.eigenschaften), ...Object.keys(g.bossFaehigkeiten || {})].filter(Boolean).join(', ')) + `<br><span class="muted">${esc(g.beschreibung)}</span>`,
-      g.muenzen, `${g.groesse} px`,
+      `${g.groesse} px`,
     ])));
   section('kapitel', 'Kapitel', table(['#', 'Name', 'Boss nach', 'Spawn', 'Gegner (ab Sekunde)', 'Boss', 'Gefahren', 'Boden'],
     data.chapters.map((k) => [k.id, `<b>${esc(k.name)}</b><br><span class="muted">${esc(k.intro)}</span>`, `${k.bossNachSekunden} s`,
@@ -80,18 +80,21 @@ function render(data) {
     data.buildings.map((b) => [`${sw(b.farbe)}<b>${esc(b.name)}</b>`, name(b.pack), b.stufen.map((s) => `${s.intervall} s`).join(' → '), b.stufen.map((s) => `${Math.round(s.kistenChance * 100)} %`).join(' → ')])));
   section('relikte', 'Relikte', table(['Name', 'Seltenheit', 'Auslöser', 'Wirkung'],
     data.relics.map((r) => [`<b>${esc(r.name)}</b>`, rar(r.rarity), esc(r.ausloeser), esc(r.beschreibung)])));
-  section('quests', 'Quests', table(['Name', 'Ziel', 'Belohnung'],
-    data.quests.map((q) => [`<b>${esc(q.name)}</b>`, esc(q.beschreibung),
-      esc(Object.entries(q.belohnung).map(([k, v]) => `${k}: ${v}`).join(', '))])));
+  section('quests', 'Quest-Knoten (nur im Skill-Tree)', table(['Name', 'Aufgabe', 'Belohnung', 'Akt'],
+    data.starmap.knoten.filter((q) => q.typ === 'quest').map((q) => [`<b>${esc(q.name)}</b>`, esc(q.beschreibung),
+      esc(Object.entries(q.belohnung).map(([k, v]) => `${k}: ${v}`).join(', ')), q.akt ?? 1])));
+  section('foilbaum', 'Foil-Baum (dauerhaft, Foil-Staub)', table(['Name', 'Ast', 'Stufen', 'Grundkosten', 'Wirkung', 'ab Akt'],
+    data.foiltree.knoten.filter((n) => n.typ !== 'start').map((n) => [`<b>${esc(n.name)}</b>`, esc(n.ast), n.maxStufe, n.basisKosten, esc(n.beschreibung), n.akt ?? 1])),
+    'Kosten je Stufe: Grundkosten × 1,6^Stufe. Sichtbar ab dem ersten Foil-Staub.');
 
   // Sternenkarte als Gesamtplan
   const legend = data.starmap.aeste.map((b) => `<span>${sw(b.farbe)}${esc(b.name)}</span>`).join('');
-  section('sternenkarte', 'Sternenkarte (Gesamtplan)', `<div class="legend">${legend}</div><canvas id="map" width="960" height="960"></canvas>`,
-    'Kreis = kleiner Knoten, Sechseck = großer Knoten, Stern = Schlüsselknoten, Quadrat = Freischaltung. Im Spiel ist alles außer dem Start zunächst im Nebel verborgen.');
+  section('sternenkarte', 'Skill-Tree (Gesamtplan)', `<div class="legend">${legend}</div><canvas id="map" width="960" height="960"></canvas>`,
+    'Im Spiel ist ein Knoten erst sichtbar, wenn ein verbundener Nachbar gekauft bzw. abgeschlossen ist. Helden- und Tome-Blöcke erscheinen erst mit der Karte in der Sammlung.');
   drawMap(data);
-  section('knoten', 'Sternenkarten-Knoten', table(['Name', 'Ast', 'Typ', 'Stufen', 'Kosten (MP / Kristalle)', 'Wirkung', 'Voraussetzung'],
+  section('knoten', 'Skill-Tree-Knoten', table(['Name', 'Ast', 'Typ', 'Stufen', 'Grundkosten (Mastery)', 'Wirkung', 'Voraussetzung'],
     data.starmap.knoten.map((n) => [`<b>${esc(n.name)}</b>`, sw(data.branchIndex[n.ast]?.farbe) + esc(data.branchIndex[n.ast]?.name), esc(n.typ), n.maxStufe,
-      `${n.basisKosten}${n.kristallKosten ? ` / ${n.kristallKosten}` : ''}`, esc(n.beschreibung), esc(n.voraussetzung?.karte ? `Karte „${name(n.voraussetzung.karte)}“ gefunden` : '–')])));
+      n.basisKosten, esc(n.beschreibung), esc(n.voraussetzung?.karte ? `Karte „${name(n.voraussetzung.karte)}“ gefunden` : '–')])));
 }
 
 function drawMap(data) {
@@ -134,7 +137,7 @@ function drawMap(data) {
     if (errors.length) { st.className = 'status err'; st.textContent = `✗ ${errors.length} Fehler in den Daten:\n` + errors.join('\n'); }
     else {
       st.className = 'status ok';
-      st.textContent = `✓ Alle ${DATA_FILES.length} Datendateien gültig: ${s.einheiten} Einheiten, ${s.tomes} Tomes, ${s.packs} Packs, ${s.gegner} Gegner, ${s.bosse} Bosse, ${s.kapitel} Kapitel, ${s.modifikatoren} Modifikatoren, ${s.gebaeude} Gebäude, ${s.relikte} Relikte, ${s.quests} Quests, ${s.knoten} Knoten (${s.knotenStufen} Stufen).`;
+      st.textContent = `✓ Alle ${DATA_FILES.length} Datendateien gültig: ${s.einheiten} Einheiten, ${s.tomes} Tomes, ${s.packs} Packs, ${s.gegner} Gegner, ${s.bosse} Bosse, ${s.kapitel} Kapitel, ${s.modifikatoren} Modifikatoren, ${s.gebaeude} Gebäude, ${s.relikte} Relikte, ${s.quests} Quest-Knoten, ${s.knoten} Skill-Tree-Knoten (${s.knotenStufen} Stufen), ${s.foilKnoten} Foil-Knoten.`;
     }
     render(data);
   } catch (err) {

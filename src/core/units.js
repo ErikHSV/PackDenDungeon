@@ -19,7 +19,7 @@ function nearestEnemy(run, u, from, maxDist) {
 
 export function unitDamage(run, u) {
   const giant = run.buffs.riesen.t > 0 ? run.buffs.riesen.schadenMul : 1;
-  return u.def.werte.schaden * run.mods.heldenSchadenMul * (u.foil ? run.mods.foilStaerkeMul : 1) * giant;
+  return u.def.werte.schaden * run.mods.heldenSchadenMul * giant; // Shiny ändert den Schaden nicht
 }
 
 /** Reichweite inkl. Foil (+50 %) und Riesenwuchs. */
@@ -60,7 +60,7 @@ const ATTACKS = {
   /** Kegel nach vorne: trifft alle Gegner im Radius innerhalb des Öffnungswinkels Richtung Ziel. */
   kegel(run, u, t, dmg) {
     const a = u.def.angriff;
-    const r = (a.radius ?? 90) * (u.foil ? run.data.balance.karten.foil.flaecheMul : 1) * (run.buffs.riesen.t > 0 ? run.buffs.riesen.reichweiteMul : 1);
+    const r = (a.radius ?? 90) * (u.foil ? run.foilBonus('flaecheMul') : 1) * (run.buffs.riesen.t > 0 ? run.buffs.riesen.reichweiteMul : 1);
     const half = ((a.winkel ?? 100) * Math.PI) / 360;
     const dir = Math.atan2(t.y - u.y, t.x - u.x);
     fx(run, { type: 'cone', x: u.x, y: u.y - 10, r, dir, half, color: u.def.farbe, life: 0.22 });
@@ -74,7 +74,7 @@ const ATTACKS = {
     }
   },
   halbkreis(run, u, t, dmg) {
-    const r = (u.def.angriff.radius ?? 70) * (u.foil ? run.data.balance.karten.foil.flaecheMul : 1);
+    const r = (u.def.angriff.radius ?? 70) * (u.foil ? run.foilBonus('flaecheMul') : 1);
     fx(run, { type: 'arc', x: t.x, y: t.y, r, color: u.def.farbe, life: 0.22 });
     for (const e of run.enemies) if (canHit(u, e) && dist(e, t) <= r) {
       damageEnemy(run, e, dmg, u.def.werte.schadensTyp, { aoe: true, source: u });
@@ -86,9 +86,15 @@ const ATTACKS = {
     run.projectiles.push({
       x: u.x + u.facing * 6, y: u.y - 14, target: t, tx: t.x, ty: t.y, speed: a.geschossTempo ?? 600, damage: dmg,
       type: u.def.werte.schadensTyp, source: u, bounces: a.abpraller ?? 0, hit: new Set(), color: u.def.farbe,
-      onHit: a.beiTreffer, zone: a.flaeche ? { ...a.flaeche, radius: a.flaeche.radius * (u.foil ? run.data.balance.karten.foil.flaecheMul : 1) } : null,
-      explosion: a.explosion ? a.explosion.radius * (u.foil ? run.data.balance.karten.foil.flaecheMul : 1) : 0,
+      onHit: a.beiTreffer, zone: a.flaeche ? { ...a.flaeche, radius: a.flaeche.radius * (u.foil ? run.foilBonus('flaecheMul') : 1) } : null,
+      explosion: a.explosion ? a.explosion.radius * (u.foil ? run.foilBonus('flaecheMul') : 1) : 0,
     });
+    // Zweite Feuerkugel mit Chance (auf ein anderes Ziel in Reichweite, sonst dasselbe)
+    if (a.zweitschussChance && run.rng() < a.zweitschussChance) {
+      const other = run.enemies.find((e) => !e.dead && e !== t && dist(e, u) <= u.range) ?? t;
+      const first = run.projectiles[run.projectiles.length - 1];
+      run.projectiles.push({ ...first, target: other, tx: other.x, ty: other.y, hit: new Set(), y: first.y - 6 });
+    }
   },
 };
 
@@ -130,12 +136,12 @@ const ABILITIES = {
     if (!timer(u, 'wirbelsturm', ab.intervall, dt)) return;
     u.timers.wirbelsturm = ab.intervall;
     const a = run.rng() * Math.PI * 2;
-    run.zones.push({ type: 'wirbel', x: u.x, y: u.y, r: ab.radius * (u.foil ? 1.5 : 1), t: ab.dauer, max: ab.dauer, dps: ab.schadenProSekunde, vx: Math.cos(a) * ab.tempo, vy: Math.sin(a) * ab.tempo, knock: ab.rueckstoss, source: u });
+    run.zones.push({ type: 'wirbel', x: u.x, y: u.y, r: ab.radius * (u.foil ? run.foilBonus('flaecheMul') : 1), t: ab.dauer, max: ab.dauer, dps: ab.schadenProSekunde, vx: Math.cos(a) * ab.tempo, vy: Math.sin(a) * ab.tempo, knock: ab.rueckstoss, source: u });
   },
   /** Glockenschlag betäubt alle Gegner im Umkreis. */
   glocke(run, u, ab, dt) {
     if (!timer(u, 'glocke', ab.intervall, dt)) return;
-    const r = ab.radius * (u.foil ? 1.5 : 1);
+    const r = ab.radius * (u.foil ? run.foilBonus('flaecheMul') : 1);
     if (!run.enemies.some((e) => dist(e, u) <= r)) { u.timers.glocke = 0.3; return; }
     u.timers.glocke = ab.intervall;
     fx(run, { type: 'ring', x: u.x, y: u.y, r, color: '#ffe08a', life: 0.6 });
@@ -218,6 +224,8 @@ export function updateUnits(run, dt) {
         d.hit.add(e);
         damageEnemy(run, e, unitDamage(run, u) * d.ab.schadenMul, 'physical', { aoe: true, source: u });
         applyStatus(run, e, { typ: 'rueckstoss', distanz: d.ab.rueckstoss }, 0, u);
+        // Aufprall: geschleuderte Gegner verletzen andere in ihrer Nähe
+        if (d.ab.aufprall) for (const o of run.enemies) if (o !== e && !o.dead && dist(o, e) <= d.ab.aufprall.radius) damageEnemy(run, o, unitDamage(run, u) * d.ab.aufprall.schadenMul, 'physical', { aoe: true, source: u });
       }
       if (d.left <= 0 || run.edgeFactor(u) > 0.94) {
         if (d.remaining > 0) { d.remaining--; d.left = d.ab.laenge; d.ang += Math.PI + (run.rng() - 0.5); d.hit.clear(); }

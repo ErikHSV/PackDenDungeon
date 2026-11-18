@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "starmap.schema.json",
-  "title": "Sternenkarte (Skill-Tree)",
+  "title": "Skill-Tree",
   "type": "object",
   "required": [
     "groesse",
@@ -46,10 +46,8 @@
           "maxStufe",
           "basisKosten",
           "kostenFaktor",
-          "kristallKosten",
           "effekt",
-          "akt",
-          "waehrung"
+          "akt"
         ],
         "properties": {
           "id": {
@@ -67,9 +65,12 @@
               "klein",
               "gross",
               "schluessel",
-              "freischalt"
+              "freischalt",
+              "relikt",
+              "quest",
+              "tor"
             ],
-            "description": "klein = Kreis, gross = Sechseck, schluessel = Stern (MP + Kristalle), freischalt = Schloss"
+            "description": "klein/gross/schluessel = Upgrade-Knoten, freischalt = schaltet etwas frei, relikt = gibt ein festes Relikt (nurBaum), quest = kostenlose Aufgabe (aufgabe + belohnung), tor = Akt-Wechsel"
           },
           "ast": {
             "type": "string"
@@ -103,9 +104,6 @@
             "type": "number"
           },
           "kostenFaktor": {
-            "type": "number"
-          },
-          "kristallKosten": {
             "type": "number"
           },
           "symbol": {
@@ -158,11 +156,51 @@
             "type": "integer",
             "description": "1 = von Anfang an, 2 = erst nach dem Tor sichtbar"
           },
-          "waehrung": {
-            "enum": [
-              "mastery",
-              "foilstaub"
-            ]
+          "aufgabe": {
+            "type": "object",
+            "required": [
+              "statistik",
+              "anzahl"
+            ],
+            "properties": {
+              "statistik": {
+                "enum": [
+                  "packsGeoeffnet",
+                  "kills",
+                  "killsGegner",
+                  "kartenGefunden",
+                  "ueberleben",
+                  "foilMonsterBesiegt",
+                  "bossBesiegt",
+                  "tomesGenutzt"
+                ]
+              },
+              "filter": {
+                "type": "object"
+              },
+              "anzahl": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          "belohnung": {
+            "type": "object",
+            "properties": {
+              "tagesEinkommen": {
+                "type": "integer"
+              },
+              "mastery": {
+                "type": "integer"
+              },
+              "reliktpack": {
+                "type": "integer"
+              }
+            }
+          },
+          "nurAkt": {
+            "type": "integer",
+            "description": "Knoten existiert nur in diesem Akt (Tor-Knoten)"
           }
         }
       }

@@ -1,6 +1,6 @@
 // Ergebnis-Bildschirm (14.8) und Freischaltungs-Popups mit Konfetti.
 import { $, el, escapeHtml, show, countTo } from './dom.js';
-import { applyRunResult, claimableQuests, anyNodeAffordable, buyOffer, bagItems } from '../core/meta.js';
+import { applyRunResult, claimableQuests, anyNodeAffordable, buyOffer, bagItems, foilTreeUnlocked } from '../core/meta.js';
 import { play, startMusic } from '../audio.js';
 import { showUnlocks } from './reveal.js';
 
@@ -9,6 +9,7 @@ const fmtTime = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padSt
 export function showResult(game, r, mods, opts) {
   const { data, save, bank } = game;
   const lastBag = game.lastBag ?? [];
+  const foilBefore = foilTreeUnlocked(save);
   const info = applyRunResult(r, data, save, mods);
   save.tutorial.firstRunDone = true;
   game.persist();
@@ -21,16 +22,16 @@ export function showResult(game, r, mods, opts) {
     <div class="res-grid">
       <div>Überlebt<b>${fmtTime(r.zeit)}</b></div>
       <div>Kills<b data-to="${r.kills}">0</b></div>
-      <div>Münzen<b data-to="${info.muenzen + info.einkommen}">0</b><span class="muted">${info.einkommen ? `inkl. ${info.einkommen} Tageseinkommen` : ''}</span></div>
-      <div>Mastery<b data-to="${info.mastery}">0</b></div>
-      <div>Kristalle<b data-to="${info.kristalle}">0</b></div>
-      <div>Foil-Staub<b data-to="${info.foilStaub}">0</b></div>
+      <div>Mastery <img class="cur" src="${bank.iconUrl('mastery')}" alt=""><b data-to="${info.mastery}">0</b><span class="muted">${info.zinsen ? `+${info.zinsen} Zinsen` : info.gesuchtErstsieg ? `inkl. ${info.gesuchtErstsieg} Erstsieg-Bonus` : ''}</span></div>
+      <div>Schimmer <img class="cur" src="${bank.iconUrl('crystal_regen')}" alt=""><b data-to="${info.foilStaub}">0</b></div>
+      <div>Neuer Tag: Münzen <img class="cur" src="${bank.iconUrl('coin')}" alt=""><b data-to="${info.einkommen}">0</b><span class="muted">Tageseinkommen${info.bonus ? ` · +${info.bonus} Bonus` : ''}</span></div>
       <div>Elitewellen<b>${r.elitewellen}</b></div>
       <div>Packs geöffnet<b>${Object.values(r.packsGeoeffnet).reduce((a, b) => a + b, 0)}</b></div>
     </div>
     ${info.neueKarten.length ? `<div class="res-row"><b>Neue Karten:</b>${info.neueKarten.map((id) => `<img src="${bank.cardUrl(id)}" title="${escapeHtml(data.cardIndex[id].def.name)}">`).join('')}</div>` : ''}
     ${best ? `<div class="res-row"><b>Beste Einheit:</b><img src="${bank.unitUrl(best.id)}"> ${escapeHtml(best.name)}${best.foil ? ' ✦' : ''} – ${best.schaden} Schaden, ${best.kills} Kills</div>` : ''}
-    <div class="res-row">${claimableQuests(data, save) ? `<span style="color:#FFD24A">${claimableQuests(data, save)} Quest(s) abholbar!</span>` : ''}
+    <div class="res-row">${claimableQuests(data, save) ? `<span style="color:#FFD24A">${claimableQuests(data, save)} Quest(s) im Skill-Tree erfüllt – abholen!</span>` : ''}
+      ${r.ersteShinys?.length ? `<span class="rainbow-text">Erste Shinys: ${r.ersteShinys.map((id) => escapeHtml(data.cardIndex[id].def.name)).join(', ')}</span>` : ''}
       ${info.erfolge.map((a) => `<span style="color:#FFD24A">★ Erfolg: ${escapeHtml(a.name)}</span>`).join('')}</div>
     <div class="row">
       <button class="btn btn-primary btn-big" id="res-hub">Zum Hub</button>
@@ -47,7 +48,7 @@ export function showResult(game, r, mods, opts) {
     // Dieselben Packs erneut kaufen, soweit sie heute angeboten werden und bezahlbar sind
     // Gleiche Angebote wie beim letzten Run kaufen, soweit sie heute im Shop liegen und bezahlbar sind
     for (const want of lastBag) {
-      const i = save.shop.offers.findIndex((s) => !s.sold && s.kind === want.kind && s.id === want.id && s.karte === want.karte);
+      const i = save.shop.offers.findIndex((s) => !s.sold && s.kind === want.kind && s.id === want.id && s.karte === want.karte && (s.anzahl || 1) === (want.anzahl || 1));
       if (i >= 0) buyOffer(i, data, save);
     }
     game.persist();
@@ -60,7 +61,9 @@ export function showResult(game, r, mods, opts) {
   const items = [];
   if (info.kapitelFrei) items.push({ title: 'NEUES KAPITEL!', name: info.kapitelFrei.name, img: bank.url(bank.fieldTower(info.kapitelFrei.farbwelt?.turmlicht ?? '#7ab8ff')), w: 100, h: 200 });
   for (const p of info.packsFrei) items.push({ title: p.art === 'kiste' ? 'NEUE BOOSTER-KISTE!' : 'NEUES PACK!', name: p.name, img: bank.shopItemUrl(p.id), w: p.art === 'kiste' ? 200 : 180, h: p.art === 'kiste' ? 200 : 240 });
-  if (info.schluesselstein) items.push({ title: 'SCHLÜSSELSTEIN!', name: `${info.schluesselstein.name} – setze alle Steine in das Alte Tor ein.`, img: bank.iconUrl('gem'), w: 160, h: 160 });
+  if (!foilBefore && foilTreeUnlocked(save)) items.push({ title: 'FOIL-BAUM!', name: 'Dein erster Schimmer! Der Foil-Baum ist jetzt über den Regenbogen-Kristall im Reiter UPGRADE erreichbar.', img: bank.iconUrl('crystal_regen'), w: 160, h: 160 });
+  for (const q of info.questsFertig) items.push({ title: 'QUEST ERFÜLLT!', name: `${q.name} – hole die Belohnung im Skill-Tree ab.`, img: bank.iconUrl('quest'), w: 140, h: 140 });
+  if (!info.relikt && info.reliktStaub) items.push({ title: 'ALLE RELIKTE GEFUNDEN!', name: `Stattdessen: +${info.reliktStaub} Schimmer`, img: bank.iconUrl('crystal_regen'), w: 160, h: 160 });
   if (info.relikt) items.push({ title: 'NEUES RELIKT!', name: `${info.relikt.name}: ${info.relikt.beschreibung}`, img: bank.iconUrl(info.relikt.symbol), w: 180, h: 180 });
   for (const a of info.erfolge) items.push({ title: 'ERFOLG!', name: `${a.name} – ${a.beschreibung}`, img: bank.iconUrl('crown'), w: 160, h: 160 });
   if (items.length) setTimeout(() => showUnlocks(items), 900);

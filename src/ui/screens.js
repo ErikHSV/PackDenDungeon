@@ -1,7 +1,8 @@
-// Hub-Reiter Sammlung, Bestiarium, Relikte (14.2.6–14.2.8) sowie Quests, Erfolge und Einstellungen.
+// Hub-Reiter Sammlung, Bestiarium, Relikte (14.2.6–14.2.8) sowie Erfolge und Einstellungen.
+// Quests gibt es nur als Knoten im Skill-Tree (11.3). Shiny: drei getrennte Sammlungen (Helden, Tomes, Monster).
 import { $, $$, el, escapeHtml, show, confirmDialog, toast } from './dom.js';
 import { cardElement } from './cardView.js';
-import { relicSlots, equipRelic, destroyRelic, progressOf, claimQuest } from '../core/meta.js';
+import { relicSlots, equipRelic, destroyRelic, repairRelic, progressOf, levelOf, questProgress, nodeVisible } from '../core/meta.js';
 import { resetSave } from '../save.js';
 import { setVolumes, play } from '../audio.js';
 import { formatNumber } from '../core/util.js';
@@ -10,14 +11,15 @@ import { formatNumber } from '../core/util.js';
 // Reiter SAMMLUNG (14.2.6): Kacheln im Shop-Stil, Filter, Fortschritt, große Karte per Klick
 // =====================================================================
 
-const FILTERS = [['alle', 'Alle'], ['helden', 'Helden'], ['tomes', 'Tomes'], ['foil', 'Foil'], ['grenz', 'Grenzgänger']];
+const FILTERS = [['alle', 'Alle'], ['helden', 'Helden'], ['tomes', 'Tomes'], ['foil', 'Shiny'], ['grenz', 'Grenzgänger']];
 
 export function renderCollection(game, filter = game.colFilter ?? 'alle') {
   const { data, save, bank } = game;
   game.colFilter = filter;
   const has = (id) => (save.collection[id]?.normal || 0) + (save.collection[id]?.foil || 0) > 0;
   const total = data.allCards.length;
-  $('#col-progress').innerHTML = `${data.allCards.filter(has).length} / ${total}<br><span style="color:var(--foil)">Foil: ${data.allCards.filter((id) => save.collection[id]?.foil > 0).length} / ${total}</span>`;
+  const shinyOf = (art) => { const ids = data.allCards.filter((id) => data.cardIndex[id].art === art); return `${ids.filter((id) => save.collection[id]?.foil > 0).length} / ${ids.length}`; };
+  $('#col-progress').innerHTML = `${data.allCards.filter(has).length} / ${total}<br><span class="rainbow-text">Shiny-Helden ${shinyOf('einheit')} · Shiny-Tomes ${shinyOf('tome')}</span>`;
   $('#col-filters').innerHTML = FILTERS.map(([id, n]) => `<button class="filter${id === filter ? ' active' : ''}" data-f="${id}">${n}</button>`).join('');
   $$('#col-filters .filter').forEach((b) => b.addEventListener('click', () => { play('click'); renderCollection(game, b.dataset.f); }));
   const rank = (id) => data.rarities[data.cardIndex[id].def.rarity].rang;
@@ -37,9 +39,10 @@ export function renderCollection(game, filter = game.colFilter ?? 'alle') {
     const col = save.collection[id];
     const found = filter === 'foil' ? col?.foil > 0 : has(id);
     const secret = c.def.rarity === 'grenzgaenger' && !found;
-    const t = el(`<div class="tile${found ? '' : ' unknown'}${filter === 'foil' && found ? ' foil' : ''}">
-      <div class="field" style="--r:${data.rarities[c.def.rarity].farbe}"><img src="${secret ? bank.iconUrl('quest') : bank.cardUrl(id)}" alt="">
-        <span class="r"></span>${found ? `<span class="cnt">×${filter === 'foil' ? col.foil : col.normal + col.foil}</span>` : ''}${col?.foil ? '<span class="fo">✦</span>' : ''}</div>
+    const shiny = col?.foil > 0;
+    const t = el(`<div class="tile${found ? '' : ' unknown'}">
+      <div class="field${shiny ? ' shiny-frame shiny-sheen' : ''}" style="--r:${data.rarities[c.def.rarity].farbe}"><img src="${secret ? bank.iconUrl('quest') : bank.cardUrl(id)}" alt="">
+        <span class="r"></span>${found ? `<span class="cnt">×${filter === 'foil' ? col.foil : col.normal + col.foil}</span>` : ''}${shiny ? '<span class="fo">✦</span>' : ''}</div>
       <div class="nm">${found ? escapeHtml(c.def.name) : '???'}</div></div>`);
     t.addEventListener('click', () => { if (has(id)) { play('click'); showCardDetail(game, id); } });
     grid.appendChild(t);
@@ -63,27 +66,28 @@ export function showCardDetail(game, id) {
     <p>${escapeHtml(c.def.beschreibung)}</p>
     ${c.def.entwicklung ? `<p class="muted">Entwicklung: ${escapeHtml(c.def.entwicklung.name ?? '')}</p>` : ''}
     <p class="packs">Herkunft: ${packs.length ? packs.map((p) => `<img src="${bank.shopItemUrl(p.id)}" title="${escapeHtml(p.name)}">`).join('') : c.def.rarity === 'grenzgaenger' ? 'jedes Pack (sehr selten)' : 'Shop'}</p>
-    <p>Gezogen: ${col.normal} normal · ${col.foil} Foil</p>
+    <p>Gezogen: ${col.normal} normal · ${col.foil} Shiny</p>
+    ${col.foil ? `<p class="rainbow-text">SHINY: ${c.art === 'tome' ? '+50 % Wirkungsdauer und +50 % Fläche bzw. Häufigkeit' : 'doppeltes Leben, +50 % Reichweite bzw. Wirkungsfläche'}</p>` : ''}
     <p class="muted">Klicken zum Schließen</p></div>`));
   show('#overlay-card', true);
   $('#overlay-card').onclick = () => show('#overlay-card', false);
 }
 
 // =====================================================================
-// Reiter BESTIARIUM (14.2.7): nach Kapiteln gruppiert, Foil-Markierung, Kills, Monster-Quests
+// Reiter BESTIARIUM (14.2.7): nach Kapiteln gruppiert, Shiny-Markierung, Kills, sichtbare Monster-Quests
 // =====================================================================
 
 export function renderBestiary(game) {
   const { data, save, bank } = game;
   const known = (id) => (save.bestiary[id]?.normal || 0) + (save.bestiary[id]?.foil || 0) > 0;
-  $('#beast-progress').textContent = `${data.enemies.filter((e) => known(e.id)).length} / ${data.enemies.length} · Foil: ${data.enemies.filter((e) => save.bestiary[e.id]?.foil > 0).length}`;
+  $('#beast-progress').innerHTML = `${data.enemies.filter((e) => known(e.id)).length} / ${data.enemies.length} · <span class="rainbow-text">Shiny-Monster ${data.enemies.filter((e) => save.bestiary[e.id]?.foil > 0).length} / ${data.enemies.length}</span>`;
   const traits = (e) => {
     const t = [];
     if (e.fliegt) t.push('fliegt');
     if (e.ruestung) t.push(`Rüstung ${e.ruestung}`);
     if (e.magieResistenz) t.push(`Magieresistenz ${Math.round(e.magieResistenz * 100)} %`);
     const ei = e.eigenschaften || {};
-    if (ei.muenzenStehlen) t.push('stiehlt Münzen');
+    if (ei.masteryStehlen) t.push('stiehlt Mastery');
     if (ei.explodiertBeimTod) t.push('explodiert');
     if (ei.frontSchild) t.push('Frontschild');
     if (ei.teiltSichBeimTod) t.push('teilt sich');
@@ -103,13 +107,13 @@ export function renderBestiary(game) {
       const e = data.enemyIndex[id];
       const b = save.bestiary[id];
       const k = known(id);
-      const quests = data.quests.filter((q) => q.ziel.statistik === 'killsGegner' && q.ziel.filter?.gegner === id);
-      html += `<div class="beast${k ? '' : ' unknown'}${e.boss ? ' boss' : ''}">
-        <img src="${bank.enemyUrl(id)}" alt="">
+      const quests = data.starmap.knoten.filter((q) => q.typ === 'quest' && q.aufgabe.statistik === 'killsGegner' && q.aufgabe.filter?.gegner === id && levelOf(save, q.id) === 0 && nodeVisible('skill', q, save, data));
+      html += `<div class="beast${k ? '' : ' unknown'}${e.boss ? ' boss' : ''}${b?.foil ? ' shiny' : ''}">
+        <div class="bimg${b?.foil ? ' shiny-frame shiny-sheen' : ''}"><img src="${bank.enemyUrl(id)}" alt=""></div>
         <div><b>${k ? escapeHtml(e.name) : '?'}${e.boss ? ' (Boss)' : ''}</b>
           ${k ? `<div>${escapeHtml(traits(e))}</div><div>Besiegt: ${b.normal + b.foil}</div>` : '<div class="muted">Noch nicht besiegt</div>'}
-          <div class="foilmark${b?.foil ? ' on' : ''}">✦ Foil ${b?.foil ? `besiegt (${b.foil})` : 'noch nicht besiegt'}</div>
-          ${quests.map((q) => { const p = progressOf(q, data, save); return `<div style="font-size:13px">${escapeHtml(q.name)} ${formatNumber(p.value)}/${formatNumber(p.target)}</div><div class="qb"><div style="width:${(100 * p.value) / p.target}%"></div></div>`; }).join('')}
+          <div class="foilmark${b?.foil ? ' on' : ''}">✦ Shiny ${b?.foil ? `besiegt (${b.foil})` : 'noch nicht besiegt'}</div>
+          ${quests.map((q) => { const p = questProgress(q, data, save); return `<div style="font-size:13px">${escapeHtml(q.name)} ${formatNumber(p.value)}/${formatNumber(p.target)}</div><div class="qb"><div style="width:${(100 * p.value) / p.target}%"></div></div>`; }).join('')}
         </div></div>`;
     }
     html += '</div>';
@@ -126,19 +130,29 @@ export function renderRelics(game, selected = null) {
   const slots = relicSlots(data, save);
   const max = data.balance.relikte.plaetzeMax;
   const eq = save.relics.equipped;
-  $('#relic-slots').innerHTML = Array.from({ length: max }, (_, i) => {
-    if (i >= slots) return `<div class="r-slot locked" title="Zerstöre ein Relikt, um einen Platz freizuschalten."><img src="${bank.iconUrl('lock')}" alt=""></div>`;
+  $('#relic-slots').innerHTML = Array.from({ length: Math.max(max, slots) }, (_, i) => {
+    if (i >= slots) return `<div class="r-slot locked" title="Zerstöre ein Relikt oder kaufe „Weiterer Relikt-Platz“ im Foil-Baum."><img src="${bank.iconUrl('lock')}" alt=""></div>`;
     const id = eq[i];
     const r = id && data.relicIndex[id];
     return r ? `<div class="r-slot filled${r.verflucht ? ' cursed' : ''}" data-id="${id}" title="${escapeHtml(r.name)}"><img src="${bank.iconUrl(r.symbol)}" alt=""></div>` : '<div class="r-slot"></div>';
   }).join('');
   const inv = $('#relic-inv');
   inv.innerHTML = data.relics.map((r) => {
-    if (!save.relics.owned.includes(r.id)) return `<div class="r-item unknown" style="--rar:#4a4266"><img src="${bank.iconUrl('relic')}" alt="">${save.relics.destroyed?.includes(r.id) ? 'Zerstört' : '???'}</div>`;
+    if (save.relics.destroyed?.includes(r.id)) return `<div class="r-item unknown destroyed" style="--rar:#4a4266" data-broken="${r.id}"><img src="${bank.iconUrl(r.symbol)}" alt="">${escapeHtml(r.name)} (zerstört)</div>`;
+    if (!save.relics.owned.includes(r.id)) return `<div class="r-item unknown" style="--rar:#4a4266"><img src="${bank.iconUrl('relic')}" alt="">${r.nurBaum ? '??? (Skill-Tree)' : '???'}</div>`;
     return `<div class="r-item${eq.includes(r.id) ? ' equipped' : ''}${r.verflucht ? ' cursed' : ''}" style="--rar:${data.rarities[r.rarity].farbe}" data-id="${r.id}"><img src="${bank.iconUrl(r.symbol)}" alt="">${escapeHtml(r.name)}</div>`;
   }).join('');
   const sel = selected && data.relicIndex[selected];
-  $('#relic-detail').innerHTML = sel ? `
+  const mods = game.mods();
+  const repairCost = data.balance.foilbaum.reliktReparaturKosten;
+  if (sel && save.relics.destroyed?.includes(sel.id)) {
+    $('#relic-detail').innerHTML = `<h2>${escapeHtml(sel.name)} <span class="curse">(zerstört)</span></h2><p>${escapeHtml(sel.beschreibung)}</p>
+      ${mods.flags.reliktReparatur ? `<button class="btn btn-primary" id="relic-repair">Reparieren (${repairCost} Schimmer)</button>` : '<p class="muted">Mit dem Foil-Knoten „Relikt-Wiederherstellung“ (ab Akt 3) kannst du zerstörte Relikte gegen Schimmer reparieren.</p>'}`;
+    $('#relic-repair')?.addEventListener('click', () => {
+      if (!repairRelic(sel.id, data, save, mods)) { play('error'); toast('Zu wenig Schimmer.', true); return; }
+      play('unlock'); game.persist(); renderRelics(game, sel.id);
+    });
+  } else $('#relic-detail').innerHTML = sel ? `
       <h2>${escapeHtml(sel.name)}${sel.verflucht ? ' <span class="curse">(verflucht)</span>' : ''}</h2>
       <div style="color:${data.rarities[sel.rarity].farbe}">${data.rarities[sel.rarity].name}</div>
       <p>${escapeHtml(sel.beschreibung)}</p>
@@ -147,7 +161,7 @@ export function renderRelics(game, selected = null) {
         <button class="btn btn-primary" id="relic-toggle">${eq.includes(sel.id) ? 'Ablegen' : 'Ausrüsten'}</button>
         <button class="btn btn-danger" id="relic-destroy">Zerstören</button>
       </div>
-      <p class="muted">Zerstören entfernt das Relikt dauerhaft und schaltet dafür einen weiteren Reliktplatz frei (max. ${max}). Fehlende Relikte findest du in der Reliktjagd.</p>`
+      <p class="muted">Zerstören entfernt das Relikt und schaltet dafür einen weiteren Reliktplatz frei (max. ${max}). Ab Akt 3 kann es über den Foil-Knoten „Relikt-Wiederherstellung“ zurückgeholt werden. Quellen: Quest- und Relikt-Knoten im Skill-Tree, Jackpots beim Neu-Würfeln (Foil-Knoten „Jackpot-Relikt“), Relikt-Jagd.</p>`
     : `<h2>Relikte</h2><p>${save.relics.owned.length} von ${data.relics.length} gefunden · ${eq.length}/${slots} Plätze belegt.</p>
        <p class="muted">Klicke ein Relikt an, um es auszurüsten oder abzulegen. Verfluchte Relikte (violett-roter Rand) sind stark, haben aber einen Nachteil.</p>`;
 
@@ -158,6 +172,7 @@ export function renderRelics(game, selected = null) {
     renderRelics(game, id);
   };
   $$('.r-item[data-id]', inv).forEach((it) => it.addEventListener('click', () => toggle(it.dataset.id)));
+  $$('.r-item[data-broken]', inv).forEach((it) => it.addEventListener('click', () => { play('click'); renderRelics(game, it.dataset.broken); }));
   $$('.r-slot.filled').forEach((s) => s.addEventListener('click', () => toggle(s.dataset.id)));
   $('#relic-toggle')?.addEventListener('click', () => toggle(sel.id));
   $('#relic-destroy')?.addEventListener('click', async () => {
@@ -171,40 +186,8 @@ export function renderRelics(game, selected = null) {
 }
 
 // =====================================================================
-// Quests und Erfolge
+// Erfolge
 // =====================================================================
-
-function rewardText(b) {
-  const p = [];
-  if (b.tagesEinkommen) p.push(`+${b.tagesEinkommen} Münzen pro Tag`);
-  if (b.kristalle) p.push(`+${b.kristalle} Kristalle`);
-  if (b.reliktpack) p.push(`${b.reliktpack}× Reliktpack`);
-  return p.join(', ');
-}
-
-export function renderQuests(game) {
-  const { data, save } = game;
-  const list = $('#quest-list');
-  const items = data.quests.map((q) => ({ q, p: progressOf(q, data, save), claimed: save.quests.claimed.includes(q.id) }))
-    .sort((a, b) => (a.claimed - b.claimed) || ((b.p.value >= b.p.target) - (a.p.value >= a.p.target)));
-  list.innerHTML = items.map(({ q, p, claimed }) => {
-    const done = p.value >= p.target;
-    return `<div class="q${claimed ? ' claimed' : done ? ' done' : ''}">
-      <div class="qi"><div class="qn">${escapeHtml(q.name)}</div><div>${escapeHtml(q.beschreibung)}</div>
-        <div class="qbar"><div style="width:${(100 * p.value) / p.target}%"></div></div><span class="muted">${formatNumber(p.value)} / ${formatNumber(p.target)}</span></div>
-      <div class="qr">Belohnung: ${escapeHtml(rewardText(q.belohnung))}</div>
-      ${claimed ? '<b class="muted">Abgeholt</b>' : `<button class="btn${done ? ' btn-primary' : ''}" data-claim="${q.id}"${done ? '' : ' disabled'}>Abholen</button>`}
-    </div>`;
-  }).join('');
-  $$('[data-claim]', list).forEach((b) => b.addEventListener('click', () => {
-    const msg = claimQuest(data.questIndex[b.dataset.claim], data, save);
-    if (!msg) return;
-    play('unlock');
-    toast(msg);
-    game.persist();
-    renderQuests(game);
-  }));
-}
 
 export function renderAchievements(game) {
   const { data, save } = game;
@@ -232,7 +215,7 @@ export function bindSettings(game) {
   $('#language').addEventListener('change', (ev) => { s().language = ev.target.value; game.persist(); });
 
   $('#btn-reset').addEventListener('click', async () => {
-    if (!(await confirmDialog('Spielstand wirklich löschen? Sternenkarte, Sammlung, Relikte und Statistiken gehen verloren.', 'Löschen', 'Abbrechen'))) return;
+    if (!(await confirmDialog('Spielstand wirklich löschen? Skill-Tree, Foil-Baum, Sammlung, Relikte und Statistiken gehen verloren.', 'Löschen', 'Abbrechen'))) return;
     if (!(await confirmDialog('Bist du ganz sicher? Das kann nicht rückgängig gemacht werden.', 'Endgültig löschen', 'Abbrechen'))) return;
     game.save = resetSave(game.data);
     game.persist();
@@ -243,7 +226,7 @@ export function bindSettings(game) {
 
   // Debug-Werkzeuge (nur mit ?debug)
   const save = () => game.save;
-  $('#dbg-currency').addEventListener('click', () => { const g = save(); g.coins += 1000; g.mastery += 1000; g.crystals += 1000; g.foilDust += 1000; game.persist(); toast('+1000 aller Währungen'); });
+  $('#dbg-currency').addEventListener('click', () => { const g = save(); g.coins += 100; g.mastery += 10000; g.foilDust += 100; g.stats.foilStaubGesamt = (g.stats.foilStaubGesamt || 0) + 100; game.persist(); toast('+100 Münzen, +10.000 Mastery, +100 Schimmer'); });
   $('#dbg-chapters').addEventListener('click', () => {
     for (const c of game.data.chapters) save().stats.bossKills[c.id] ||= 1;
     save().act = Math.max(save().act, 2);

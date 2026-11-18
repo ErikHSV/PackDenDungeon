@@ -1,7 +1,7 @@
 {
   "$kommentar": "Zentrale Balancing-Datei: alle globalen Zahlen. Koordinaten in Pixeln bei 1920×1080.",
   "spielTitel": "PackDenDungeon",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "arena": {
     "$kommentar": "Ovale Arena (Draufsicht mit leichter Neigung). Turm in der Mitte.",
     "mitteX": 960,
@@ -53,9 +53,13 @@
   "karten": {
     "foilChance": 0.02,
     "foil": {
+      "$kommentar": "Shiny-Held: doppeltes Leben, +50 % Reichweite/Fläche, sonst gleiche Werte. Shiny-Tome: +50 % Dauer und +50 % Fläche bzw. Häufigkeit. Der Foil-Knoten „Starker Glanz“ verstärkt den Bonusanteil.",
       "lebenMul": 2,
       "reichweiteMul": 1.5,
-      "flaecheMul": 1.5
+      "flaecheMul": 1.5,
+      "tomeDauerMul": 1.5,
+      "tomeFlaecheMul": 1.5,
+      "tomeHaeufigkeitMul": 1.5
     },
     "grenzgaenger": {
       "$kommentar": "Geheime Seltenheit: Chance pro gezogener Karte, steigt mit der Spielzeit der aktuellen Sitzung leicht an.",
@@ -78,64 +82,89 @@
     "elite": {
       "lebenMul": 3.5,
       "schadenMul": 1.5,
-      "muenzenMul": 4,
       "groesse": 48
     },
     "foilMonster": {
-      "$kommentar": "Seltene schimmernde Monster: stärker, mehr Belohnung, zählen fürs Foil-Bestiarium.",
+      "$kommentar": "Shiny-Monster: +100 % Leben, schneller, dreifache Belohnung (Mastery pro Kill) und Foil-Staub.",
       "chance": 0.01,
-      "lebenMul": 2.5,
-      "muenzenMul": 5,
+      "lebenMul": 2,
+      "tempoMul": 1.25,
+      "belohnungMul": 3,
       "foilStaub": 1
     }
   },
   "belohnungen": {
-    "muenzenProKill": 0.16,
-    "masteryProSekunde": 0.2,
-    "masteryProKill": 0.05,
-    "masteryProBoss": 15,
-    "kristalleNeueKarte": 2,
-    "$kommentar_kristalle": "Kristalle aus Packs stehen in packs.json; neu entdeckte Karten geben zusätzlich 'kristalleNeueKarte' × Kristallwert des Packs",
-    "masteryProElitewelle": 2,
-    "foilStaubProFoilKarte": 1
+    "$kommentar": "Mastery aus dem Überleben (Zeit, Kills, Elitewellen, Bosse), geöffneten Packs und neuen Sammlungseinträgen. Münzen gibt es nur aus dem Tageseinkommen (plus Bonus-Münzen).",
+    "masteryProSekunde": 0.8,
+    "masteryProKill": 0.6,
+    "masteryProElitewelle": 10,
+    "masteryProBoss": 150,
+    "masteryProPack": 3,
+    "masteryNeueKarte": 15,
+    "erstesShiny": {
+      "$kommentar": "Erste Shiny-Version einer Karte bzw. eines Monsters.",
+      "foilStaubKarte": 2,
+      "masteryKarte": 50,
+      "masteryMonster": 30
+    },
+    "reliktpackOhneRelikt": {
+      "$kommentar": "Alle zufällig erhältlichen Relikte gefunden: das Pack gibt Foil-Staub.",
+      "foilStaub": 3
+    },
+    "reliktDoppelt": {
+      "$kommentar": "Relikt-Knoten nach einem Akt-Wechsel, wenn das Relikt schon da ist.",
+      "foilStaub": 2
+    }
   },
   "wirtschaft": {
-    "$kommentar": "Jeder Run ist ein Tag: Tageseinkommen wird gutgeschrieben, der Shop würfelt neu.",
-    "startMuenzen": 12,
-    "tagesEinkommen": 0,
-    "preisWachstumProKapitel": 0.35
+    "$kommentar": "Münzen nur für den Shop: Tageseinkommen (zu Beginn jedes Tages gutgeschrieben) plus Bonus-Münzen (Relikte, Fähigkeiten). Erhöht vor allem durch Quest-Knoten.",
+    "startMuenzen": 3,
+    "tagesEinkommen": 3,
+    "preisWachstumProKapitel": 0
   },
   "shop": {
-    "angebotsPlaetzeStart": 6,
+    "angebotsPlaetzeStart": 3,
     "angebotsPlaetzeMax": 9,
     "neuWuerfeln": {
-      "grundKosten": 2,
-      "wachstum": 1.5,
-      "freischaltKnoten": "g_wuerfeln"
+      "grundKosten": 1,
+      "wachstum": 1.6,
+      "freischaltKnoten": "w_wuerfeln"
     },
     "rueckerstattung": 1.0,
     "jackpot": {
-      "$kommentar": "Chance pro Angebotsplatz auf einen goldenen Jackpot-Platz (Inhalte in shop.json → jackpots).",
-      "chance": 0.04
+      "$kommentar": "Jackpots entstehen nur beim Neu-Würfeln: Chance je neu gewürfeltem Platz.",
+      "chance": 0.1
     },
     "rabatt": {
       "$kommentar": "Chance je normalem Angebot auf einen Rabatt (rotes Etikett).",
-      "chance": 0.12,
+      "chance": 0.1,
       "faktor": 0.6
     },
+    "paar": {
+      "$kommentar": "Foil-Knoten Doppel-/Dreier-Angebot: Einzelhelden erscheinen als Paar oder Trio.",
+      "chance": 0.35,
+      "preisMul": 1.7,
+      "trioChance": 0.3,
+      "trioPreisMul": 2.4
+    },
+    "glanzpack": {
+      "$kommentar": "Foil-Knoten Glanzpack: Chance je Platz auf das pinke Glanzpack.",
+      "chance": 0.06
+    },
+    "shinyEinzelkarte": {
+      "$kommentar": "Einzelkarten im Shop können shiny sein (Regenbogenrand). Chance = Karten-Shiny-Chance × Faktor.",
+      "faktor": 1
+    },
     "spalten": 3
-  },
-  "sternenkarte": {
-    "kostenFaktorStandard": 1.45
   },
   "relikte": {
     "plaetzeStart": 1,
     "plaetzeMax": 5,
     "zerstoerenGibtPlatz": true,
-    "$kommentar": "Ein Relikt zu zerstören schaltet einmalig einen weiteren Platz frei (bis plaetzeMax). Relikt-Jagd garantiert ein noch fehlendes Relikt."
+    "$kommentar": "Zerstören schaltet einen weiteren Platz frei (bis plaetzeMax). Foil-Knoten „Weiterer Relikt-Platz“ gibt zusätzliche Plätze. Relikte mit nurBaum gibt es nur über Relikt-Knoten."
   },
   "akte": {
-    "$kommentar": "Beim Eintritt in Akt 2 wird die Sternenkarte zurückgesetzt (volle Rückerstattung), neue Äste kommen hinzu.",
+    "$kommentar": "Akt-Wechsel über den Tor-Knoten im Skill-Tree: der Skill-Tree wird zurückgesetzt (volle Rückerstattung), Quest-Fortschritt beginnt neu. Erhalten bleiben Foil-Baum, Foil-Staub, Sammlung, Bestiarium, Relikte.",
     "sternenkarteResetBeiAktwechsel": true
   },
   "prestige": {
@@ -156,14 +185,31 @@
     ]
   },
   "gesucht": {
-    "$kommentar": "Geschafftes Kapitel gegen die Foil-Version seines Bosses.",
+    "$kommentar": "Geschafftes Kapitel gegen die Shiny-Version seines Bosses: stärker, mit Zusatzangriff. Fester Foil-Staub pro Sieg, beim ersten Sieg zusätzlich eine große Mastery-Belohnung.",
     "bossLebenMul": 2.5,
     "bossSchadenMul": 1.5,
-    "kristalle": 10,
-    "foilStaub": 5
+    "foilStaub": 4,
+    "erstsiegMastery": 1500,
+    "zusatzAngriff": {
+      "intervall": 8,
+      "vorwarnung": 1.2,
+      "anzahl": 3,
+      "radius": 60,
+      "schaden": 22,
+      "text": "Prisma-Salve!"
+    }
   },
   "debug": {
     "$kommentar": "Debug-Werkzeuge (nur mit ?debug in der URL).",
     "zeitVorspulenSekunden": 30
+  },
+  "skilltree": {
+    "kostenFaktorStandard": 1.45
+  },
+  "foilbaum": {
+    "$kommentar": "Zweiter, dauerhafter Baum (data/foiltree.json). Kosten = basisKosten × kostenFaktor^Stufe.",
+    "kostenFaktorStandard": 1.6,
+    "zinsenMax": 500,
+    "reliktReparaturKosten": 10
   }
 }

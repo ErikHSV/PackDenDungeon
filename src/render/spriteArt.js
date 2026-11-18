@@ -1003,7 +1003,14 @@ Object.assign(ICON_ART, {
   zap(p) { p.line(3, 0, 6, 4, '#ffffff'); p.line(6, 4, 3, 7, '#ffffff'); p.line(3, 7, 7, 11, '#ffffff'); p.line(8, 1, 10, 4, '#e8e8ff'); p.line(10, 4, 8, 6, '#e8e8ff'); },
   /** Magentafarbenes Fragezeichen (Grenzgänger) */
   grenz(p) { p.rect(3, 1, 6, 2, '#ff2ec8'); p.rect(8, 2, 2, 3, '#ff2ec8'); p.rect(5, 5, 4, 2, '#ff2ec8'); p.rect(5, 7, 2, 2, '#ff2ec8'); p.rect(5, 10, 2, 2, '#ff2ec8'); p.px(2, 2, '#ff2ec8'); },
-  /** Mastery-Kristalle je Gebiet */
-  crystal_rot(p) { p.tri(6, 0, 11, 5, 1, 5, '#ff8a8a'); p.tri(1, 5, 11, 5, 6, 12, '#d83030'); p.line(6, 1, 6, 10, '#ffd8d8'); },
-  crystal_weiss(p) { p.tri(6, 0, 11, 5, 1, 5, '#ffffff'); p.tri(1, 5, 11, 5, 6, 12, '#c8d8e8'); p.line(6, 1, 6, 10, '#ffffff'); },
+  /** Regenbogen-Kristall = Foil-Staub („Schimmer“) */
+  crystal_regen(p) {
+    p.tri(6, 0, 11, 5, 1, 5, '#ff7ac8'); p.tri(1, 5, 11, 5, 6, 12, '#7ae8ff');
+    p.tri(6, 0, 9, 5, 3, 5, '#ffe07a'); p.tri(3, 5, 9, 5, 6, 12, '#a8ff7a'); p.tri(4, 5, 8, 5, 6, 10, '#b88cff');
+    p.line(6, 1, 6, 10, '#ffffff');
+  },
+  /** Tor-Knoten: steinerner Torbogen mit Leuchten */
+  gate(p) { p.rect(1, 3, 3, 9, '#8d97a6'); p.rect(8, 3, 3, 9, '#8d97a6'); p.rect(1, 1, 10, 3, '#a8b2c0'); p.rect(4, 4, 4, 8, '#FF9A3A'); p.rect(5, 5, 2, 7, '#ffe07a'); p.px(6, 2, '#FFD24A'); },
+  /** Ausrufezeichen (Quest erfüllt) */
+  exclam(p) { p.rect(5, 1, 3, 7, '#FFD24A'); p.rect(5, 9, 3, 2, '#FFD24A'); },
 });

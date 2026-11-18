@@ -5,7 +5,7 @@ import { cardElement } from './cardView.js';
 import { showResult } from './result.js';
 import { NewCardReveal } from './reveal.js';
 import { Run } from '../core/run.js';
-import { bagItems, consumeBag, masteryFor, progressOf } from '../core/meta.js';
+import { bagItems, consumeBag, masteryFor, levelOf, nodeVisible, questProgress, questChapters } from '../core/meta.js';
 import { worldOf } from '../render/arena.js';
 import { Renderer } from '../render/renderer.js';
 import { play, startMusic } from '../audio.js';
@@ -104,8 +104,7 @@ export class BattleController {
       });
       d.addEventListener('pointerleave', () => show('#relic-tip', false));
     });
-    const w = worldOf(run.chapter).waehrung;
-    $('#hud-mastery-icon').src = bank.iconUrl(w === 'rot' ? 'crystal_rot' : w === 'weiss' ? 'crystal_weiss' : 'mastery');
+    $('#hud-mastery-icon').src = bank.iconUrl('mastery'); // Mastery = blauer Kristall (einzige Run-Währung)
     // Multiplikator und Herkunft (Prestige, Modifikator, Sternenkarte, Kapitel)
     const m = this.mods;
     const kapitelMul = run.chapter.wellen.muenzenMul ?? 1;
@@ -125,35 +124,32 @@ export class BattleController {
     show('#debug-panel', this.game.debug);
   }
 
-  /** Bis zu drei offene Quests, die zum aktuellen Kapitel passen. */
+  /** Bis zu drei offene, im Skill-Tree sichtbare Quests, die im aktuellen Kapitel Fortschritt machen können. */
   chapterQuests() {
     const { data, save, bank } = this.game;
-    const ch = this.run.chapter;
-    const enemies = new Set([...ch.gegner.map((g) => g.id), ch.boss]);
+    const run = this.run;
+    const ch = run.chapter;
+    const packsHere = new Set(run.bag.flatMap((b) => { const p = data.packIndex[b]; return p ? [b, p.inhalt?.pack].filter(Boolean) : []; }));
+    for (const b of run.buildings) { packsHere.add(b.def.pack); if (b.def.kiste) packsHere.add(data.packIndex[b.def.kiste]?.inhalt?.pack); }
     const rows = [];
-    for (const q of data.quests) {
-      if (save.quests.claimed.includes(q.id)) continue;
-      const z = q.ziel;
-      const p = progressOf(q, data, save);
-      if (p.value >= p.target) continue;
-      let icon = null, live = null;
-      if (z.statistik === 'killsGegner' && enemies.has(z.filter?.gegner) && (!z.filter.kapitel || z.filter.kapitel === ch.id)) {
-        icon = bank.enemyUrl(z.filter.gegner);
-        live = (r) => { const k = r.stats.killsNachArt[z.filter.gegner]; return k ? k.normal + k.foil : 0; };
-      } else if (z.statistik === 'packsGeoeffnet' && (!z.filter?.pack || this.run.bag.some((b) => b === z.filter.pack || data.packIndex[b]?.inhalt?.pack === z.filter.pack))) {
-        icon = bank.shopItemUrl(z.filter?.pack ?? 'holzpack');
-        live = (r) => (z.filter?.pack ? r.stats.packsGeoeffnet[z.filter.pack] || 0 : Object.values(r.stats.packsGeoeffnet).reduce((a, b) => a + b, 0));
-      } else if (z.statistik === 'bossBesiegt' && (!z.filter?.boss || z.filter.boss === ch.boss)) {
-        icon = bank.enemyUrl(ch.boss);
-        live = (r) => (r.result?.sieg ? 1 : 0);
-      } else if (z.statistik === 'kills') {
-        icon = bank.iconUrl('skull');
-        live = (r) => r.stats.kills;
-      } else if (z.statistik === 'foilsGezogen') {
-        icon = bank.iconUrl('dust');
-        live = (r) => r.stats.foils;
-      } else continue;
-      rows.push({ q, base: p.value, target: p.target, icon, live });
+    for (const n of data.starmap.knoten) {
+      if (n.typ !== 'quest' || levelOf(save, n.id) > 0 || !nodeVisible('skill', n, save, data)) continue;
+      const p = questProgress(n, data, save);
+      if (p.done) continue;
+      const chs = questChapters(n, data);
+      if (chs && !chs.includes(ch.id)) continue;
+      const a = n.aufgabe, f = a.filter || {};
+      if (a.statistik === 'packsGeoeffnet' && f.pack && !packsHere.has(f.pack)) continue;
+      if (a.statistik === 'kartenGefunden' && !data.packs.some((pk) => pk.pool?.includes(f.karte) && packsHere.has(pk.id)) && !run.bag.includes(`karte:${f.karte}`)) continue;
+      let icon = bank.iconUrl('quest');
+      if (a.statistik === 'killsGegner') icon = bank.enemyUrl(f.gegner);
+      else if (a.statistik === 'bossBesiegt') icon = bank.enemyUrl(f.boss ?? ch.boss);
+      else if (a.statistik === 'packsGeoeffnet') icon = bank.shopItemUrl(f.pack ?? 'holzpack');
+      else if (a.statistik === 'kartenGefunden') icon = bank.cardUrl(f.karte);
+      else if (a.statistik === 'foilMonsterBesiegt') icon = bank.iconUrl('crystal_regen');
+      else if (a.statistik === 'kills') icon = bank.iconUrl('skull');
+      else if (a.statistik === 'ueberleben') icon = bank.iconUrl('tower');
+      rows.push({ n, icon });
       if (rows.length >= 3) break;
     }
     return rows;
@@ -173,16 +169,21 @@ export class BattleController {
       $('#hud-progress').style.opacity = 1;
       $('#hud-progress-fill').style.width = `${Math.min(1, run.time / run.bossTime) * 100}%`;
     }
-    // Run-Zähler: in diesem Run gesammelte Mastery
-    const mp = masteryFor({ zeit: run.time, kills: run.stats.kills, elitewellen: run.stats.elitewellen, sieg: !!run.result?.sieg, kapitel: run.chapter.id }, data, this.mods);
+    // Run-Zähler: in diesem Run gesammelte Mastery (Shiny-Monster zählen dreifach)
+    const killWert = run.stats.kills + (data.balance.wellen.foilMonster.belohnungMul - 1) * run.stats.foilMonster;
+    const mp = Math.max(0, masteryFor({ zeit: run.time, kills: killWert, elitewellen: run.stats.elitewellen, sieg: !!run.result?.sieg, kapitel: run.chapter.id, packs: Object.values(run.stats.packsGeoeffnet).reduce((x, y) => x + y, 0) }, data, this.mods) + run.stats.bonusMastery);
     if (mp !== this.lastHud.mp) { $('#hud-mastery').textContent = formatNumber(mp); this.lastHud.mp = mp; }
-    // Quests live
+    // Quests live: gespeicherter Fortschritt + Werte des laufenden Runs
     if (this.questRows.length) {
+      const live = {
+        kapitel: run.chapter.id, packsGeoeffnet: run.stats.packsGeoeffnet, kills: run.stats.kills, killsNachArt: run.stats.killsNachArt,
+        gezogen: run.stats.gezogen, zeit: run.time, foilMonster: run.stats.foilMonster, sieg: !!run.result?.sieg, boss: run.chapter.boss, tomesGenutzt: run.stats.tomesGenutzt,
+      };
       const html = this.questRows.map((r) => {
-        const v = Math.min(r.target, r.base + r.live(run));
-        const done = v >= r.target;
-        const text = r.q.beschreibung.endsWith('.') ? r.q.beschreibung.slice(0, -1) : r.q.beschreibung;
-        return `<div class="hq${done ? ' done' : ''}"><img src="${r.icon}" alt=""><span>${escapeHtml(text.toUpperCase())}</span><b>${formatNumber(v)}/${formatNumber(r.target)}</b></div>`;
+        const p = questProgress(r.n, data, this.game.save, live);
+        const text = r.n.beschreibung.replace(/ \(.*\)/, '').replace(/\.$/, '');
+        const val = r.n.aufgabe.statistik === 'ueberleben' ? `${Math.floor(p.value / 60)}:${String(p.value % 60).padStart(2, '0')}/${Math.floor(p.target / 60)}:${String(p.target % 60).padStart(2, '0')}` : `${formatNumber(p.value)}/${formatNumber(p.target)}`;
+        return `<div class="hq${p.done ? ' done' : ''}"><img src="${r.icon}" alt=""><span>${escapeHtml(text.toUpperCase())}</span><b>${val}</b></div>`;
       }).join('');
       if (html !== this.lastHud.q) { $('#hud-quests').innerHTML = html; this.lastHud.q = html; }
     }
@@ -216,7 +217,7 @@ export class BattleController {
       case 'bossSpawned':
         play('boss'); startMusic('boss');
         this.bossIntro = 2;
-        this.banner(p.enemy.name + (p.enemy.foil ? ' (Foil)' : ''), 'boss');
+        this.banner(p.enemy.name + (p.enemy.foil ? ' (Shiny)' : ''), 'boss');
         break;
       case 'bossWarning': if (p.text) this.banner(p.text, 'danger'); play('bossSkill'); break;
       case 'bossInterrupted': toast('Schrei unterbrochen!'); play('parry'); break;
@@ -247,6 +248,7 @@ export class BattleController {
     const p = this.presenting[0];
     if (!p) return;
     this.reveal.open(p.id, p.foil);
+    $('#nc-sheen').style.setProperty('--fig', `url(${$('#nc-fig').src})`);
   }
 
   closePresentation() {
@@ -352,7 +354,7 @@ export class BattleController {
   debug(a) {
     const run = this.run;
     if (!run || run.over) return;
-    if (a === 'coins') run.coins += 500;
+    if (a === 'shiny') { const id = run.chapter.gegner[0].id; run.spawnEnemy(id, { foil: true }); }
     if (a === 'time') run.update(this.game.data.balance.debug.zeitVorspulenSekunden);
     if (a === 'boss') { run.time = Math.max(run.time, run.bossTime); run.state = 'fight'; }
     if (a === 'pack') run.launchPack('silberpack');

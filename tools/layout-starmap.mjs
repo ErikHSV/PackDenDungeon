@@ -10,11 +10,12 @@ import { readFileSync, writeFileSync } from 'node:fs';
 const FILE = new URL('../data/starmap.json', import.meta.url);
 const G = 96; // Rasterabstand
 const map = JSON.parse(readFileSync(FILE, 'utf8'));
+const relics = Object.fromEntries(JSON.parse(readFileSync(new URL('../data/relics.json', import.meta.url), 'utf8')).map((r) => [r.id, r]));
 const idx = Object.fromEntries(map.knoten.map((n) => [n.id, n]));
 const start = idx[map.start];
 
 const UP = ['cursor', 'wirtschaft', 'packs', 'gebaeude'];
-const DOWN = ['einheiten', 'turm', 'tomes', 'foil'];
+const DOWN = ['einheiten', 'turm', 'tomes', 'akt'];
 
 // Spannbaum per Breitensuche (Reihenfolge der Verbindungen bleibt erhalten)
 const parent = {}, children = {};
@@ -82,6 +83,10 @@ for (const n of map.knoten) {
 function badgeFor(n) {
   const e = n.effekt;
   const z = e.ziel;
+  if (n.typ === 'quest' || n.typ === 'tor') return null;
+  if (z === 'relikt') return 'star';
+  if (z === 'tome') return e.art === 'dauer' ? 'clock' : 'bolt';
+  if (z === 'rabattChance') return 'star';
   if (z === 'flag') return 'bolt';
   if (z === 'gebaeude') return n.id.endsWith('_aus') ? 'clock' : 'plus';
   if (z === 'einheit') {
@@ -104,7 +109,11 @@ function badgeFor(n) {
 
 function symbolFor(n) {
   if (n.typ === 'start') return 'tower';
+  if (n.typ === 'quest') return 'quest';
+  if (n.typ === 'tor') return 'gate';
   const e = n.effekt;
+  if (e.ziel === 'relikt') return relics[e.relikt]?.symbol ?? 'gem';
+  if (e.ziel === 'tome') return `card:${e.tome}`;
   if (e.ziel === 'einheit' || n.voraussetzung?.karte) return `card:${e.karte ?? n.voraussetzung.karte}`;
   switch (n.ast) {
     case 'cursor': return e.ziel === 'cursorSchaden' || e.ziel === 'cursorKrit' ? 'claw' : 'hand';
@@ -114,15 +123,16 @@ function symbolFor(n) {
     case 'einheiten': return 'sword';
     case 'turm': return e.ziel === 'turmLebenMul' ? 'bigheart' : 'tower';
     case 'tomes': return 'book';
-    case 'foil': return 'dust';
+    case 'akt': return 'gate';
     default: return n.symbol ?? 'rune';
   }
 }
 
 for (const n of map.knoten) {
   n.symbol = symbolFor(n);
-  if (n.typ !== 'start') n.abzeichen = badgeFor(n); else delete n.abzeichen;
+  const badge = n.typ !== 'start' && badgeFor(n);
+  if (badge) n.abzeichen = badge; else delete n.abzeichen;
 }
-map.$kommentar = 'Sternenkarte als Schaltplan (14.2.5). Positionen und Symbole erzeugt tools/layout-starmap.mjs – danach von Hand anpassbar. abzeichen: clock|sword|heart|plus|arrow|bolt|star.';
+map.$kommentar = 'Skill-Tree als Schaltplan (11, 14.2.5). Knotentypen: start, klein/gross/schluessel (Upgrade), freischalt, relikt, quest (aufgabe + belohnung, kostenlos), tor (Akt-Wechsel). Positionen und Symbole erzeugt tools/layout-starmap.mjs – danach von Hand anpassbar. abzeichen: clock|sword|heart|plus|arrow|bolt|star.';
 writeFileSync(FILE, JSON.stringify(map, null, 2) + '\n');
 console.log(`Layout: ${map.knoten.length} Knoten, ${map.groesse.breite}×${map.groesse.hoehe} px, Raster ${G}`);

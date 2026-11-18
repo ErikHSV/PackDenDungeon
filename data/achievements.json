@@ -52,8 +52,8 @@
   {
     "id": "e_foil_1",
     "name": "Es schimmert",
-    "beschreibung": "Finde deine erste Foil-Karte.",
-    "kategorie": "Foil",
+    "beschreibung": "Ziehe deine erste Shiny-Karte.",
+    "kategorie": "Shiny",
     "ziel": {
       "statistik": "foilsGezogen",
       "anzahl": 1
@@ -62,8 +62,8 @@
   {
     "id": "e_foilmonster_1",
     "name": "Glänzende Beute",
-    "beschreibung": "Besiege dein erstes Foil-Monster.",
-    "kategorie": "Foil",
+    "beschreibung": "Besiege dein erstes Shiny-Monster.",
+    "kategorie": "Shiny",
     "ziel": {
       "statistik": "foilMonsterBesiegt",
       "anzahl": 1
@@ -151,7 +151,7 @@
   {
     "id": "e_gesucht",
     "name": "Gesucht und gefunden",
-    "beschreibung": "Besiege einen Foil-Boss.",
+    "beschreibung": "Besiege einen Shiny-Boss über „Gesucht“.",
     "kategorie": "Kapitel",
     "ziel": {
       "statistik": "foilBossBesiegt",
@@ -171,12 +171,22 @@
   {
     "id": "e_foils_alle",
     "name": "Regenbogendeck",
-    "beschreibung": "Finde alle Karten als Foil.",
+    "beschreibung": "Finde alle Helden und Tomes als Shiny.",
     "kategorie": "Sammlung",
     "ziel": {
       "statistik": "foilArten",
       "anzahl": "alle"
     }
+  },
+  {
+    "id": "e_foilmonster_alle",
+    "name": "Glänzendes Bestiarium",
+    "beschreibung": "Besiege jedes Monster (auch die Bosse) einmal als Shiny.",
+    "ziel": {
+      "statistik": "foilMonsterArten",
+      "anzahl": "alle"
+    },
+    "kategorie": "Shiny"
   },
   {
     "id": "e_bestiarium",
@@ -220,12 +230,12 @@
   },
   {
     "id": "e_muenzen_5000",
-    "name": "Großzügig",
-    "beschreibung": "Gib 5.000 Münzen aus.",
+    "name": "Stammkunde",
+    "beschreibung": "Gib insgesamt 500 Münzen im Shop aus.",
     "kategorie": "Allgemein",
     "ziel": {
       "statistik": "muenzenAusgegeben",
-      "anzahl": 5000
+      "anzahl": 500
     }
   },
   {

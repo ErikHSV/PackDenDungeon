@@ -4,7 +4,7 @@
 /** Alle Datendateien unter data/ (ohne Endung). Neue Dateien hier eintragen. */
 export const DATA_FILES = [
   'balance', 'rarities', 'units', 'tomes', 'packs', 'shop', 'enemies',
-  'chapters', 'acts', 'modifiers', 'buildings', 'relics', 'quests', 'achievements', 'starmap',
+  'chapters', 'acts', 'modifiers', 'buildings', 'relics', 'achievements', 'starmap', 'foiltree',
 ];
 
 const byId = (list) => Object.fromEntries(list.map((x) => [x.id, x]));
@@ -21,11 +21,11 @@ export function prepareData(raw) {
   data.modifierIndex = byId(raw.modifiers);
   data.buildingIndex = byId(raw.buildings);
   data.relicIndex = byId(raw.relics);
-  data.questIndex = byId(raw.quests);
   data.actIndex = byId(raw.acts);
   data.achievementIndex = byId(raw.achievements);
   data.starIndex = byId(raw.starmap.knoten);
   data.branchIndex = byId(raw.starmap.aeste);
+  data.foilIndex = byId(raw.foiltree.knoten);
 
   // Karten = ziehbare Einheiten + Tomes (Beschwörungen sind keine Karten)
   data.cardIndex = {};
@@ -64,7 +64,7 @@ export function validateReferences(data) {
   // Packs
   for (const p of data.packs) {
     if (p.art === 'pack') {
-      if (!p.pool?.length) e.push(`Pack ${p.id}: leerer Pool`);
+      if (!p.pool?.length && !p.nurFehlende) e.push(`Pack ${p.id}: leerer Pool`);
       for (const id of p.pool || []) if (!isCard(id)) e.push(`Pack ${p.id}: Pool enthält unbekannte Karte ${id}`);
       for (const r of Object.keys(p.seltenheitsGewichte || {})) if (!rarities.includes(r)) e.push(`Pack ${p.id}: unbekannte Seltenheit ${r}`);
       if (!(p.widerstand > 0)) e.push(`Pack ${p.id}: Widerstand fehlt`);
@@ -78,7 +78,7 @@ export function validateReferences(data) {
   // Akte und Tor
   for (const a of data.acts) {
     for (const k of [...a.kapitel, ...(a.sonder || [])]) if (!data.chapterIndex[k]) e.push(`Akt ${a.id}: unbekanntes Kapitel ${k}`);
-    for (const s of a.tor?.schluesselsteine || []) if (!data.chapterIndex[s.kapitel]) e.push(`Akt ${a.id}: Schlüsselstein für unbekanntes Kapitel ${s.kapitel}`);
+    if (a.tor?.knoten && !data.starIndex[a.tor.knoten]) e.push(`Akt ${a.id}: unbekannter Tor-Knoten ${a.tor.knoten}`);
   }
   for (const k of data.chapters) if (!data.acts.some((a) => a.id === k.akt)) e.push(`Kapitel ${k.id}: unbekannter Akt ${k.akt}`);
   // Tomes, die beim Freisetzen Einheiten erzeugen
@@ -102,34 +102,49 @@ export function validateReferences(data) {
     if (!data.packIndex[b.pack]) e.push(`Gebäude ${b.id}: unbekanntes Pack ${b.pack}`);
     if (b.kiste && !data.packIndex[b.kiste]) e.push(`Gebäude ${b.id}: unbekannte Kiste ${b.kiste}`);
   }
-  // Quests
-  for (const q of data.quests) {
-    if (q.ziel.filter?.pack && !data.packIndex[q.ziel.filter.pack]) e.push(`Quest ${q.id}: unbekanntes Pack im Filter`);
-    if (q.ziel.filter?.boss && !data.enemyIndex[q.ziel.filter.boss]) e.push(`Quest ${q.id}: unbekannter Boss im Filter`);
-    if (q.ziel.filter?.gegner && !data.enemyIndex[q.ziel.filter.gegner]) e.push(`Quest ${q.id}: unbekannter Gegner im Filter`);
-    if (q.ziel.filter?.kapitel && !data.chapterIndex[q.ziel.filter.kapitel]) e.push(`Quest ${q.id}: unbekanntes Kapitel im Filter`);
-  }
-  // Sternenkarte
-  const branches = data.starmap.aeste.map((b) => b.id);
-  if (!data.starIndex[data.starmap.start]) e.push('Sternenkarte: Startknoten fehlt');
-  for (const n of data.starmap.knoten) {
-    if (!branches.includes(n.ast)) e.push(`Sternenkarte ${n.id}: unbekannter Ast ${n.ast}`);
-    for (const v of n.verbindungen) {
-      if (!data.starIndex[v]) e.push(`Sternenkarte ${n.id}: Verbindung zu unbekanntem Knoten ${v}`);
-      else if (!data.starIndex[v].verbindungen.includes(n.id)) e.push(`Sternenkarte ${n.id} ↔ ${v}: Verbindung nicht beidseitig`);
+  // Skill-Tree und Foil-Baum
+  const checkTree = (label, tree, index, extra) => {
+    if (!index[tree.start]) e.push(`${label}: Startknoten fehlt`);
+    for (const n of tree.knoten) {
+      for (const v of n.verbindungen) {
+        if (!index[v]) e.push(`${label} ${n.id}: Verbindung zu unbekanntem Knoten ${v}`);
+        else if (!index[v].verbindungen.includes(n.id)) e.push(`${label} ${n.id} ↔ ${v}: Verbindung nicht beidseitig`);
+      }
+      extra?.(n);
     }
+    const reach = new Set([tree.start]);
+    const queue = [tree.start];
+    while (queue.length) for (const v of index[queue.shift()]?.verbindungen || []) if (!reach.has(v)) { reach.add(v); queue.push(v); }
+    for (const n of tree.knoten) if (!reach.has(n.id)) e.push(`${label} ${n.id}: vom Start aus nicht erreichbar`);
+  };
+  const branches = data.starmap.aeste.map((b) => b.id);
+  checkTree('Skill-Tree', data.starmap, data.starIndex, (n) => {
+    if (!branches.includes(n.ast)) e.push(`Skill-Tree ${n.id}: unbekannter Ast ${n.ast}`);
     const ef = n.effekt;
-    if ((ef.ziel === 'einheit' || n.voraussetzung?.karte) && !isCard(ef.karte ?? n.voraussetzung.karte)) e.push(`Sternenkarte ${n.id}: unbekannte Karte`);
-    if (ef.ziel === 'gebaeude' && !data.buildingIndex[ef.gebaeude]) e.push(`Sternenkarte ${n.id}: unbekanntes Gebäude ${ef.gebaeude}`);
-  }
+    if ((ef.ziel === 'einheit' || n.voraussetzung?.karte) && !isCard(ef.karte ?? n.voraussetzung.karte)) e.push(`Skill-Tree ${n.id}: unbekannte Karte`);
+    if (ef.ziel === 'tome' && !data.tomeIndex[ef.tome]) e.push(`Skill-Tree ${n.id}: unbekanntes Tome ${ef.tome}`);
+    if (ef.ziel === 'gebaeude' && !data.buildingIndex[ef.gebaeude]) e.push(`Skill-Tree ${n.id}: unbekanntes Gebäude ${ef.gebaeude}`);
+    if (ef.ziel === 'relikt' && !data.relicIndex[ef.relikt]?.nurBaum) e.push(`Skill-Tree ${n.id}: Relikt ${ef.relikt} fehlt oder ist nicht als nurBaum markiert`);
+    if (n.typ === 'quest') {
+      const f = n.aufgabe?.filter || {};
+      if (!n.aufgabe || !n.belohnung) e.push(`Quest-Knoten ${n.id}: aufgabe/belohnung fehlt`);
+      if (f.pack && !data.packIndex[f.pack]) e.push(`Quest-Knoten ${n.id}: unbekanntes Pack ${f.pack}`);
+      if (f.boss && !data.enemyIndex[f.boss]) e.push(`Quest-Knoten ${n.id}: unbekannter Boss ${f.boss}`);
+      if (f.gegner && !data.enemyIndex[f.gegner]) e.push(`Quest-Knoten ${n.id}: unbekannter Gegner ${f.gegner}`);
+      if (f.kapitel && !data.chapterIndex[f.kapitel]) e.push(`Quest-Knoten ${n.id}: unbekanntes Kapitel ${f.kapitel}`);
+      if (f.karte && !isCard(f.karte)) e.push(`Quest-Knoten ${n.id}: unbekannte Karte ${f.karte}`);
+    }
+  });
+  checkTree('Foil-Baum', data.foiltree, data.foilIndex);
   if (data.balance.shop.neuWuerfeln.freischaltKnoten && !data.starIndex[data.balance.shop.neuWuerfeln.freischaltKnoten]) {
     e.push('balance.shop.neuWuerfeln.freischaltKnoten verweist auf unbekannten Knoten');
   }
-  // Erreichbarkeit: jeder Knoten muss vom Start aus über Verbindungen erreichbar sein
-  const reach = new Set([data.starmap.start]);
-  const queue = [data.starmap.start];
-  while (queue.length) for (const v of data.starIndex[queue.shift()]?.verbindungen || []) if (!reach.has(v)) { reach.add(v); queue.push(v); }
-  for (const n of data.starmap.knoten) if (!reach.has(n.id)) e.push(`Sternenkarte ${n.id}: vom Start aus nicht erreichbar`);
+  for (const p of data.packs) {
+    const f = p.freischaltung;
+    if (f.typ === 'knoten' && !data.starIndex[f.knoten]) e.push(`Pack ${p.id}: Freischaltung durch unbekannten Knoten ${f.knoten}`);
+    if (f.typ === 'foilknoten' && !data.foilIndex[f.knoten]) e.push(`Pack ${p.id}: Freischaltung durch unbekannten Foil-Knoten ${f.knoten}`);
+  }
+  if (data.shop.glanzpack && !data.packIndex[data.shop.glanzpack.artikel]) e.push('shop.glanzpack: unbekannter Artikel');
   return e;
 }
 
@@ -149,7 +164,8 @@ export function dataSummary(data) {
     relikte: data.relics.length,
     erfolge: data.achievements.length,
     akte: data.acts.length,
-    quests: data.quests.length,
+    quests: data.starmap.knoten.filter((n) => n.typ === 'quest').length,
+    foilKnoten: data.foiltree.knoten.length,
     knoten: data.starmap.knoten.length,
     knotenStufen: data.starmap.knoten.reduce((s, n) => s + n.maxStufe, 0),
     knotenStufenAkt1: data.starmap.knoten.filter((n) => (n.akt ?? 1) === 1).reduce((s, n) => s + n.maxStufe, 0),

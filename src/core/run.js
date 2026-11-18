@@ -70,10 +70,12 @@ export class Run {
       const def = data.buildingIndex[id];
       const p = this.edgePoint(def.position.winkel, this.A.gebaeudeRing);
       const stufe = def.stufen[Math.min(def.stufen.length - 1, lvl - 1)];
-      return { id, def, level: lvl, x: p.x, y: p.y, interval: stufe.intervall, crateChance: stufe.kistenChance, timer: stufe.intervall * 0.5 };
+      const interval = stufe.intervall * (mods.gebaeudeIntervallMul ?? 1);
+      return { id, def, level: lvl, x: p.x, y: p.y, interval, crateChance: stufe.kistenChance, timer: interval * 0.5 };
     });
 
-    this.stats = { kills: 0, muenzen: 0, kristalle: 0, foilStaub: 0, packsGeoeffnet: {}, gezogen: {}, neueKarten: [], foils: 0, grenzgaenger: 0, tomesGenutzt: 0, entwicklungen: 0, killsNachArt: {}, foilMonster: 0, elitewellen: 0 };
+    // bonusMastery: Mastery außerhalb der Überlebensformel (erste Shinys, Tome-Verbot), foilStaub: Schimmer aus Shinys
+    this.stats = { kills: 0, muenzen: 0, bonusMastery: 0, foilStaub: 0, ersteShinys: [], packsGeoeffnet: {}, gezogen: {}, neueKarten: [], foils: 0, grenzgaenger: 0, tomesGenutzt: 0, entwicklungen: 0, killsNachArt: {}, foilMonster: 0, elitewellen: 0 };
     this.over = false;
     this.result = null;
     this.endAge = 0;
@@ -128,12 +130,12 @@ export class Run {
   }
 
   /** Einzelne, bereits aufgedeckte Karte (aus dem Shop) fliegt aufs Feld. */
-  launchCard(cardId, from = this.tower, delay = 0) {
+  launchCard(cardId, from = this.tower, delay = 0, foil = false) {
     if (!this.data.cardIndex[cardId]) return;
     // Gekaufte Helden sammeln sich nah am Turmfuß
     const a = this.rng() * Math.PI * 2, d = 70 + this.rng() * 60;
     const land = { x: this.tower.x + Math.cos(a) * d, y: this.tower.y + 20 + Math.abs(Math.sin(a)) * d * 0.6 };
-    this.cards.push({ id: cardId, foil: false, x: from.x, y: from.y - 60, sx: from.x, sy: from.y - 60, tx: land.x, ty: land.y, t: -delay, dur: this.headless ? 0 : 0.8, shop: true });
+    this.cards.push({ id: cardId, foil, x: from.x, y: from.y - 60, sx: from.x, sy: from.y - 60, tx: land.x, ty: land.y, t: -delay, dur: this.headless ? 0 : 0.8, shop: true });
   }
 
   updatePacks(dt) {
@@ -167,14 +169,23 @@ export class Run {
     const def = p.def;
     const S = this.stats;
     S.packsGeoeffnet[def.id] = (S.packsGeoeffnet[def.id] || 0) + 1;
-    S.kristalle += def.kristalle;
     fx(this, { type: 'flash', x: p.x, y: p.y - 30, r: 90, color: '#ffffff', life: 0.35 });
     this.emit('packOpened', { pack: p });
-    const count = def.kartenProPack + this.mods.kartenProPack;
+    // Bonuskarte: Chance auf eine zusätzliche Karte pro Pack
+    const count = def.kartenProPack + this.mods.kartenProPack + (this.rng() < (this.mods.bonusKarteChance || 0) ? 1 : 0);
     const foilChance = (this.B.karten.foilChance + this.mods.foilChance) * this.mods.foilChanceMul;
     const grenzChance = grenzgaengerChance(this.data, this.sessionMinutes + this.time / 60, this.mods.grenzgaengerChance);
+    // Glanzpack: gezielt seltene Karten, die noch fehlen (sonst beliebige seltene)
+    let src = def;
+    if (def.nurFehlende) {
+      const rank = (id) => this.data.rarities[this.data.cardIndex[id].def.rarity].rang;
+      const minRank = Math.min(...Object.keys(def.seltenheitsGewichte).map((r) => this.data.rarities[r].rang));
+      const all = [...new Set(this.data.packs.filter((x) => x.art === 'pack' && x.pool?.length).flatMap((x) => x.pool))].filter((id) => rank(id) >= minRank);
+      const missing = all.filter((id) => !this.save.collection[id] && !this.seenThisRun.has(id));
+      src = { ...def, pool: missing.length ? missing : all };
+    }
     for (let i = 0; i < count; i++) {
-      const card = drawCard(def, this.data, this.rng, { foilChance, grenzChance });
+      const card = drawCard(src, this.data, this.rng, { foilChance, grenzChance });
       const a = (i / count) * Math.PI * 2 + this.rng();
       const land = { x: p.x + Math.cos(a) * 60, y: p.y + Math.sin(a) * 34 };
       this.clampToArena(land, 0.95);
@@ -216,29 +227,42 @@ export class Run {
     const def = this.data.cardIndex[c.id].def;
     const rar = this.data.rarities[def.rarity];
     const got = (S.gezogen[c.id] ||= { normal: 0, foil: 0 });
-    got[c.foil ? 'foil' : 'normal']++;
-    if (c.foil) { S.foils++; S.foilStaub += this.B.belohnungen.foilStaubProFoilKarte; this.emit('foil', { card: c }); }
-    if (def.rarity === 'grenzgaenger') S.grenzgaenger++;
-    if (rar.lichtblitz) { fx(this, { type: 'flash', x: c.tx, y: c.ty - 30, r: 160, color: rar.farbe, life: 0.5 }); this.emit('rareCard', { card: c, rarity: def.rarity }); }
-    if (rar.zeitlupe && !this.headless) this.slowmo = this.B.run.seltenZeitlupe;
-    // Neu entdeckte Karte: Präsentation (UI pausiert)
     const known = (this.save.collection[c.id]?.normal || 0) + (this.save.collection[c.id]?.foil || 0) > 0;
+    const firstShiny = c.foil && !(this.save.collection[c.id]?.foil > 0) && !got.foil;
+    got[c.foil ? 'foil' : 'normal']++;
+    if (c.foil) {
+      // Shiny: Regenbogenblitz statt Seltenheitsfarbe, heller Sound, kurze Zeitlupe
+      S.foils++;
+      fx(this, { type: 'flash', x: c.tx, y: c.ty - 30, r: 170, color: 'rainbow', life: 0.6 });
+      fx(this, { type: 'sparkles', x: c.tx, y: c.ty - 20, life: 1.2 });
+      if (!this.headless) this.slowmo = this.B.run.seltenZeitlupe;
+      this.emit('foil', { card: c });
+      if (firstShiny) {
+        const E = this.B.belohnungen.erstesShiny;
+        S.foilStaub += E.foilStaubKarte; S.bonusMastery += E.masteryKarte; S.ersteShinys.push(c.id);
+        fx(this, { type: 'text', x: c.tx, y: c.ty - 70, text: `+${E.foilStaubKarte} Schimmer`, color: 'rainbow', size: 20, life: 1.4 });
+      }
+    }
+    if (def.rarity === 'grenzgaenger') S.grenzgaenger++;
+    if (rar.lichtblitz && !c.foil) { fx(this, { type: 'flash', x: c.tx, y: c.ty - 30, r: 160, color: rar.farbe, life: 0.5 }); this.emit('rareCard', { card: c, rarity: def.rarity }); }
+    if (rar.zeitlupe && !this.headless) this.slowmo = this.B.run.seltenZeitlupe;
+    // Neu entdeckte Karte bzw. erstes Shiny einer Karte: Präsentation (UI pausiert)
     if (def.rarity === 'grenzgaenger') this.emit('grenzgaenger', { card: c });
     if (!known && !this.seenThisRun.has(c.id)) {
       S.neueKarten.push(c.id);
-      S.kristalle += this.B.belohnungen.kristalleNeueKarte;
+      S.bonusMastery += (this.B.belohnungen.masteryNeueKarte || 0) + (this.mods.masteryNeueKarte || 0); // neuer Sammlungseintrag
       this.emit('newCard', { id: c.id, foil: c.foil });
-    }
+    } else if (firstShiny) this.emit('newCard', { id: c.id, foil: true, shiny: true });
     this.seenThisRun.add(c.id);
 
     if (this.data.cardIndex[c.id].art === 'tome') {
-      if (this.mods.tomesErlaubt === false) { S.kristalle += 1; fx(this, { type: 'text', x: c.tx, y: c.ty - 40, text: '+1 Kristall', color: '#c58cff', size: 18 }); return; }
-      this.spawnTome(c.id, c.tx, c.ty);
-      if (this.rng() < this.mods.tomeZweimalChance) this.spawnTome(c.id, c.tx + 50, c.ty + 10);
+      if (this.mods.tomesErlaubt === false) { S.bonusMastery += 1; fx(this, { type: 'text', x: c.tx, y: c.ty - 40, text: '+1 Mastery', color: '#7cc4ff', size: 18 }); return; }
+      this.spawnTome(c.id, c.tx, c.ty, c.foil);
+      if (this.rng() < this.mods.tomeZweimalChance) this.spawnTome(c.id, c.tx + 50, c.ty + 10, c.foil);
       return;
     }
     if (this.mods.erlaubteKI && !this.mods.erlaubteKI.includes(def.ki)) {
-      this.coins += 3; fx(this, { type: 'text', x: c.tx, y: c.ty - 40, text: '+3 Münzen', color: '#FFD24A', size: 18 }); return;
+      this.coins += 3; fx(this, { type: 'text', x: c.tx, y: c.ty - 40, text: '+3 Bonus-Münzen', color: '#FFD24A', size: 18 }); return;
     }
     this.spawnUnit(c.id, c.tx, c.ty, { foil: c.foil });
   }
@@ -250,12 +274,11 @@ export class Run {
   spawnUnit(id, x, y, { foil = false, life = null } = {}) {
     const base = this.data.unitIndex[id];
     const def = buildUnitDef(base, this.mods);
-    const F = this.B.karten.foil;
     const a = this.rng() * Math.PI * 2;
     const u = {
       uid: this.uid++, kind: 'unit', id, def, x, y, foil, life, summoned: life != null,
-      maxHp: def.werte.leben * this.mods.heldenLebenMul * (foil ? F.lebenMul * this.mods.foilStaerkeMul : 1), hp: 0, geist: !!def.geist,
-      range: def.werte.reichweite * (foil ? F.reichweiteMul : 1),
+      maxHp: def.werte.leben * this.mods.heldenLebenMul * (foil ? this.foilBonus('lebenMul') : 1), hp: 0, geist: !!def.geist,
+      range: def.werte.reichweite * (foil ? this.foilBonus('reichweiteMul') : 1),
       atkTimer: 0.3 + this.rng() * 0.3, timers: {}, kills: 0, blocks: 0, damage: 0, facing: 1, evolved: false,
       homeDx: Math.cos(a) * 110, homeDy: Math.sin(a) * 70, animTime: this.rng() * 2, spawnDelay: 0.15,
     };
@@ -263,6 +286,11 @@ export class Run {
     this.units.push(u);
     fx(this, { type: 'ring', x, y, r: 50, color: this.data.rarities[base.rarity].farbe, life: 0.45 });
     return u;
+  }
+
+  /** Shiny-Bonus als Faktor; „Starker Glanz“ (Foil-Baum) verstärkt nur den Bonusanteil. */
+  foilBonus(key) {
+    return 1 + (this.B.karten.foil[key] - 1) * this.mods.foilStaerkeMul;
   }
 
   /** Entwicklung im Run: Bedingung erfüllt → Lichtsäule, volle Heilung, neue Werte und neues Aussehen. */
@@ -274,9 +302,9 @@ export class Run {
     const ratio = u.hp / u.maxHp;
     u.evolved = true;
     u.def = buildUnitDef(this.data.unitIndex[u.id], this.mods, true);
-    u.maxHp = u.def.werte.leben * this.mods.heldenLebenMul * (u.foil ? this.B.karten.foil.lebenMul : 1);
+    u.maxHp = u.def.werte.leben * this.mods.heldenLebenMul * (u.foil ? this.foilBonus('lebenMul') : 1);
     u.hp = ev.volleHeilung ? u.maxHp : ratio * u.maxHp;
-    u.range = u.def.werte.reichweite * (u.foil ? this.B.karten.foil.reichweiteMul : 1);
+    u.range = u.def.werte.reichweite * (u.foil ? this.foilBonus('reichweiteMul') : 1);
     this.stats.entwicklungen++;
     fx(this, { type: 'pillar', x: u.x, y: u.y, life: 0.9 });
     fx(this, { type: 'text', x: u.x, y: u.y - 100, text: `${ev.name}!`, color: '#FFD24A', size: 24, life: 1.4 });
@@ -310,6 +338,18 @@ export class Run {
       }
     }
     for (const e of this.enemies) if (e.engaged === u) e.engaged = null;
+    // Knochenruf-Spezial: beschworene Skelette explodieren beim Tod
+    if (u.summoned && u.id === 'skelettkrieger' && this.mods.flags.knochenExplosion) {
+      fx(this, { type: 'burst', x: u.x, y: u.y, r: 70, color: '#e8e2f0', life: 0.4 });
+      for (const e of this.enemies) if (!e.dead && dist(e, u) <= 70) damageEnemy(this, e, 20 * this.chapter.wellen.lebenMul, 'physical', { aoe: true });
+    }
+    // Relikt Knochenecho: gefallene Helden kehren mit Chance als Skelett zurück
+    if (!u.summoned && !expired) for (const r of this.relics('heldGestorben')) {
+      if (r.aktion.typ === 'skelett' && this.rng() < r.aktion.chance) {
+        this.spawnUnit('skelettkrieger', u.x, u.y, { life: r.aktion.dauer });
+        fx(this, { type: 'text', x: u.x, y: u.y - 70, text: 'Knochenecho!', color: '#e8e2f0', size: 18 });
+      }
+    }
     const s = u.def.beimTod?.beschwoeren;
     if (s && !expired) for (let i = 0; i < s.anzahl; i++) this.spawnUnit(s.einheit, u.x + i * 20, u.y, { life: s.dauer ?? 10 });
     this.emit('unitDied', { unit: u });
@@ -319,8 +359,8 @@ export class Run {
   // Tomes
   // =====================================================================
 
-  spawnTome(id, x, y) {
-    this.tomes.push({ uid: this.uid++, id, def: this.data.tomeIndex[id], x, y, bob: this.rng() * 6, rot: (this.rng() - 0.5) * 0.52 });
+  spawnTome(id, x, y, foil = false) {
+    this.tomes.push({ uid: this.uid++, id, def: this.data.tomeIndex[id], x, y, foil, bob: this.rng() * 6, rot: (this.rng() - 0.5) * 0.52 });
   }
 
   /** Klick auf ein Buch löst den Zauber aus (einmalig). */
@@ -328,19 +368,23 @@ export class Run {
     this.tomes = this.tomes.filter((x) => x !== t);
     this.stats.tomesGenutzt++;
     const times = this.rng() < this.mods.tomeDoppeltChance ? 2 : 1;
-    for (let i = 0; i < times; i++) this.castTome(t.def, t);
+    for (let i = 0; i < times; i++) this.castTome(t.def, t, t.foil);
     fx(this, { type: 'flash', x: t.x, y: t.y - 40, r: 120, color: this.data.rarities[t.def.rarity].farbe, life: 0.4 });
     if (times > 1) fx(this, { type: 'text', x: t.x, y: t.y - 90, text: 'Doppelt!', color: '#3ED6C4', size: 22 });
     this.emit('tomeUsed', { tome: t.def });
   }
 
-  castTome(def, at) {
+  /** Tome wirken. Shiny-Tome: +50 % Dauer und +50 % Fläche bzw. Häufigkeit (mehr Einschläge, mehr Beschworene). */
+  castTome(def, at, foil = false) {
     const e = def.effekt;
-    const mul = this.mods.tomeWirkungMul;
-    const dur = this.mods.tomeDauerMul * mul;
+    const own = this.mods.tomes?.[def.id] ?? { wirkungMul: 1, dauerMul: 1 };
+    const mul = this.mods.tomeWirkungMul * own.wirkungMul;
+    const dur = this.mods.tomeDauerMul * mul * own.dauerMul * (foil ? this.foilBonus('tomeDauerMul') : 1);
+    const area = foil ? this.foilBonus('tomeFlaecheMul') : 1;
+    const often = foil ? this.foilBonus('tomeHaeufigkeitMul') : 1;
     switch (e.typ) {
       case 'geisterFreisetzen': {
-        const n = Math.max(e.mindestens ?? 1, at.souls || 0);
+        const n = Math.round(Math.max(e.mindestens ?? 1, at.souls || 0) * often);
         for (let i = 0; i < n; i++) {
           const a = (i / n) * Math.PI * 2;
           this.spawnUnit(e.einheit, at.x + Math.cos(a) * 70, at.y + Math.sin(a) * 40, { life: e.dauer * dur });
@@ -349,18 +393,20 @@ export class Run {
         break;
       }
       case 'riesenwuchs':
-        this.buffs.riesen = { t: e.dauer * dur, schadenMul: e.schadenMul, reichweiteMul: e.reichweiteMul, lebenMul: e.lebenMul, groesseMul: e.groesseMul };
+        this.buffs.riesen = { t: e.dauer * dur, schadenMul: e.schadenMul, reichweiteMul: e.reichweiteMul * area, lebenMul: e.lebenMul, groesseMul: e.groesseMul };
         for (const u of this.units) if (!u.dead && !u.giant) { u.giant = true; u.maxHp *= e.lebenMul; u.hp *= e.lebenMul; }
         break;
       case 'hagel':
-        this.hail = { t: e.dauer * dur, rate: e.einschlaegeProSekunde, dmg: e.schaden * mul * this.chapter.wellen.lebenMul, r: e.radius, acc: 0, type: e.schadensTyp };
+        this.hail = { t: e.dauer * dur, rate: e.einschlaegeProSekunde * often, dmg: e.schaden * mul * this.chapter.wellen.lebenMul, r: e.radius * area, acc: 0, type: e.schadensTyp };
         break;
-      case 'beschwoeren':
-        for (let i = 0; i < e.anzahl; i++) {
-          const a = (i / e.anzahl) * Math.PI * 2;
-          this.spawnUnit(e.einheit, this.tower.x + Math.cos(a) * 120, this.tower.y + Math.sin(a) * 75, { life: e.dauer * dur });
+      case 'beschwoeren': {
+        const n = Math.round(e.anzahl * often);
+        for (let i = 0; i < n; i++) {
+          const a = (i / n) * Math.PI * 2;
+          this.spawnUnit(e.einheit, this.tower.x + Math.cos(a) * 120 * area, this.tower.y + Math.sin(a) * 75 * area, { life: e.dauer * dur });
         }
         break;
+      }
       case 'verstaerken':
         this.buffs.blutrausch = { t: e.dauer * dur, bonus: e.bonus * mul };
         break;
@@ -418,6 +464,7 @@ export class Run {
     const P = this.mods.prestige;
     const G = this.data.balance.gesucht;
     const FM = W.foilMonster;
+    // Shiny-Monster würfeln beim Erscheinen; Bosse sind nur über „Gesucht“ shiny
     const foil = !base.boss ? (opts.foil ?? this.rng() < FM.chance + this.mods.foilMonsterChance) : this.mods.gesucht;
     const hp = base.leben * ch.lebenMul * scale * this.mods.gegnerLebenMul * (elite ? E.lebenMul : 1) * (P?.lebenMul ?? 1)
       * (foil ? (base.boss ? G.bossLebenMul : FM.lebenMul) : 1);
@@ -426,13 +473,20 @@ export class Run {
     const e = {
       uid: this.uid++, kind: 'enemy', id, def: base.boss ? JSON.parse(JSON.stringify(base)) : base, name: base.name,
       x: p.x, y: p.y, wave, elite, fliegt: base.fliegt, frontSchild: !!base.eigenschaften?.frontSchild,
-      r: Math.max(9, Math.round(px * 0.4)), px, hp, maxHp: hp, speed: base.tempo * (0.9 + this.rng() * 0.2),
+      r: Math.max(9, Math.round(px * 0.4)), px, hp, maxHp: hp, speed: base.tempo * (0.9 + this.rng() * 0.2) * (foil && !base.boss ? FM.tempoMul : 1),
       ruestung: base.ruestung, magieResistenz: base.magieResistenz, immun: base.immun,
       damage: base.schaden * ch.schadenMul * Math.pow(W.schadenWachstum, wave) * (elite ? E.schadenMul : 1) * (P?.schadenMul ?? 1) * this.mods.gegnerSchadenMul * (foil && base.boss ? G.bossSchadenMul : 1),
-      muenzen: base.muenzen * (elite ? E.muenzenMul : 1) * (foil && !base.boss ? FM.muenzenMul : 1), foil, atkTimer: 0.4, st: newStatus(), facing: 1, spawnAge: 0, animTime: this.rng() * 2,
+      foil, atkTimer: 0.4, st: newStatus(), facing: 1, spawnAge: 0, animTime: this.rng() * 2,
       boss: base.boss ? { timers: {}, phase: 0, scream: null } : null,
     };
-    if (base.boss) { e.isBoss = true; this.boss = e; }
+    // Relikt Portalsiegel: neu erscheinende Monster sind kurz betäubt
+    const seal = this.relicValue('spawnBetaeubung', 'dauer');
+    if (seal > 0 && !base.boss && opts.x == null) e.st.stun = seal;
+    if (base.boss) {
+      e.isBoss = true; this.boss = e;
+      // Shiny-Boss (Gesucht): zusätzlicher Angriff
+      if (foil) (e.def.bossFaehigkeiten ||= {}).prismaSalve = { ...G.zusatzAngriff };
+    }
     this.enemies.push(e);
     return e;
   }
@@ -578,6 +632,9 @@ export class Run {
         if (e.dead || !inside(c, body(e), e.r)) continue;
         hitSomething = true;
         damageEnemy(this, e, dmg, this.B.cursor.schadensTyp, { cursor: true, aoe: true, crit });
+        // Relikt Funkennadel: Cursor-Treffer springen mit Chance als Kettenblitz über
+        const spark = this.relicValue('kettenblitz', 'chance');
+        if (spark > 0 && this.rng() < spark) this.chainLightning(e, this.relicValue('kettenblitz', 'ziele') || 3, dmg * (this.relicValue('kettenblitz', 'schadenMul') || 1));
         if (this.mods.flags.glutkreis) applyStatus(this, e, { typ: 'brennen', schadenProSekunde: dmg * 0.6, dauer: 3 });
         // Schwachpunkt (Medaillon) beim Schrei
         if (e.boss?.scream) e.boss.scream.hits++;
@@ -585,6 +642,21 @@ export class Run {
       for (const p of this.packs) if (p.landed && !p.opened && inside(c, packAt(p), PACK_HIT)) { hitSomething = true; this.damagePack(p, dmg * cs.packMul * this.relicMul('cursorPackSchadenMul')); }
     }
     if (hitSomething) cur.hit = 0.12; // Kreis blitzt kurz heller auf
+  }
+
+  /** Kettenblitz von einem Gegner zu den nächsten (Relikt Funkennadel). */
+  chainLightning(from, n, dmg) {
+    let cur = from;
+    const hit = new Set([from]);
+    for (let i = 0; i < n; i++) {
+      const next = this.enemies.filter((e) => !e.dead && !hit.has(e)).sort((a, b) => dist(a, cur) - dist(b, cur))[0];
+      if (!next || dist(next, cur) > 220) break;
+      fx(this, { type: 'bolt', x1: cur.x, y1: cur.y - 10, x2: next.x, y2: next.y - 10, color: '#a6e3ff', life: 0.2 });
+      damageEnemy(this, next, dmg, 'magic', { aoe: true, cursor: true });
+      hit.add(next);
+      cur = next;
+    }
+    this.emit('relicTriggered', { id: this.save.relics.equipped.find((id) => this.data.relicIndex[id]?.aktion.typ === 'kettenblitz') });
   }
 
   /** Klick/Tipp auf das Spielfeld: Tomes auslösen, Hämmer parieren. Gibt zurück, was getroffen wurde. */
@@ -637,7 +709,7 @@ export class Run {
     if (this.mods.flags.blitzableiter) {
       t.boltTimer -= dt;
       if (t.boltTimer <= 0) {
-        t.boltTimer = 6;
+        t.boltTimer = 5; // Sturmspitze: Blitz alle 5 s
         const near = this.enemies.filter((e) => !e.dead && dist(e, t) < 450);
         if (near.length) {
           const e = near[Math.floor(this.rng() * near.length)];
@@ -705,8 +777,14 @@ export class Run {
         this.state = 'fight';
         // Alle gekauften Packs regnen aufs Feld
         // Einzelkarten ("karte:<id>") landen als bereits aufgedeckte Karte und werden sofort zur Einheit bzw. zum Tome
-        this.bag.forEach((id, i) => (String(id).startsWith('karte:') ? this.launchCard(id.slice(6), this.tower, i * 0.08) : this.launchPack(id, this.tower, i * 0.08)));
+        this.bag.forEach((id, i) => {
+          if (!String(id).startsWith('karte:')) { this.launchPack(id, this.tower, i * 0.08); return; }
+          const [, card, foil] = id.split(':');
+          this.launchCard(card, this.tower, i * 0.08, foil === 'foil');
+        });
         this.emit('fightStart');
+        // Bollwerk: Schild mit 50 % des Turmlebens zu Kampfbeginn
+        if (this.mods.flags.bollwerk) { this.tower.maxShield = this.tower.maxHp * 0.5; this.tower.shield = this.tower.maxShield; }
         for (const r of this.relics('runStart')) if (r.aktion.typ === 'verstaerken') this.buffs.trommel = { t: r.aktion.dauer, bonus: r.aktion.bonus };
       }
       return;
@@ -752,7 +830,8 @@ export class Run {
     const best = all.filter((u) => !u.summoned).sort((a, b) => (b.damage || 0) - (a.damage || 0))[0];
     this.result = {
       sieg: victory, kapitel: this.chapter.id, boss: this.chapter.boss, zeit: this.time,
-      kills: this.stats.kills, muenzen: this.coins, kristalle: this.stats.kristalle, foilStaub: this.stats.foilStaub,
+      kills: this.stats.kills, killWert: this.stats.kills + (this.B.wellen.foilMonster.belohnungMul - 1) * this.stats.foilMonster,
+      muenzen: Math.max(0, this.coins), bonusMastery: this.stats.bonusMastery, foilStaub: this.stats.foilStaub, ersteShinys: this.stats.ersteShinys,
       killsNachArt: this.stats.killsNachArt, foilMonster: this.stats.foilMonster, elitewellen: this.stats.elitewellen,
       packsGeoeffnet: this.stats.packsGeoeffnet, gezogen: this.stats.gezogen, neueKarten: this.stats.neueKarten,
       foils: this.stats.foils, grenzgaenger: this.stats.grenzgaenger, tomesGenutzt: this.stats.tomesGenutzt, entwicklungen: this.stats.entwicklungen,

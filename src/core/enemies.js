@@ -88,6 +88,23 @@ const BOSS_ABILITIES = {
     run.emit('bossWarning', { text: ab.text });
   },
 
+  /** Shiny-Boss (Gesucht): Prisma-Salve – Vorwarnkreise unter Helden bzw. am Turm, dann Regenbogen-Einschläge. */
+  prismaSalve(run, e, ab, dt) {
+    if (!bossTimer(e, 'prisma', ab.intervall, dt)) return;
+    const alive = run.units.filter((u) => !u.dead);
+    const targets = [];
+    for (let i = 0; i < ab.anzahl; i++) targets.push(alive.length ? alive.splice(Math.floor(run.rng() * alive.length), 1)[0] : run.tower);
+    for (const t of targets) {
+      const p = { x: t.x + (run.rng() - 0.5) * 30, y: t.y + (run.rng() - 0.5) * 20 };
+      run.telegraph({ x: p.x, y: p.y, r: ab.radius, time: ab.vorwarnung, kind: 'circle', apply: () => {
+        fx(run, { type: 'flash', x: p.x, y: p.y, r: ab.radius * 1.4, color: 'rainbow', life: 0.4 });
+        for (const u of run.units) if (!u.dead && dist(u, p) <= ab.radius) damageUnit(run, u, ab.schaden * run.chapter.wellen.schadenMul);
+        if (dist(run.tower, p) <= ab.radius + run.tower.r) damageTower(run, ab.schaden * 0.5 * run.chapter.wellen.schadenMul, e, true);
+      } });
+    }
+    run.emit('bossWarning', { text: ab.text });
+  },
+
   beschwoeren(run, e, ab, dt) {
     if (!bossTimer(e, 'summon', ab.intervall, dt)) return;
     for (let i = 0; i < ab.anzahl; i++) {
@@ -130,11 +147,11 @@ function attack(run, e, dt, target) {
   e.atkTimer = e.def.angriffsIntervall;
   e.attackAnim = 0.15;
   if (target === run.tower) {
-    const steal = e.def.eigenschaften?.muenzenStehlen;
+    const steal = e.def.eigenschaften?.masteryStehlen;
     if (steal) {
-      const amount = Math.min(run.coins, steal.anzahl);
-      run.coins -= amount;
-      fx(run, { type: 'text', x: e.x, y: e.y - 50, text: `-${amount} Münzen`, color: '#E04848', size: 22, life: 1.2 });
+      const amount = steal.anzahl;
+      run.stats.bonusMastery -= amount; // Grabräuber stiehlt im Run gesammelte Mastery
+      fx(run, { type: 'text', x: e.x, y: e.y - 50, text: `-${amount} Mastery`, color: '#E04848', size: 22, life: 1.2 });
       run.emit('sound', 'steal');
       e.dead = true; e.fled = true; // flieht mit der Beute
       return;
