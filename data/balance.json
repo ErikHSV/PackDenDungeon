@@ -179,8 +179,8 @@
     },
     "rabatt": {
       "$kommentar": "Chance je normalem Angebot auf einen Rabatt (rotes Etikett).",
-      "chance": 0.1,
-      "faktor": 0.6
+      "chance": 0.05,
+      "faktor": 0.7
     },
     "paar": {
       "$kommentar": "Foil-Knoten Doppel-/Dreier-Angebot: Einzelhelden erscheinen als Paar oder Trio.",
@@ -257,7 +257,7 @@
   "foilbaum": {
     "$kommentar": "Zweiter, dauerhafter Baum (data/foiltree.json). Kosten = basisKosten × kostenFaktor^Stufe.",
     "kostenFaktorStandard": 1.6,
-    "zinsenMax": 100,
+    "zinsenMax": 2000,
     "reliktReparaturKosten": 10
   },
   "$kommentar_schimmer": "Schimmer ist bewusst knapp (10.1): 1–5 pro Ereignis, ein normaler Run ohne Shiny-Ereignis gibt 0."

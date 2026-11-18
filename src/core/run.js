@@ -72,7 +72,8 @@ export class Run {
       const p = this.edgePoint(def.position.winkel, this.A.gebaeudeRing);
       const stufe = def.stufen[Math.min(def.stufen.length - 1, lvl - 1)];
       const interval = stufe.intervall * (mods.gebaeudeIntervallMul ?? 1);
-      return { id, def, level: lvl, x: p.x, y: p.y, interval, crateChance: stufe.kistenChance, timer: interval * 0.5 };
+      return { id, def, level: lvl, x: p.x, y: p.y, interval, crateChance: stufe.kistenChance, timer: interval * 0.5,
+        extra: stufe.riesenChance || stufe.foilBonus ? { riesenChance: stufe.riesenChance || 0, foilBonus: stufe.foilBonus || 0 } : null };
     });
 
     // bonusMastery: Mastery außerhalb der Überlebensformel (erste Shinys, Tome-Verbot), foilStaub: Schimmer aus Shinys
@@ -114,11 +115,12 @@ export class Run {
   // =====================================================================
 
   /** Pack fliegt im Bogen von (fromX, fromY) auf einen Platz im Ring um den Turm. Kisten werden zu Einzelpacks. */
-  launchPack(packId, from = this.tower, delay = 0) {
+  /** extra: { riesenChance, foilBonus } – Effizienz-Stufen der Gebäude gelten nur für deren Packs. */
+  launchPack(packId, from = this.tower, delay = 0, extra = null) {
     const def = this.data.packIndex[packId];
     if (!def) return;
     if (def.art === 'kiste') {
-      for (let i = 0; i < def.inhalt.anzahl; i++) this.launchPack(def.inhalt.pack, from, delay + i * 0.12);
+      for (let i = 0; i < def.inhalt.anzahl; i++) this.launchPack(def.inhalt.pack, from, delay + i * 0.12, extra);
       return;
     }
     if (def.art !== 'pack') return;
@@ -126,7 +128,7 @@ export class Run {
     const hp = this.packHp(def);
     this.packs.push({
       uid: this.uid++, packId, def, sx: from.x, sy: from.y - 60, tx: target.x, ty: target.y, x: from.x, y: from.y,
-      t: -delay, flight: this.headless ? 0 : this.B.run.packFlugzeit, landed: this.headless, hp, maxHp: hp, wobble: 0, cracks: 0, rot: (this.rng() - 0.5) * 0.52,
+      t: -delay, flight: this.headless ? 0 : this.B.run.packFlugzeit, landed: this.headless, hp, maxHp: hp, wobble: 0, cracks: 0, rot: (this.rng() - 0.5) * 0.52, extra,
     });
   }
 
@@ -180,7 +182,7 @@ export class Run {
     this.emit('packOpened', { pack: p });
     // Bonuskarte: Chance auf eine zusätzliche Karte pro Pack
     const count = def.kartenProPack + this.mods.kartenProPack + (this.rng() < (this.mods.bonusKarteChance || 0) ? 1 : 0);
-    const foilChance = (this.B.karten.foilChance + this.mods.foilChance) * this.mods.foilChanceMul;
+    const foilChance = (this.B.karten.foilChance + this.mods.foilChance) * this.mods.foilChanceMul * (1 + (p.extra?.foilBonus || 0));
     const grenzChance = grenzgaengerChance(this.data, this.sessionMinutes + this.time / 60, this.mods.grenzgaengerChance);
     // Glanzpack: gezielt seltene Karten, die noch fehlen (sonst beliebige seltene)
     let src = def;
@@ -197,7 +199,7 @@ export class Run {
       const land = { x: p.x + Math.cos(a) * 60, y: p.y + Math.sin(a) * 34 };
       this.clampToArena(land, 0.95);
       const isNew = !((this.save.collection[card.id]?.normal || 0) + (this.save.collection[card.id]?.foil || 0) > 0) && !this.seenThisRun.has(card.id) && !this.cards.some((c) => c.id === card.id);
-      const entry = { ...card, x: land.x, y: land.y, sx: p.x, sy: p.y - 30, tx: land.x, ty: land.y, t: -i * this.B.run.kartenDrehzeit, dur: 0.6, pack: def };
+      const entry = { ...card, riese: this.rng() < (p.extra?.riesenChance || 0), x: land.x, y: land.y, sx: p.x, sy: p.y - 30, tx: land.x, ty: land.y, t: -i * this.B.run.kartenDrehzeit, dur: 0.6, pack: def };
       if (isNew) { entry.x = p.x; entry.y = p.y - 30; this.cards.push(entry); } // neue Karte: aufdecken und präsentieren
       else this.materialize(entry); // bekannte Einheit: sofort aufs Feld
     }
@@ -274,14 +276,14 @@ export class Run {
     if (this.mods.erlaubteKI && !this.mods.erlaubteKI.includes(def.ki)) {
       this.coins += 3; fx(this, { type: 'text', x: c.tx, y: c.ty - 40, text: '+3 Bonus-Münzen', color: '#FFD24A', size: 18 }); return;
     }
-    this.spawnUnit(c.id, c.tx, c.ty, { foil: c.foil });
+    this.spawnUnit(c.id, c.tx, c.ty, { foil: c.foil, riese: c.riese });
   }
 
   // =====================================================================
   // Einheiten
   // =====================================================================
 
-  spawnUnit(id, x, y, { foil = false, life = null } = {}) {
+  spawnUnit(id, x, y, { foil = false, life = null, riese = false } = {}) {
     const base = this.data.unitIndex[id];
     const def = buildUnitDef(base, this.mods);
     const a = this.rng() * Math.PI * 2;
@@ -292,7 +294,7 @@ export class Run {
       atkTimer: 0.3 + this.rng() * 0.3, timers: {}, kills: 0, blocks: 0, damage: 0, facing: 1, evolved: false,
       homeDx: Math.cos(a) * 110, homeDy: Math.sin(a) * 70, animTime: this.rng() * 2, spawnDelay: 0.15,
     };
-    if (this.mods.flags.riesenhelm && base.rarity === 'epic' && life == null) { u.riese = true; u.maxHp *= 1.6; }
+    if ((riese || (this.mods.flags.riesenhelm && base.rarity === 'epic')) && life == null) { u.riese = true; u.maxHp *= 1.6; }
     u.hp = u.maxHp;
     this.units.push(u);
     fx(this, { type: 'ring', x, y, r: 50, color: this.data.rarities[base.rarity].farbe, life: 0.45 });
@@ -961,7 +963,7 @@ export class Run {
       if (b.timer > 0) continue;
       b.timer = b.interval;
       const crate = b.def.kiste && this.rng() < b.crateChance;
-      this.launchPack(crate ? b.def.kiste : b.def.pack, b);
+      this.launchPack(crate ? b.def.kiste : b.def.pack, b, 0, b.extra);
       this.emit('sound', 'building');
     }
   }

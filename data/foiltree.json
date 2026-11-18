@@ -262,7 +262,7 @@
     {
       "id": "f_zinsen",
       "name": "Zinsen",
-      "beschreibung": "Nicht ausgegebene Mastery bringt zu Beginn jedes Tages +1 % Zinsen je Stufe (höchstens 100 pro Tag).",
+      "beschreibung": "Nicht ausgegebene Mastery bringt zu Beginn jedes Tages +5 % Zinsen je Stufe (höchstens 2000 pro Tag).",
       "typ": "klein",
       "ast": "mastery",
       "akt": 1,
@@ -279,7 +279,7 @@
       "kostenFaktor": 1.6,
       "effekt": {
         "ziel": "zinsen",
-        "wert": 0.01,
+        "wert": 0.05,
         "rechenart": "addieren"
       },
       "symbol": "mastery",

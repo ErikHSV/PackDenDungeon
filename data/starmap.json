@@ -3257,7 +3257,7 @@
         "b_kaserne"
       ],
       "maxStufe": 1,
-      "basisKosten": 150,
+      "basisKosten": 100,
       "kostenFaktor": 1.45,
       "effekt": {
         "ziel": "gebaeude",
@@ -3332,7 +3332,7 @@
     {
       "id": "b_kaserne_aus",
       "name": "Kaserne: Drill",
-      "beschreibung": "Die Kaserne wirft ihre Silberpacks öfter.",
+      "beschreibung": "Die Kaserne wirft ihre Silberpacks öfter. Ab Stufe 2 dieses Knotens: 10 % Riesen-Chance für Kasernen-Einheiten.",
       "typ": "gross",
       "ast": "gebaeude",
       "akt": 1,
@@ -3388,7 +3388,7 @@
     {
       "id": "b_sternwarte_aus",
       "name": "Sternwarte: Fernrohr",
-      "beschreibung": "Die Sternwarte wirft ihre Sternenpacks öfter.",
+      "beschreibung": "Die Sternwarte wirft ihre Sternenpacks öfter. Schon ab Stufe 1: +10 % Shiny-Chance für Sternwarten-Packs.",
       "typ": "gross",
       "ast": "gebaeude",
       "akt": 1,
@@ -3497,7 +3497,7 @@
     {
       "id": "w_rabatt",
       "name": "Feilschen",
-      "beschreibung": "+4 % Chance auf Rabatt-Angebote je Stufe.",
+      "beschreibung": "+3 % Chance auf Rabatt-Angebote (−30 %) je Stufe.",
       "typ": "klein",
       "ast": "wirtschaft",
       "akt": 1,
@@ -3509,7 +3509,7 @@
       "kostenFaktor": 1.45,
       "effekt": {
         "ziel": "rabattChance",
-        "wert": 0.04,
+        "wert": 0.03,
         "rechenart": "addieren"
       },
       "position": {

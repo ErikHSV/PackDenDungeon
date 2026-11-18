@@ -125,7 +125,7 @@ Gleiches Knotenformat, Positionen von Hand. Bezahlt mit Foil-Staub (`basisKosten
 ## Weitere Dateien
 
 - **Modifikatoren:** `effekte[]` mit `ziel`, `op`, `wert`, dazu `belohnung.masteryMul`.
-- **Gebäude:** `pack`, optional `kiste`, `position.winkel` am Arenarand, `stufen[]` mit `intervall` und `kistenChance`.
+- **Gebäude:** `pack`, optional `kiste`, `position.winkel` am Arenarand, `stufen[]` mit `intervall` und `kistenChance`, optional `riesenChance` (Einheiten aus den Packs dieses Gebäudes werden mit dieser Chance zum Riesen) und `foilBonus` (relativer Aufschlag auf die Shiny-Chance dieser Packs, 0.1 = +10 %).
 - **Relikte:** `ausloeser` (`passiv`, `runStart`, `packGeoeffnet`, `heldGestorben`, `kill`, `turmGetroffen`, `tomeGenutzt`, `bossErscheint`) und `aktion` (u. a. `kettenblitz`, `skelett`, `spawnBetaeubung`). `nurBaum: true` = nur über Relikt-Knoten.
 - **Relikte, verflucht:** `verflucht: true` plus `nachteil` (Text); `aktion.typ: werte` setzt mehrere Modifikatoren (Vorteil und Nachteil). Zerstörte Relikte geben einen weiteren Platz (`balance.relikte`).
 - **Erfolge:** `ziel { statistik, filter?, anzahl }` ohne Belohnung, mit `kategorie`. `anzahl: "alle"` zählt bis zur Gesamtzahl (z. B. alle Karten).
