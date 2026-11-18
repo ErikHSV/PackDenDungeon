@@ -560,12 +560,12 @@
       "voraussetzung": {
         "karte": "stalljunge"
       },
+      "heldAst": "stalljunge",
       "akt": 1,
       "position": {
         "x": 1352,
         "y": 2915
       },
-      "heldAst": "stalljunge",
       "symbol": "card:stalljunge",
       "abzeichen": "sword"
     },
@@ -596,12 +596,12 @@
       "voraussetzung": {
         "karte": "stalljunge"
       },
+      "heldAst": "stalljunge",
       "akt": 1,
       "position": {
         "x": 1456,
         "y": 2915
       },
-      "heldAst": "stalljunge",
       "symbol": "card:stalljunge",
       "abzeichen": "clock"
     },
@@ -632,12 +632,12 @@
       "voraussetzung": {
         "karte": "stalljunge"
       },
+      "heldAst": "stalljunge",
       "akt": 1,
       "position": {
         "x": 1560,
         "y": 2915
       },
-      "heldAst": "stalljunge",
       "symbol": "card:stalljunge",
       "abzeichen": "sword"
     },
@@ -668,12 +668,12 @@
       "voraussetzung": {
         "karte": "stalljunge"
       },
+      "heldAst": "stalljunge",
       "akt": 1,
       "position": {
         "x": 1664,
         "y": 2915
       },
-      "heldAst": "stalljunge",
       "symbol": "card:stalljunge",
       "abzeichen": "clock"
     },
@@ -741,13 +741,12 @@
       "voraussetzung": {
         "karte": "stalljunge"
       },
+      "heldAst": "stalljunge",
       "akt": 1,
       "position": {
         "x": 1872,
         "y": 2915
       },
-      "heldAst": "stalljunge",
-      "abBoss": 1,
       "symbol": "card:stalljunge",
       "abzeichen": "heart"
     },
@@ -784,7 +783,6 @@
         "karte": "stalljunge"
       },
       "heldAst": "stalljunge",
-      "abBoss": 1,
       "symbol": "card:stalljunge",
       "abzeichen": "clock"
     },
@@ -818,12 +816,12 @@
       "voraussetzung": {
         "karte": "stalljunge"
       },
+      "heldAst": "stalljunge",
       "akt": 1,
       "position": {
         "x": 2080,
         "y": 2915
       },
-      "heldAst": "stalljunge",
       "abBoss": 1,
       "symbol": "card:stalljunge",
       "abzeichen": "heart"
@@ -928,12 +926,12 @@
       "voraussetzung": {
         "karte": "kettenschwinger"
       },
+      "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
         "x": 1352,
         "y": 2781
       },
-      "heldAst": "kettenschwinger",
       "symbol": "card:kettenschwinger",
       "abzeichen": "sword"
     },
@@ -1001,12 +999,12 @@
       "voraussetzung": {
         "karte": "kettenschwinger"
       },
+      "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
         "x": 1560,
         "y": 2781
       },
-      "heldAst": "kettenschwinger",
       "abBoss": 1,
       "symbol": "card:kettenschwinger",
       "abzeichen": "arrow"
@@ -1038,12 +1036,12 @@
       "voraussetzung": {
         "karte": "kettenschwinger"
       },
+      "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
         "x": 1664,
         "y": 2781
       },
-      "heldAst": "kettenschwinger",
       "abBoss": 1,
       "symbol": "card:kettenschwinger",
       "abzeichen": "sword"
@@ -1112,12 +1110,12 @@
       "voraussetzung": {
         "karte": "kettenschwinger"
       },
+      "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
         "x": 1872,
         "y": 2781
       },
-      "heldAst": "kettenschwinger",
       "abBoss": 1,
       "symbol": "card:kettenschwinger",
       "abzeichen": "clock"
@@ -1151,12 +1149,12 @@
       "voraussetzung": {
         "karte": "kettenschwinger"
       },
+      "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
         "x": 1976,
         "y": 2781
       },
-      "heldAst": "kettenschwinger",
       "abBoss": 1,
       "symbol": "card:kettenschwinger",
       "abzeichen": "heart"
@@ -1190,12 +1188,12 @@
       "voraussetzung": {
         "karte": "kettenschwinger"
       },
+      "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
         "x": 2080,
         "y": 2781
       },
-      "heldAst": "kettenschwinger",
       "abBoss": 1,
       "symbol": "card:kettenschwinger",
       "abzeichen": "bolt"
@@ -1229,12 +1227,12 @@
       "voraussetzung": {
         "karte": "kettenschwinger"
       },
+      "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
         "x": 2184,
         "y": 2781
       },
-      "heldAst": "kettenschwinger",
       "abBoss": 1,
       "symbol": "card:kettenschwinger",
       "abzeichen": "bolt"
@@ -1266,12 +1264,12 @@
       "voraussetzung": {
         "karte": "schleuderin"
       },
+      "heldAst": "schleuderin",
       "akt": 1,
       "position": {
         "x": 1352,
         "y": 2646
       },
-      "heldAst": "schleuderin",
       "symbol": "card:schleuderin",
       "abzeichen": "sword"
     },
@@ -1339,12 +1337,12 @@
       "voraussetzung": {
         "karte": "schleuderin"
       },
+      "heldAst": "schleuderin",
       "akt": 1,
       "position": {
         "x": 1560,
         "y": 2646
       },
-      "heldAst": "schleuderin",
       "abBoss": 1,
       "symbol": "card:schleuderin",
       "abzeichen": "plus"
@@ -1376,12 +1374,12 @@
       "voraussetzung": {
         "karte": "schleuderin"
       },
+      "heldAst": "schleuderin",
       "akt": 1,
       "position": {
         "x": 1664,
         "y": 2646
       },
-      "heldAst": "schleuderin",
       "abBoss": 1,
       "symbol": "card:schleuderin",
       "abzeichen": "clock"
@@ -1413,12 +1411,12 @@
       "voraussetzung": {
         "karte": "schleuderin"
       },
+      "heldAst": "schleuderin",
       "akt": 1,
       "position": {
         "x": 1768,
         "y": 2646
       },
-      "heldAst": "schleuderin",
       "abBoss": 1,
       "symbol": "card:schleuderin",
       "abzeichen": "arrow"
@@ -1450,12 +1448,12 @@
       "voraussetzung": {
         "karte": "schleuderin"
       },
+      "heldAst": "schleuderin",
       "akt": 1,
       "position": {
         "x": 1872,
         "y": 2646
       },
-      "heldAst": "schleuderin",
       "abBoss": 1,
       "symbol": "card:schleuderin",
       "abzeichen": "heart"
@@ -1565,12 +1563,12 @@
       "voraussetzung": {
         "karte": "torwaechterin"
       },
+      "heldAst": "torwaechterin",
       "akt": 1,
       "position": {
         "x": 1352,
         "y": 1554
       },
-      "heldAst": "torwaechterin",
       "abBoss": 1,
       "symbol": "card:torwaechterin",
       "abzeichen": "plus"
@@ -1639,12 +1637,12 @@
       "voraussetzung": {
         "karte": "torwaechterin"
       },
+      "heldAst": "torwaechterin",
       "akt": 1,
       "position": {
         "x": 1560,
         "y": 1554
       },
-      "heldAst": "torwaechterin",
       "abBoss": 1,
       "symbol": "card:torwaechterin",
       "abzeichen": "heart"
@@ -1716,12 +1714,12 @@
       "voraussetzung": {
         "karte": "torwaechterin"
       },
+      "heldAst": "torwaechterin",
       "akt": 1,
       "position": {
         "x": 1768,
         "y": 1554
       },
-      "heldAst": "torwaechterin",
       "abBoss": 1,
       "symbol": "card:torwaechterin",
       "abzeichen": "bolt"
@@ -1753,12 +1751,12 @@
       "voraussetzung": {
         "karte": "torwaechterin"
       },
+      "heldAst": "torwaechterin",
       "akt": 1,
       "position": {
         "x": 1872,
         "y": 1554
       },
-      "heldAst": "torwaechterin",
       "abBoss": 1,
       "symbol": "card:torwaechterin",
       "abzeichen": "arrow"
@@ -1795,12 +1793,12 @@
       "voraussetzung": {
         "karte": "torwaechterin"
       },
+      "heldAst": "torwaechterin",
       "akt": 1,
       "position": {
         "x": 1976,
         "y": 1554
       },
-      "heldAst": "torwaechterin",
       "abBoss": 1,
       "symbol": "card:torwaechterin",
       "abzeichen": "plus"
@@ -1873,12 +1871,12 @@
       "voraussetzung": {
         "karte": "windlaeufer"
       },
+      "heldAst": "windlaeufer",
       "akt": 1,
       "position": {
         "x": 1144,
         "y": 1453
       },
-      "heldAst": "windlaeufer",
       "abBoss": 1,
       "symbol": "card:windlaeufer",
       "abzeichen": "sword"
@@ -1910,12 +1908,12 @@
       "voraussetzung": {
         "karte": "windlaeufer"
       },
+      "heldAst": "windlaeufer",
       "akt": 1,
       "position": {
         "x": 1040,
         "y": 1453
       },
-      "heldAst": "windlaeufer",
       "abBoss": 1,
       "symbol": "card:windlaeufer",
       "abzeichen": "clock"
@@ -1984,12 +1982,12 @@
       "voraussetzung": {
         "karte": "windlaeufer"
       },
+      "heldAst": "windlaeufer",
       "akt": 1,
       "position": {
         "x": 832,
         "y": 1453
       },
-      "heldAst": "windlaeufer",
       "abBoss": 1,
       "symbol": "card:windlaeufer",
       "abzeichen": "heart"
@@ -2021,12 +2019,12 @@
       "voraussetzung": {
         "karte": "windlaeufer"
       },
+      "heldAst": "windlaeufer",
       "akt": 1,
       "position": {
         "x": 728,
         "y": 1453
       },
-      "heldAst": "windlaeufer",
       "abBoss": 1,
       "symbol": "card:windlaeufer",
       "abzeichen": "plus"
@@ -2061,12 +2059,12 @@
       "voraussetzung": {
         "karte": "windlaeufer"
       },
+      "heldAst": "windlaeufer",
       "akt": 1,
       "position": {
         "x": 624,
         "y": 1453
       },
-      "heldAst": "windlaeufer",
       "abBoss": 1,
       "symbol": "card:windlaeufer",
       "abzeichen": "arrow"
@@ -2136,12 +2134,12 @@
       "voraussetzung": {
         "karte": "windlaeufer"
       },
+      "heldAst": "windlaeufer",
       "akt": 1,
       "position": {
         "x": 416,
         "y": 1453
       },
-      "heldAst": "windlaeufer",
       "abBoss": 3,
       "symbol": "card:windlaeufer",
       "abzeichen": "bolt"
@@ -2173,12 +2171,12 @@
       "voraussetzung": {
         "karte": "glutweberin"
       },
+      "heldAst": "glutweberin",
       "akt": 1,
       "position": {
         "x": 1352,
         "y": 1420
       },
-      "heldAst": "glutweberin",
       "abBoss": 1,
       "symbol": "card:glutweberin",
       "abzeichen": "arrow"
@@ -2210,12 +2208,12 @@
       "voraussetzung": {
         "karte": "glutweberin"
       },
+      "heldAst": "glutweberin",
       "akt": 1,
       "position": {
         "x": 1456,
         "y": 1420
       },
-      "heldAst": "glutweberin",
       "abBoss": 1,
       "symbol": "card:glutweberin",
       "abzeichen": "sword"
@@ -2362,12 +2360,12 @@
       "voraussetzung": {
         "karte": "glutweberin"
       },
+      "heldAst": "glutweberin",
       "akt": 1,
       "position": {
         "x": 1872,
         "y": 1420
       },
-      "heldAst": "glutweberin",
       "abBoss": 1,
       "symbol": "card:glutweberin",
       "abzeichen": "bolt"
@@ -2399,12 +2397,12 @@
       "voraussetzung": {
         "karte": "glutweberin"
       },
+      "heldAst": "glutweberin",
       "akt": 1,
       "position": {
         "x": 1976,
         "y": 1420
       },
-      "heldAst": "glutweberin",
       "abBoss": 1,
       "symbol": "card:glutweberin",
       "abzeichen": "sword"
@@ -2477,12 +2475,12 @@
       "voraussetzung": {
         "karte": "bannertraeger"
       },
+      "heldAst": "bannertraeger",
       "akt": 1,
       "position": {
         "x": 1352,
         "y": 681
       },
-      "heldAst": "bannertraeger",
       "abBoss": 2,
       "symbol": "card:bannertraeger",
       "abzeichen": "arrow"
@@ -2514,12 +2512,12 @@
       "voraussetzung": {
         "karte": "bannertraeger"
       },
+      "heldAst": "bannertraeger",
       "akt": 1,
       "position": {
         "x": 1456,
         "y": 681
       },
-      "heldAst": "bannertraeger",
       "abBoss": 2,
       "symbol": "card:bannertraeger",
       "abzeichen": "clock"
@@ -2588,12 +2586,12 @@
       "voraussetzung": {
         "karte": "bannertraeger"
       },
+      "heldAst": "bannertraeger",
       "akt": 1,
       "position": {
         "x": 1664,
         "y": 681
       },
-      "heldAst": "bannertraeger",
       "abBoss": 2,
       "symbol": "card:bannertraeger",
       "abzeichen": "heart"
@@ -2662,12 +2660,12 @@
       "voraussetzung": {
         "karte": "bannertraeger"
       },
+      "heldAst": "bannertraeger",
       "akt": 1,
       "position": {
         "x": 1872,
         "y": 681
       },
-      "heldAst": "bannertraeger",
       "abBoss": 2,
       "symbol": "card:bannertraeger",
       "abzeichen": "sword"
@@ -2735,12 +2733,12 @@
       "voraussetzung": {
         "karte": "moorhexer"
       },
+      "heldAst": "moorhexer",
       "akt": 1,
       "position": {
         "x": 1144,
         "y": 563
       },
-      "heldAst": "moorhexer",
       "abBoss": 2,
       "symbol": "card:moorhexer",
       "abzeichen": "sword"
@@ -2772,12 +2770,12 @@
       "voraussetzung": {
         "karte": "moorhexer"
       },
+      "heldAst": "moorhexer",
       "akt": 1,
       "position": {
         "x": 1040,
         "y": 563
       },
-      "heldAst": "moorhexer",
       "abBoss": 2,
       "symbol": "card:moorhexer",
       "abzeichen": "arrow"
@@ -2846,12 +2844,12 @@
       "voraussetzung": {
         "karte": "moorhexer"
       },
+      "heldAst": "moorhexer",
       "akt": 1,
       "position": {
         "x": 832,
         "y": 563
       },
-      "heldAst": "moorhexer",
       "abBoss": 2,
       "symbol": "card:moorhexer",
       "abzeichen": "bolt"
@@ -2883,12 +2881,12 @@
       "voraussetzung": {
         "karte": "moorhexer"
       },
+      "heldAst": "moorhexer",
       "akt": 1,
       "position": {
         "x": 728,
         "y": 563
       },
-      "heldAst": "moorhexer",
       "abBoss": 2,
       "symbol": "card:moorhexer",
       "abzeichen": "bolt"
@@ -2920,12 +2918,12 @@
       "voraussetzung": {
         "karte": "moorhexer"
       },
+      "heldAst": "moorhexer",
       "akt": 1,
       "position": {
         "x": 624,
         "y": 563
       },
-      "heldAst": "moorhexer",
       "abBoss": 2,
       "symbol": "card:moorhexer",
       "abzeichen": "clock"
@@ -2957,12 +2955,12 @@
       "voraussetzung": {
         "karte": "moorhexer"
       },
+      "heldAst": "moorhexer",
       "akt": 1,
       "position": {
         "x": 520,
         "y": 563
       },
-      "heldAst": "moorhexer",
       "abBoss": 2,
       "symbol": "card:moorhexer",
       "abzeichen": "bolt"
@@ -2994,12 +2992,12 @@
       "voraussetzung": {
         "karte": "moorhexer"
       },
+      "heldAst": "moorhexer",
       "akt": 1,
       "position": {
         "x": 416,
         "y": 563
       },
-      "heldAst": "moorhexer",
       "abBoss": 2,
       "symbol": "card:moorhexer",
       "abzeichen": "heart"
@@ -3030,12 +3028,12 @@
       "voraussetzung": {
         "karte": "moorhexer"
       },
+      "heldAst": "moorhexer",
       "akt": 1,
       "position": {
         "x": 312,
         "y": 563
       },
-      "heldAst": "moorhexer",
       "abBoss": 2,
       "symbol": "card:moorhexer",
       "abzeichen": "plus"
@@ -3067,12 +3065,12 @@
       "voraussetzung": {
         "karte": "wolkenhirtin"
       },
+      "heldAst": "wolkenhirtin",
       "akt": 1,
       "position": {
         "x": 1352,
         "y": 546
       },
-      "heldAst": "wolkenhirtin",
       "abBoss": 2,
       "symbol": "card:wolkenhirtin",
       "abzeichen": "clock"
@@ -3104,12 +3102,12 @@
       "voraussetzung": {
         "karte": "wolkenhirtin"
       },
+      "heldAst": "wolkenhirtin",
       "akt": 1,
       "position": {
         "x": 1456,
         "y": 546
       },
-      "heldAst": "wolkenhirtin",
       "abBoss": 2,
       "symbol": "card:wolkenhirtin",
       "abzeichen": "arrow"
@@ -3178,12 +3176,12 @@
       "voraussetzung": {
         "karte": "wolkenhirtin"
       },
+      "heldAst": "wolkenhirtin",
       "akt": 1,
       "position": {
         "x": 1664,
         "y": 546
       },
-      "heldAst": "wolkenhirtin",
       "abBoss": 2,
       "symbol": "card:wolkenhirtin",
       "abzeichen": "clock"
@@ -3252,12 +3250,12 @@
       "voraussetzung": {
         "karte": "wolkenhirtin"
       },
+      "heldAst": "wolkenhirtin",
       "akt": 1,
       "position": {
         "x": 1872,
         "y": 546
       },
-      "heldAst": "wolkenhirtin",
       "abBoss": 2,
       "symbol": "card:wolkenhirtin",
       "abzeichen": "heart"
@@ -3330,12 +3328,12 @@
       "voraussetzung": {
         "karte": "glockenmoench"
       },
+      "heldAst": "glockenmoench",
       "akt": 1,
       "position": {
         "x": 1144,
         "y": 429
       },
-      "heldAst": "glockenmoench",
       "abBoss": 2,
       "symbol": "card:glockenmoench",
       "abzeichen": "clock"
@@ -3367,12 +3365,12 @@
       "voraussetzung": {
         "karte": "glockenmoench"
       },
+      "heldAst": "glockenmoench",
       "akt": 1,
       "position": {
         "x": 1040,
         "y": 429
       },
-      "heldAst": "glockenmoench",
       "abBoss": 2,
       "symbol": "card:glockenmoench",
       "abzeichen": "bolt"
@@ -3441,12 +3439,12 @@
       "voraussetzung": {
         "karte": "glockenmoench"
       },
+      "heldAst": "glockenmoench",
       "akt": 1,
       "position": {
         "x": 832,
         "y": 429
       },
-      "heldAst": "glockenmoench",
       "abBoss": 2,
       "symbol": "card:glockenmoench",
       "abzeichen": "arrow"
@@ -3515,12 +3513,12 @@
       "voraussetzung": {
         "karte": "glockenmoench"
       },
+      "heldAst": "glockenmoench",
       "akt": 1,
       "position": {
         "x": 624,
         "y": 429
       },
-      "heldAst": "glockenmoench",
       "abBoss": 2,
       "symbol": "card:glockenmoench",
       "abzeichen": "heart"
@@ -4256,12 +4254,12 @@
       "voraussetzung": {
         "karte": "knochenruf"
       },
+      "heldAst": "skelettkrieger",
       "akt": 1,
       "position": {
         "x": 1144,
         "y": 1319
       },
-      "heldAst": "skelettkrieger",
       "abBoss": 1,
       "symbol": "card:skelettkrieger",
       "abzeichen": "sword"
@@ -4293,12 +4291,12 @@
       "voraussetzung": {
         "karte": "knochenruf"
       },
+      "heldAst": "skelettkrieger",
       "akt": 1,
       "position": {
         "x": 1040,
         "y": 1319
       },
-      "heldAst": "skelettkrieger",
       "abBoss": 1,
       "symbol": "card:skelettkrieger",
       "abzeichen": "clock"
@@ -4598,7 +4596,6 @@
         "wert": 1,
         "rechenart": "addieren"
       },
-      "abBoss": 1,
       "symbol": "claw",
       "abzeichen": "sword"
     },
@@ -4811,7 +4808,6 @@
         "wert": 0.15,
         "rechenart": "addieren"
       },
-      "abBoss": 1,
       "symbol": "bigheart",
       "abzeichen": "heart"
     },
