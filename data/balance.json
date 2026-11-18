@@ -122,19 +122,19 @@
     }
   },
   "belohnungen": {
-    "$kommentar": "Mastery im Run (5.9): Kills (Basis 1, Elite 5, Shiny ×3), geöffnete Packs (je 2), neue Sammlungseinträge (je 10), Boss-Abschnitte, Bosssieg; dazu Überlebenszeit und Elitegruppen.",
-    "masteryProSekunde": 0.8,
-    "masteryProKill": 1,
-    "masteryProElitewelle": 10,
-    "masteryProBoss": 150,
-    "masteryProPack": 2,
-    "masteryNeueKarte": 10,
+    "$kommentar": "Mastery im Run: Kills (Basis 0,2, Elite 1, Shiny ×3), geöffnete Packs (0,4), neue Sammlungseinträge (2), Boss-Abschnitte, Bosssieg, Überlebenszeit. Verhältnis wie in 5.9 (1 : 5 : 2 : 10), skaliert auf 11.7: ein erster Run bringt ca. 8–15 Mastery.",
+    "masteryProSekunde": 0.1,
+    "masteryProKill": 0.2,
+    "masteryProElitewelle": 2,
+    "masteryProBoss": 30,
+    "masteryProPack": 0.4,
+    "masteryNeueKarte": 2,
     "erstesShiny": {
       "$kommentar": "Einmalige Schimmer-Quellen (10.1) plus Mastery fürs Entdecken.",
       "foilStaubKarte": 2,
       "foilStaubMonster": 1,
-      "masteryKarte": 50,
-      "masteryMonster": 30
+      "masteryKarte": 10,
+      "masteryMonster": 6
     },
     "reliktpackOhneRelikt": {
       "$kommentar": "Alle zufällig erhältlichen Relikte gefunden: das Pack gibt Foil-Staub.",
@@ -230,7 +230,7 @@
     "$kommentar": "Geschafftes Kapitel gegen die Shiny-Version seines Bosses: stärker, mit Zusatzangriff. Schimmer pro Sieg steht im Kapitel (gesuchtSchimmer); der erste Sieg je Boss gibt zusätzlich erstsiegSchimmer und erstsiegMastery.",
     "bossLebenMul": 2.5,
     "bossSchadenMul": 1.5,
-    "erstsiegMastery": 1500,
+    "erstsiegMastery": 300,
     "zusatzAngriff": {
       "intervall": 8,
       "vorwarnung": 1.2,
@@ -246,12 +246,18 @@
     "zeitVorspulenSekunden": 30
   },
   "skilltree": {
-    "kostenFaktorStandard": 1.45
+    "kostenFaktorStandard": 1.45,
+    "$kommentar": "Kosten = basisKosten × kostenFaktor^Stufe × aktKostenMul[Akt]. Ab Akt 2 neuer Baum mit gleicher Startlogik, aber höheren Kosten.",
+    "aktKostenMul": {
+      "1": 1,
+      "2": 10,
+      "3": 25
+    }
   },
   "foilbaum": {
     "$kommentar": "Zweiter, dauerhafter Baum (data/foiltree.json). Kosten = basisKosten × kostenFaktor^Stufe.",
     "kostenFaktorStandard": 1.6,
-    "zinsenMax": 500,
+    "zinsenMax": 100,
     "reliktReparaturKosten": 10
   },
   "$kommentar_schimmer": "Schimmer ist bewusst knapp (10.1): 1–5 pro Ereignis, ein normaler Run ohne Shiny-Ereignis gibt 0."

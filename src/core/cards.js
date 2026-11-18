@@ -16,6 +16,12 @@ export function drawCard(pack, data, rng, { foilChance, grenzChance, seltenheitM
     const gg = data.units.filter((u) => u.rarity === 'grenzgaenger');
     if (gg.length) return { id: gg[Math.floor(rng() * gg.length)].id, foil: rng() < foilChance };
   }
+  // Feste Ergebnisse mit Gewichten (Holzpack: Stalljunge 60, Kettenschwinger 30, Schleuderin 9, Seltenes 1)
+  if (pack.kartenGewichte) {
+    const entries = Object.entries(pack.kartenGewichte).filter(([id]) => data.cardIndex[id])
+      .map(([id, w]) => [id, w * (seltenheitMul[data.cardIndex[id].def.rarity] ?? 1)]);
+    return { id: weightedPick(entries, rng), foil: rng() < foilChance };
+  }
   const byRarity = {};
   for (const id of pack.pool) {
     const c = data.cardIndex[id];
@@ -33,15 +39,21 @@ export function drawCard(pack, data, rng, { foilChance, grenzChance, seltenheitM
 }
 
 /** Effektive Einheiten-Definition: Basis + Sternenkarten-Patches (+ optional Entwicklung). */
-export function buildUnitDef(base, mods, evolved = false) {
+/** Effektive Einheiten-Definition: Basis + Skill-Tree-Patches; stage 1/2 = erste/zweite Entwicklung. */
+export function buildUnitDef(base, mods, stage = 0) {
   const def = deepClone(base);
   applyPatches(def, mods.einheiten[base.id]);
-  if (evolved && def.entwicklung) {
-    const ev = def.entwicklung;
+  const ev = def.entwicklung;
+  if (stage >= 1 && ev) {
     for (const [k, m] of Object.entries(ev.werteMul || {})) def.werte[k] *= m;
     applyPatches(def, ev.patches);
     def.name = ev.name;
     def.sprite = ev.sprite ?? def.sprite;
+  }
+  if (stage >= 2 && ev?.stufe2) {
+    for (const [k, m] of Object.entries(ev.stufe2.werteMul || {})) def.werte[k] *= m;
+    applyPatches(def, ev.stufe2.patches);
+    def.name = ev.stufe2.name;
   }
   return def;
 }

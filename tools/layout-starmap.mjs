@@ -18,46 +18,49 @@ const relics = Object.fromEntries(JSON.parse(readFileSync(new URL('../data/relic
 const idx = Object.fromEntries(map.knoten.map((n) => [n.id, n]));
 const start = idx[map.start];
 
-// Reihenfolge der Äste vom Start nach oben (frühe Äste nah am Start)
-const ORDER = ['wirtschaft', 'cursor', 'packs', 'turm', 'akt', 'gebaeude', 'einheiten', 'tomes'];
+// Stamm: Kette der Knoten mit `stamm: true` (Münz- und Boss-Quests an den Kreuzungen, 11.7)
+const isTrunk = (id) => !!idx[id].stamm;
 
-// Spannbaum per Breitensuche
+// Spannbaum per Breitensuche (Stamm-Kanten zuerst, damit der Stamm eine Kette bleibt)
 const children = {};
 const seen = new Set([start.id]);
 const queue = [start.id];
+const trunk = [];
 while (queue.length) {
   const id = queue.shift();
+  if (isTrunk(id)) trunk.push(id);
   children[id] = [];
-  for (const v of idx[id].verbindungen) {
+  const next = [...idx[id].verbindungen].sort((a, b) => isTrunk(b) - isTrunk(a));
+  for (const v of next) {
     if (seen.has(v)) continue;
     seen.add(v); children[id].push(v); queue.push(v);
   }
 }
 for (const id of Object.keys(idx)) children[id] ||= [];
-// Akt-2-Knoten ans Ende, Quests zuerst (sie liegen dann nah am Stamm)
-const rank = (id) => (idx[id].akt ?? 1) * 10 + (idx[id].typ === 'quest' ? 0 : 1);
+const rank = (id) => (idx[id].akt ?? 1) * 10 + (idx[id].abBoss ?? 0) + (idx[id].typ === 'quest' ? 0 : 0.5);
 for (const id of Object.keys(children)) children[id].sort((a, b) => rank(a) - rank(b));
 
-const breadth = (id) => Math.max(1, children[id].reduce((s, c) => s + breadth(c), 0));
+const breadth = (id) => Math.max(1, children[id].filter((c) => !isTrunk(c)).reduce((s, c) => s + breadth(c), 0));
 const pos = {}; // { lane (Zeile, von unten gezählt), depth, side }
 function place(id, lane, depth, side) {
   const b = breadth(id);
   pos[id] = { lane: lane + (b - 1) / 2, depth, side };
   let l = lane;
-  for (const ch of children[id]) { place(ch, l, depth + 1, side); l += breadth(ch); }
+  for (const ch of children[id]) { if (isTrunk(ch)) continue; place(ch, l, depth + 1, side); l += breadth(ch); }
 }
 
-pos[start.id] = { lane: 0, depth: 0, side: 0 };
-const height = { '-1': 1, 1: 1 }; // belegte Zeilen je Seite (Zeile 0 = Start)
-const roots = children[start.id].sort((a, b) => ORDER.indexOf(idx[a].ast) - ORDER.indexOf(idx[b].ast));
-for (const r of roots) {
-  const side = height[-1] < height[1] ? -1 : 1;
-  const b = breadth(r);
-  // Wurzel auf dem Stamm, ihre Kinder ab Ebene 1 seitlich
-  let l = height[side];
-  pos[r] = { lane: l + (b - 1) / 2, depth: 0, side, trunk: true };
-  for (const ch of children[r]) { place(ch, l, 1, side); l += breadth(ch); }
-  height[side] += b + 1; // eine Leerzeile zwischen Ästen
+// Stamm-Knoten nacheinander nach oben; ihre Äste abwechselnd links/rechts (jeweils auf die niedrigere Seite)
+const height = { '-1': 0, 1: 0 };
+let lane = 0;
+for (const t of trunk) {
+  pos[t] = { lane, depth: 0, side: 0 };
+  for (const r of children[t].filter((c) => !isTrunk(c))) {
+    const side = height[-1] <= height[1] ? -1 : 1;
+    const from = Math.max(height[side], lane);
+    place(r, from, 1, side);
+    height[side] = from + breadth(r) + 0.6; // kleine Lücke zwischen Ästen
+  }
+  lane = Math.max(lane + 1, Math.min(height[-1], height[1]));
 }
 
 const lanes = Object.values(pos).map((p) => p.lane);

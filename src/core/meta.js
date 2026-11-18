@@ -17,7 +17,7 @@ export const MOD_DEFAULTS = {
   // Wirtschaft
   tagesEinkommen: 0, bonusEinkommen: 0, shopPlaetze: 0, freieRerolls: 0, masteryMul: 1, jackpotBonus: 0, rabattChance: 0, masteryNeueKarte: 0,
   // Packs
-  packWiderstandMul: 1, foilChance: 0, foilChanceMul: 1, kartenProPack: 0, bonusKarteChance: 0, packImPack: 0, grenzgaengerChance: 0,
+  packWiderstandMul: 1, packTrefferWeniger: 0, foilChance: 0, foilChanceMul: 1, kartenProPack: 0, bonusKarteChance: 0, packImPack: 0, grenzgaengerChance: 0,
   // Shiny / Foil-Baum
   foilStaerkeMul: 1, foilMonsterChance: 0, reliktPlaetze: 0, zinsen: 0, aktStartMastery: 0, gesuchtStaub: 0,
   // Helden
@@ -618,14 +618,18 @@ export function nodeReachable(kind, node, save) {
 export function nodeVisible(kind, node, save, data) {
   if (kind === 'foil' && !foilTreeUnlocked(save)) return false;
   if (!nodeInAct(node, save)) return false;
+  // Gebäude-, Pack- und Shop-Knoten erst nach dem ersten bzw. zweiten Boss (11.7)
+  if (node.abBoss && !(save.stats.bossKills[node.abBoss] > 0)) return false;
   const card = nodeCard(node);
   if (card && !((save.collection[card]?.normal || 0) + (save.collection[card]?.foil || 0) > 0)) return false;
   return TREE[kind].level(save, node.id) > 0 || nodeReachable(kind, node, save);
 }
 
-export function nodeCost(kind, node, level, data) {
+/** Kosten der nächsten Stufe. Skill-Tree: ab Akt 2 mal balance.skilltree.aktKostenMul (neuer Baum, gleiche Startlogik). */
+export function nodeCost(kind, node, level, data, save = null) {
   const f = node.kostenFaktor ?? TREE[kind].faktor(data);
-  return { amount: Math.round(node.basisKosten * Math.pow(f, level)), waehrung: TREE[kind].wallet };
+  const aktMul = kind === 'skill' ? (data.balance.skilltree.aktKostenMul?.[save?.act ?? 1] ?? 1) : 1;
+  return { amount: Math.round(node.basisKosten * Math.pow(f, level) * aktMul), waehrung: TREE[kind].wallet };
 }
 
 export function nodeBlocker(kind, node, save, data) {
@@ -636,7 +640,7 @@ export function nodeBlocker(kind, node, save, data) {
   if (!nodeReachable(kind, node, save)) return 'Noch nicht erreichbar';
   if (node.typ === 'quest') return questProgress(node, data, save).done ? null : 'Aufgabe noch nicht erfüllt';
   if (node.typ === 'tor') return null;
-  const c = nodeCost(kind, node, lvl, data);
+  const c = nodeCost(kind, node, lvl, data, save);
   if (save[c.waehrung] < c.amount) return kind === 'foil' ? 'Zu wenig Schimmer' : 'Zu wenig Mastery';
   return null;
 }
@@ -649,7 +653,7 @@ export function buyNode(kind, node, save, data) {
   if (node.typ === 'quest' || node.typ === 'tor' || nodeBlocker(kind, node, save, data)) return false;
   const T = TREE[kind];
   const lvl = T.level(save, node.id);
-  const c = nodeCost(kind, node, lvl, data);
+  const c = nodeCost(kind, node, lvl, data, save);
   save[c.waehrung] -= c.amount;
   (save[T.store] ||= {})[node.id] = lvl + 1;
   if (kind === 'skill') save.lastBought = node.id;
@@ -670,7 +674,7 @@ export function resetStarmap(data, save) {
   let mp = 0;
   for (const node of data.starmap.knoten) {
     if (node.typ === 'quest' || node.typ === 'tor') continue;
-    for (let l = 0; l < (save.starmap[node.id] || 0); l++) mp += nodeCost('skill', node, l, data).amount;
+    for (let l = 0; l < (save.starmap[node.id] || 0); l++) mp += nodeCost('skill', node, l, data, save).amount;
   }
   save.mastery += mp;
   save.starmap = {};
@@ -694,6 +698,7 @@ export function describeNodeEffect(node, level) {
     case 'shopPlaetze': case 'kartenProPack': case 'freieRerolls': case 'reliktPlaetze': case 'gesuchtStaub': return level ? `+${v}` : '–';
     case 'aktStartMastery': return `+${v} Mastery`;
     case 'masteryNeueKarte': return `+${v} Mastery pro neuer Karte`;
+    case 'packTrefferWeniger': return level ? `${v} Treffer weniger` : '–';
     case 'turmSchuetze': return `Stufe ${v}`;
     case 'turmDornen': return `${v} Schaden zurück`;
     case 'turmRegen': return `${pct(v)} Leben/s`;

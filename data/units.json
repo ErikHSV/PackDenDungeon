@@ -28,14 +28,29 @@
         "anzahl": 2
       },
       "name": "Waffenknecht",
-      "text": "Nach 2 Kills: doppelte Werte und volle Heilung. Tipp: Gegner mit dem Cursor nur anschlagen und den Stalljungen den letzten Treffer machen lassen.",
+      "text": "Mit „Stalljunge-Training I“: nach 2 Kills Waffenknecht (doppelte Werte, volle Heilung).",
       "werteMul": {
         "leben": 2,
         "schaden": 2
       },
       "volleHeilung": true,
       "patches": [],
-      "sprite": "waffenknecht"
+      "sprite": "waffenknecht",
+      "gesperrt": true,
+      "stufe2": {
+        "bedingung": {
+          "typ": "kills",
+          "anzahl": 3
+        },
+        "name": "Schwertmeister",
+        "gesperrt": true,
+        "werteMul": {
+          "leben": 1.5,
+          "schaden": 1.5
+        },
+        "volleHeilung": true,
+        "text": "Mit „Stalljunge-Training II“: nach 3 weiteren Kills Schwertmeister."
+      }
     }
   },
   {

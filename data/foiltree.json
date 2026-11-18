@@ -262,7 +262,7 @@
     {
       "id": "f_zinsen",
       "name": "Zinsen",
-      "beschreibung": "Nicht ausgegebene Mastery bringt zu Beginn jedes Tages +1 % Zinsen je Stufe (höchstens 500 pro Tag).",
+      "beschreibung": "Nicht ausgegebene Mastery bringt zu Beginn jedes Tages +1 % Zinsen je Stufe (höchstens 100 pro Tag).",
       "typ": "klein",
       "ast": "mastery",
       "akt": 1,
@@ -288,7 +288,7 @@
     {
       "id": "f_neubeginn",
       "name": "Schneller Neubeginn",
-      "beschreibung": "Nach einem Akt-Wechsel startest du mit +1.500 Mastery je Stufe.",
+      "beschreibung": "Nach einem Akt-Wechsel startest du mit +300 Mastery je Stufe.",
       "typ": "klein",
       "ast": "mastery",
       "akt": 2,
@@ -304,7 +304,7 @@
       "kostenFaktor": 1.6,
       "effekt": {
         "ziel": "aktStartMastery",
-        "wert": 1500,
+        "wert": 300,
         "rechenart": "addieren"
       },
       "symbol": "mastery",

@@ -73,7 +73,7 @@ function spendTrees() {
     for (let guard = 0; guard < 500; guard++) {
       const cand = list.filter((n) => n.typ !== 'quest' && n.typ !== 'tor' && nodeVisible(kind, n, save, data) && !nodeBlocker(kind, n, save, data));
       if (!cand.length) break;
-      cand.sort((a, b) => nodeCost(kind, a, treeLevel(kind, save, a.id), data).amount - nodeCost(kind, b, treeLevel(kind, save, b.id), data).amount);
+      cand.sort((a, b) => nodeCost(kind, a, treeLevel(kind, save, a.id), data, save).amount - nodeCost(kind, b, treeLevel(kind, save, b.id), data, save).amount);
       buyNode(kind, cand[0], save, data);
     }
   }

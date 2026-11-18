@@ -5,7 +5,8 @@ import { damageEnemy, applyOnHit, applyStatus, fx } from './combat.js';
 
 export const UNIT_R = 12; // Kollisionsradius einer Einheit (Weltpixel; Helden sind ca. 16–24 px hoch)
 
-const canHit = (u, e) => !e.dead && (!e.fliegt || u.def.trifftLuft);
+// Fliegende Gegner: nur Luft-Treffer – außer sie greifen gerade den Turm an (dann sind sie in Reichweite aller Helden)
+const canHit = (u, e) => !e.dead && (!e.fliegt || u.def.trifftLuft || !e.moving);
 
 function nearestEnemy(run, u, from, maxDist) {
   let best = null, bd = maxDist;
@@ -190,8 +191,18 @@ function chooseTarget(run, u) {
     }
     case 'folgen':
       return nearestEnemy(run, u, u, 360);
-    default:
-      return nearestEnemy(run, u, u, 900);
+    default: {
+      // Verteidigen statt jagen: Gegner nahe am Turm zählen mehr, weit entfernte nur, wenn sie ohnehin nah am Helden sind
+      let best = null, bs = Infinity;
+      for (const e of run.enemies) {
+        if (!canHit(u, e)) continue;
+        const dt = dist(e, T), du = dist(e, u);
+        if (dt > 520 && du > u.range + 80) continue;
+        const score = du + dt * 0.8;
+        if (score < bs) { bs = score; best = e; }
+      }
+      return best;
+    }
   }
 }
 

@@ -4,7 +4,7 @@ const KEY = 'packdendungeon-save-v3';
 
 export function defaultSave(data) {
   return {
-    version: 5,
+    version: 6,
     // Genau drei Währungen (Abschnitt 10)
     coins: data?.balance.wirtschaft.startMuenzen ?? 3, // Münzen: nur für den Shop
     bonusCoins: 0,      // Bonus-Münzen aus Relikten und Effekten (werden zuerst ausgegeben)
@@ -56,6 +56,7 @@ export function loadSave(data) {
       s.shop = { ...base.shop, seen: s.shop.seen || [] };
     }
     if ((raw.version || 0) < 5) migrateV5(s, raw, data);
+    if ((raw.version || 0) < 6) migrateV6(s);
     return s;
   } catch {
     return base;
@@ -84,6 +85,16 @@ function migrateV5(s, raw, data) {
   s.coins = Math.min(s.coins || 0, 20);
   s.shop = { offers: [], rerolls: 0, freeUsed: 0, seen: s.shop.seen || [], uid: s.shop.uid || 0 };
   s.version = 5;
+}
+
+/** v6: neuer Skill-Tree (11.7, Startphase) und kleinere Mastery-Zahlen – Baum zurücksetzen, Mastery umrechnen. */
+function migrateV6(s) {
+  s.mastery = Math.round((s.mastery || 0) * 0.2) + 60;
+  s.starmap = {};
+  s.lastBought = null;
+  s.questProgress = {};
+  s.shop = { ...s.shop, offers: [], jackpot: null };
+  s.version = 6;
 }
 
 export function writeSave(save) {

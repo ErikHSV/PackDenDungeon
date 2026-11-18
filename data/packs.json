@@ -3,13 +3,13 @@
     "id": "holzpack",
     "name": "Holzpack",
     "art": "pack",
-    "beschreibung": "Ein einfaches Pack aus dem Moor.",
+    "beschreibung": "Einfaches Pack mit genau vier möglichen Ergebnissen.",
     "farbe": "#8b5a2b",
     "freischaltung": {
       "typ": "start"
     },
     "widerstand": 10,
-    "kartenProPack": 3,
+    "kartenProPack": 1,
     "pool": [
       "stalljunge",
       "kettenschwinger",
@@ -22,6 +22,12 @@
       "rare": 9,
       "epic": 0.5,
       "legendary": 0.5
+    },
+    "kartenGewichte": {
+      "stalljunge": 60,
+      "kettenschwinger": 30,
+      "schleuderin": 9,
+      "hagelschauer": 1
     }
   },
   {
@@ -32,7 +38,7 @@
     "farbe": "#6b4423",
     "freischaltung": {
       "typ": "knoten",
-      "knoten": "p_kiste_holz"
+      "knoten": "q_holz6"
     },
     "inhalt": {
       "pack": "holzpack",
@@ -50,7 +56,7 @@
       "kapitel": 1
     },
     "widerstand": 25,
-    "kartenProPack": 3,
+    "kartenProPack": 1,
     "pool": [
       "kettenschwinger",
       "schleuderin",
@@ -95,7 +101,7 @@
       "kapitel": 2
     },
     "widerstand": 60,
-    "kartenProPack": 3,
+    "kartenProPack": 1,
     "pool": [
       "windlaeufer",
       "glutweberin",
@@ -126,7 +132,7 @@
       "knoten": "f_glanzpack"
     },
     "widerstand": 30,
-    "kartenProPack": 2,
+    "kartenProPack": 1,
     "nurFehlende": true,
     "pool": [],
     "seltenheitsGewichte": {
@@ -145,7 +151,7 @@
       "typ": "geplant"
     },
     "widerstand": 30,
-    "kartenProPack": 3,
+    "kartenProPack": 1,
     "pool": [
       "hagelschauer",
       "knochenruf",

@@ -314,7 +314,7 @@ export class UpgradeTree {
         html += `<div>Stufe ${lvl}/${node.maxStufe}</div>`;
         if (st === 'max') html += '<div class="cost">MAXIMUM ✓</div>';
         else {
-          const c = nodeCost(this.kind, node, lvl, data);
+          const c = nodeCost(this.kind, node, lvl, data, save);
           const why = nodeBlocker(this.kind, node, save, data);
           html += `<div class="cost ${why ? 'no' : ''}">Kosten: ${fmtNum(c.amount)} <img src="${this.game.bank.iconUrl(this.foil ? 'crystal_regen' : 'mastery')}" alt=""> ${this.foil ? 'Schimmer' : 'Mastery'}</div>`;
           if (why && !/Zu wenig/.test(why)) html += `<div class="req">${escapeHtml(why)}</div>`;

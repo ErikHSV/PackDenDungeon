@@ -123,11 +123,17 @@ export class Run {
     }
     if (def.art !== 'pack') return;
     const target = this.randomRingPoint();
-    const hp = def.widerstand * this.mods.packWiderstandMul;
+    const hp = this.packHp(def);
     this.packs.push({
       uid: this.uid++, packId, def, sx: from.x, sy: from.y - 60, tx: target.x, ty: target.y, x: from.x, y: from.y,
       t: -delay, flight: this.headless ? 0 : this.B.run.packFlugzeit, landed: this.headless, hp, maxHp: hp, wobble: 0, cracks: 0, rot: (this.rng() - 0.5) * 0.52,
     });
+  }
+
+  /** Widerstand eines Packs: Grundwert × Skill-Tree-Faktor, minus „Treffer weniger“ (Dünne Folie I/II), mindestens 1 Treffer. */
+  packHp(def) {
+    const hit = this.cursorStats().damage;
+    return Math.max(hit, def.widerstand * this.mods.packWiderstandMul - (this.mods.packTrefferWeniger || 0) * hit);
   }
 
   /** Einzelne, bereits aufgedeckte Karte (aus dem Shop) fliegt aufs Feld. */
@@ -190,7 +196,10 @@ export class Run {
       const a = (i / count) * Math.PI * 2 + this.rng();
       const land = { x: p.x + Math.cos(a) * 60, y: p.y + Math.sin(a) * 34 };
       this.clampToArena(land, 0.95);
-      this.cards.push({ ...card, x: p.x, y: p.y - 30, sx: p.x, sy: p.y - 30, tx: land.x, ty: land.y, t: -i * this.B.run.kartenDrehzeit, dur: 0.6, pack: def });
+      const isNew = !((this.save.collection[card.id]?.normal || 0) + (this.save.collection[card.id]?.foil || 0) > 0) && !this.seenThisRun.has(card.id) && !this.cards.some((c) => c.id === card.id);
+      const entry = { ...card, x: land.x, y: land.y, sx: p.x, sy: p.y - 30, tx: land.x, ty: land.y, t: -i * this.B.run.kartenDrehzeit, dur: 0.6, pack: def };
+      if (isNew) { entry.x = p.x; entry.y = p.y - 30; this.cards.push(entry); } // neue Karte: aufdecken und präsentieren
+      else this.materialize(entry); // bekannte Einheit: sofort aufs Feld
     }
     // Sternenkarte: Aufplatzen (Schockwelle)
     if (this.mods.flags.aufplatzen) {
@@ -310,18 +319,23 @@ export class Run {
   /** Entwicklung im Run: Bedingung erfüllt → Lichtsäule, volle Heilung, neue Werte und neues Aussehen. */
   checkEvolution(u) {
     const ev = u.def.entwicklung;
-    if (!ev || u.evolved) return;
+    if (!ev || ev.gesperrt) return; // z. B. Stalljunge: erst mit „Training I“ aus dem Skill-Tree
     const n = ev.bedingung.typ === 'kills' ? u.kills : ev.bedingung.typ === 'blocks' ? u.blocks : 0;
-    if (n < ev.bedingung.anzahl) return;
+    let stage = u.stage || 0;
+    if (stage === 0 && n >= ev.bedingung.anzahl) stage = 1;
+    else if (stage === 1 && ev.stufe2 && !ev.stufe2.gesperrt && n >= ev.bedingung.anzahl + ev.stufe2.bedingung.anzahl) stage = 2;
+    if (stage === (u.stage || 0)) return;
     const ratio = u.hp / u.maxHp;
+    u.stage = stage;
     u.evolved = true;
-    u.def = buildUnitDef(this.data.unitIndex[u.id], this.mods, true);
+    u.def = buildUnitDef(this.data.unitIndex[u.id], this.mods, stage);
+    const name = stage === 2 ? ev.stufe2.name : ev.name;
     u.maxHp = u.def.werte.leben * this.mods.heldenLebenMul * (u.foil ? this.foilBonus('lebenMul') : 1);
-    u.hp = ev.volleHeilung ? u.maxHp : ratio * u.maxHp;
+    u.hp = ev.volleHeilung ? u.maxHp : ratio * u.maxHp; // Entwicklung heilt voll
     u.range = u.def.werte.reichweite * (u.foil ? this.foilBonus('reichweiteMul') : 1);
     this.stats.entwicklungen++;
     fx(this, { type: 'pillar', x: u.x, y: u.y, life: 0.9 });
-    fx(this, { type: 'text', x: u.x, y: u.y - 100, text: `${ev.name}!`, color: '#FFD24A', size: 24, life: 1.4 });
+    fx(this, { type: 'text', x: u.x, y: u.y - 100, text: `${name}!`, color: '#FFD24A', size: 24, life: 1.4 });
     this.emit('evolved', { unit: u });
   }
 
@@ -533,6 +547,8 @@ export class Run {
     if (def.formation) { this.spawnFormation(g.id, p); return; }
     const group = def.gruppe || 1;
     for (let i = 0; i < group; i++) this.spawnEnemy(g.id, i ? { x: p.x + (this.rng() - 0.5) * 40, y: p.y + (this.rng() - 0.5) * 30 } : { x: p.x, y: p.y });
+    // Eine Gruppe verbraucht so viele Spawn-Plätze, wie sie Monster hat (der Strom bleibt bei der geplanten Dichte)
+    this.spawnTimer += this.spawnInterval() * (group - 1);
   }
 
   /**
@@ -555,7 +571,7 @@ export class Run {
     }
     const speed = Math.min(...members.map((m) => m.speed));
     for (const m of members) m.speed = speed;
-    this.spawnTimer += this.spawnInterval() * Math.max(0, n - 1) * 0.5;
+    this.spawnTimer += this.spawnInterval() * Math.max(0, n - 1);
     return members;
   }
 
@@ -683,7 +699,7 @@ export class Run {
   /** Schatzpack fällt an der Stelle des Schatzträgers (liegt sofort, wird wie ein Pack geöffnet). */
   dropTreasure(carrier) {
     const def = this.data.packIndex.schatzpack;
-    const hp = def.widerstand * this.mods.packWiderstandMul;
+    const hp = this.packHp(def);
     this.packs.push({ uid: this.uid++, packId: def.id, def, sx: carrier.x, sy: carrier.y, tx: carrier.x, ty: carrier.y, x: carrier.x, y: carrier.y,
       t: 0, flight: 0, landed: true, hp, maxHp: hp, wobble: 0, cracks: 0, rot: 0, schatz: true, shiny: !!carrier.foil });
     fx(this, { type: 'flash', x: carrier.x, y: carrier.y - 20, r: 120, color: '#FFD24A', life: 0.5 });

@@ -53,6 +53,10 @@ Einheiten-Fähigkeiten, die Knoten setzen können: `faehigkeiten.killHeilung { a
 
 ## Packs (`packs.json`)
 
+- `kartenProPack` ist 1 (eine Einheit pro Pack). `kartenGewichte` legt feste Ergebnisse fest (Holzpack 60/30/9/1) und ersetzt dann Pool und Seltenheits-Gewichte.
+- Modifikator `packTrefferWeniger`: Packs brauchen so viele Cursor-Treffer weniger (mindestens einer).
+- Entwicklung: `entwicklung.gesperrt` (erst ein Knoten schaltet sie frei) und `entwicklung.stufe2` (zweite Entwicklung nach weiteren Kills).
+
 - `art: pack`: `widerstand` (Lebenspunkte, die der Cursor abbauen muss), `kartenProPack`, `pool`, `seltenheitsGewichte` (in Prozent).
 - `art: kiste`: `inhalt: { pack, anzahl }`. Landet als mehrere Einzelpacks auf dem Feld.
 - `art: relikt`: `inhalt: { relikte: 1 }`. Erhältlich über Relikt-Jackpots beim Neu-Würfeln (Foil-Knoten „Jackpot-Relikt“), Quest-Knoten und die Reliktjagd. Wird sofort geöffnet und gibt ein noch fehlendes, zufällig erhältliches Relikt – sind alle gefunden, Foil-Staub (`balance.belohnungen.reliktpackOhneRelikt`).
@@ -93,6 +97,7 @@ Felder je Knoten: `id`, `name`, `beschreibung`, `typ`, `ast`, `akt`, `position {
 - **Akt-Wechsel (11.5):** Der Tor-Knoten setzt den Skill-Tree mit voller Erstattung zurück und löscht den Quest-Fortschritt. Foil-Baum, Foil-Staub, Sammlung, Bestiarium und Relikte bleiben. BESTIARIUM und RELIKTE öffnen sich erst danach.
 - **Darstellung (14.2.5):** Schaltplan mit rechtwinkligen Leitungen. `node tools/layout-starmap.mjs` erzeugt Positionen, Symbole (`card:<id>`, `quest`, `gate`, Relikt-Symbol …) und Abzeichen (`clock`, `sword`, `heart`, `plus`, `arrow`, `bolt`, `star`) neu.
 - **Verbindungen:** in **beiden** Knoten eintragen (prüft der Validator).
+- **Startphase (11.7):** `abBoss: <Kapitel>` blendet einen Knoten erst nach dem Sieg über diesen Boss ein; `stamm: true` legt ihn auf den senkrechten Stamm (Münz-/Boss-Quests). Kosten werden ab Akt 2 mit `balance.skilltree.aktKostenMul` multipliziert.
 
 ## Foil-Baum (`foiltree.json`)
 

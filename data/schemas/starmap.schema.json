@@ -205,6 +205,14 @@
           "nurAkt": {
             "type": "integer",
             "description": "Knoten existiert nur in diesem Akt (Tor-Knoten)"
+          },
+          "abBoss": {
+            "type": "integer",
+            "description": "Knoten erscheint erst nach dem Sieg über den Boss dieses Kapitels."
+          },
+          "stamm": {
+            "type": "boolean",
+            "description": "Knoten liegt auf dem senkrechten Stamm (Quests an den Kreuzungen)."
           }
         }
       }

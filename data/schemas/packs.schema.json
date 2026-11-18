@@ -104,6 +104,10 @@
       "nurFehlende": {
         "type": "boolean",
         "description": "Glanzpack: zieht gezielt seltene, noch nicht gefundene Karten (pool bleibt leer)."
+      },
+      "kartenGewichte": {
+        "type": "object",
+        "description": "Feste Ergebnisse mit Gewichten (z. B. Holzpack: 60/30/9/1); ersetzt Pool und Seltenheits-Gewichte."
       }
     }
   }
