@@ -166,7 +166,9 @@
     "$kommentar": "Münzen nur für den Shop: Tageseinkommen (zu Beginn jedes Tages gutgeschrieben) plus Bonus-Münzen (Relikte, Fähigkeiten). Erhöht vor allem durch Quest-Knoten.",
     "startMuenzen": 3,
     "tagesEinkommen": 3,
-    "preisWachstumProKapitel": 0
+    "preisWachstumProKapitel": 0,
+    "bonusMuenzenMaxProRun": 10,
+    "$kommentar_bonus": "Bonus-Münzen aus Fähigkeiten im Run (Grenzgänger, Glückssprung) sind auf bonusMuenzenMaxProRun begrenzt; sie gelten am nächsten Tag zusätzlich zum Einkommen."
   },
   "shop": {
     "angebotsPlaetzeStart": 3,

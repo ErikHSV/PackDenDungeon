@@ -88,7 +88,6 @@ export class BattleController {
     else if (!this.cursor.active) this.cursor.fade = Math.max(0, this.cursor.fade - dt * 3);
     this.renderer.draw(run, now / 1000, dt, { bossIntro: this.bossIntro, cursor: this.cursor.fade > 0 ? { ...this.cursor, locked } : null });
     this.hud();
-    this.infoHover(dt);
     if (run.over && !this.ending) this.ending = true, this.endSequence();
     this.raf = requestAnimationFrame((t) => this.loop(t));
   }

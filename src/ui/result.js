@@ -1,6 +1,6 @@
 // Ergebnis-Bildschirm (14.8) und Freischaltungs-Popups mit Konfetti.
 import { $, el, escapeHtml, show, countTo } from './dom.js';
-import { applyRunResult, claimableQuests, anyNodeAffordable, buyOffer, bagItems, foilTreeUnlocked } from '../core/meta.js';
+import { applyRunResult, claimableQuests, anyNodeAffordable, foilTreeUnlocked } from '../core/meta.js';
 import { play, startMusic } from '../audio.js';
 import { showUnlocks } from './reveal.js';
 
@@ -8,7 +8,6 @@ const fmtTime = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padSt
 
 export function showResult(game, r, mods, opts) {
   const { data, save, bank } = game;
-  const lastBag = game.lastBag ?? [];
   const foilBefore = foilTreeUnlocked(save);
   const info = applyRunResult(r, data, save, mods);
   save.tutorial.firstRunDone = true;
@@ -24,7 +23,7 @@ export function showResult(game, r, mods, opts) {
       <div>Kills<b data-to="${r.kills}">0</b></div>
       <div>Mastery <img class="cur" src="${bank.iconUrl('mastery')}" alt=""><b data-to="${info.mastery}">0</b><span class="muted">${info.zinsen ? `+${info.zinsen} Zinsen` : info.gesuchtErstsieg ? `inkl. ${info.gesuchtErstsieg} Erstsieg-Bonus` : ''}</span></div>
       <div>Schimmer <img class="cur" src="${bank.iconUrl('crystal_regen')}" alt=""><b data-to="${info.foilStaub}">0</b><span class="muted teile">${info.schimmerTeile.length ? info.schimmerTeile.map((t) => `${escapeHtml(t.name)} +${t.n}`).join(', ') : 'kein Shiny-Ereignis'}</span></div>
-      <div>Neuer Tag: Münzen <img class="cur" src="${bank.iconUrl('coin')}" alt=""><b data-to="${info.einkommen}">0</b><span class="muted">Tageseinkommen${info.bonus ? ` · +${info.bonus} Bonus` : ''}</span></div>
+      <div>Neuer Tag: Münzen <img class="cur" src="${bank.iconUrl('coin')}" alt=""><b data-to="${info.einkommen}">0</b><span class="muted">Tageseinkommen${info.bonus ? ` · +${info.bonus} Bonus` : ''}${info.verfallen ? ` · ${info.verfallen} übrige verfallen` : ''}</span></div>
       <div>Elitewellen<b>${r.elitewellen}</b></div>
       <div>Packs geöffnet<b>${Object.values(r.packsGeoeffnet).reduce((a, b) => a + b, 0)}</b></div>
     </div>
@@ -35,9 +34,7 @@ export function showResult(game, r, mods, opts) {
       ${r.ersteShinys?.length ? `<span class="rainbow-text">Erste Shinys: ${r.ersteShinys.map((id) => escapeHtml(data.cardIndex[id].def.name)).join(', ')}</span>` : ''}
       ${info.erfolge.map((a) => `<span style="color:#FFD24A">★ Erfolg: ${escapeHtml(a.name)}</span>`).join('')}</div>
     <div class="row">
-      <button class="btn btn-primary btn-big" id="res-hub">Zum Hub</button>
-      <button class="btn btn-big" id="res-star">Upgrades${anyNodeAffordable(data, save) ? ' •' : ''}</button>
-      <button class="btn btn-big" id="res-again">Nochmal</button>
+      <button class="btn btn-primary btn-big" id="res-star">Weiter zu den Upgrades${anyNodeAffordable(data, save) ? ' •' : ''}</button>
     </div>`;
   show('#overlay-result', true);
   // Zahlen zählen in ca. 2 s hoch; ein Klick in das Fenster zeigt sofort die Endwerte
@@ -46,20 +43,7 @@ export function showResult(game, r, mods, opts) {
   box.onpointerdown = () => { skip = true; box.querySelectorAll('b[data-to]').forEach((b) => { b.textContent = b.dataset.to; }); };
 
   const close = () => show('#overlay-result', false);
-  $('#res-hub').onclick = () => { close(); game.goto('hub'); };
   $('#res-star').onclick = () => { close(); game.goto('hub', { tab: 'upgrade' }); };
-  $('#res-again').onclick = () => {
-    // Dieselben Packs erneut kaufen, soweit sie heute angeboten werden und bezahlbar sind
-    // Gleiche Angebote wie beim letzten Run kaufen, soweit sie heute im Shop liegen und bezahlbar sind
-    for (const want of lastBag) {
-      const i = save.shop.offers.findIndex((s) => !s.sold && s.kind === want.kind && s.id === want.id && s.karte === want.karte && (s.anzahl || 1) === (want.anzahl || 1));
-      if (i >= 0) buyOffer(i, data, save);
-    }
-    game.persist();
-    close();
-    if (!bagItems(data, save).length) { game.goto('hub'); game.toast('Keine passenden Angebote im Shop – bitte selbst wählen.', true); return; }
-    game.startRun(opts);
-  };
 
   // Freischaltungen nacheinander zeigen (14.6b)
   const items = [];

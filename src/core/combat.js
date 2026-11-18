@@ -134,7 +134,10 @@ export function killEnemy(run, e, killer = null) {
   if (killer && run.mods.heldenHeilungProKill && !killer.dead) killer.hp = Math.min(killer.maxHp, killer.hp + killer.maxHp * run.mods.heldenHeilungProKill);
   // Münzen gibt es nur aus dem Tageseinkommen. Fähigkeiten wie „Bonus-Münzen pro Kill“ bringen Bonus-Münzen für den nächsten Tag.
   const km = killer?.def?.faehigkeiten?.killMuenze;
-  const coins = (killer?.def?.faehigkeiten?.bonusMuenzen?.proKill ?? 0) + (km && run.rng() < km.chance ? 1 : 0);
+  const bm = killer?.def?.faehigkeiten?.bonusMuenzen;
+  const cap = run.B.wirtschaft.bonusMuenzenMaxProRun ?? Infinity;
+  const coins = Math.min(Math.max(0, cap - run.stats.muenzen),
+    (bm && run.rng() < (bm.chance ?? 1) ? bm.proKill : 0) + (km && run.rng() < km.chance ? 1 : 0));
   if (coins > 0) {
     run.coins += coins;
     run.stats.muenzen += coins;

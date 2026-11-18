@@ -110,7 +110,7 @@ legacy/               frühere Spielversionen
 ## Getroffene Annahmen
 
 - **Technik und Titel:** HTML5 + Canvas wie bisher, Arbeitstitel „PackDenDungeon“.
-- **Startgeld und Einkommen:** 3 Münzen zum Start, 3 Tageseinkommen (`balance.wirtschaft`). Nicht ausgegebene Münzen bleiben erhalten. Einkommen wächst vor allem über Quest-Knoten (+1).
+- **Startgeld und Einkommen:** 3 Münzen zum Start, 3 Tageseinkommen (`balance.wirtschaft`). Nicht ausgegebene Münzen verfallen am Tagesende: jeder Tag beginnt mit genau dem Tageseinkommen, dazu Bonus-Münzen aus Relikten und Fähigkeiten. Einkommen wächst vor allem über Quest-Knoten (+1).
 - **Kleine Pools:** Holz- und Silberpack enthalten nicht jede Seltenheit. Wird eine fehlende gewürfelt, kommt die nächstniedrigere.
 - **Grenzgänger:** drei eigene Entwürfe (Flackerling, Spiegelsplitter, Leerläufer).
 - **Beschwörungen:** Rostgolem und Skelettkrieger sind Einheiten ohne Karte.
@@ -131,7 +131,10 @@ legacy/               frühere Spielversionen
 - **Zahnrad im Kampf** öffnet die Pause. Dort sind auch Tempo (1×/2×), Einstellungen und „Run beenden“.
 - **Akt 2:** Der Tor-Knoten ist spielbar (Reset des Skill-Trees mit voller Erstattung, Akt-2-Knoten, Modifikatoren, Riss des Frosts, Relikte). Eigene Akt-2-Kapitel sind als „geplant“ in `acts.json` vermerkt.
 - **Neue Helden aus 11.7** (Spiegelgaukler, Glücksfechter) sind noch nicht eingebaut.
-- **Balancing:** gemessen mit `tools/simulate.mjs` (menschenähnlicher Bot, eine Einheit pro Pack). Kapitel 1 an Tag 9 (≈ 22 min), Kapitel 2 an Tag 20 (≈ 54 min), Kapitel 3 an Tag 35 (≈ 96 min), danach Akt 2. Mastery pro Run: Kapitel 1 bis ≈ 180, Kapitel 2 ≈ 200–1.000, Kapitel 3 ≈ 1.700, Boss-Sieg Kapitel 3 ≈ 6.000. Akt 2 ist nicht ausbalanciert.
+- **Balancing:** gemessen mit `tools/simulate.mjs` (menschenähnlicher Bot, eine Einheit pro Pack, Münzen verfallen täglich). Kapitel 1 an Tag 8 (≈ 19 min), Kapitel 2 an Tag 30 (≈ 87 min), Kapitel 3 an Tag 45 (≈ 132 min), danach Akt 2; 18 Schimmer am Ende von Akt 1. Mastery pro Run: Kapitel 1 bis ≈ 180, Kapitel 2 ≈ 150–1.000, Kapitel 3 ≈ 700–1.500, Boss-Sieg Kapitel 3 ≈ 6.000. Akt 2 ist nicht ausbalanciert.
+- **Bonus-Münzen:** Grenzgänger bringen mit 10 % (Leerläufer 15 %) Chance 1 Bonus-Münze pro Kill, Glückssprung ebenso 10 %; zusammen höchstens 10 pro Run (`balance.wirtschaft.bonusMuenzenMaxProRun`). Sie gelten am nächsten Tag zusätzlich zum Einkommen.
+- **Kampf ohne Info-Fenster:** Beim Zielen auf Gegner erscheint kein Info-Popup; Infos stehen im Bestiarium und in der Sammlung.
+- **Nach dem Run:** Das Ergebnis führt immer zu den Upgrades, es gibt kein direktes „Nochmal“.
 - **Monsterstärke Akt 1:** Damit wenige Helden reichen, haben die Kapitel 1–3 kleinere Leben-/Schaden-Faktoren (0,4 / 0,4 / 0,8), die Bosse 3.500 / 7.000 / 12.000 Leben. Elitegruppen nutzen je Kapitel einen festen Bodentyp (`eliteGegner`). Fliegende Gegner können von Nahkämpfern getroffen werden, sobald sie den Turm angreifen.
 - **Jackpot zu Beginn:** Solange es nur Holzpacks gibt, wäre jeder Tag ein Jackpot. Er entsteht deshalb erst, wenn mindestens zwei Angebotsarten möglich sind (`balance.shop.jackpot.minTypen`).
 - **Akt-2-Balancing:** Kapitel 4–6 habe ich nur mit einem voll ausgebauten Testspielstand durchgespielt (alle Siege, Relikt-Jagd jeweils geschafft). Wie es sich direkt nach dem Akt-Wechsel anfühlt, ist nicht gemessen.

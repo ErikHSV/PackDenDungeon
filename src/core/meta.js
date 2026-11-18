@@ -482,8 +482,11 @@ export function applyRunResult(result, data, save, mods, rng = Math.random) {
   save.day++;
   out.einkommen = mods.tagesEinkommen;
   out.bonus = (mods.bonusEinkommen || 0) + out.bonusAusRun;
-  save.coins += out.einkommen;
-  save.bonusCoins = (save.bonusCoins || 0) + out.bonus;
+  // Münzen verfallen am Tagesende: Der neue Tag startet mit genau dem Tageseinkommen,
+  // dazu die Bonus-Münzen dieses Runs (Relikte, Fähigkeiten). Nicht ausgegebene Münzen gehen verloren.
+  out.verfallen = walletTotal(save);
+  save.coins = out.einkommen;
+  save.bonusCoins = out.bonus;
   save.dayBudget = out.einkommen;
   if (mods.zinsen > 0) {
     out.zinsen = Math.min(data.balance.foilbaum.zinsenMax, Math.floor(save.mastery * mods.zinsen));
