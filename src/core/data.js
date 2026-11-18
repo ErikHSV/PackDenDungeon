@@ -1,7 +1,7 @@
 // Bereitet die rohen JSON-Daten auf: baut Nachschlage-Tabellen (Indizes).
 // Wird sowohl im Browser (main.js) als auch in Node (tools/*.mjs) verwendet.
 
-export const DATA_FILES = ['balance', 'rarities', 'heroes', 'spells', 'enemies', 'packs', 'chapters', 'mastery'];
+export const DATA_FILES = ['balance', 'rarities', 'heroes', 'spells', 'enemies', 'packs', 'chapters', 'starmap'];
 
 export function prepareData(raw) {
   const data = { ...raw };
@@ -10,7 +10,8 @@ export function prepareData(raw) {
   data.enemyIndex = Object.fromEntries(raw.enemies.map((e) => [e.id, e]));
   data.packIndex = Object.fromEntries(raw.packs.map((p) => [p.id, p]));
   data.chapterIndex = Object.fromEntries(raw.chapters.map((c) => [c.id, c]));
-  data.masteryIndex = Object.fromEntries(raw.mastery.nodes.map((n) => [n.id, n]));
+  data.starIndex = Object.fromEntries(raw.starmap.knoten.map((n) => [n.id, n]));
+  data.branchIndex = Object.fromEntries(raw.starmap.aeste.map((b) => [b.id, b]));
 
   // Alle Karten (Helden + Zauber) in einem Index
   data.cardIndex = {};
@@ -52,10 +53,19 @@ export function validateReferences(data) {
       if (!data.enemyIndex[s.id]) errors.push(`Boss ${e.id}: Phase spawnt unbekannten Gegner ${s.id}`);
     }
   }
-  const branchIds = data.mastery.branches.map((b) => b.id);
-  for (const n of data.mastery.nodes) {
-    if (!branchIds.includes(n.branch)) errors.push(`Mastery ${n.id}: unbekannter Ast ${n.branch}`);
-    if (n.effect.type === 'spec' && !data.cardIndex[n.effect.card]) errors.push(`Mastery ${n.id}: unbekannte Karte ${n.effect.card}`);
+  const branchIds = data.starmap.aeste.map((b) => b.id);
+  const types = ['start', 'klein', 'gross', 'schluessel', 'freischalt'];
+  for (const n of data.starmap.knoten) {
+    if (!branchIds.includes(n.ast)) errors.push(`Sternenkarte ${n.id}: unbekannter Ast ${n.ast}`);
+    if (!types.includes(n.typ)) errors.push(`Sternenkarte ${n.id}: unbekannter Typ ${n.typ}`);
+    for (const v of n.verbindungen) {
+      if (!data.starIndex[v]) errors.push(`Sternenkarte ${n.id}: Verbindung zu unbekanntem Knoten ${v}`);
+      else if (!data.starIndex[v].verbindungen.includes(n.id)) errors.push(`Sternenkarte ${n.id} ↔ ${v}: Verbindung nicht beidseitig`);
+    }
+    if (n.effekt.ziel === 'spec' && !data.cardIndex[n.effekt.karte]) errors.push(`Sternenkarte ${n.id}: unbekannte Karte ${n.effekt.karte}`);
+    if (n.voraussetzung?.karte && !data.cardIndex[n.voraussetzung.karte]) errors.push(`Sternenkarte ${n.id}: Voraussetzung unbekannte Karte`);
+    if (n.effekt.ziel === 'packFrueher' && !data.packIndex[n.effekt.pack]) errors.push(`Sternenkarte ${n.id}: unbekanntes Pack`);
   }
+  if (!data.starIndex[data.starmap.start]) errors.push('Sternenkarte: Startknoten fehlt');
   return errors;
 }

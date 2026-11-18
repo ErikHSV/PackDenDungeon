@@ -7,11 +7,11 @@ import { damageEnemy, applyStatus, densestPoint, healHero, fx } from './combat.j
 const waveScale = (run) => Math.pow(run.balance.spells.waveScaling, Math.max(0, run.wave - 1));
 
 const SPELL_EFFECTS = {
-  rockfall(run, s, eff) {
+  rockfall(run, s, eff, target) {
     const cands = run.enemies.filter((e) => !e.dead && e.x < run.field.width);
-    const p = densestPoint(run, cands, eff.radius);
+    const p = target ?? densestPoint(run, cands, eff.radius);
     if (!p) return false;
-    const dmg = eff.damage * run.mods.damageMul * waveScale(run);
+    const dmg = eff.damage * waveScale(run); // Sterne + "Verstärkte Magie" stecken bereits in eff.damage
     fx(run, { type: 'rocks', x: p.x, y: p.y, r: eff.radius, color: s.def.color, life: 0.6 });
     for (const e of cands) {
       if (dist(e, p) > eff.radius) continue;
@@ -24,7 +24,7 @@ const SPELL_EFFECTS = {
   heal(run, s, eff) {
     run.healTower(eff.tower * waveScale(run));
     for (const h of run.heroes) healHero(run, h, h.maxHp * eff.heroPct);
-    fx(run, { type: 'ring', x: run.tower.x, y: run.tower.y, r: 120, color: '#6fe39a', life: 0.6 });
+    fx(run, { type: 'ring', x: run.tower.x, y: run.tower.y, r: 190, color: '#5ED17A', life: 0.6 });
     return true;
   },
 
@@ -34,7 +34,7 @@ const SPELL_EFFECTS = {
   },
 
   iceWall(run, s, eff) {
-    run.iceWall = { x: run.field.frontX + 70, time: eff.duration, maxTime: eff.duration };
+    run.iceWall = { x: run.field.frontX + 112, time: eff.duration, maxTime: eff.duration };
     return true;
   },
 
@@ -56,7 +56,7 @@ function shouldAutoCast(run, s) {
   if (a.minEnemies && alive.length >= a.minEnemies) return true;
   if (a.bossPresent && alive.some((e) => e.boss)) return true;
   if (a.minEnemiesNearFront) {
-    const near = alive.filter((e) => !e.flying && !e.blocker && e.x < run.field.frontX + 300 && e.x > run.field.frontX).length;
+    const near = alive.filter((e) => !e.flying && !e.blocker && e.x < run.field.frontX + 480 && e.x > run.field.frontX).length;
     if (near >= a.minEnemiesNearFront) return true;
   }
   if (a.towerBelow && run.tower.hp / run.tower.maxHp < a.towerBelow) return true;
@@ -64,14 +64,19 @@ function shouldAutoCast(run, s) {
   return false;
 }
 
-export function castSpell(run, s) {
+export function castSpell(run, s, target = null) {
   if (run.over || s.charge < s.cooldown) return false;
-  const ok = SPELL_EFFECTS[s.def.effect.type]?.(run, s, s.def.effect);
+  const ok = SPELL_EFFECTS[s.def.effect.type]?.(run, s, s.def.effect, target);
   if (!ok) return false;
   s.charge = 0;
   s.flash = 0.4;
   run.stats.spellsCast++;
   run.emit('spellCast', { spell: s });
+  // "Echo": Chance auf eine kostenlose Wiederholung
+  if (run.mods.flags.echo && run.rng() < run.balance.spells.echoChance) {
+    SPELL_EFFECTS[s.def.effect.type]?.(run, s, s.def.effect, target);
+    fx(run, { type: 'text', x: 960, y: 200, text: `Echo: ${s.def.name}!`, color: '#3ED6C4', size: 30, life: 1.4 });
+  }
   return true;
 }
 
@@ -79,6 +84,6 @@ export function updateSpells(run, dt) {
   for (const s of run.spells) {
     s.flash = Math.max(0, (s.flash || 0) - dt);
     s.charge = Math.min(s.cooldown, s.charge + dt);
-    if (s.charge >= s.cooldown && run.settings.autoSpells && shouldAutoCast(run, s)) castSpell(run, s);
+    if (s.charge >= s.cooldown && s.auto && shouldAutoCast(run, s)) castSpell(run, s);
   }
 }

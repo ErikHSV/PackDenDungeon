@@ -1,62 +1,50 @@
-// Darstellung einer Karte (Held oder Zauber) als DOM-Element – Platzhalter-Grafik.
+// Kartendarstellung (2:3, 200×300): Name, Bildfenster, Rollensymbol, ein Satz Beschreibung, Seltenheitsleiste.
+// Rahmenfarbe = Seltenheit. Episch/Legendär mit wanderndem Glanz. Zauber mit rundem Bildrahmen.
 import { el, escapeHtml } from './dom.js';
+import { shade } from '../render/pixel.js';
 
-const DAMAGE_TYPES = { physical: 'Physisch', magic: 'Magisch' };
-const TARGETING = { nearest: 'nächstes Ziel', weakest: 'schwächstes Ziel', elite: 'Elite zuerst', air: 'Luftziel zuerst' };
+const ROLE_ICON = { sword: 'sword', shield: 'shield', bow: 'bow', staff: 'staff', heart: 'heart' };
 
-function textColorFor(hex) {
-  const n = parseInt(hex.slice(1), 16);
-  const lum = 0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255);
-  return lum > 150 ? '#1a1a1a' : '#ffffff';
+/** Erster Satz einer Beschreibung (Karten zeigen nur einen Satz). */
+export function firstSentence(text) {
+  const m = String(text).match(/^.*?[.!?](\s|$)/);
+  return m ? m[0].trim() : text;
 }
 
 /**
- * @param {string} id  Karten-ID
- * @param {object} data Spieldaten
- * @param {object} opts { found=true, count, stars }
+ * @param {string} id Karten-ID
+ * @param {object} game { data, bank }
+ * @param {object} opts { found = true, stars, count }
  */
-export function cardElement(id, data, opts = {}) {
+export function cardElement(id, game, opts = {}) {
+  const { data, bank } = game;
   const { kind, def } = data.cardIndex[id];
   const rar = data.rarities[def.rarity];
   const found = opts.found !== false;
-  let sub;
-  if (kind === 'hero') {
-    sub = `${escapeHtml(def.role)} · ${def.damageType ? DAMAGE_TYPES[def.damageType] : '–'}`;
-    if (def.attack.kind !== 'none') sub += ` · ${def.canHitAir ? 'Boden + Luft' : 'nur Boden'}`;
-  } else {
-    sub = `Zauber · ${Math.round(def.cooldown)} s`;
-  }
-  const stars = opts.stars ? `<div class="stars">${'★'.repeat(opts.stars)}</div>` : '';
-  const node = el(`
-    <div class="card ${found ? '' : 'silhouette'} ${rar.glow && found ? 'glow' : ''}" style="--rar:${rar.color}">
-      ${opts.count != null && found ? `<div class="count">×${opts.count}</div>` : ''}
-      <div class="art ${kind === 'spell' ? 'spell' : ''}" style="background:${def.color};color:${textColorFor(def.color)}">${found ? escapeHtml(def.short) : "?"}</div>
-      <div class="name">${found ? escapeHtml(def.name) : '???'}</div>
-      <div class="sub" style="color:${rar.color}">${rar.name}</div>
-      ${found ? `<div class="sub">${sub}</div>
-      <div class="desc">${escapeHtml(def.description)}</div>
-      ${def.star3 ? `<div class="star3">★★★ ${escapeHtml(def.star3.text)}</div>` : ''}` : '<div class="desc muted">Noch nicht gefunden</div>'}
-      ${stars}
+  const isSpell = kind === 'spell';
+  const img = isSpell ? bank.iconUrl(def.icon) : bank.heroUrl(id);
+  const roleIcon = isSpell ? 'staff' : ROLE_ICON[def.roleIcon] ?? 'sword';
+  const role = isSpell ? 'Zauber' : def.role;
+  const bg = `radial-gradient(circle at 50% 40%, ${shade(def.color, 0.25)}, ${shade(def.color, -0.45)})`;
+  return el(`
+    <div class="card ${isSpell ? 'spell' : ''} ${rar.shine && found ? 'shine' : ''} ${found ? '' : 'silhouette'}" style="--rar:${rar.color}">
+      <div class="c-name">${found ? escapeHtml(def.name) : '???'}</div>
+      <div class="c-art" style="background:${found ? bg : '#1a1828'}"><img src="${img}" alt=""></div>
+      <div class="c-role"><img src="${bank.iconUrl(roleIcon)}" alt="">${found ? escapeHtml(role) : '???'}</div>
+      <div class="c-text">${found ? escapeHtml(firstSentence(def.description)) : 'Noch nicht gefunden'}</div>
+      ${opts.stars ? `<div class="c-stars">${'★'.repeat(opts.stars)}</div>` : ''}
+      ${opts.count != null && found ? `<div class="c-count">×${opts.count}</div>` : ''}
+      <div class="c-rar">${rar.name}</div>
     </div>`);
-  return node;
 }
 
-/** Kurzer Info-Text für einen platzierten Helden (Seitenleiste). */
-export function heroInfoHtml(run, h) {
-  const d = h.def;
-  const lines = [
-    `<h4>${escapeHtml(d.name)} <span style="color:#ffd34d">${'★'.repeat(h.stars)}</span></h4>`,
-    `<div class="muted">${escapeHtml(d.role)} · ${d.damageType ? DAMAGE_TYPES[d.damageType] : 'kein Schaden'}${d.attack.kind !== 'none' ? ' · ' + TARGETING[d.targeting] : ''}</div>`,
-    `<div>❤️ ${Math.round(h.hp)} / ${Math.round(h.maxHp)}</div>`,
-  ];
-  if (d.attack.kind !== 'none') {
-    lines.push(`<div>⚔️ ${Math.round(d.stats.damage * h.power * run.mods.damageMul)} Schaden · ${(d.stats.attackSpeed * run.mods.attackSpeedMul * (1 + run.auras.haste)).toFixed(2)}/s · Reichweite ${d.stats.range}</div>`);
-  }
-  lines.push(`<div>${escapeHtml(d.description)}</div>`);
-  if (h.stars >= run.balance.stars.enhancedFromStar && d.star3) lines.push(`<div style="color:#f5b942">★★★ ${escapeHtml(d.star3.text)}</div>`);
-  const own = run.owned[h.id];
-  const next = run.balance.stars.thresholds[h.stars];
-  if (next != null) lines.push(`<div class="muted">Duplikate: ${own.copies} / ${next} für ${h.stars + 1}★</div>`);
-  lines.push(`<div class="muted">Gesamtschaden: ${Math.round(h.damageDone)}</div>`);
-  return lines.join('');
+/** Werte eines Helden bei einem bestimmten Stern (für Tooltips und Sammlung). */
+export function heroStatsAt(def, stars, balance, mods = null) {
+  const m = 1 + balance.stars.statPerStar * (stars - 1);
+  return {
+    hp: Math.round(def.stats.hp * m * (mods?.heroHpMul ?? 1)),
+    damage: Math.round(def.stats.damage * m * (mods?.damageMul ?? 1)),
+    aps: def.stats.attackSpeed * (mods?.attackSpeedMul ?? 1),
+    range: def.stats.range,
+  };
 }

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>Sprite-Vorschau</title>
+  <style>
+    body { background: #1E1B2E; color: #F4EBD9; font-family: system-ui, sans-serif; margin: 16px; }
+    h2 { color: #C9A45C; margin: 18px 0 6px; }
+    .row { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }
+    .item { text-align: center; font-size: 12px; background: #2a2640; padding: 6px; border-radius: 6px; }
+    canvas { image-rendering: pixelated; display: block; margin: 0 auto 4px; }
+    #bg canvas { width: 960px; }
+  </style>
+</head>
+<body>
+  <h1>Sprite-Vorschau (Entwicklerwerkzeug)</h1>
+  <p>Zeigt alle Platzhalter-Sprites mit ihren Animationen. Start über einen Webserver: <code>/tools/sprite-preview.html</code></p>
+  <div id="out"></div>
+  <script type="module">
+    import { DATA_FILES, prepareData } from '../src/core/data.js';
+    import { SpriteBank, ANIM } from '../src/render/sprites.js';
+    import { drawBackground } from '../src/render/backgrounds.js';
+
+    const raw = Object.fromEntries(await Promise.all(DATA_FILES.map(async (f) => [f, await (await fetch(`../data/${f}.json`)).json()])));
+    const data = prepareData(raw);
+    const bank = new SpriteBank(data);
+    const out = document.getElementById('out');
+    const anims = [];
+
+    function section(title, entries) {
+      out.insertAdjacentHTML('beforeend', `<h2>${title}</h2>`);
+      const row = document.createElement('div');
+      row.className = 'row';
+      for (const [label, frames, scale] of entries) {
+        const item = document.createElement('div');
+        item.className = 'item';
+        for (const anim of ['idle', 'attack', 'hit', 'death']) {
+          const c = document.createElement('canvas');
+          c.width = frames.size; c.height = frames.size;
+          c.style.width = c.style.height = frames.size * scale + 'px';
+          item.appendChild(c);
+          anims.push({ c, frames, anim });
+        }
+        item.insertAdjacentHTML('beforeend', label);
+        row.appendChild(item);
+      }
+      out.appendChild(row);
+    }
+
+    section('Helden (32×32, ×3)', data.heroes.map((h) => [h.name, bank.hero(h.id), 3]));
+    section('Gegner (24×24, ×3)', data.enemies.filter((e) => !e.boss).map((e) => [e.name, bank.enemy(e.id), 3]));
+    section('Elite (48×48, ×3)', ['schlammling', 'knochenritter', 'kraehe'].map((id) => [data.enemyIndex[id].name, bank.enemy(id, true), 3]));
+    section('Bosse (96×96, ×2)', data.enemies.filter((e) => e.boss).map((e) => [e.name, bank.enemy(e.id), 2]));
+
+    out.insertAdjacentHTML('beforeend', '<h2>Truhen und Symbole</h2>');
+    const row = document.createElement('div'); row.className = 'row'; out.appendChild(row);
+    for (const p of data.packs) for (const open of [false, true]) {
+      const img = new Image(); img.src = bank.chestUrl(p.id, open); img.style.cssText = 'width:128px;image-rendering:pixelated';
+      row.appendChild(img);
+    }
+    for (const n of ['sword', 'shield', 'bow', 'staff', 'heart', 'rock', 'coin', 'ice', 'horn', 'skull', 'slow', 'burn', 'stun', 'lock', 'crown', 'tower']) {
+      const img = new Image(); img.src = bank.iconUrl(n); img.title = n; img.style.cssText = 'width:48px;image-rendering:pixelated';
+      row.appendChild(img);
+    }
+
+    out.insertAdjacentHTML('beforeend', '<h2>Hintergründe</h2><div id="bg"></div>');
+    const bgs = data.chapters.map((ch) => {
+      const c = document.createElement('canvas'); c.width = 1920; c.height = 810;
+      document.getElementById('bg').appendChild(c);
+      return { c, id: ch.id };
+    });
+
+    let t0 = performance.now();
+    function loop(now) {
+      const t = Math.max(0, (now - t0) / 1000);
+      for (const a of anims) {
+        const fps = a.anim === 'attack' ? 10 : a.anim === 'death' ? 6 : 5;
+        const list = a.frames[a.anim];
+        const f = list[Math.floor(t * fps) % list.length];
+        const g = a.c.getContext('2d');
+        g.clearRect(0, 0, a.c.width, a.c.height);
+        g.drawImage(f, 0, 0);
+      }
+      for (const b of bgs) drawBackground(b.c.getContext('2d'), b.id, 1920, 810, t, t * 40);
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+    window.previewReady = true;
+  </script>
+</body>
+</html>

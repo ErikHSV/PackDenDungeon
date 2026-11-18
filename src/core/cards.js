@@ -2,7 +2,7 @@
 import { weightedPick, deepClone, applyPatches } from './util.js';
 
 /** Zieht `count` Karten-IDs aus einem Pack gemäß seinen Seltenheits-Gewichten. */
-export function drawCards(pack, data, count, rng) {
+export function drawCards(pack, data, count, rng, rarityUpChance = 0) {
   const byRarity = {};
   for (const id of pack.pool) {
     const card = data.cardIndex[id];
@@ -10,8 +10,15 @@ export function drawCards(pack, data, count, rng) {
   }
   const weights = Object.entries(pack.rarityWeights).filter(([r]) => byRarity[r]?.length);
   const out = [];
+  const order = Object.keys(data.rarities).sort((a, b) => data.rarities[a].order - data.rarities[b].order);
   for (let i = 0; i < count; i++) {
-    const list = byRarity[weightedPick(weights, rng)];
+    let rarity = weightedPick(weights, rng);
+    // "Glückliches Händchen": Chance auf eine Stufe höhere Seltenheit (falls im Pool vorhanden)
+    if (rarityUpChance > 0 && rng() < rarityUpChance) {
+      const higher = order.slice(order.indexOf(rarity) + 1).find((r) => byRarity[r]?.length);
+      if (higher) rarity = higher;
+    }
+    const list = byRarity[rarity];
     out.push(list[Math.floor(rng() * list.length)]);
   }
   return out;

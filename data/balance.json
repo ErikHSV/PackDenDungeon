@@ -1,29 +1,83 @@
 {
   "$comment": "Zentrale Balancing-Datei. Alle globalen Zahlen des Spiels stehen hier.",
   "gameTitle": "PackDenDungeon",
+  "version": "0.2.0",
 
   "field": {
-    "$comment": "Logische Spielfeld-Koordinaten (Pixel). Der Canvas wird darauf skaliert.",
-    "width": 1200,
-    "height": 560,
-    "towerX": 110,
-    "frontX": 480,
-    "groundY": 450,
-    "airY": 170,
-    "spawnX": 1240,
-    "slotPositions": [[410, 420], [410, 330], [345, 420], [345, 330], [280, 420], [280, 330], [215, 420], [215, 330], [150, 420], [150, 330]]
+    "$comment": "Weltkoordinaten = Pixel bei 1920×1080. Das Spielfeld liegt zwischen oberer (90 px) und unterer Leiste (180 px).",
+    "width": 1920,
+    "height": 810,
+    "offsetY": 90,
+    "towerX": 180,
+    "frontX": 700,
+    "groundY": 720,
+    "airY": 230,
+    "spawnX": 1860,
+    "$comment_slots": "Reihenfolge = Freischalt-Reihenfolge. row: front = Nahkampf (vorn), back = Fernkampf/Support (hinten).",
+    "slots": [
+      { "x": 640, "y": 720, "row": "front" },
+      { "x": 595, "y": 650, "row": "back" },
+      { "x": 545, "y": 720, "row": "front" },
+      { "x": 500, "y": 650, "row": "back" },
+      { "x": 450, "y": 720, "row": "front" },
+      { "x": 405, "y": 650, "row": "back" },
+      { "x": 355, "y": 720, "row": "front" },
+      { "x": 310, "y": 650, "row": "back" },
+      { "x": 260, "y": 720, "row": "front" },
+      { "x": 215, "y": 650, "row": "back" }
+    ]
+  },
+
+  "sprites": {
+    "$comment": "Pixel-Grafik: Basisgrößen in Pixeln, im Spiel ganzzahlig skaliert",
+    "scale": 3,
+    "hero": 32,
+    "enemy": 24,
+    "elite": 48,
+    "boss": 96
   },
 
   "tower": {
     "hp": 1000,
-    "attack": { "damage": 5, "interval": 1.0, "range": 340, "canHitAir": true, "damageType": "physical", "waveGrowth": 1.06 }
+    "heavyHitFraction": 0.05,
+    "$comment_bow": "Der Turm schießt erst mit dem Sternenkarten-Knoten 'Turmbogen'. Pro Stufe: Schaden +damagePerLevel, Intervall ×(1 − speedPerLevel)",
+    "attack": { "damage": 8, "damagePerLevel": 0.6, "interval": 1.2, "speedPerLevel": 0.18, "range": 640, "canHitAir": true, "damageType": "physical", "waveGrowth": 1.07 },
+    "lastStandHp": 0.3
+  },
+
+  "cursor": {
+    "$comment": "Runenkreis am Cursor: trifft alle Gegner im Radius alle 'tick' Sekunden und sammelt Münzen ein",
+    "damage": 3,
+    "waveGrowth": 1.08,
+    "radius": 72,
+    "tick": 0.6,
+    "magnet": 24,
+    "damageType": "magic",
+    "sparkFraction": 0.6,
+    "twinFraction": 0.4,
+    "twinRadius": 0.55,
+    "frostSlow": 0.25,
+    "burnDpsFactor": 0.4,
+    "burnDuration": 3
+  },
+
+  "coins": {
+    "$comment": "Münzen bleiben liegen und müssen mit dem Runenkreis eingesammelt werden",
+    "lifetime": 5,
+    "autoCollectAfter": 2,
+    "nuggetMultiplier": 5,
+    "maxOnField": 120
   },
 
   "heroes": {
     "baseSlots": 5,
     "maxSlots": 10,
     "reviveTime": 12,
-    "reviveHpFraction": 0.5
+    "reviveHpFraction": 0.5,
+    "$comment_replace": "Ersetzter Held bringt diesen Anteil seines Wertes (sellValue × (1 + Duplikate)) als Gold",
+    "replaceRefund": 0.5,
+    "starfireDamage": 3,
+    "starfireRadius": 220
   },
 
   "economy": {
@@ -31,29 +85,40 @@
     "cardsPerPack": 3,
     "packPriceGrowth": 0.12,
     "minPackPriceGrowth": 0.02,
-    "$comment_sell": "Gold für Karten, die keinen Platz finden oder schon 5 Sterne haben (× sellValue der Seltenheit)",
+    "$comment_sell": "Gold für verkaufte Karten bzw. Duplikate mit 5 Sternen (× sellValue der Seltenheit × Kapitel-Goldfaktor)",
     "overflowGoldFactor": 1.0,
     "$comment_first": "Erstes Pack eines Runs enthält garantiert einen angreifenden Helden (verhindert Pech-Starts)",
     "firstPackGuaranteesAttacker": true
   },
 
   "waves": {
-    "firstWaveDelay": 7,
-    "breakBetweenWaves": 2,
-    "maxWaveDuration": 22,
-    "spawnInterval": 0.6,
-    "groupSpawnInterval": 0.2,
+    "$comment_prep": "Erste Welle startet nach dem ersten Packkauf oder spätestens nach prepTime Sekunden",
+    "prepTime": 10,
+    "startOnFirstPack": true,
+    "$comment_break": "Nach Ende der Spawnzeit startet die nächste Welle nach so vielen Sekunden – auch wenn noch Gegner leben",
+    "nextWaveDelay": 5,
+    "$comment_spawn": "Gegner einer Welle werden über diese Dauer verteilt (erste → letzte Welle des Kapitels)",
+    "spawnDurationFirst": 15,
+    "spawnDurationLast": 25,
+    "groupSpawnInterval": 0.25,
     "countBase": 4,
     "countPerWave": 1.5,
     "countMax": 40,
     "hpGrowth": 1.13,
     "goldGrowth": 1.03,
     "damageGrowth": 1.07,
-    "earlyCallGoldPerSecond": 2,
+    "$comment_early": "Wer die nächste Welle früh ruft, bekommt in dieser Welle so viel Bonusgold pro Kill",
+    "earlyCallGoldBonus": 0.1,
+    "$comment_boss": "In der Bosswelle erscheinen weniger kleine Gegner",
+    "bossWaveCountFactor": 0.5,
+    "$comment_trickle": "Solange der Boss lebt, erscheint alle n Sekunden ein kleiner Gegner",
+    "bossTrickleInterval": 6,
     "eliteFromWave": 4,
     "eliteChancePerWave": 0.012,
     "eliteChanceMax": 0.18,
-    "elite": { "hp": 3.5, "gold": 4, "size": 1.35, "damage": 1.5 }
+    "eliteWaveEvery": 5,
+    "eliteWaveChance": 0.4,
+    "elite": { "hp": 3.5, "gold": 4, "size": 1.6, "damage": 1.5 }
   },
 
   "stars": {
@@ -65,6 +130,8 @@
   },
 
   "spells": {
+    "maxSlots": 4,
+    "echoChance": 0.15,
     "cooldownReductionPerStar": 0.08,
     "waveScaling": 1.03,
     "initialChargeFraction": 0.5
@@ -76,13 +143,19 @@
     "statusBossFactor": 0.5,
     "knockbackBossFactor": 0.15,
     "knockbackEliteFactor": 0.5,
-    "projectileHitRadius": 6
+    "projectileHitRadius": 10,
+    "$comment_tele": "Vorwarnzeit für Boss-Flächenangriffe (roter Kreis am Boden)",
+    "bossTelegraphTime": 1.5
   },
 
   "mastery": {
     "pointsPerWave": 1,
-    "pointsPerBoss": 10
+    "pointsPerEliteWave": 3,
+    "pointsPerBoss": 15,
+    "splintersFirstBoss": 3,
+    "splintersNewRecord": 1
   },
 
-  "speeds": [1, 2, 3]
+  "speeds": [1, 2, 3],
+  "packOpeningTimeScale": 0.25
 }

@@ -5,33 +5,109 @@
   "type": "array",
   "items": {
     "type": "object",
-    "required": ["id", "name", "short", "rarity", "color", "description", "cooldown", "auto", "effect", "scale", "star3"],
+    "required": [
+      "id",
+      "name",
+      "short",
+      "rarity",
+      "color",
+      "description",
+      "cooldown",
+      "auto",
+      "effect",
+      "scale",
+      "star3",
+      "icon",
+      "sprite"
+    ],
     "properties": {
-      "id": { "type": "string", "pattern": "^[a-z0-9_]+$" },
-      "name": { "type": "string" },
-      "short": { "type": "string", "maxLength": 3 },
-      "rarity": { "$ref": "common.schema.json#/definitions/rarity" },
-      "color": { "type": "string" },
-      "description": { "type": "string" },
-      "cooldown": { "type": "number", "description": "Aufladezeit in Sekunden" },
+      "id": {
+        "type": "string",
+        "pattern": "^[a-z0-9_]+$"
+      },
+      "name": {
+        "type": "string"
+      },
+      "short": {
+        "type": "string",
+        "maxLength": 3
+      },
+      "rarity": {
+        "$ref": "common.schema.json#/definitions/rarity"
+      },
+      "color": {
+        "type": "string"
+      },
+      "description": {
+        "type": "string"
+      },
+      "cooldown": {
+        "type": "number",
+        "description": "Aufladezeit in Sekunden"
+      },
       "auto": {
         "type": "object",
         "description": "Bedingungen für automatisches Auslösen (eine reicht)",
         "properties": {
-          "minEnemies": { "type": "integer" },
-          "minEnemiesNearFront": { "type": "integer" },
-          "bossPresent": { "type": "boolean" },
-          "towerBelow": { "type": "number" },
-          "heroesBelow": { "type": "number" }
+          "minEnemies": {
+            "type": "integer"
+          },
+          "minEnemiesNearFront": {
+            "type": "integer"
+          },
+          "bossPresent": {
+            "type": "boolean"
+          },
+          "towerBelow": {
+            "type": "number"
+          },
+          "heroesBelow": {
+            "type": "number"
+          }
         }
       },
       "effect": {
         "type": "object",
-        "required": ["type"],
-        "properties": { "type": { "enum": ["rockfall", "heal", "goldRush", "iceWall", "warHorn", "curse"] } }
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "enum": [
+              "rockfall",
+              "heal",
+              "goldRush",
+              "iceWall",
+              "warHorn",
+              "curse"
+            ]
+          }
+        }
       },
-      "scale": { "type": "array", "items": { "type": "string" }, "description": "Pfade, die mit dem Sterne-Multiplikator skaliert werden" },
-      "star3": { "$ref": "common.schema.json#/definitions/star3" }
+      "scale": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Pfade, die mit dem Sterne-Multiplikator skaliert werden"
+      },
+      "star3": {
+        "$ref": "common.schema.json#/definitions/star3"
+      },
+      "icon": {
+        "enum": [
+          "rock",
+          "heart",
+          "coin",
+          "ice",
+          "horn",
+          "skull"
+        ],
+        "description": "Symbol im runden Zauberrahmen"
+      },
+      "sprite": {
+        "type": "string"
+      }
     }
   }
 }

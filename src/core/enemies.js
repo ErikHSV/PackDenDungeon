@@ -43,20 +43,24 @@ function bossTimer(e, key, interval, dt) {
 }
 
 const BOSS_ABILITIES = {
-  /** Wurzeln halten zufällige Helden fest (können nicht angreifen). */
+  /** Wurzeln halten zufällige Helden fest (können nicht angreifen) – mit Vorwarnung. */
   roots(run, e, ab, dt) {
     if (!bossTimer(e, 'roots', ab.interval, dt)) return;
     for (const h of pickHeroes(run, ab.targets)) {
-      h.root = ab.duration;
-      fx(run, { type: 'text', x: h.x, y: h.y - 40, text: 'Verwurzelt!', color: '#a0764a', size: 12, life: 1 });
+      run.telegraph({ x: h.x, y: h.footY, r: 60, apply: () => {
+        if (!h.alive) return;
+        h.root = ab.duration;
+        fx(run, { type: 'text', x: h.x, y: h.y - 64, text: 'Verwurzelt!', color: '#c08a52', size: 18, life: 1 });
+      } });
     }
     run.emit('sound', 'bossSkill');
+    run.emit('shake', { power: 8 });
   },
 
   /** Ruft Verstärkung herbei. */
   summon(run, e, ab, dt) {
     if (!bossTimer(e, 'summon', ab.interval, dt)) return;
-    for (let i = 0; i < ab.count; i++) run.spawnEnemy(ab.enemy, { x: e.x + 30 + i * 22, wave: e.wave });
+    for (let i = 0; i < ab.count; i++) run.spawnEnemy(ab.enemy, { x: e.x + 48 + i * 35, wave: e.wave });
   },
 
   /** Lädt einen Schrei auf – nur durch Betäubung unterbrechbar. */
@@ -66,7 +70,7 @@ const BOSS_ABILITIES = {
       if (e.st.stun > 0) {
         bs.charging = 0;
         bs.timers.scream = ab.interval;
-        fx(run, { type: 'text', x: e.x, y: e.y - e.size - 30, text: 'Unterbrochen!', color: '#ffe08a', size: 16, life: 1.4 });
+        fx(run, { type: 'text', x: e.x, y: e.y - e.size - 60, text: 'Unterbrochen!', color: '#FFD24A', size: 26, life: 1.4 });
         run.emit('bossInterrupted', { enemy: e });
         return;
       }
@@ -74,10 +78,11 @@ const BOSS_ABILITIES = {
       if (bs.charging <= 0) {
         bs.charging = 0;
         const scale = run.chapter.damageMult;
-        damageTower(run, ab.towerDamage * scale);
+        damageTower(run, ab.towerDamage * scale, true);
         for (const h of run.heroes) damageHero(run, h, ab.heroDamage * scale);
-        fx(run, { type: 'ring', x: e.x, y: e.y, r: 700, color: '#d0d4dd', life: 0.6 });
-        fx(run, { type: 'text', x: e.x, y: e.y - e.size - 30, text: 'SCHREI!', color: '#ff6b6b', size: 20, life: 1.2 });
+        fx(run, { type: 'ring', x: e.x, y: e.y, r: 1100, color: '#d0d4dd', life: 0.6 });
+        fx(run, { type: 'text', x: e.x, y: e.y - e.size - 60, text: 'SCHREI!', color: '#E04848', size: 34, life: 1.2 });
+        run.emit('shake', { power: 18 });
         run.emit('sound', 'scream');
       }
       return;
@@ -90,11 +95,15 @@ const BOSS_ABILITIES = {
     }
   },
 
-  /** Erzeugt Lavafelder unter Helden. */
+  /** Erzeugt Lavafelder unter Helden – 1,5 s vorher als roter Kreis angekündigt. */
   lavaField(run, e, ab, dt) {
     if (!bossTimer(e, 'lavaField', ab.interval, dt)) return;
     for (const h of pickHeroes(run, 1)) {
-      run.zones.push({ type: 'lava', x: h.x, y: h.y, r: ab.radius, dps: ab.dps * run.chapter.damageMult, time: ab.duration, maxTime: ab.duration });
+      const x = h.x, y = h.y;
+      run.telegraph({ x, y: h.footY, r: ab.radius, apply: () => {
+        run.zones.push({ type: 'lava', x, y, r: ab.radius, dps: ab.dps * run.chapter.damageMult, time: ab.duration, maxTime: ab.duration });
+        run.emit('shake', { power: 10 });
+      } });
     }
   },
 
@@ -105,14 +114,18 @@ const BOSS_ABILITIES = {
     e.regenerating = true;
   },
 
-  /** Friert zufällige Helden ein. */
+  /** Friert zufällige Helden ein – mit Vorwarnung. */
   freeze(run, e, ab, dt) {
     if (!bossTimer(e, 'freeze', ab.interval, dt)) return;
     for (const h of pickHeroes(run, ab.count)) {
-      h.freeze = ab.duration;
-      fx(run, { type: 'text', x: h.x, y: h.y - 40, text: 'Eingefroren!', color: '#bfe9ff', size: 12, life: 1 });
+      run.telegraph({ x: h.x, y: h.footY, r: 60, apply: () => {
+        if (!h.alive) return;
+        h.freeze = ab.duration;
+        fx(run, { type: 'text', x: h.x, y: h.y - 64, text: 'Eingefroren!', color: '#bfe9ff', size: 18, life: 1 });
+      } });
     }
     run.emit('sound', 'bossSkill');
+    run.emit('shake', { power: 8 });
   },
 };
 
@@ -124,7 +137,8 @@ function bossTick(run, e, dt) {
     const ph = phases[bs.phase++];
     applyPatches(e.def, ph.patches);
     if (ph.speedMul) e.speed *= ph.speedMul;
-    for (const s of ph.spawn || []) for (let i = 0; i < s.count; i++) run.spawnEnemy(s.id, { x: e.x + 40 + i * 20, wave: e.wave });
+    for (const s of ph.spawn || []) for (let i = 0; i < s.count; i++) run.spawnEnemy(s.id, { x: e.x + 64 + i * 32, wave: e.wave });
+    run.emit('shake', { power: 14 });
     run.emit('bossWarning', { enemy: e, text: ph.text || 'Neue Phase!' });
   }
   e.regenerating = false;
@@ -158,14 +172,16 @@ function attack(run, e, dt, target) {
       const amount = Math.min(run.gold, Math.round(steal.amount * run.chapter.goldMult * e.goldScaleRaw));
       run.gold -= amount;
       run.stats.goldStolen += amount;
-      fx(run, { type: 'text', x: e.x, y: e.y - 30, text: `-${amount} Gold`, color: '#ff6b6b', size: 14, life: 1.2 });
+      fx(run, { type: 'text', x: e.x, y: e.y - 50, text: `-${amount} Gold`, color: '#E04848', size: 22, life: 1.2 });
       run.emit('sound', 'steal');
       e.dead = true; // flieht mit der Beute (keine Belohnung)
+      e.stolen = true;
       return;
     }
-    damageTower(run, e.damage);
+    damageTower(run, e.damage, e.boss);
   } else if (target.kind === 'hero') {
     damageHero(run, target, e.damage);
+    if (e.boss) run.emit('shake', { power: 6 });
   } else {
     damageMinion(run, target, e.damage);
   }
@@ -203,7 +219,7 @@ export function updateEnemies(run, dt) {
     const towerContact = F.towerX + 6 + e.size;
 
     if (e.flying) {
-      if (e.x > towerContact + 20) e.x -= speed * dt;
+      if (e.x > towerContact + 32) e.x -= speed * dt;
       else attack(run, e, dt, 'tower');
       continue;
     }
@@ -236,7 +252,7 @@ export function updateMinions(run, dt) {
     // greift den Gegner an, den er blockt, sonst den nächsten Bodengegner in Reichweite
     let target = run.enemies.find((e) => !e.dead && e.blocker === m);
     if (!target) {
-      let best = 110;
+      let best = 176;
       for (const e of run.enemies) {
         if (e.dead || e.flying) continue;
         const d = dist(m, e);
@@ -247,6 +263,7 @@ export function updateMinions(run, dt) {
     damageEnemy(run, target, m.damage, 'physical', { source: m });
     fx(run, { type: 'slash', x: target.x, y: target.y, color: '#e8e4d8', life: 0.12 });
     m.atkTimer = 1 / m.attackSpeed;
+    m.attackAnim = 0.2;
   }
   const gone = run.minions.filter((m) => m.hp <= 0 || m.life <= 0);
   if (gone.length) {

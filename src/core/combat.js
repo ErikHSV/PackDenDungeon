@@ -5,16 +5,18 @@ import { dist } from './util.js';
 
 export function fx(run, effect) {
   if (run.headless) return;
-  if (effect.type === 'text' && run.effects.length > 160) return; // Schutz vor Textflut
+  if ((effect.type === 'text' || effect.type === 'coin') && run.effects.length > 220) return; // Schutz vor Effektflut
   run.effects.push({ age: 0, life: 0.8, ...effect });
 }
 
-function damageText(run, target, amount, crit, color) {
+/** Schadenszahl: weiß = normal, gelb + größer = kritisch, blau = magisch. */
+function damageText(run, target, amount, crit, magic) {
   if (!run.settings.damageNumbers || amount < 1) return;
   fx(run, {
-    type: 'text', x: target.x + (Math.random() * 16 - 8), y: target.y - (target.size || 20) - 6,
-    text: String(Math.round(amount)) + (crit ? '!' : ''), color: color || (crit ? '#ffd34d' : '#ffffff'),
-    size: crit ? 18 : 13, life: 0.7,
+    type: 'text', x: target.x + (Math.random() * 26 - 13), y: target.y - (target.size || 30) - 10,
+    text: String(Math.round(amount)) + (crit ? '!' : ''),
+    color: crit ? '#FFD24A' : magic ? '#5AA9F0' : '#FFFFFF',
+    size: crit ? 30 : 20, life: 0.8,
   });
 }
 
@@ -82,11 +84,11 @@ export function applyOnHit(run, e, list, hitDamage) {
 export function damageEnemy(run, e, amount, type, opts = {}) {
   if (!e || e.dead || amount <= 0) return 0;
   if (type && e.immune.includes(type)) {
-    if (!opts.silent) fx(run, { type: 'text', x: e.x, y: e.y - e.size - 8, text: 'IMMUN', color: '#9fe8ff', size: 11 });
+    if (!opts.silent) fx(run, { type: 'text', x: e.x, y: e.y - e.size - 14, text: 'IMMUN', color: '#9fe8ff', size: 16 });
     return 0;
   }
   if (e.frontalShield && !opts.aoe && !opts.bypassShield) {
-    if (!opts.silent) fx(run, { type: 'text', x: e.x, y: e.y - e.size - 8, text: 'BLOCK', color: '#d9c38c', size: 11 });
+    if (!opts.silent) fx(run, { type: 'text', x: e.x, y: e.y - e.size - 14, text: 'BLOCK', color: '#d9c38c', size: 16 });
     return 0;
   }
   let d = amount;
@@ -96,10 +98,11 @@ export function damageEnemy(run, e, amount, type, opts = {}) {
   if (run.buffs.curse.time > 0) d *= 1 + run.buffs.curse.amount;
 
   e.hp -= d;
-  e.hitFlash = 0.08;
+  e.hitFlash = 0.1;
+  e.wasHit = true;
   run.stats.damageDealt += d;
   if (opts.source) opts.source.damageDone = (opts.source.damageDone || 0) + d;
-  if (!opts.silent) damageText(run, e, d, opts.crit, type === 'magic' ? '#c9a7ff' : null);
+  if (!opts.silent) damageText(run, e, d, opts.crit, type === 'magic');
   if (e.hp <= 0) killEnemy(run, e);
   return d;
 }
@@ -111,18 +114,18 @@ export function killEnemy(run, e, { noReward = false } = {}) {
   if (noReward) return;
   run.stats.kills++;
 
-  // Gold
+  // Gold fällt als Münzen auf den Boden und muss mit dem Runenkreis eingesammelt werden
   const goldMul = run.mods.killGoldMul * (run.buffs.goldRush.time > 0 ? run.buffs.goldRush.multiplier : 1);
   const gold = Math.max(1, Math.round(e.gold * goldMul));
-  run.addGold(gold);
-  if (run.settings.damageNumbers) fx(run, { type: 'text', x: e.x, y: e.y - e.size - 22, text: `+${gold}`, color: '#ffd34d', size: 12, life: 0.9 });
+  if (e.elite && run.mods.flags.goldader) run.dropCoins(e, gold * run.balance.coins.nuggetMultiplier, true);
+  else run.dropCoins(e, gold);
 
   const t = e.traits;
   // Explosion beim Tod: schadet nahen Helden und Dienern
   if (t.explodeOnDeath) {
     const { damage, radius } = t.explodeOnDeath;
     const dmg = damage * e.damageScale;
-    fx(run, { type: 'ring', x: e.x, y: e.y, r: radius, color: '#ff7a2a', life: 0.4 });
+    fx(run, { type: 'burst', x: e.x, y: e.y, r: radius, color: '#ff7a2a', life: 0.5 });
     for (const h of run.heroes) if (h.alive && dist(h, e) <= radius) damageHero(run, h, dmg);
     for (const m of run.minions) if (m.hp > 0 && dist(m, e) <= radius) damageMinion(run, m, dmg);
   }
@@ -161,7 +164,8 @@ export function damageHero(run, h, amount) {
     h.root = 0;
     h.freeze = 0;
     for (const e of run.enemies) if (e.blocker === h) e.blocker = null;
-    fx(run, { type: 'text', x: h.x, y: h.y - 34, text: 'K.O.', color: '#ff6b6b', size: 14, life: 1.2 });
+    h.deathAge = 0;
+    fx(run, { type: 'text', x: h.x, y: h.y - 60, text: 'K.O.', color: '#E04848', size: 22, life: 1.2 });
     run.emit('heroDown', { hero: h });
   }
   return d;
@@ -173,7 +177,7 @@ export function healHero(run, h, amount) {
   h.hp = Math.min(h.maxHp, h.hp + amount);
   const healed = h.hp - before;
   if (healed >= 1 && run.settings.damageNumbers) {
-    fx(run, { type: 'text', x: h.x, y: h.y - 36, text: `+${Math.round(healed)}`, color: '#6fe39a', size: 12 });
+    fx(run, { type: 'text', x: h.x, y: h.y - 60, text: `+${Math.round(healed)}`, color: '#5ED17A', size: 18 });
   }
   return healed;
 }
@@ -186,9 +190,19 @@ export function damageMinion(run, m, amount) {
   }
 }
 
-export function damageTower(run, amount) {
+export function damageTower(run, amount, fromBoss = false) {
   run.tower.hp -= amount;
-  run.tower.hitFlash = 0.1;
+  run.tower.hitFlash = 0.15;
+  run.emit('towerHit', { amount });
+  if (fromBoss || amount >= run.tower.maxHp * run.balance.tower.heavyHitFraction) run.emit('shake', { power: fromBoss ? 12 : 8 });
+  // "Letztes Bollwerk": einmal pro Run überlebt der Turm einen tödlichen Treffer
+  if (run.tower.hp <= 0 && run.mods.flags.letztesBollwerk && !run.lastStandUsed) {
+    run.lastStandUsed = true;
+    run.tower.hp = run.tower.maxHp * run.balance.tower.lastStandHp;
+    fx(run, { type: 'text', x: run.tower.x, y: run.tower.y - 180, text: 'Letztes Bollwerk!', color: '#FFD24A', size: 30, life: 2 });
+    run.emit('shake', { power: 14 });
+    return;
+  }
   if (run.tower.hp <= 0) {
     run.tower.hp = 0;
     run.finish(false);

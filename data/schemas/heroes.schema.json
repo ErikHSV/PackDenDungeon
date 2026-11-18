@@ -5,52 +5,192 @@
   "type": "array",
   "items": {
     "type": "object",
-    "required": ["id", "name", "short", "rarity", "role", "damageType", "color", "description", "stats", "targeting", "canHitAir", "attack", "abilities", "star3"],
+    "required": [
+      "id",
+      "name",
+      "short",
+      "rarity",
+      "role",
+      "damageType",
+      "color",
+      "description",
+      "stats",
+      "targeting",
+      "canHitAir",
+      "attack",
+      "abilities",
+      "star3",
+      "roleIcon",
+      "row",
+      "sprite"
+    ],
     "properties": {
-      "id": { "type": "string", "pattern": "^[a-z0-9_]+$" },
-      "name": { "type": "string" },
-      "short": { "type": "string", "maxLength": 3, "description": "Kürzel für Platzhalter-Grafik" },
-      "rarity": { "$ref": "common.schema.json#/definitions/rarity" },
-      "role": { "type": "string" },
-      "damageType": { "$ref": "common.schema.json#/definitions/damageType" },
-      "color": { "type": "string" },
-      "description": { "type": "string" },
+      "id": {
+        "type": "string",
+        "pattern": "^[a-z0-9_]+$"
+      },
+      "name": {
+        "type": "string"
+      },
+      "short": {
+        "type": "string",
+        "maxLength": 3,
+        "description": "Kürzel für Platzhalter-Grafik"
+      },
+      "rarity": {
+        "$ref": "common.schema.json#/definitions/rarity"
+      },
+      "role": {
+        "type": "string"
+      },
+      "damageType": {
+        "$ref": "common.schema.json#/definitions/damageType"
+      },
+      "color": {
+        "type": "string"
+      },
+      "description": {
+        "type": "string"
+      },
       "stats": {
         "type": "object",
-        "required": ["hp", "damage", "attackSpeed", "range"],
+        "required": [
+          "hp",
+          "damage",
+          "attackSpeed",
+          "range"
+        ],
         "properties": {
-          "hp": { "type": "number" }, "damage": { "type": "number" },
-          "attackSpeed": { "type": "number", "description": "Angriffe pro Sekunde" },
-          "range": { "type": "number", "description": "Reichweite in Pixeln" }
+          "hp": {
+            "type": "number"
+          },
+          "damage": {
+            "type": "number"
+          },
+          "attackSpeed": {
+            "type": "number",
+            "description": "Angriffe pro Sekunde"
+          },
+          "range": {
+            "type": "number",
+            "description": "Reichweite in Pixeln"
+          }
         }
       },
-      "targeting": { "enum": ["nearest", "weakest", "elite", "air"], "description": "nearest = Gegner, der dem Turm am nächsten ist" },
-      "canHitAir": { "type": "boolean" },
+      "targeting": {
+        "enum": [
+          "nearest",
+          "weakest",
+          "elite",
+          "air"
+        ],
+        "description": "nearest = Gegner, der dem Turm am nächsten ist"
+      },
+      "canHitAir": {
+        "type": "boolean"
+      },
       "attack": {
         "type": "object",
-        "required": ["kind"],
+        "required": [
+          "kind"
+        ],
         "properties": {
-          "kind": { "enum": ["none", "melee", "projectile", "arc", "chain", "leap"] },
-          "projectileSpeed": { "type": "number" },
-          "multishot": { "type": "integer", "minimum": 1 },
-          "bonusVsAir": { "type": "number" },
-          "splash": { "type": "number" },
-          "radius": { "type": "number", "description": "arc: Trefferradius um das Ziel" },
-          "jumps": { "type": "integer", "description": "chain: Anzahl Ziele" },
-          "jumpRange": { "type": "number" },
-          "falloff": { "type": "number" },
-          "eliteRange": { "type": "number", "description": "leap: Reichweite gegen Eliten/Bosse" },
-          "critChance": { "type": "number" },
-          "critMult": { "type": "number" },
-          "onHit": { "type": "array", "items": { "$ref": "common.schema.json#/definitions/status" } }
+          "kind": {
+            "enum": [
+              "none",
+              "melee",
+              "projectile",
+              "arc",
+              "chain",
+              "leap"
+            ]
+          },
+          "projectileSpeed": {
+            "type": "number"
+          },
+          "multishot": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "bonusVsAir": {
+            "type": "number"
+          },
+          "splash": {
+            "type": "number"
+          },
+          "radius": {
+            "type": "number",
+            "description": "arc: Trefferradius um das Ziel"
+          },
+          "jumps": {
+            "type": "integer",
+            "description": "chain: Anzahl Ziele"
+          },
+          "jumpRange": {
+            "type": "number"
+          },
+          "falloff": {
+            "type": "number"
+          },
+          "eliteRange": {
+            "type": "number",
+            "description": "leap: Reichweite gegen Eliten/Bosse"
+          },
+          "critChance": {
+            "type": "number"
+          },
+          "critMult": {
+            "type": "number"
+          },
+          "onHit": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/definitions/status"
+            }
+          }
         }
       },
       "abilities": {
         "type": "object",
         "description": "Schlüssel = Fähigkeitstyp (siehe src/core/heroes.js ABILITIES)",
-        "propertyNames": { "enum": ["block", "heal", "armorAura", "towerRepair", "iceField", "bell", "raiseDead", "haste", "bossSlow"] }
+        "propertyNames": {
+          "enum": [
+            "block",
+            "heal",
+            "armorAura",
+            "towerRepair",
+            "iceField",
+            "bell",
+            "raiseDead",
+            "haste",
+            "bossSlow"
+          ]
+        }
       },
-      "star3": { "$ref": "common.schema.json#/definitions/star3" }
+      "star3": {
+        "$ref": "common.schema.json#/definitions/star3"
+      },
+      "roleIcon": {
+        "enum": [
+          "sword",
+          "shield",
+          "bow",
+          "staff",
+          "heart"
+        ],
+        "description": "Rollensymbol auf der Karte"
+      },
+      "row": {
+        "enum": [
+          "front",
+          "back"
+        ],
+        "description": "Bevorzugte Slot-Reihe (vorn = Nahkampf)"
+      },
+      "sprite": {
+        "type": "string",
+        "description": "Schlüssel der Pixel-Grafik (src/render/spriteArt.js)"
+      }
     }
   }
 }

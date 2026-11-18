@@ -19,8 +19,8 @@ for (const name of ['heroes', 'spells', 'enemies', 'packs', 'chapters']) {
     for (const key of required) if (!(key in item)) errors.push(`${name}: ${item.id ?? '?'} fehlt Feld "${key}"`);
   }
 }
-const nodeRequired = schemaFor('mastery').properties.nodes.items.required;
-for (const n of data.mastery.nodes) for (const key of nodeRequired) if (!(key in n)) errors.push(`mastery: ${n.id} fehlt Feld "${key}"`);
+const nodeRequired = schemaFor('starmap').properties.knoten.items.required;
+for (const n of data.starmap.knoten) for (const key of nodeRequired) if (!(key in n)) errors.push(`starmap: ${n.id} fehlt Feld "${key}"`);
 
 // Eindeutige IDs
 const seen = new Set();
@@ -35,4 +35,4 @@ if (errors.length) {
   console.error(`✗ ${errors.length} Fehler:\n  - ` + errors.join('\n  - '));
   process.exit(1);
 }
-console.log(`✓ Daten ok: ${data.heroes.length} Helden, ${data.spells.length} Zauber, ${data.enemies.length} Gegner, ${data.packs.length} Packs, ${data.chapters.length} Kapitel, ${data.mastery.nodes.length} Mastery-Knoten`);
+console.log(`✓ Daten ok: ${data.heroes.length} Helden, ${data.spells.length} Zauber, ${data.enemies.length} Gegner, ${data.packs.length} Packs, ${data.chapters.length} Kapitel, ${data.starmap.knoten.length} Sternenkarten-Knoten`);

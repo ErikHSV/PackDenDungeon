@@ -1,113 +1,100 @@
 # PackDenDungeon
 
-Ein Incremental-Tower-Defense-Spiel mit Booster-Pack-Mechanik. Du reißt Packs auf, hoffst auf seltene Helden und verteidigst mit ihnen deinen Turm gegen immer größere Monsterhorden. Jeder verlorene Run macht dich über den Mastery-Baum dauerhaft stärker.
+Ein Incremental-Tower-Defense-Spiel mit Booster-Pack-Mechanik in 2D-Pixel-Art. Du reißt Packs auf, sammelst Helden und verteidigst deinen Turm gegen immer größere Monsterhorden. Mit dem **Runenkreis** am Cursor triffst du Gegner und sammelst Gold ein. Jeder Run bringt Mastery-Punkte für die **Sternenkarte**, einen großen Skill-Tree mit Nebel des Unbekannten.
 
-Alle Inhalte (Namen, Helden, Gegner, Texte) sind eigene Erfindungen. Die Grafik besteht vorerst aus Platzhaltern (farbige Formen und Text).
+Alle Inhalte (Namen, Helden, Gegner, Grafiken, Texte, Musik) sind eigene Erfindungen. Grafik und Sound sind Platzhalter in Originalgröße und -position: Pixel-Art und Synthesizer-Töne werden prozedural erzeugt.
 
-> Der erste Prototyp **Pack Legends** liegt unverändert in [`pack-legends/`](pack-legends/).
+**Spielen:** https://erikhsv.github.io/PackDenDungeon/ · Der erste Prototyp *Pack Legends* liegt in [`pack-legends/`](pack-legends/).
 
-## Starten
+## Starten (lokal)
 
-Das Spiel lädt seine Inhalte aus JSON-Dateien und muss deshalb über einen Webserver laufen:
+Das Spiel lädt JSON-Dateien und braucht deshalb einen Webserver:
 
 ```bash
 python3 -m http.server 8080
 ```
 
-Dann <http://localhost:8080> öffnen. Alternativ `npx serve .` oder GitHub Pages (Branch `main`, Ordner `/`).
+Dann <http://localhost:8080> öffnen.
 
-- **Bedienung:** Maus und Touch. Am PC zusätzlich: `1`–`3` kauft Packs, `Leertaste` pausiert, `S` ändert das Tempo, `Enter` schließt die Pack-Öffnung.
-- **Debug-Werkzeuge:** in den Einstellungen einschalten oder `?debug` an die URL hängen. Dann gibt es Gold, Welle überspringen, direkt zum Boss, Mastery-Punkte und alle Kapitel freischalten.
+**Bedienung** (Maus und Touch):
+
+| Aktion | Maus / Tastatur | Touch |
+|---|---|---|
+| Runenkreis (Schaden und Gold einsammeln) | Maus über das Spielfeld bewegen | Finger auf dem Spielfeld halten |
+| Pack kaufen | Truhe anklicken oder `1`–`3` | Truhe antippen |
+| Flächenzauber zielen | Zauber, dann Spielfeld anklicken (Rechtsklick/`Esc` bricht ab) | Zauber, dann Spielfeld antippen |
+| Pause / Tempo | `Leertaste` / `S` | Knöpfe oben rechts |
+| Sternenkarte | ziehen, Mausrad zoomt, Klick kauft, gedrückt halten kauft mehrere Stufen | ein Finger zieht, zwei Finger zoomen, zweimal antippen kauft |
+
+**Debug-Werkzeuge:** `?debug` an die URL hängen. Dann gibt es Gold, Welle überspringen, Bosswelle, Run beenden, Mastery-Punkte, alle Kapitel und alle Karten.
 
 ## Projektstruktur
 
 ```
-index.html            Alle Bildschirme und Overlays
-css/style.css         Gestaltung (responsiv, Mobile + Desktop)
-data/                 ALLE Inhalte und Zahlen, siehe unten
-  balance.json        Zentrale Balancing-Datei
-  heroes.json         Helden
-  spells.json         Zauber-Karten
-  enemies.json        Gegner und Bosse
-  packs.json          Booster-Packs (Pool und Ziehwahrscheinlichkeiten)
-  chapters.json       Kapitel, Wellen-Zusammensetzung, Bosse
-  mastery.json        Mastery-Baum (3 Äste)
-  rarities.json       Seltenheiten (Farbe, Verkaufswert)
-  schemas/            JSON-Schemas für alle Datenformate
-src/
-  core/               Spiellogik ohne DOM (läuft auch in Node)
-    run.js            Ein Run: Gold, Packs, Team, Wellen, Hauptschleife
-    heroes.js         Angriffsarten, Zielwahl, Helden-Fähigkeiten
-    enemies.js        Bewegung, Blockade, Gegner-Angriffe, Boss-Fähigkeiten
-    spells.js         Zaubereffekte und automatisches Auslösen
-    combat.js         Schaden, Rüstung/Magieresistenz, Statuseffekte
-    cards.js          Ziehen, Preise, Sterne-System
-    waves.js          Wellen-Erzeugung und Skalierung
-    mastery.js        Mastery-Kosten und -Modifikatoren
-    data.js           Indizes und Querverweis-Prüfung
-  render/renderer.js  Canvas-Zeichnung (Platzhalter-Grafik)
-  ui/                 Bildschirme, Kampf-HUD, Pack-Overlay, Karten
-  audio.js            Sound-Platzhalter (Web Audio)
-  save.js             Speichern in localStorage
-  main.js             Einstiegspunkt
+index.html              Bühne 1920×1080 mit allen Bildschirmen und Overlays
+css/style.css           Gestaltung (Farbpalette laut Spezifikation 8.1)
+data/                   ALLE Inhalte und Zahlen (siehe unten)
+  balance.json          Zentrale Balancing-Datei (Feld, Wellen, Runenkreis, Münzen, Turm, …)
+  heroes.json           12 Helden          spells.json   6 Zauber
+  enemies.json          Gegner und Bosse   packs.json    3 Packs
+  chapters.json         4 Kapitel          rarities.json Seltenheiten
+  starmap.json          Sternenkarte: 79 Knoten mit Positionen und Verbindungen
+  schemas/              JSON-Schemas für alle Datenformate
+src/core/               Spiellogik ohne DOM (läuft auch in Node)
+  run.js                Ein Run: Gold, Packs, Team, Wellen, Runenkreis, Münzen, Hauptschleife
+  heroes.js             Angriffsarten, Zielwahl, Helden-Fähigkeiten
+  enemies.js            Bewegung, Blockade, Boss-Fähigkeiten mit Vorwarnung
+  spells.js             Zaubereffekte, Auto-Auslösen, gezielte Zauber, Echo
+  combat.js             Schaden, Rüstung, Magieresistenz, Statuseffekte
+  cards.js / waves.js   Ziehen, Preise, Sterne / Wellen-Erzeugung
+  starmap.js            Sternenkarte: Kosten, Erreichbarkeit, Nebel, Effekte, Mastery-Punkte
+src/render/             Darstellung
+  pixel.js              Mini-Pixel-Bibliothek (Kontur, Weiß-Blitz, ganzzahliges Skalieren)
+  spriteArt.js          Pixel-Art aller Helden, Gegner, Bosse, Truhen, Symbole, Turm
+  sprites.js            Frame-Erzeugung: Idle 4, Angriff 6, Treffer 2, Tod 5 (+ Sprite-Sheet-Hook)
+  backgrounds.js        4 Kapitel-Hintergründe mit je 3 Parallax-Ebenen und Partikeln
+  renderer.js           Kampf-Canvas
+src/ui/                 Bildschirme: Menüs, Kampf-HUD, Pack-Overlay, Run-Ende, Sternenkarte, Sammlung, Einstellungen
+src/audio.js            Sound- und Musik-Platzhalter (Musik je Kapitel und Boss-Variante)
 tools/
-  validate-data.mjs   Prüft Pflichtfelder und Querverweise
-  simulate.mjs        Bot spielt Runs headless (Balancing)
-pack-legends/         Erster Prototyp
+  validate-data.mjs     Prüft Pflichtfelder und Querverweise
+  simulate.mjs          Bot spielt Runs headless (Balancing)
+  sprite-preview.html   Zeigt alle Sprites, Animationen und Hintergründe
 ```
 
 ## Neue Inhalte hinzufügen
 
 Für neue Inhalte musst du nur die JSON-Dateien ändern. Danach `node tools/validate-data.mjs` ausführen.
 
-| Was | Wo | Hinweis |
-|---|---|---|
-| Held | `data/heroes.json` | Angriffsart (`melee`, `projectile`, `arc`, `chain`, `leap`, `none`), Zielpriorität (`nearest`, `weakest`, `elite`, `air`), Fähigkeiten, `star3`-Verstärkung. Danach in einen Pack-Pool aufnehmen. |
-| Zauber | `data/spells.json` | Effekt-Typ, Auto-Bedingungen, `scale`-Pfade für die Sterne-Skalierung |
-| Gegner | `data/enemies.json` | `traits` (`stealGold`, `explodeOnDeath`, `splitOnDeath`, `frontalShield`), Bosse mit `bossAbilities` und `phases` |
-| Pack | `data/packs.json` | Eigener Pool und eigene Seltenheits-Gewichte |
-| Kapitel | `data/chapters.json` | Gegner-Pool mit `fromWave` und `toWave`, Boss, Schwierigkeits-Multiplikatoren |
-| Mastery | `data/mastery.json` | `stat`-Effekte (Modifikator pro Stufe) oder `spec`-Effekte (Daten-Patches für eine Karte) |
-
-**Patches** verändern Werte über einen Punkt-Pfad, zum Beispiel `{ "path": "abilities.block.count", "op": "add", "value": 2 }`. Mögliche `op`-Werte sind `set`, `add` und `mul`. So funktionieren die 3-Sterne-Verstärkungen, die Mastery-Spezialisierungen und die Bossphasen.
-
-**Komplett neue Mechaniken** wie eine neue Fähigkeit oder ein neuer Zaubertyp brauchen einen kleinen Eintrag im Code:
-
-- Helden-Fähigkeiten: `ABILITIES` in `src/core/heroes.js`
-- Angriffsarten: `ATTACKS` in derselben Datei
-- Boss-Fähigkeiten: `BOSS_ABILITIES` in `src/core/enemies.js`
-- Zaubereffekte: `SPELL_EFFECTS` in `src/core/spells.js`
+- **Held, Zauber, Gegner, Pack, Kapitel:** siehe `data/schemas/`. Helden haben eine Angriffsart, Zielpriorität, Fähigkeiten, eine 3-Sterne-Verstärkung, eine Reihe (vorn/hinten) und ein Rollensymbol. Gegner haben Eigenschaften, Bosse zusätzlich Fähigkeiten und Phasen.
+- **Sternenkarten-Knoten** (`data/starmap.json`, Felder laut 6.5): `id`, `name`, `beschreibung`, `typ` (`klein`/`gross`/`schluessel`/`freischalt`), `ast`, `position`, `verbindungen`, `maxStufe`, `basisKosten`, `kostenFaktor`, `splitterKosten`, `effekt` (`ziel`, `wert`, `rechenart`), optional `voraussetzung`. Verbindungen müssen in beiden Knoten eingetragen sein. Das prüft der Validator.
+- **Grafik:** Neue Pixel-Art kommt nach `src/render/spriteArt.js`. Echte Sprite-Sheets lassen sich per `"spriteSheet"` in den Daten einhängen (siehe Kommentar in `sprites.js`).
+- **Neue Mechaniken:** Dafür gibt es diese Tabellen im Code:
+  - `ABILITIES` / `ATTACKS` in `heroes.js`
+  - `BOSS_ABILITIES` in `enemies.js`
+  - `SPELL_EFFECTS` in `spells.js`
+  - `MOD_DEFAULTS` in `starmap.js`
 
 ## Balancing
 
-Alle globalen Zahlen stehen in `data/balance.json`, die Kapitelwerte in `data/chapters.json`.
-
-- Gegner-Leben: Basis × Kapitel-`hpMult` × `hpGrowth`^(Welle−1), Standard 1,13
-- Anzahl pro Welle: `countBase` + `countPerWave` × (Welle−1)
-- Gold pro Kill wächst mit `goldGrowth` (1,03) langsamer als das Gegner-Leben
-- Sterne: Schwellen 2 / 6 / 14 / 30 Duplikate. Werte × (1 + 0,6 × (Sterne − 1)), ab 3★ verstärkte Fähigkeit
-- Mastery-Kosten: `baseCost` × `costGrowth`^Stufe
-
-Simulation:
+Alle Zahlen stehen in `data/balance.json` und `data/chapters.json`.
 
 ```bash
-node tools/simulate.mjs 15 1            # 15 Runs mit Mastery-Progression
-node tools/simulate.mjs 12 1 --first    # nur "erste Runs" ohne Mastery
-node tools/simulate.mjs 5 1 --chapter=2 # bestimmtes Kapitel
+node tools/simulate.mjs 12 1            # Runs mit Sternenkarten-Progression
+node tools/simulate.mjs 12 1 --first    # nur "erste Runs" ohne Meta-Fortschritt
 ```
+
+Stand laut Bot: Der erste Run endet meist zwischen Welle 7 und 16, der erste Boss fällt nach etwa 4–10 Runs. Ein Run dauert 3–9 Minuten. Der Bot hält den Runenkreis perfekt auf die Gegner und verliert keine Münzen. Echte Spieler kommen daher etwas weniger weit. Kapitel 3 und 4 sind noch kaum gebalanct.
 
 ## Getroffene Annahmen
 
-- **Technik:** HTML5 + JavaScript (Canvas) ohne Build-Schritt, Zielplattform PC und Mobile im Browser.
-- **Titel:** Arbeitstitel ist der Repo-Name „PackDenDungeon“. Er lässt sich in `balance.json` (`gameTitle`) ändern.
-- **Kein freier Slot:** Ein neuer Held, der keinen Platz findet, wird in Gold umgewandelt. Das passiert auch mit Duplikaten eines Helden, der schon 5 Sterne hat.
-- **Erstes Pack eines Runs** enthält garantiert einen angreifenden Helden. So endet kein Run an einem Pech-Start (`firstPackGuaranteesAttacker`).
-- **„Nächstes Ziel“** bedeutet: der Gegner, der dem Turm am nächsten ist.
-- **Gefallene Helden** stehen nach 12 s mit 50 % Leben wieder auf.
-- **Zauber** wachsen leicht mit der Welle (`spells.waveScaling`), damit sie spät nicht nutzlos werden. Mehr Sterne verkürzen ihre Aufladezeit.
-- **Bosse** werden durch Betäubung und Verlangsamung nur halb so stark beeinflusst. Rückstoß wirkt auf sie kaum.
-- **Welle rufen:** Wer die nächste Welle früher ruft, bekommt etwas Bonusgold.
-
-## Stand und nächste Schritte
-
-Alle 9 Entwicklungsphasen sind in einer ersten Fassung umgesetzt. Das Balancing ist bisher nur per Bot-Simulation geprüft: Der Bot erreicht im ersten Run etwa Welle 11–14 und schafft den ersten Boss nach rund 8 Runs. Echte Playtests werden die Werte noch verschieben. Kapitel 3 und 4 sind am wenigsten getestet.
+- **Technik:** HTML5 + JavaScript (Canvas, ES-Module), kein Build-Schritt, PC und Mobile im Browser (Querformat).
+- **Grafikgrößen:** Gegnergrößen sind Pixelmaße vor der ×3-Skalierung: normal 24×24, Elite 48×48, Boss 96×96.
+- **Runenkreis:** Grundwerte 3 Schaden (wächst leicht mit der Welle), 72 px Radius, Treffer alle 0,6 s. Münzen liegen 5 s und verfallen danach.
+- **Turm:** Er schießt erst mit dem Sternenkarten-Knoten „Turmbogen“.
+- **Spezialisierungen:** Alle Helden-Spezialisierungen hängen am Helden-Ast, alle Zauber-Spezialisierungen am Zauber-Ast.
+- **Volle Leisten:** Bei voller Zauberleiste (4, mit Knoten 5) wird ein neuer Zauber zu Gold. Duplikate mit 5 Sternen ebenfalls.
+- **Erstes Pack:** Es enthält garantiert einen angreifenden Helden.
+- **„Neuer Run“:** Der Knopf auf der Sternenkarte startet das zuletzt gespielte Kapitel.
+- **Beenden:** Im Browser kehrt „Beenden“ zum Startbildschirm zurück.
+- **Sprache:** Vorerst gibt es nur Deutsch, „English“ ist als „bald“ vorgesehen.

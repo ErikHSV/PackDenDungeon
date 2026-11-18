@@ -67,7 +67,7 @@ const ATTACKS = {
     for (const t of targets) {
       const r = rollCrit(run, a, dmg);
       run.projectiles.push({
-        x: h.x, y: h.y - 14, target: t, tx: t.x, ty: t.y,
+        x: h.x + 20, y: h.y - 10, target: t, tx: t.x, ty: t.y,
         speed: a.projectileSpeed || 600, damage: r.dmg, crit: r.crit, type: h.def.damageType,
         splash: a.splash || 0, onHit: a.onHit, bonusVsAir: a.bonusVsAir || 1,
         color: h.def.color, shape: a.projectileShape || 'dot', source: h,
@@ -93,17 +93,17 @@ const ATTACKS = {
     const a = h.def.attack;
     const hit = new Set();
     let cur = targets[0];
-    let from = { x: h.x, y: h.y - 14 };
+    let from = { x: h.x + 10, y: h.y - 30 };
     let d = dmg;
     for (let i = 0; i < a.jumps && cur; i++) {
       hit.add(cur);
-      fx(run, { type: 'line', x1: from.x, y1: from.y, x2: cur.x, y2: cur.y, color: '#9db4ff', width: 3, life: 0.2 });
+      fx(run, { type: 'bolt', x1: from.x, y1: from.y, x2: cur.x, y2: cur.y, color: '#9db4ff', width: 4, life: 0.22 });
       damageEnemy(run, cur, d, h.def.damageType, { aoe: true, source: h });
       applyOnHit(run, cur, a.onHit, d);
       from = { x: cur.x, y: cur.y };
       d *= a.falloff ?? 0.85;
       let next = null;
-      let best = a.jumpRange ?? 150;
+      let best = a.jumpRange ?? 240;
       for (const e of run.enemies) {
         if (hit.has(e) || !canHit(h, e)) continue;
         const dd = dist(from, e);
@@ -197,11 +197,13 @@ export function updateHeroes(run, dt) {
   for (const h of run.heroes) {
     h.hitFlash = Math.max(0, (h.hitFlash || 0) - dt);
     if (!h.alive) {
+      if (h.deathAge != null) h.deathAge += dt;
       h.reviveTimer -= dt;
       if (h.reviveTimer <= 0) {
         h.alive = true;
         h.hp = h.maxHp * run.balance.heroes.reviveHpFraction;
-        fx(run, { type: 'ring', x: h.x, y: h.y, r: 30, color: '#ffffff', life: 0.4 });
+        h.deathAge = null;
+        fx(run, { type: 'ring', x: h.x, y: h.y, r: 50, color: '#ffffff', life: 0.4 });
       }
       continue;
     }
@@ -221,7 +223,7 @@ export function updateHeroes(run, dt) {
     if (!targets.length) { h.atkTimer = 0.1; continue; }
     ATTACKS[a.kind](run, h, targets, heroDamage(run, h));
     h.atkTimer = heroAttackInterval(run, h);
-    h.attackAnim = 0.12;
+    h.attackAnim = 0.3; // Länge der Angriffsanimation (6 Frames)
   }
 }
 
