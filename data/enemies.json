@@ -56,7 +56,7 @@
     "name": "Der Trommler",
     "boss": true,
     "beschreibung": "Seine Trommelschläge schicken Schockwellen über das Feld.",
-    "leben": 900,
+    "leben": 22000,
     "tempo": 28,
     "ruestung": 2,
     "magieResistenz": 0,
@@ -71,7 +71,7 @@
     "bossFaehigkeiten": {
       "schockwelle": {
         "intervall": 7,
-        "vorwarnung": 1.2,
+        "vorwarnung": 1.5,
         "radius": 520,
         "rueckstoss": 180,
         "schaden": 8,
@@ -83,7 +83,36 @@
         "anzahl": 4
       }
     },
-    "phasen": []
+    "phasen": [
+      {
+        "lebenUnter": 0.5,
+        "text": "Phase 2: Der Trommler rast!",
+        "tempoMul": 1.2,
+        "patches": [
+          {
+            "pfad": "bossFaehigkeiten.schockwelle.intervall",
+            "op": "mul",
+            "wert": 0.7
+          },
+          {
+            "pfad": "bossFaehigkeiten.beschwoeren.intervall",
+            "op": "mul",
+            "wert": 0.75
+          },
+          {
+            "pfad": "bossFaehigkeiten.einfrieren",
+            "op": "set",
+            "wert": {
+              "intervall": 9,
+              "vorwarnung": 1.5,
+              "dauer": 2,
+              "anzahl": 1,
+              "text": "Sumpfnebel lähmt deine Helden!"
+            }
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "knochenritter",
@@ -147,7 +176,7 @@
     "name": "Die Graue Äbtissin",
     "boss": true,
     "beschreibung": "Lädt einen Schrei auf – triff ihr Medaillon mit dem Runenkreis!",
-    "leben": 2200,
+    "leben": 30000,
     "tempo": 22,
     "ruestung": 4,
     "magieResistenz": 0.2,
@@ -162,7 +191,7 @@
     "bossFaehigkeiten": {
       "schrei": {
         "intervall": 11,
-        "aufladen": 4,
+        "aufladen": 3,
         "turmSchaden": 60,
         "heldenSchaden": 50,
         "schwachpunkt": {
@@ -178,7 +207,38 @@
         "anzahl": 2
       }
     },
-    "phasen": []
+    "phasen": [
+      {
+        "lebenUnter": 0.5,
+        "text": "Phase 2: Der Chor der Stillen!",
+        "tempoMul": 1.15,
+        "patches": [
+          {
+            "pfad": "bossFaehigkeiten.schrei.intervall",
+            "op": "mul",
+            "wert": 0.75
+          },
+          {
+            "pfad": "bossFaehigkeiten.schockwelle",
+            "op": "set",
+            "wert": {
+              "intervall": 8,
+              "vorwarnung": 1.5,
+              "radius": 300,
+              "rueckstoss": 120,
+              "schaden": 10,
+              "text": "Die Äbtissin stößt die Lebenden zurück!"
+            }
+          }
+        ],
+        "beschwoeren": [
+          {
+            "gegner": "knochenritter",
+            "anzahl": 2
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "feuerkaefer",
@@ -265,7 +325,7 @@
     "name": "Der Schmied",
     "boss": true,
     "beschreibung": "Wirft glühende Hämmer – klicke sie im richtigen Moment an, um sie zu parieren!",
-    "leben": 4500,
+    "leben": 30000,
     "tempo": 20,
     "ruestung": 6,
     "magieResistenz": 0.25,
@@ -282,7 +342,7 @@
         "intervall": 6,
         "anzahl": 2,
         "flugzeit": 1.6,
-        "parierFenster": 0.45,
+        "parierFenster": 0.4,
         "schaden": 40,
         "radius": 80,
         "text": "Hämmer im Anflug – klicke sie kurz vor dem Einschlag!"
@@ -293,7 +353,37 @@
         "anzahl": 3
       }
     },
-    "phasen": []
+    "phasen": [
+      {
+        "lebenUnter": 0.5,
+        "text": "Phase 2: Glühende Esse!",
+        "tempoMul": 1.15,
+        "patches": [
+          {
+            "pfad": "bossFaehigkeiten.hammerwurf.anzahl",
+            "op": "set",
+            "wert": 3
+          },
+          {
+            "pfad": "bossFaehigkeiten.hammerwurf.intervall",
+            "op": "mul",
+            "wert": 0.8
+          },
+          {
+            "pfad": "bossFaehigkeiten.schockwelle",
+            "op": "set",
+            "wert": {
+              "intervall": 9,
+              "vorwarnung": 1.5,
+              "radius": 260,
+              "rueckstoss": 100,
+              "schaden": 14,
+              "text": "Der Amboss bebt!"
+            }
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "eisgeist",
@@ -340,7 +430,7 @@
     "name": "Die Winterkönigin",
     "boss": true,
     "beschreibung": "Friert Helden ein und wird in jeder Phase stärker.",
-    "leben": 8000,
+    "leben": 40000,
     "tempo": 20,
     "ruestung": 6,
     "magieResistenz": 0.3,
@@ -368,7 +458,7 @@
     },
     "phasen": [
       {
-        "lebenUnter": 0.66,
+        "lebenUnter": 0.5,
         "text": "Phase 2: Schneesturm!",
         "tempoMul": 1.25,
         "patches": [

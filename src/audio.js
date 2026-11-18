@@ -23,6 +23,7 @@ const SOUNDS = {
   starUp:     [{ f: 700, d: 0.08 }, { f: 1050, d: 0.15, at: 0.08 }],
   waveStart:  [{ f: 220, d: 0.2, type: 'sawtooth', v: 0.04 }],
   eliteWave:  [{ f: 440, d: 0.15, type: 'square', v: 0.05 }, { f: 330, d: 0.15, at: 0.18, type: 'square', v: 0.05 }, { f: 440, d: 0.15, at: 0.36, type: 'square', v: 0.05 }],
+  trommel:    [{ f: 70, d: 0.35, type: 'sine', v: 0.16, slide: 40 }, { f: 55, d: 0.3, type: 'triangle', v: 0.08, at: 0.02 }],
   boss:       [{ f: 110, d: 0.6, type: 'sawtooth', v: 0.07 }, { f: 82, d: 0.8, at: 0.3, type: 'sawtooth', v: 0.07 }],
   bossSkill:  [{ f: 160, d: 0.25, type: 'sawtooth', v: 0.05 }],
   scream:     [{ f: 300, d: 0.5, type: 'sawtooth', v: 0.08, slide: 80 }],

@@ -4,6 +4,7 @@ import { drawCard, grenzgaengerChance, buildUnitDef } from './cards.js';
 import { newStatus, fx, damageEnemy, applyStatus, damageUnit, damageTower } from './combat.js';
 import { updateUnits, updateProjectiles, updateZones, UNIT_R } from './units.js';
 import { updateEnemies } from './enemies.js';
+import { masteryFor } from './meta.js';
 
 export const SIM_STEP = 1 / 60;
 
@@ -55,11 +56,11 @@ export class Run {
     this.revivesUsed = 0;
 
     // Wellen
-    this.waveIndex = 0;
-    this.waveTimer = 1.5;
-    this.spawnQueue = [];
-    this.eliteTimer = this.B.wellen.elitewelleAlleSekunden * mods.elitewelleIntervallMul;
-    this.nextIsElite = false;
+    // Monsterstrom und Elitegruppen (Abschnitt 5)
+    this.spawnTimer = 0.5;
+    this.eliteTimer = this.B.wellen.elite.ersteBei * mods.elitewelleIntervallMul;
+    this.pendingElite = null;
+    this.bossWarned = false;
     this.bossTime = this.chapter.bossNachSekunden * mods.bossZeitMul;
     this.bossSpawned = false;
     this.boss = null;
@@ -75,7 +76,7 @@ export class Run {
     });
 
     // bonusMastery: Mastery außerhalb der Überlebensformel (erste Shinys, Tome-Verbot), foilStaub: Schimmer aus Shinys
-    this.stats = { kills: 0, muenzen: 0, bonusMastery: 0, foilStaub: 0, schimmer: {}, ersteShinys: [], packsGeoeffnet: {}, gezogen: {}, neueKarten: [], foils: 0, grenzgaenger: 0, tomesGenutzt: 0, entwicklungen: 0, killsNachArt: {}, foilMonster: 0, elitewellen: 0 };
+    this.stats = { kills: 0, killWert: 0, bossAbschnitte: 0, muenzen: 0, bonusMastery: 0, foilStaub: 0, schimmer: {}, ersteShinys: [], packsGeoeffnet: {}, gezogen: {}, neueKarten: [], foils: 0, grenzgaenger: 0, tomesGenutzt: 0, entwicklungen: 0, killsNachArt: {}, foilMonster: 0, elitewellen: 0 };
     this.over = false;
     this.result = null;
     this.endAge = 0;
@@ -466,13 +467,14 @@ export class Run {
     const base = this.data.enemyIndex[id];
     if (!base) return null;
     const W = this.B.wellen;
-    const wave = opts.wave ?? this.waveIndex;
     const ch = this.chapter.wellen;
     const elite = !!opts.elite && !base.boss;
     const E = W.elite;
-    // Bosse erscheinen etwas weiter innen, damit ihr großes Sprite ganz sichtbar bleibt
-    const p = opts.x != null ? { x: opts.x, y: opts.y } : base.boss ? this.edgePoint(this.rng() * 360, 0.72) : this.spawnPoint();
-    const scale = base.boss ? 1 : Math.pow(W.lebenWachstum, wave);
+    // Bosse betreten das Feld vom Rand (etwas innen, damit das große Sprite sichtbar bleibt)
+    const p = opts.x != null ? { x: opts.x, y: opts.y } : base.boss ? this.edgePoint(this.rng() * 360, W.boss.spawnRand) : this.spawnPoint();
+    // Leben = Basis × (1 + 0,02 × Sekunden), Schaden wächst langsamer mit
+    const scale = base.boss ? 1 : 1 + W.lebenProSekunde * this.time;
+    const dmgScale = base.boss ? 1 : 1 + W.schadenProSekunde * this.time;
     const P = this.mods.prestige;
     const G = this.data.balance.gesucht;
     const FM = W.foilMonster;
@@ -484,10 +486,10 @@ export class Run {
     const px = base.boss ? 64 : elite ? base.groesse * 2 : base.groesse;
     const e = {
       uid: this.uid++, kind: 'enemy', id, def: base.boss ? JSON.parse(JSON.stringify(base)) : base, name: base.name,
-      x: p.x, y: p.y, wave, elite, fliegt: base.fliegt, frontSchild: !!base.eigenschaften?.frontSchild,
+      x: p.x, y: p.y, elite, fliegt: base.fliegt, frontSchild: !!base.eigenschaften?.frontSchild,
       r: Math.max(9, Math.round(px * 0.4)), px, hp, maxHp: hp, speed: base.tempo * (0.9 + this.rng() * 0.2) * (foil && !base.boss ? FM.tempoMul : 1),
       ruestung: base.ruestung, magieResistenz: base.magieResistenz, immun: base.immun,
-      damage: base.schaden * ch.schadenMul * Math.pow(W.schadenWachstum, wave) * (elite ? E.schadenMul : 1) * (P?.schadenMul ?? 1) * this.mods.gegnerSchadenMul * (foil && base.boss ? G.bossSchadenMul : 1),
+      damage: base.schaden * ch.schadenMul * dmgScale * (elite ? E.schadenMul : 1) * (P?.schadenMul ?? 1) * this.mods.gegnerSchadenMul * (foil && base.boss ? G.bossSchadenMul : 1),
       foil, atkTimer: 0.4, st: newStatus(), facing: 1, spawnAge: 0, animTime: this.rng() * 2,
       boss: base.boss ? { timers: {}, phase: 0, scream: null } : null,
     };
@@ -503,39 +505,79 @@ export class Run {
     return e;
   }
 
-  queueWave() {
-    const W = this.B.wellen;
-    const idx = this.waveIndex++;
-    const elite = this.nextIsElite;
-    this.nextIsElite = false;
-    let count = Math.min(W.maxAnzahl, W.grundAnzahl + Math.floor(W.anzahlProWelle * idx));
-    if (this.bossSpawned) count = Math.ceil(count / 2);
+  /**
+   * Abstand zwischen zwei Monster-Spawns (Abschnitt 5): Öffnung 1,5 s → Aufbau linear bis 0,6 s → Druck linear bis 0,3 s
+   * (bei Bosszeit − 30 s), danach 50 % weniger („Ruhe vor dem Sturm“), im Bosskampf 30 % der Rate.
+   */
+  spawnInterval(t = this.time) {
+    const S = this.B.wellen.strom;
+    const pre = this.bossTime - S.vorBossSekunden;
+    let iv;
+    if (t < S.oeffnungBis) iv = S.oeffnungIntervall;
+    else if (t < S.aufbauBis) iv = S.oeffnungIntervall + (S.aufbauIntervall - S.oeffnungIntervall) * ((t - S.oeffnungBis) / (S.aufbauBis - S.oeffnungBis));
+    else iv = S.aufbauIntervall + (S.minIntervall - S.aufbauIntervall) * Math.min(1, (t - S.aufbauBis) / Math.max(1, pre - S.aufbauBis));
+    if (this.bossSpawned) return iv / S.bossRate;
+    if (t >= pre) return iv / S.vorBossRate;
+    return iv;
+  }
+
+  /** Ein Monster (bzw. seine Gruppe) aus dem aktuellen Kapitel-Pool. */
+  spawnFromPool() {
     const pool = this.chapter.gegner.filter((g) => this.time >= (g.abSekunde ?? 0) && this.time <= (g.bisSekunde ?? Infinity));
-    let t = 0;
-    while (count > 0) {
-      const g = weightedPick(pool.map((x) => [x, x.gewicht]), this.rng);
-      const group = this.data.enemyIndex[g.id].gruppe || 1;
-      for (let i = 0; i < group && count > 0; i++, count--) {
-        this.spawnQueue.push({ id: g.id, at: t + i * 0.15, elite: elite && this.rng() < 0.45, wave: idx });
-      }
-      t += W.intervall / Math.max(4, W.grundAnzahl + idx);
-    }
-    if (elite) { this.stats.elitewellen++; this.emit('eliteWave'); }
+    if (!pool.length) return;
+    // Öffnungsphase: nur das schwächste (erste) Monster des Kapitels
+    const g = this.time < this.B.wellen.strom.oeffnungBis ? pool[0] : weightedPick(pool.map((x) => [x, x.gewicht]), this.rng);
+    const group = this.data.enemyIndex[g.id].gruppe || 1;
+    const p = this.spawnPoint();
+    for (let i = 0; i < group; i++) this.spawnEnemy(g.id, i ? { x: p.x + (this.rng() - 0.5) * 40, y: p.y + (this.rng() - 0.5) * 30 } : { x: p.x, y: p.y });
+  }
+
+  /** Elitegruppe: 3–5 Elitemonster aus einer Richtung, 2 s vorher Warnsymbol am Bildrand. */
+  announceElite() {
+    const E = this.B.wellen.elite;
+    const pool = this.chapter.gegner.filter((g) => this.time + E.warnung >= (g.abSekunde ?? 0) && this.time <= (g.bisSekunde ?? Infinity));
+    const g = pool[pool.length - 1] ?? this.chapter.gegner[0];
+    const ang = this.chapter.spawn.modus === 'portale' ? this.chapter.spawn.portale[Math.floor(this.rng() * this.chapter.spawn.portale.length)].winkel : this.rng() * 360;
+    const n = E.gruppe[0] + Math.floor(this.rng() * (E.gruppe[1] - E.gruppe[0] + 1));
+    this.pendingElite = { id: g.id, ang, n, t: E.warnung };
+    this.stats.elitewellen++;
+    this.emit('eliteWarning', { winkel: ang, point: this.edgePoint(ang, 0.97) });
   }
 
   updateWaves(dt) {
-    this.waveTimer -= dt;
-    if (this.waveTimer <= 0) { this.waveTimer += this.B.wellen.intervall; this.queueWave(); }
-    this.eliteTimer -= dt;
-    if (this.eliteTimer <= 0) { this.eliteTimer += this.B.wellen.elitewelleAlleSekunden * this.mods.elitewelleIntervallMul; this.nextIsElite = true; this.waveTimer = Math.min(this.waveTimer, 0.5); }
-    for (const s of this.spawnQueue) { s.at -= dt; if (s.at <= 0) { this.spawnEnemy(s.id, { elite: s.elite, wave: s.wave }); s.done = true; } }
-    this.spawnQueue = this.spawnQueue.filter((s) => !s.done);
+    const W = this.B.wellen;
+    // Monsterstrom
+    this.spawnTimer = (this.spawnTimer ?? 0.5) - dt;
+    while (this.spawnTimer <= 0) { this.spawnTimer += this.spawnInterval(); this.spawnFromPool(); }
+    // Elitegruppen alle 45 s (erste bei 0:45), nicht mehr im Bosskampf
+    if (!this.bossSpawned) {
+      this.eliteTimer -= dt;
+      if (this.eliteTimer <= W.elite.warnung && !this.pendingElite) this.announceElite();
+    }
+    if (this.pendingElite) {
+      const pe = this.pendingElite;
+      pe.t -= dt;
+      if (pe.t <= 0) {
+        for (let i = 0; i < pe.n; i++) {
+          const p = this.edgePoint(pe.ang + (i - (pe.n - 1) / 2) * 3, this.A.spawnRand);
+          this.spawnEnemy(pe.id, { elite: true, x: p.x, y: p.y });
+        }
+        this.emit('eliteWave');
+        this.pendingElite = null;
+        this.eliteTimer += W.elite.alleSekunden * this.mods.elitewelleIntervallMul;
+      }
+    }
+    // 5 s vor dem Boss: Warnung (UI: roter Rand, Trommel, blinkender Balken)
+    if (!this.bossWarned && !this.bossSpawned && this.time >= this.bossTime - W.boss.warnungSekunden) { this.bossWarned = true; this.emit('bossWarnung'); }
     if (!this.bossSpawned && this.time >= this.bossTime) {
       this.bossSpawned = true;
+      this.bossStart = this.time;
       const e = this.spawnEnemy(this.chapter.boss);
+      if (!this.headless) this.slowmo = W.boss.introSekunden * W.boss.introTempo; // Intro: 2 s bei 25 % Tempo
       this.emit('bossSpawned', { enemy: e });
       for (const r of this.relics('bossErscheint')) if (r.aktion.typ === 'verstaerken') this.buffs.trommel = { t: r.aktion.dauer, bonus: r.aktion.bonus };
     }
+    if (this.boss && !this.boss.dead) this.updateBossProgress(dt);
     // Gefahren (z. B. Schneesturm)
     for (const h of this.hazards) {
       if (h.left > 0) { h.left -= dt; if (h.left <= 0) { this.blizzard = 0; this.emit('hazardEnd', { hazard: h }); } continue; }
@@ -548,6 +590,34 @@ export class Run {
       }
     }
     if (this.blizzard > 0) this.blizzard -= dt;
+  }
+
+  /** Boss-Abschnitte (Mastery-Bonus je erreichtem Abschnitt) und Wut nach 3 Minuten Bosskampf. */
+  updateBossProgress() {
+    const B = this.B.wellen.boss;
+    const boss = this.boss;
+    const reached = Math.floor((1 - boss.hp / boss.maxHp) * B.abschnitte + 1e-6);
+    while ((this.bossSegments || 0) < Math.min(reached, B.abschnitte)) {
+      this.bossSegments = (this.bossSegments || 0) + 1;
+      const bonus = Math.max(1, Math.round(this.runMastery() * B.abschnittBonus));
+      this.stats.bonusMastery += bonus;
+      this.stats.bossAbschnitte = this.bossSegments;
+      fx(this, { type: 'text', x: boss.x, y: boss.y - boss.px - 20, text: `+${bonus} Mastery`, color: '#7cc4ff', size: 22, life: 1.4 });
+      this.emit('bossSegment', { nr: this.bossSegments, bonus });
+    }
+    const age = this.time - this.bossStart;
+    const steps = age >= B.wutAbSekunden ? Math.floor((age - B.wutAbSekunden) / B.wutAlleSekunden) + 1 : 0;
+    if (steps > (this.bossRage || 0)) {
+      this.bossRage = steps;
+      boss.damage *= 1 + B.wutSchadenPlus;
+      this.emit('bossWarning', { text: 'Der Boss wird wütend! +10 % Schaden' });
+    }
+  }
+
+  /** Bisher im Run verdiente Mastery (ohne Bonus-Quellen), für Boss-Abschnitte. */
+  runMastery() {
+    const packs = Object.values(this.stats.packsGeoeffnet).reduce((x, y) => x + y, 0);
+    return masteryFor({ zeit: this.time, kills: this.stats.killWert, elitewellen: this.stats.elitewellen, sieg: false, kapitel: this.chapter.id, packs }, this.data, this.mods);
   }
 
   // =====================================================================
@@ -789,7 +859,7 @@ export class Run {
         this.state = 'fight';
         // Alle gekauften Packs regnen aufs Feld
         // Einzelkarten ("karte:<id>") landen als bereits aufgedeckte Karte und werden sofort zur Einheit bzw. zum Tome
-        this.bag.forEach((id, i) => {
+        this.bag.forEach((id, i) => { // alle gekauften Angebote fliegen gleichzeitig los (Flugzeit 0,6 s)
           if (!String(id).startsWith('karte:')) { this.launchPack(id, this.tower, i * 0.08); return; }
           const [, card, foil] = id.split(':');
           this.launchCard(card, this.tower, i * 0.08, foil === 'foil');
@@ -842,7 +912,7 @@ export class Run {
     const best = all.filter((u) => !u.summoned).sort((a, b) => (b.damage || 0) - (a.damage || 0))[0];
     this.result = {
       sieg: victory, kapitel: this.chapter.id, boss: this.chapter.boss, zeit: this.time,
-      kills: this.stats.kills, killWert: this.stats.kills + (this.B.wellen.foilMonster.belohnungMul - 1) * this.stats.foilMonster,
+      kills: this.stats.kills, killWert: this.stats.killWert, bossAbschnitte: this.stats.bossAbschnitte,
       muenzen: Math.max(0, this.coins), bonusMastery: this.stats.bonusMastery, foilStaub: this.stats.foilStaub, schimmer: this.stats.schimmer, ersteShinys: this.stats.ersteShinys,
       killsNachArt: this.stats.killsNachArt, foilMonster: this.stats.foilMonster, elitewellen: this.stats.elitewellen,
       packsGeoeffnet: this.stats.packsGeoeffnet, gezogen: this.stats.gezogen, neueKarten: this.stats.neueKarten,

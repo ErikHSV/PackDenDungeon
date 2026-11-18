@@ -102,6 +102,8 @@ export function killEnemy(run, e, killer = null) {
   e.dead = true;
   e.hp = 0;
   run.stats.kills++;
+  // Mastery-Wert des Kills (5.9): Basis 1, Elite 5, Shiny ×3, Boss zählt über masteryProBoss
+  if (!e.isBoss) run.stats.killWert += (e.elite ? run.B.belohnungen.masteryEliteKill : 1) * (e.foil ? run.B.wellen.foilMonster.belohnungMul : 1);
   const k = (run.stats.killsNachArt[e.id] ||= { normal: 0, foil: 0 });
   k[e.foil ? 'foil' : 'normal']++;
   if (e.foil) {
@@ -140,7 +142,7 @@ export function killEnemy(run, e, killer = null) {
   }
   if (t.teiltSichBeimTod) {
     for (let i = 0; i < t.teiltSichBeimTod.anzahl; i++) {
-      run.spawnEnemy(t.teiltSichBeimTod.in, { x: e.x + (i ? 24 : -24), y: e.y + (i ? 12 : -12), wave: e.wave });
+      run.spawnEnemy(t.teiltSichBeimTod.in, { x: e.x + (i ? 24 : -24), y: e.y + (i ? 12 : -12) });
     }
   }
   // Seuche: infizierte Gegner explodieren beim Tod

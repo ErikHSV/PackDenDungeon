@@ -47,6 +47,7 @@ function botRun(chapterId, mods, bag) {
     run.setCursor(cur.x, cur.y, true);
     for (const tm of [...run.tomes]) run.useTome(tm);
     run.update(dt);
+    if (process.env.BOSSLOG && run.boss && !run.boss.dead && Math.floor(run.time * 2) !== Math.floor((run.time - dt) * 2)) console.log('   boss', run.time.toFixed(1), Math.round(run.boss.hp), '/', Math.round(run.boss.maxHp), 'helden', run.units.length, 'gegner', run.enemies.length);
   }
   return run;
 }
@@ -102,7 +103,7 @@ for (let day = 1; day <= DAYS; day++) {
   const run = botRun(ch, mods, bag);
   const r = run.result;
   const info = applyRunResult(r, data, save, mods, rng);
-  if (r.sieg && !firstWin[ch]) firstWin[ch] = day;
+  if (r.sieg && !firstWin[ch]) firstWin[ch] = `Tag ${day}, ~${Math.round(minutes + r.zeit / 60 + HUB_MINUTES)} min`;
   minutes += r.zeit / 60 + HUB_MINUTES;
   for (const t of info.schimmerTeile) dustBy[t.quelle] = (dustBy[t.quelle] || 0) + t.n;
   if (firstDust == null && save.stats.foilStaubGesamt > 0) firstDust = { day, min: Math.round(minutes), quellen: info.schimmerTeile.map((t) => t.quelle).join('+') };

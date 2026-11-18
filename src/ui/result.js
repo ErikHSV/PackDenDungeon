@@ -39,7 +39,10 @@ export function showResult(game, r, mods, opts) {
       <button class="btn btn-big" id="res-again">Nochmal</button>
     </div>`;
   show('#overlay-result', true);
-  box.querySelectorAll('b[data-to]').forEach((b, i) => setTimeout(() => countTo(b, 0, Number(b.dataset.to), 700, () => play('count')), i * 180));
+  // Zahlen zählen in ca. 2 s hoch; ein Klick in das Fenster zeigt sofort die Endwerte
+  let skip = false;
+  box.querySelectorAll('b[data-to]').forEach((b) => countTo(b, 0, Number(b.dataset.to), 2000, () => { if (skip) b.textContent = b.dataset.to; else play('count'); }));
+  box.onpointerdown = () => { skip = true; box.querySelectorAll('b[data-to]').forEach((b) => { b.textContent = b.dataset.to; }); };
 
   const close = () => show('#overlay-result', false);
   $('#res-hub').onclick = () => { close(); game.goto('hub'); };

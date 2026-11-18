@@ -130,6 +130,19 @@ export class Renderer {
     }
     if (run.state === 'countdown') this.text(String(Math.ceil(run.countdown)), run.tower.x, run.tower.y - 130, 96, '#FFD24A');
     c.restore();
+    if (this.eliteWarn) {
+      this.eliteWarn.t -= dtReal;
+      if (this.eliteWarn.t <= 0) this.eliteWarn = null;
+      else {
+        // Warnsymbol am Bildrand: rotes Dreieck mit „!“, pulsiert
+        const w = this.eliteWarn;
+        const x = Math.max(40, Math.min(1880, w.x)), y = Math.max(50, Math.min(1040, w.y));
+        const s = 26 + Math.sin(t * 14) * 4;
+        c.fillStyle = '#E04848'; c.strokeStyle = '#1a1422'; c.lineWidth = 4;
+        c.beginPath(); c.moveTo(x, y - s); c.lineTo(x - s, y + s * 0.8); c.lineTo(x + s, y + s * 0.8); c.closePath(); c.stroke(); c.fill();
+        this.text('!', x, y + s * 0.55, 30, '#ffffff');
+      }
+    }
     if (ui.cursor) this.drawCursor(run, ui.cursor, t);
   }
 

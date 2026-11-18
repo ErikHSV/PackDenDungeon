@@ -126,6 +126,14 @@ Gleiches Knotenformat, Positionen von Hand. Bezahlt mit Foil-Staub (`basisKosten
 - **Erfolge:** `ziel { statistik, filter?, anzahl }` ohne Belohnung, mit `kategorie`. `anzahl: "alle"` zählt bis zur Gesamtzahl (z. B. alle Karten).
 - **Akte:** `kapitel[]`, `sonder[]` (z. B. Reliktjagd), `tor` mit `knoten` (Tor-Knoten im Skill-Tree) und `warnung` (Text der Bestätigung).
 
+## Run-Ablauf (Abschnitt 5, `balance.wellen`)
+
+- `strom`: Spawn-Abstand `oeffnungIntervall` bis `oeffnungBis`, linear auf `aufbauIntervall` bis `aufbauBis`, linear auf `minIntervall` bis Bosszeit − `vorBossSekunden`; danach Rate × `vorBossRate`, im Bosskampf × `bossRate`. In der Öffnungsphase nur das erste Monster des Kapitels.
+- `lebenProSekunde`, `schadenProSekunde`: Monster werden mit der Run-Zeit stärker (Leben = Basis × (1 + Wert × Sekunden)).
+- `elite`: `ersteBei`, `alleSekunden`, `gruppe [min, max]`, `warnung` (Sekunden Warnsymbol am Rand), `lebenMul`, `schadenMul`.
+- `boss`: `warnungSekunden`, `introSekunden`/`introTempo`, `spawnRand`, `abschnitte`/`abschnittBonus` (Mastery je Abschnitt als Anteil der Run-Mastery), `wutAbSekunden`/`wutAlleSekunden`/`wutSchadenPlus`.
+- Bosszeit steht je Kapitel in `bossNachSekunden` (150, 180, 210, 240 …). `run.zweifachAbKapitel` schaltet Tempo 2× frei.
+
 ## Währungen und Wirtschaft (Abschnitt 10)
 
 - Genau drei Währungen: **Münzen** (`save.coins` + `save.bonusCoins`, nur Shop), **Mastery** (`save.mastery`, Skill-Tree), **Foil-Staub** (`save.foilDust`, Anzeige „Schimmer“, Foil-Baum).

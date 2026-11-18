@@ -379,3 +379,9 @@ h1, h2, h3 { font-family: var(--pixel); margin: 0 0 12px; }
 @keyframes shimpop { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .res-grid .teile { display: block; font-size: 14px; margin-top: 2px; }
 .chip img { width: 14px; height: 14px; vertical-align: -2px; }
+.boss-warn { position: absolute; inset: 0; pointer-events: none; z-index: 2; box-shadow: inset 0 0 120px 30px rgba(224,40,40,.55); animation: bosswarn 1s ease-in-out infinite; }
+@keyframes bosswarn { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+.hud-progress.blink #hud-progress-fill { animation: blink .5s steps(2) infinite; background: #ff5a4a; box-shadow: 0 0 8px #ff5a4a; }
+.bb-track { position: relative; }
+.bb-track::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 calc(var(--seg, 20%) - 2px), #1a0a10 calc(var(--seg, 20%) - 2px) var(--seg, 20%)); pointer-events: none; }
+#btn-speed:disabled { opacity: .5; }

@@ -17,7 +17,7 @@
     "gebaeudeRing": 0.94
   },
   "turm": {
-    "leben": 120,
+    "leben": 100,
     "breite": 120,
     "hoehe": 160,
     "kontaktRadius": 34,
@@ -41,14 +41,16 @@
   },
   "run": {
     "countdown": 3,
-    "packFlugzeit": 0.7,
+    "packFlugzeit": 0.6,
     "kartenDrehzeit": 0.2,
     "seltenZeitlupe": 0.3,
     "seltenZeitlupeFaktor": 0.25,
     "geschwindigkeiten": [
       1,
       2
-    ]
+    ],
+    "zweifachAbKapitel": 2,
+    "$kommentar_tempo": "2× ist freigeschaltet, sobald Kapitel zweifachAbKapitel freigeschaltet ist; Präsentationen und Einblendungen laufen immer in Echtzeit."
   },
   "karten": {
     "foilChance": 0.007,
@@ -71,18 +73,44 @@
     "seltenheitsFallback": "niedriger"
   },
   "wellen": {
-    "$kommentar": "Monster kommen kontinuierlich. Werte gelten, falls das Kapitel nichts anderes angibt.",
-    "intervall": 6,
-    "grundAnzahl": 6,
-    "anzahlProWelle": 1.5,
-    "maxAnzahl": 30,
-    "lebenWachstum": 1.08,
-    "schadenWachstum": 1.05,
-    "elitewelleAlleSekunden": 30,
+    "$kommentar": "Ablauf eines Runs (Abschnitt 5). Alle Zeiten bei 1×. Monster kommen als Strom; Leben = Basis × (1 + lebenProSekunde × Sekunden).",
+    "strom": {
+      "$kommentar": "Spawn-Abstand: Öffnung (bis oeffnungBis) konstant, Aufbau linear bis aufbauIntervall, Druck linear bis minIntervall (bei Bosszeit − vorBossSekunden). Danach Rate × vorBossRate, im Bosskampf × bossRate.",
+      "oeffnungBis": 15,
+      "oeffnungIntervall": 1.5,
+      "aufbauBis": 45,
+      "aufbauIntervall": 0.6,
+      "minIntervall": 0.3,
+      "vorBossSekunden": 30,
+      "vorBossRate": 0.5,
+      "bossRate": 0.3
+    },
+    "lebenProSekunde": 0.02,
+    "schadenProSekunde": 0.005,
     "elite": {
-      "lebenMul": 3.5,
-      "schadenMul": 1.5,
+      "$kommentar": "Elitegruppen: 3–5 Elitemonster aus einer Richtung, Warnsymbol am Bildrand warnung Sekunden vorher.",
+      "ersteBei": 45,
+      "alleSekunden": 45,
+      "gruppe": [
+        3,
+        5
+      ],
+      "warnung": 2,
+      "lebenMul": 1.8,
+      "schadenMul": 1.0,
       "groesse": 48
+    },
+    "boss": {
+      "$kommentar": "Boss: Intro 2 s bei 25 % Tempo, Lebensleiste in Abschnitten (je Abschnitt Mastery-Bonus = Anteil der bisherigen Run-Mastery), Wut ab 3 min Bosskampf alle 30 s +10 % Schaden.",
+      "warnungSekunden": 5,
+      "introSekunden": 2,
+      "introTempo": 0.25,
+      "spawnRand": 0.9,
+      "abschnitte": 5,
+      "abschnittBonus": 0.1,
+      "wutAbSekunden": 180,
+      "wutAlleSekunden": 30,
+      "wutSchadenPlus": 0.1
     },
     "foilMonster": {
       "$kommentar": "Shiny-Monster: +100 % Leben, schneller, dreifache Mastery pro Kill. Schimmer: das erste Shiny jeder Monsterart +1 (einmalig), danach +1 mit schimmerChance (Bosse ausgenommen).",
@@ -94,13 +122,13 @@
     }
   },
   "belohnungen": {
-    "$kommentar": "Mastery aus dem Überleben (Zeit, Kills, Elitewellen, Bosse), geöffneten Packs und neuen Sammlungseinträgen. Münzen gibt es nur aus dem Tageseinkommen (plus Bonus-Münzen).",
+    "$kommentar": "Mastery im Run (5.9): Kills (Basis 1, Elite 5, Shiny ×3), geöffnete Packs (je 2), neue Sammlungseinträge (je 10), Boss-Abschnitte, Bosssieg; dazu Überlebenszeit und Elitegruppen.",
     "masteryProSekunde": 0.8,
-    "masteryProKill": 0.6,
+    "masteryProKill": 1,
     "masteryProElitewelle": 10,
     "masteryProBoss": 150,
-    "masteryProPack": 3,
-    "masteryNeueKarte": 15,
+    "masteryProPack": 2,
+    "masteryNeueKarte": 10,
     "erstesShiny": {
       "$kommentar": "Einmalige Schimmer-Quellen (10.1) plus Mastery fürs Entdecken.",
       "foilStaubKarte": 2,
@@ -120,7 +148,8 @@
       "$kommentar": "Shiny-Karte, die man schon als Shiny besitzt: +1 Schimmer mit dieser Chance.",
       "foilStaub": 1,
       "chance": 0.25
-    }
+    },
+    "masteryEliteKill": 5
   },
   "wirtschaft": {
     "$kommentar": "Münzen nur für den Shop: Tageseinkommen (zu Beginn jedes Tages gutgeschrieben) plus Bonus-Münzen (Relikte, Fähigkeiten). Erhöht vor allem durch Quest-Knoten.",

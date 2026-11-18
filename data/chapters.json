@@ -9,7 +9,7 @@
       "akzent": "#56684a",
       "detail": "#2a3420"
     },
-    "bossNachSekunden": 180,
+    "bossNachSekunden": 150,
     "spawn": {
       "modus": "ring"
     },
@@ -56,7 +56,7 @@
       "akzent": "#5a6272",
       "detail": "#2a2a32"
     },
-    "bossNachSekunden": 210,
+    "bossNachSekunden": 180,
     "spawn": {
       "modus": "ring"
     },
@@ -108,7 +108,7 @@
       "akzent": "#6a3a2a",
       "detail": "#ff7a2a"
     },
-    "bossNachSekunden": 240,
+    "bossNachSekunden": 210,
     "spawn": {
       "modus": "portale",
       "portale": [
@@ -166,7 +166,7 @@
       "akzent": "#b0c4d6",
       "detail": "#ffffff"
     },
-    "bossNachSekunden": 270,
+    "bossNachSekunden": 240,
     "spawn": {
       "modus": "portale",
       "portale": [

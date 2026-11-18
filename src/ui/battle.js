@@ -5,7 +5,7 @@ import { cardElement } from './cardView.js';
 import { showResult } from './result.js';
 import { NewCardReveal } from './reveal.js';
 import { Run } from '../core/run.js';
-import { bagItems, consumeBag, masteryFor, levelOf, nodeVisible, questProgress, questChapters } from '../core/meta.js';
+import { bagItems, consumeBag, masteryFor, levelOf, nodeVisible, questProgress, questChapters, chapterUnlocked } from '../core/meta.js';
 import { worldOf } from '../render/arena.js';
 import { Renderer } from '../render/renderer.js';
 import { play, startMusic } from '../audio.js';
@@ -45,6 +45,13 @@ export class BattleController {
     this.ending = false;
     this.speedIndex = 0;
     $('#btn-speed').textContent = 'Tempo: 1×';
+    const fastFrom = this.game.data.chapters.find((c) => c.art === 'kapitel' && this.game.data.actIndex[c.akt].kapitel.indexOf(c.id) + 1 + (c.akt - 1) * 3 === (this.game.data.balance.run.zweifachAbKapitel ?? 2));
+    this.fastUnlocked = !fastFrom || chapterUnlocked(fastFrom, save, this.game.data);
+    $('#btn-speed').disabled = !this.fastUnlocked;
+    $('#btn-speed').title = this.fastUnlocked ? '' : 'Tempo 2× wird mit Kapitel 2 freigeschaltet.';
+    this.renderer.eliteWarn = null;
+    this.renderer.bossWarn = 0;
+    $('#hud-progress').classList.remove('blink');
     this.setupHud();
     startMusic(`akt${this.run.chapter.akt}`);
     this.firstRuns = save.stats.runs < 3;
@@ -165,6 +172,7 @@ export class BattleController {
       show('#hud-bossbar', true);
       $('#bb-name').textContent = run.boss.name + (run.boss.foil ? ' ✦' : '');
       $('#bb-fill').style.width = `${Math.max(0, run.boss.hp / run.boss.maxHp) * 100}%`;
+      $('.bb-track').style.setProperty('--seg', `${100 / data.balance.wellen.boss.abschnitte}%`);
       $('#hud-progress').style.opacity = 0;
     } else {
       show('#hud-bossbar', false);
@@ -172,8 +180,7 @@ export class BattleController {
       $('#hud-progress-fill').style.width = `${Math.min(1, run.time / run.bossTime) * 100}%`;
     }
     // Run-Zähler: in diesem Run gesammelte Mastery (Shiny-Monster zählen dreifach)
-    const killWert = run.stats.kills + (data.balance.wellen.foilMonster.belohnungMul - 1) * run.stats.foilMonster;
-    const mp = Math.max(0, masteryFor({ zeit: run.time, kills: killWert, elitewellen: run.stats.elitewellen, sieg: !!run.result?.sieg, kapitel: run.chapter.id, packs: Object.values(run.stats.packsGeoeffnet).reduce((x, y) => x + y, 0) }, data, this.mods) + run.stats.bonusMastery);
+    const mp = Math.max(0, masteryFor({ zeit: run.time, kills: run.stats.killWert, elitewellen: run.stats.elitewellen, sieg: !!run.result?.sieg, kapitel: run.chapter.id, packs: Object.values(run.stats.packsGeoeffnet).reduce((x, y) => x + y, 0) }, data, this.mods) + run.stats.bonusMastery);
     if (mp !== this.lastHud.mp) { $('#hud-mastery').textContent = formatNumber(mp); this.lastHud.mp = mp; }
     // Quests live: gespeicherter Fortschritt + Werte des laufenden Runs
     if (this.questRows.length) {
@@ -229,8 +236,21 @@ export class BattleController {
         break;
       }
       case 'grenzgaenger': play('grenz'); this.banner('Ein Grenzgänger!', 'danger'); break;
-      case 'eliteWave': play('eliteWave'); this.banner('Elitewelle!', 'danger'); break;
+      case 'eliteWarning': play('eliteWave'); this.renderer.eliteWarn = { ...p.point, t: this.game.data.balance.wellen.elite.warnung }; break;
+      case 'eliteWave': this.banner('Elitegruppe!', 'danger'); break;
+      case 'bossWarnung': {
+        // 5 s vor dem Boss: Rand pulsiert rot, tiefer Trommelschlag, Fortschrittsbalken blinkt
+        show('#boss-warn', true);
+        $('#hud-progress').classList.add('blink');
+        let n = 0;
+        const drum = () => { if (!this.run || this.run.bossSpawned || this.run.over || n++ >= 5) return; if (!this.paused) play('trommel'); setTimeout(drum, 1000); };
+        drum();
+        break;
+      }
+      case 'bossSegment': play('starUp'); break;
       case 'bossSpawned':
+        show('#boss-warn', false);
+        $('#hud-progress').classList.remove('blink');
         play('boss'); startMusic('boss');
         this.bossIntro = 2;
         this.banner(p.enemy.name + (p.enemy.foil ? ' (Shiny)' : ''), 'boss');
@@ -298,10 +318,16 @@ export class BattleController {
     show('#info-pop', true);
   }
 
+  /**
+   * Ende (5.8): Niederlage = Zeitlupe, Turm zerbricht (≈ 2,2 s); Sieg = Boss explodiert, Monster lösen sich auf,
+   * Goldregen (≈ 2,5 s); Abbruch über das Pause-Menü = sofort zum Ergebnis. Danach Abblenden (0,4 s).
+   */
   async endSequence() {
     const r = this.run.result;
+    show('#boss-warn', false);
+    if (this.aborted) { this.aborted = false; this.stop(); showResult(this.game, r, this.mods, this.opts); return; }
     play(r.sieg ? 'victory' : 'defeat');
-    await new Promise((res) => setTimeout(res, r.sieg ? 2000 : 1400));
+    await new Promise((res) => setTimeout(res, r.sieg ? 2500 : 2200));
     stage.fade(() => {
       this.stop();
       showResult(this.game, r, this.mods, this.opts);
@@ -340,6 +366,7 @@ export class BattleController {
     field.addEventListener('pointerleave', () => { this.cursor.active = false; });
 
     $('#btn-speed').addEventListener('click', () => {
+      if (!this.fastUnlocked) { play('error'); toast('Tempo 2× wird mit Kapitel 2 freigeschaltet.', true); return; }
       const sp = this.game.data.balance.run.geschwindigkeiten;
       this.speedIndex = (this.speedIndex + 1) % sp.length;
       $('#btn-speed').textContent = `Tempo: ${sp[this.speedIndex]}×`;
@@ -351,6 +378,7 @@ export class BattleController {
       if (!(await confirmDialog('Run jetzt beenden? Alle bisherigen Belohnungen bleiben erhalten.', 'Beenden', 'Weiterspielen'))) return;
       show('#overlay-pause', false);
       this.paused = false;
+      this.aborted = true;
       this.run.finish(false);
     });
     window.addEventListener('keydown', (ev) => {
