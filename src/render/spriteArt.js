@@ -748,6 +748,18 @@ Object.assign(HERO_ART, {
     p.rect(20 + lunge, 13 + b, 7, 1, '#cfd6de');
     p.rect(8, 13 + b, 4, 6, '#6b4a2e');
   },
+  /** Geisterkrieger (aus dem Seelenkrug): durchscheinender, schwebender Kämpfer. */
+  geisterkrieger(p, f) {
+    const b = f.b + (f.i % 2);
+    const lunge = f.anim === 'attack' ? [0, -1, 2, 3, 1, 0][f.i] : 0;
+    p.tri(10, 28, 22, 28, 16, 18 + b, '#7fd8e8');
+    p.ellipse(16, 16 + b, 6, 6, '#a8ecf4');
+    p.ellipse(16, 8 + b, 4, 4, '#d8faff');
+    p.rect(14, 8 + b, 1, 2, '#1E4A5A'); p.rect(17, 8 + b, 1, 2, '#1E4A5A');
+    p.px(11, 27, '#5ab8c8'); p.px(15, 29, '#5ab8c8'); p.px(20, 27, '#5ab8c8');
+    p.rect(21 + lunge, 14 + b, 7, 1, '#e8fcff');
+    p.rect(21 + lunge, 13 + b, 1, 3, '#a8ecf4');
+  },
 });
 
 Object.assign(ENEMY_ART, {

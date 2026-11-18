@@ -102,13 +102,21 @@ export function killEnemy(run, e, killer = null) {
   e.dead = true;
   e.hp = 0;
   run.stats.kills++;
-  const coins = Math.max(1, Math.round(e.muenzen * run.mods.muenzenMul * run.chapter.wellen.muenzenMul) +
-    (killer?.def?.faehigkeiten?.bonusMuenzen?.proKill ?? 0));
-  run.coins += coins;
-  run.stats.muenzen += coins;
-  const n = Math.min(4, 1 + Math.floor(Math.log2(1 + coins / 3)));
-  for (let i = 0; i < n; i++) fx(run, { type: 'coin', x: e.x, y: e.y, delay: i * 0.05, life: 0.85 + i * 0.05, seed: Math.random() });
-  run.emit('coins', { amount: coins });
+  const k = (run.stats.killsNachArt[e.id] ||= { normal: 0, foil: 0 });
+  k[e.foil ? 'foil' : 'normal']++;
+  if (e.foil) { run.stats.foilMonster++; run.stats.foilStaub += run.B.wellen.foilMonster.foilStaub; fx(run, { type: 'text', x: e.x, y: e.y - 60, text: '+Foil-Staub', color: '#FF7AC8', size: 18 }); }
+  if (killer && run.mods.heldenHeilungProKill && !killer.dead) killer.hp = Math.min(killer.maxHp, killer.hp + killer.maxHp * run.mods.heldenHeilungProKill);
+  // Münzen: Erwartungswert = Grundwert × muenzenProKill; Nachkommaanteil wird zufällig gerundet
+  const raw = e.muenzen * (run.B.belohnungen.muenzenProKill ?? 1) * run.mods.muenzenMul * run.chapter.wellen.muenzenMul +
+    (killer?.def?.faehigkeiten?.bonusMuenzen?.proKill ?? 0) + (killer?.foil && run.mods.flags.prismenglanz ? 2 : 0);
+  const coins = Math.floor(raw) + (run.rng() < raw % 1 ? 1 : 0);
+  if (coins > 0) {
+    run.coins += coins;
+    run.stats.muenzen += coins;
+    const n = Math.min(4, 1 + Math.floor(Math.log2(1 + coins / 3)));
+    for (let i = 0; i < n; i++) fx(run, { type: 'coin', x: e.x, y: e.y, delay: i * 0.05, life: 0.85 + i * 0.05, seed: Math.random() });
+    run.emit('coins', { amount: coins });
+  }
 
   if (killer) {
     killer.kills = (killer.kills || 0) + 1;
@@ -143,15 +151,16 @@ export function killEnemy(run, e, killer = null) {
 export function damageUnit(run, u, amount, attacker = null) {
   if (u.dead || amount <= 0) return 0;
   const block = u.def.faehigkeiten.blocken;
-  if (block && attacker) {
-    u.blockCount = (u.blockCount || 0) + 1;
-    if (u.blockCount % block.jederNte === 0) {
-      u.blocks = (u.blocks || 0) + 1;
-      fx(run, { type: 'text', x: u.x, y: u.y - 70, text: 'Block!', color: '#d9c38c', size: 16 });
-      if (block.betaeuben) applyStatus(run, attacker, { typ: 'betaeubung', dauer: 1 });
-      run.checkEvolution(u);
-      return 0;
+  if (block && attacker && run.rng() < block.chance) {
+    u.blocks = (u.blocks || 0) + 1;
+    fx(run, { type: 'text', x: u.x, y: u.y - 70, text: 'Block!', color: '#d9c38c', size: 16 });
+    if (block.betaeuben) applyStatus(run, attacker, { typ: 'betaeubung', dauer: 1 });
+    if (block.blitz) {
+      fx(run, { type: 'bolt', x1: u.x, y1: u.y - 40, x2: attacker.x, y2: attacker.y, color: '#fff6a0', life: 0.2 });
+      damageEnemy(run, attacker, block.blitz, 'magic', { aoe: true, source: u });
     }
+    run.checkEvolution(u);
+    return 0;
   }
   u.hp -= amount;
   u.hitFlash = 0.1;

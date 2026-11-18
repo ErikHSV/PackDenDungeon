@@ -18,7 +18,7 @@ export class Run {
    * @param {function} o.events  (name, payload) => void
    * @param {boolean} o.headless Simulation ohne Darstellung (Karten erscheinen sofort)
    */
-  constructor({ data, save, chapterId, mods, bag = [], rng = Math.random, events = () => {}, headless = false, settings = {} }) {
+  constructor({ data, save, chapterId, mods, bag = [], rng = Math.random, events = () => {}, headless = false, settings = {}, sessionMinutes = 0 }) {
     this.data = data;
     this.save = save;
     this.B = data.balance;
@@ -30,6 +30,7 @@ export class Run {
     this.headless = headless;
     this.settings = { damageNumbers: true, ...settings };
     this.bag = [...bag];
+    this.sessionMinutes = sessionMinutes;
 
     this.time = 0;          // Kampfzeit (nach dem Countdown)
     this.state = 'countdown';
@@ -39,7 +40,7 @@ export class Run {
 
     this.units = []; this.enemies = []; this.packs = []; this.tomes = []; this.cards = [];
     this.projectiles = []; this.zones = []; this.effects = []; this.corpses = []; this.telegraphs = []; this.hammers = [];
-    this.buffs = { blutrausch: { t: 0, bonus: 0 }, trommel: { t: 0, bonus: 0 } };
+    this.buffs = { blutrausch: { t: 0, bonus: 0 }, trommel: { t: 0, bonus: 0 }, riesen: { t: 0, schadenMul: 1, reichweiteMul: 1, lebenMul: 1, groesseMul: 1 } };
     this.freezeAll = 0;
     this.hail = null;
     this.blizzard = 0; this.blizzardRate = 0;
@@ -69,7 +70,7 @@ export class Run {
       return { id, def, level: lvl, x: p.x, y: p.y, interval: stufe.intervall, crateChance: stufe.kistenChance, timer: stufe.intervall * 0.5 };
     });
 
-    this.stats = { kills: 0, muenzen: 0, kristalle: 0, packsGeoeffnet: {}, gezogen: {}, neueKarten: [], foils: 0, grenzgaenger: 0, tomesGenutzt: 0, entwicklungen: 0 };
+    this.stats = { kills: 0, muenzen: 0, kristalle: 0, foilStaub: 0, packsGeoeffnet: {}, gezogen: {}, neueKarten: [], foils: 0, grenzgaenger: 0, tomesGenutzt: 0, entwicklungen: 0, killsNachArt: {}, foilMonster: 0, elitewellen: 0 };
     this.over = false;
     this.result = null;
     this.endAge = 0;
@@ -159,7 +160,7 @@ export class Run {
     this.emit('packOpened', { pack: p });
     const count = def.kartenProPack + this.mods.kartenProPack;
     const foilChance = (this.B.karten.foilChance + this.mods.foilChance) * this.mods.foilChanceMul;
-    const grenzChance = grenzgaengerChance(this.data, this.save);
+    const grenzChance = grenzgaengerChance(this.data, this.sessionMinutes + this.time / 60, this.mods.grenzgaengerChance);
     for (let i = 0; i < count; i++) {
       const card = drawCard(def, this.data, this.rng, { foilChance, grenzChance });
       const a = (i / count) * Math.PI * 2 + this.rng();
@@ -204,12 +205,13 @@ export class Run {
     const rar = this.data.rarities[def.rarity];
     const got = (S.gezogen[c.id] ||= { normal: 0, foil: 0 });
     got[c.foil ? 'foil' : 'normal']++;
-    if (c.foil) { S.foils++; this.emit('foil', { card: c }); }
+    if (c.foil) { S.foils++; S.foilStaub += this.B.belohnungen.foilStaubProFoilKarte; this.emit('foil', { card: c }); }
     if (def.rarity === 'grenzgaenger') S.grenzgaenger++;
     if (rar.lichtblitz) { fx(this, { type: 'flash', x: c.tx, y: c.ty - 30, r: 160, color: rar.farbe, life: 0.5 }); this.emit('rareCard', { card: c, rarity: def.rarity }); }
     if (rar.zeitlupe && !this.headless) this.slowmo = this.B.run.seltenZeitlupe;
     // Neu entdeckte Karte: Präsentation (UI pausiert)
     const known = (this.save.collection[c.id]?.normal || 0) + (this.save.collection[c.id]?.foil || 0) > 0;
+    if (def.rarity === 'grenzgaenger') this.emit('grenzgaenger', { card: c });
     if (!known && !this.seenThisRun.has(c.id)) {
       S.neueKarten.push(c.id);
       S.kristalle += this.B.belohnungen.kristalleNeueKarte;
@@ -240,7 +242,7 @@ export class Run {
     const a = this.rng() * Math.PI * 2;
     const u = {
       uid: this.uid++, kind: 'unit', id, def, x, y, foil, life, summoned: life != null,
-      maxHp: def.werte.leben * this.mods.heldenLebenMul * (foil ? F.lebenMul : 1), hp: 0,
+      maxHp: def.werte.leben * this.mods.heldenLebenMul * (foil ? F.lebenMul * this.mods.foilStaerkeMul : 1), hp: 0, geist: !!def.geist,
       range: def.werte.reichweite * (foil ? F.reichweiteMul : 1),
       atkTimer: 0.3 + this.rng() * 0.3, timers: {}, kills: 0, blocks: 0, damage: 0, facing: 1, evolved: false,
       homeDx: Math.cos(a) * 110, homeDy: Math.sin(a) * 70, animTime: this.rng() * 2, spawnDelay: 0.15,
@@ -286,6 +288,15 @@ export class Run {
     u.dead = true;
     u.deathAge = 0;
     this.corpses.push(u);
+    // Seelenkrug: sammelt, solange er liegt, die Seelen gefallener Helden
+    if (!u.summoned) for (const t of this.tomes) {
+      const le = t.def.liegendEffekt;
+      if (le?.typ === 'seelenSammeln' && (t.souls || 0) < le.maxSeelen) {
+        t.souls = (t.souls || 0) + 1;
+        fx(this, { type: 'soul', x1: u.x, y1: u.y - 40, x2: t.x, y2: t.y - 40, life: 0.8 });
+        break;
+      }
+    }
     for (const e of this.enemies) if (e.engaged === u) e.engaged = null;
     const s = u.def.beimTod?.beschwoeren;
     if (s && !expired) for (let i = 0; i < s.anzahl; i++) this.spawnUnit(s.einheit, u.x + i * 20, u.y, { life: s.dauer ?? 10 });
@@ -313,29 +324,45 @@ export class Run {
 
   castTome(def, at) {
     const e = def.effekt;
-    const mul = this.mods.tomeWirkungMul * this.relicMul('tomeWirkungMul');
+    const mul = this.mods.tomeWirkungMul;
+    const dur = this.mods.tomeDauerMul * mul;
     switch (e.typ) {
+      case 'geisterFreisetzen': {
+        const n = Math.max(e.mindestens ?? 1, at.souls || 0);
+        for (let i = 0; i < n; i++) {
+          const a = (i / n) * Math.PI * 2;
+          this.spawnUnit(e.einheit, at.x + Math.cos(a) * 70, at.y + Math.sin(a) * 40, { life: e.dauer * dur });
+        }
+        fx(this, { type: 'text', x: at.x, y: at.y - 90, text: `${n} Geisterkrieger!`, color: '#a6e3ff', size: 22 });
+        break;
+      }
+      case 'riesenwuchs':
+        this.buffs.riesen = { t: e.dauer * dur, schadenMul: e.schadenMul, reichweiteMul: e.reichweiteMul, lebenMul: e.lebenMul, groesseMul: e.groesseMul };
+        for (const u of this.units) if (!u.dead && !u.giant) { u.giant = true; u.maxHp *= e.lebenMul; u.hp *= e.lebenMul; }
+        break;
       case 'hagel':
-        this.hail = { t: e.dauer * mul, rate: e.einschlaegeProSekunde, dmg: e.schaden * mul * this.chapter.wellen.lebenMul, r: e.radius, acc: 0, type: e.schadensTyp };
+        this.hail = { t: e.dauer * dur, rate: e.einschlaegeProSekunde, dmg: e.schaden * mul * this.chapter.wellen.lebenMul, r: e.radius, acc: 0, type: e.schadensTyp };
         break;
       case 'beschwoeren':
         for (let i = 0; i < e.anzahl; i++) {
           const a = (i / e.anzahl) * Math.PI * 2;
-          this.spawnUnit(e.einheit, this.tower.x + Math.cos(a) * 120, this.tower.y + Math.sin(a) * 75, { life: e.dauer * mul });
+          this.spawnUnit(e.einheit, this.tower.x + Math.cos(a) * 120, this.tower.y + Math.sin(a) * 75, { life: e.dauer * dur });
         }
         break;
       case 'verstaerken':
-        this.buffs.blutrausch = { t: e.dauer * mul, bonus: e.bonus };
+        this.buffs.blutrausch = { t: e.dauer * dur, bonus: e.bonus * mul };
         break;
       case 'einfrieren':
-        this.freezeAll = e.dauer * mul;
+        this.freezeAll = e.dauer * dur;
         break;
     }
   }
 
   updateTomeEffects(dt) {
     if (this.freezeAll > 0) this.freezeAll -= dt;
+    const giant = this.buffs.riesen.t > 0;
     for (const b of Object.values(this.buffs)) if (b.t > 0) b.t -= dt;
+    if (giant && this.buffs.riesen.t <= 0) for (const u of this.units) if (u.giant) { u.giant = false; u.maxHp /= this.buffs.riesen.lebenMul; u.hp = Math.min(u.hp, u.maxHp); }
     if (this.hail) {
       const h = this.hail;
       h.t -= dt;
@@ -373,17 +400,23 @@ export class Run {
     const ch = this.chapter.wellen;
     const elite = !!opts.elite && !base.boss;
     const E = W.elite;
-    const p = opts.x != null ? { x: opts.x, y: opts.y } : this.spawnPoint();
+    // Bosse erscheinen etwas weiter innen, damit ihr großes Sprite ganz sichtbar bleibt
+    const p = opts.x != null ? { x: opts.x, y: opts.y } : base.boss ? this.edgePoint(this.rng() * 360, 0.72) : this.spawnPoint();
     const scale = base.boss ? 1 : Math.pow(W.lebenWachstum, wave);
-    const hp = base.leben * ch.lebenMul * scale * this.mods.gegnerLebenMul * (elite ? E.lebenMul : 1);
+    const P = this.mods.prestige;
+    const G = this.data.balance.gesucht;
+    const FM = W.foilMonster;
+    const foil = !base.boss ? (opts.foil ?? this.rng() < FM.chance + this.mods.foilMonsterChance) : this.mods.gesucht;
+    const hp = base.leben * ch.lebenMul * scale * this.mods.gegnerLebenMul * (elite ? E.lebenMul : 1) * (P?.lebenMul ?? 1)
+      * (foil ? (base.boss ? G.bossLebenMul : FM.lebenMul) : 1);
     const px = base.boss ? 96 * 2 : elite ? 96 : base.groesse * 3;
     const e = {
       uid: this.uid++, kind: 'enemy', id, def: base.boss ? JSON.parse(JSON.stringify(base)) : base, name: base.name,
       x: p.x, y: p.y, wave, elite, fliegt: base.fliegt, frontSchild: !!base.eigenschaften?.frontSchild,
       r: Math.round(px * 0.28), px, hp, maxHp: hp, speed: base.tempo * (0.9 + this.rng() * 0.2),
       ruestung: base.ruestung, magieResistenz: base.magieResistenz, immun: base.immun,
-      damage: base.schaden * ch.schadenMul * Math.pow(W.schadenWachstum, wave) * (elite ? E.schadenMul : 1),
-      muenzen: base.muenzen * (elite ? E.muenzenMul : 1), atkTimer: 0.4, st: newStatus(), facing: 1, spawnAge: 0, animTime: this.rng() * 2,
+      damage: base.schaden * ch.schadenMul * Math.pow(W.schadenWachstum, wave) * (elite ? E.schadenMul : 1) * (P?.schadenMul ?? 1) * this.mods.gegnerSchadenMul * (foil && base.boss ? G.bossSchadenMul : 1),
+      muenzen: base.muenzen * (elite ? E.muenzenMul : 1) * (foil && !base.boss ? FM.muenzenMul : 1), foil, atkTimer: 0.4, st: newStatus(), facing: 1, spawnAge: 0, animTime: this.rng() * 2,
       boss: base.boss ? { timers: {}, phase: 0, scream: null } : null,
     };
     if (base.boss) { e.isBoss = true; this.boss = e; }
@@ -408,7 +441,7 @@ export class Run {
       }
       t += W.intervall / Math.max(4, W.grundAnzahl + idx);
     }
-    if (elite) this.emit('eliteWave');
+    if (elite) { this.stats.elitewellen++; this.emit('eliteWave'); }
   }
 
   updateWaves(dt) {
@@ -493,7 +526,7 @@ export class Run {
     return {
       radius: C.radius * this.mods.cursorRadiusMul,
       tick: C.tickAbstand * Math.max(0.3, this.mods.cursorTickMul),
-      damage: C.schaden + this.mods.cursorSchaden,
+      damage: (C.schaden + this.mods.cursorSchaden) * this.mods.cursorSchadenMul,
       packMul: this.mods.cursorPackSchadenMul,
       crit: this.mods.cursorKrit,
     };
@@ -697,7 +730,8 @@ export class Run {
     const best = all.filter((u) => !u.summoned).sort((a, b) => (b.damage || 0) - (a.damage || 0))[0];
     this.result = {
       sieg: victory, kapitel: this.chapter.id, boss: this.chapter.boss, zeit: this.time,
-      kills: this.stats.kills, muenzen: this.coins, kristalle: this.stats.kristalle,
+      kills: this.stats.kills, muenzen: this.coins, kristalle: this.stats.kristalle, foilStaub: this.stats.foilStaub,
+      killsNachArt: this.stats.killsNachArt, foilMonster: this.stats.foilMonster, elitewellen: this.stats.elitewellen,
       packsGeoeffnet: this.stats.packsGeoeffnet, gezogen: this.stats.gezogen, neueKarten: this.stats.neueKarten,
       foils: this.stats.foils, grenzgaenger: this.stats.grenzgaenger, tomesGenutzt: this.stats.tomesGenutzt, entwicklungen: this.stats.entwicklungen,
       besteEinheit: best ? { id: best.id, name: best.def.name, schaden: Math.round(best.damage || 0), kills: best.kills, foil: best.foil } : null,

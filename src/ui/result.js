@@ -1,0 +1,88 @@
+// Ergebnis-Bildschirm (14.8) und Freischaltungs-Popups mit Konfetti.
+import { $, el, escapeHtml, show, countTo } from './dom.js';
+import { applyRunResult, claimableQuests, anyNodeAffordable, buyOffer, describeOffer, bagCapacity } from '../core/meta.js';
+import { play, startMusic } from '../audio.js';
+
+const fmtTime = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+
+export function showResult(game, r, mods, opts) {
+  const { data, save, bank } = game;
+  const lastBag = game.lastBag ?? [];
+  const info = applyRunResult(r, data, save, mods);
+  save.tutorial.firstRunDone = true;
+  game.persist();
+  startMusic('menu');
+  const box = $('#result-box');
+  const best = r.besteEinheit;
+  box.innerHTML = `
+    <h1 class="${r.sieg ? 'win' : 'lose'}">${r.sieg ? 'Sieg!' : 'Niederlage'}</h1>
+    <div class="muted">${escapeHtml(data.chapterIndex[r.kapitel].name)}${mods.prestige ? ` · Prestige ${mods.prestige.stufe}` : ''}${mods.gesucht ? ' · Gesucht' : ''} · Tag ${save.day - 1}</div>
+    <div class="res-grid">
+      <div>Überlebt<b>${fmtTime(r.zeit)}</b></div>
+      <div>Kills<b data-to="${r.kills}">0</b></div>
+      <div>Münzen<b data-to="${info.muenzen + info.einkommen}">0</b><span class="muted">${info.einkommen ? `inkl. ${info.einkommen} Tageseinkommen` : ''}</span></div>
+      <div>Mastery<b data-to="${info.mastery}">0</b></div>
+      <div>Kristalle<b data-to="${info.kristalle}">0</b></div>
+      <div>Foil-Staub<b data-to="${info.foilStaub}">0</b></div>
+      <div>Elitewellen<b>${r.elitewellen}</b></div>
+      <div>Packs geöffnet<b>${Object.values(r.packsGeoeffnet).reduce((a, b) => a + b, 0)}</b></div>
+    </div>
+    ${info.neueKarten.length ? `<div class="res-row"><b>Neue Karten:</b>${info.neueKarten.map((id) => `<img src="${bank.cardUrl(id)}" title="${escapeHtml(data.cardIndex[id].def.name)}">`).join('')}</div>` : ''}
+    ${best ? `<div class="res-row"><b>Beste Einheit:</b><img src="${bank.unitUrl(best.id)}"> ${escapeHtml(best.name)}${best.foil ? ' ✦' : ''} – ${best.schaden} Schaden, ${best.kills} Kills</div>` : ''}
+    <div class="res-row">${claimableQuests(data, save) ? `<span style="color:#FFD24A">${claimableQuests(data, save)} Quest(s) abholbar!</span>` : ''}
+      ${info.erfolge.map((a) => `<span style="color:#FFD24A">★ Erfolg: ${escapeHtml(a.name)}</span>`).join('')}</div>
+    <div class="row">
+      <button class="btn btn-primary btn-big" id="res-hub">Zum Hub</button>
+      <button class="btn btn-big" id="res-star">Sternenkarte${anyNodeAffordable(data, save) ? ' •' : ''}</button>
+      <button class="btn btn-big" id="res-again">Nochmal</button>
+    </div>`;
+  show('#overlay-result', true);
+  box.querySelectorAll('b[data-to]').forEach((b, i) => setTimeout(() => countTo(b, 0, Number(b.dataset.to), 700, () => play('count')), i * 180));
+
+  const close = () => show('#overlay-result', false);
+  $('#res-hub').onclick = () => { close(); game.goto('hub'); };
+  $('#res-star').onclick = () => { close(); game.goto('starmap', { back: 'hub' }); };
+  $('#res-again').onclick = () => {
+    // Dieselben Packs erneut kaufen, soweit sie heute angeboten werden und bezahlbar sind
+    for (const artikel of lastBag) {
+      const i = save.shop.offers.findIndex((s) => { const o = describeOffer(s, data, save); return o && !o.sold && o.items.length === 1 && o.items[0].artikel === artikel; });
+      if (i >= 0) buyOffer(i, data, save, Math.random, bagCapacity(data, game.mods()));
+    }
+    close();
+    if (!save.shop.bag.length) { game.goto('hub'); game.toast('Keine passenden Packs im Angebot – bitte im Shop wählen.', true); return; }
+    game.startRun(opts);
+  };
+
+  // Freischaltungen nacheinander zeigen
+  const popups = [];
+  if (info.kapitelFrei) popups.push(`<h1>Neues Kapitel freigeschaltet!</h1><p style="font-size:30px">${escapeHtml(info.kapitelFrei.name)}</p>`);
+  for (const p of info.packsFrei) popups.push(`<h1>Neues Pack verfügbar!</h1><img src="${bank.packUrl(p.id)}" style="width:96px;height:126px"><p style="font-size:28px">${escapeHtml(p.name)}</p>`);
+  if (info.schluesselstein) popups.push(`<h1>Schlüsselstein erhalten!</h1><p style="font-size:28px;color:${info.schluesselstein.farbe}">${escapeHtml(info.schluesselstein.name)}</p><p>Setze alle Schlüsselsteine in das Alte Tor im Hub ein.</p>`);
+  if (info.relikt) popups.push(`<h1>Neues Relikt!</h1><img src="${bank.iconUrl(info.relikt.symbol)}" style="width:96px;height:96px"><p style="font-size:28px">${escapeHtml(info.relikt.name)}</p><p>${escapeHtml(info.relikt.beschreibung)}</p>`);
+  if (popups.length) setTimeout(() => showPopups(popups), 1200);
+}
+
+export function showPopups(list) {
+  if (!list.length) return;
+  const box = $('#popup-box');
+  box.innerHTML = `${list[0]}<div class="row"><button class="btn btn-primary btn-big" id="popup-ok">Super!</button></div>`;
+  show('#overlay-popup', true);
+  play('unlock');
+  const stop = confetti($('#confetti'));
+  $('#popup-ok').onclick = () => { stop(); show('#overlay-popup', false); showPopups(list.slice(1)); };
+}
+
+function confetti(canvas) {
+  const ctx = canvas.getContext('2d');
+  const cols = ['#FFD24A', '#E04848', '#5AA9F0', '#5ED17A', '#A55CE0', '#F4EBD9'];
+  const parts = Array.from({ length: 160 }, () => ({ x: Math.random() * 1920, y: -Math.random() * 600, vx: (Math.random() - 0.5) * 120, vy: 160 + Math.random() * 240, c: cols[Math.floor(Math.random() * 6)], s: 8 + Math.floor(Math.random() * 3) * 4 }));
+  let raf, last = performance.now();
+  const step = (now) => {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    ctx.clearRect(0, 0, 1920, 1080);
+    for (const p of parts) { p.x += p.vx * dt; p.y += p.vy * dt; if (p.y > 1100) { p.y = -20; p.x = Math.random() * 1920; } ctx.fillStyle = p.c; ctx.fillRect(Math.round(p.x / 4) * 4, Math.round(p.y / 4) * 4, p.s, p.s / 2); }
+    raf = requestAnimationFrame(step);
+  };
+  raf = requestAnimationFrame(step);
+  return () => { cancelAnimationFrame(raf); ctx.clearRect(0, 0, 1920, 1080); };
+}

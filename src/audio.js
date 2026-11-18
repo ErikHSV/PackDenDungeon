@@ -37,6 +37,18 @@ const SOUNDS = {
   victory:    [{ f: 523, d: 0.2 }, { f: 659, d: 0.2, at: 0.18 }, { f: 784, d: 0.2, at: 0.36 }, { f: 1047, d: 0.6, at: 0.54 }],
   defeat:     [{ f: 330, d: 0.3, type: 'triangle' }, { f: 247, d: 0.3, at: 0.28, type: 'triangle' }, { f: 165, d: 0.6, at: 0.56, type: 'triangle' }],
   count:      [{ f: 900, d: 0.03, type: 'square', v: 0.03 }],
+  packLaunch: [{ f: 260, d: 0.18, type: 'triangle', slide: 520 }],
+  packLand:   [{ f: 140, d: 0.08, type: 'square', v: 0.04 }],
+  packHit:    [{ f: 380 + 0, d: 0.03, type: 'square', v: 0.02 }],
+  packOpen:   [{ f: 300, d: 0.06, type: 'square', v: 0.04 }, { f: 700, d: 0.15, at: 0.05, type: 'triangle' }],
+  newCard:    [{ f: 660, d: 0.08, type: 'triangle' }, { f: 990, d: 0.12, at: 0.07, type: 'triangle' }],
+  foil:       [{ f: 1320, d: 0.1 }, { f: 1760, d: 0.1, at: 0.08 }, { f: 2093, d: 0.3, at: 0.16 }],
+  grenz:      [{ f: 220, d: 0.3, type: 'sawtooth', v: 0.05, slide: 880 }, { f: 1760, d: 0.2, at: 0.25, type: 'square', v: 0.03, slide: 440 }],
+  evolve:     [{ f: 392, d: 0.1 }, { f: 523, d: 0.1, at: 0.08 }, { f: 784, d: 0.25, at: 0.16 }],
+  tome:       [{ f: 500, d: 0.12, type: 'triangle' }, { f: 750, d: 0.12, at: 0.1, type: 'triangle' }, { f: 1000, d: 0.2, at: 0.2, type: 'sine' }],
+  parry:      [{ f: 1800, d: 0.06, type: 'square', v: 0.05 }, { f: 900, d: 0.2, at: 0.04, type: 'triangle' }],
+  bolt:       [{ f: 1500, d: 0.08, type: 'sawtooth', v: 0.04, slide: 200 }],
+  building:   [{ f: 330, d: 0.08, type: 'triangle' }, { f: 440, d: 0.1, at: 0.08, type: 'triangle' }],
   unlock:     [{ f: 523, d: 0.12 }, { f: 784, d: 0.12, at: 0.1 }, { f: 1047, d: 0.12, at: 0.2 }, { f: 1568, d: 0.4, at: 0.3 }],
 };
 
@@ -91,10 +103,10 @@ export function play(name) {
 
 const THEMES = {
   menu:     { beat: 0.42, wave: 'triangle', melody: [523, 587, 659, 784, 659, 587, 523, 440, 392, 440, 523, 587, 523, 440, 392, 330], bass: [131, 131, 147, 147, 165, 165, 131, 131] },
-  chapter1: { beat: 0.40, wave: 'triangle', melody: [392, 440, 523, 440, 392, 330, 294, 330, 392, 440, 392, 330, 294, 262, 294, 330], bass: [98, 98, 110, 110, 131, 131, 98, 98] },
-  chapter2: { beat: 0.46, wave: 'sine',     melody: [330, 0, 392, 330, 294, 0, 262, 294, 330, 0, 349, 330, 294, 262, 247, 0], bass: [82, 82, 87, 87, 98, 98, 82, 82] },
-  chapter3: { beat: 0.34, wave: 'square',   melody: [294, 349, 392, 349, 294, 262, 294, 0, 294, 349, 440, 392, 349, 294, 262, 0], bass: [73, 73, 73, 87, 98, 98, 87, 73], v: 0.02 },
-  chapter4: { beat: 0.44, wave: 'sine',     melody: [659, 784, 880, 784, 659, 587, 523, 587, 659, 0, 587, 523, 494, 523, 587, 0], bass: [165, 165, 147, 147, 131, 131, 147, 147] },
+  akt1:     { beat: 0.40, wave: 'triangle', melody: [392, 440, 523, 440, 392, 330, 294, 330, 392, 440, 392, 330, 294, 262, 294, 330], bass: [98, 98, 110, 110, 131, 131, 98, 98] },
+  akt2:     { beat: 0.46, wave: 'sine',     melody: [330, 0, 392, 330, 294, 0, 262, 294, 330, 0, 349, 330, 294, 262, 247, 0], bass: [82, 82, 87, 87, 98, 98, 82, 82] },
+  akt3:     { beat: 0.34, wave: 'square',   melody: [294, 349, 392, 349, 294, 262, 294, 0, 294, 349, 440, 392, 349, 294, 262, 0], bass: [73, 73, 73, 87, 98, 98, 87, 73], v: 0.02 },
+  akt4:     { beat: 0.44, wave: 'sine',     melody: [659, 784, 880, 784, 659, 587, 523, 587, 659, 0, 587, 523, 494, 523, 587, 0], bass: [165, 165, 147, 147, 131, 131, 147, 147] },
   boss:     { beat: 0.22, wave: 'square',   melody: [220, 233, 220, 196, 220, 262, 247, 220, 220, 233, 220, 196, 175, 196, 208, 220], bass: [55, 55, 58, 58, 55, 55, 49, 49], v: 0.025 },
 };
 let currentTheme = null;

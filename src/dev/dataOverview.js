@@ -8,8 +8,8 @@ const SCHEMA_FILES = ['common', ...DATA_FILES];
 
 async function load() {
   const fetchJson = async (p) => { const r = await fetch(p, { cache: 'no-cache' }); if (!r.ok) throw new Error(`${p}: HTTP ${r.status}`); return r.json(); };
-  const raw = Object.fromEntries(await Promise.all(DATA_FILES.map(async (f) => [f, await fetchJson(`data/${f}.json`)])));
-  const schemas = Object.fromEntries(await Promise.all(SCHEMA_FILES.map(async (f) => [`${f}.schema.json`, await fetchJson(`data/schemas/${f}.schema.json`)])));
+  const raw = Object.fromEntries(await Promise.all(DATA_FILES.map(async (f) => [f, await fetchJson(`../data/${f}.json`)])));
+  const schemas = Object.fromEntries(await Promise.all(SCHEMA_FILES.map(async (f) => [`${f}.schema.json`, await fetchJson(`../data/schemas/${f}.schema.json`)])));
   return { raw, schemas };
 }
 

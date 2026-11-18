@@ -1,6 +1,6 @@
 {
   "name": "packdendungeon",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "type": "module",
   "description": "Incremental-Tower-Defense mit Booster-Packs (HTML5 + JavaScript, Canvas).",

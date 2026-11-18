@@ -2,22 +2,175 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PackDenDungeon – Datenübersicht</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1E1B2E">
+  <title>PackDenDungeon</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;700&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/overview.css">
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;700&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <header>
-    <h1>PackDenDungeon <small>v0.3 · Phase 1: Projektstruktur &amp; Datenformate</small></h1>
-    <p>Das Spiel wird gerade als Draufsicht-Arena neu gebaut. Diese Seite zeigt alle Daten, aus denen es entsteht.
-      Die bisherige Version (Seitenansicht) ist weiterhin spielbar: <a href="legacy/v0.2/">Version 0.2 spielen →</a></p>
-    <div id="status" class="status">Lade Daten …</div>
-    <nav id="toc"></nav>
-  </header>
-  <main id="out"></main>
-  <script type="module" src="src/dev/dataOverview.js"></script>
+<div id="viewport">
+  <div id="stage">
+
+    <!-- 14.1 Startbildschirm -->
+    <section id="screen-start" class="screen active">
+      <canvas id="start-canvas" class="full-canvas"></canvas>
+      <div class="start-logo logo" id="start-logo">PackDenDungeon</div>
+      <div class="start-blink">Klicken zum Starten</div>
+    </section>
+
+    <!-- 14.2 Hub -->
+    <section id="screen-hub" class="screen">
+      <canvas id="hub-canvas" class="full-canvas"></canvas>
+      <div class="hub-top">
+        <div class="cur" title="Münzen"><img data-icon="coin" alt=""><span id="hub-coins"></span></div>
+        <div class="cur" title="Mastery-Punkte"><img data-icon="rune" alt=""><span id="hub-mastery"></span></div>
+        <div class="cur" title="Kristalle"><img data-icon="crystal" alt=""><span id="hub-crystals"></span></div>
+        <div class="cur" title="Foil-Staub"><img data-icon="stun" alt=""><span id="hub-dust"></span></div>
+        <div class="cur day" id="hub-day"></div>
+      </div>
+      <nav class="hub-left">
+        <button class="side-btn" data-goto="starmap"><img data-icon="rune" alt="">Sternenkarte<span class="red-dot hidden" id="dot-starmap"></span></button>
+        <button class="side-btn" data-goto="relics"><img data-icon="relic" alt="">Relikte<span class="red-dot hidden" id="dot-relics"></span></button>
+        <button class="side-btn" data-goto="collection"><img data-icon="book" alt="">Sammlung</button>
+        <button class="side-btn" data-goto="quests"><img data-icon="quest" alt="">Quests<span class="red-dot hidden" id="dot-quests"></span></button>
+        <button class="side-btn" data-goto="achievements"><img data-icon="crown" alt="">Erfolge</button>
+        <button class="side-btn" data-goto="settings"><img data-icon="settings" alt="">Einstellungen</button>
+      </nav>
+      <div class="chapter-pick panel" id="chapter-pick"></div>
+      <div class="shop panel">
+        <div class="shop-head"><h2>Shop</h2><button class="btn" id="btn-reroll"></button></div>
+        <div class="offers" id="offers"></div>
+        <div class="bag-head">Run-Tasche <span id="bag-count"></span> <span class="muted">(antippen = zurückgeben)</span></div>
+        <div class="bag" id="bag"></div>
+      </div>
+      <div class="gate panel" id="gate"></div>
+      <button class="btn btn-primary fight-btn" id="btn-fight">Kampf beginnen</button>
+    </section>
+
+    <!-- 14.5 Kampf -->
+    <section id="screen-battle" class="screen">
+      <canvas id="field" class="full-canvas"></canvas>
+      <div class="hud-left">
+        <div class="relic-row" id="hud-relics"></div>
+        <div class="hud-coins"><img data-icon="coin" alt="" id="hud-coin-icon"><span id="hud-coins">0</span></div>
+      </div>
+      <div class="hud-center">
+        <div class="boss-label" id="boss-label"></div>
+        <div class="boss-track"><div class="boss-fill" id="boss-fill"></div></div>
+      </div>
+      <div class="hud-right">
+        <button class="btn hud-btn" id="btn-pause">II</button>
+        <button class="btn hud-btn" id="btn-speed">1×</button>
+      </div>
+      <div class="banner hidden" id="banner"></div>
+      <div class="info-pop panel hidden" id="info-pop"></div>
+      <div class="debug-panel panel hidden" id="debug-panel">
+        <b>Debug</b>
+        <button class="btn" data-debug="coins">+500 Münzen</button>
+        <button class="btn" data-debug="time">+30 s</button>
+        <button class="btn" data-debug="boss">Boss jetzt</button>
+        <button class="btn" data-debug="pack">+Silberpack</button>
+        <button class="btn" data-debug="end">Run beenden</button>
+      </div>
+    </section>
+
+    <!-- 14.9 Sternenkarte -->
+    <section id="screen-starmap" class="screen">
+      <canvas id="star-canvas" class="full-canvas"></canvas>
+      <div class="star-currency">
+        <div class="star-mp"><img data-icon="rune" alt=""><span id="star-mp">0</span></div>
+        <div class="star-sub"><img data-icon="crystal" alt=""><span id="star-kr">0</span><img data-icon="stun" alt=""><span id="star-fs">0</span></div>
+      </div>
+      <div class="star-buttons">
+        <button class="btn" id="star-center">Zentrieren</button>
+        <button class="btn btn-danger" id="star-reset">Zurücksetzen</button>
+        <button class="btn" id="star-back">Zurück</button>
+      </div>
+      <button class="btn btn-primary btn-big star-newrun" id="star-newrun">Neuer Run</button>
+      <div class="star-info panel hidden" id="star-info"></div>
+      <div class="star-banner hidden" id="star-banner"></div>
+      <div class="star-flash" id="star-flash"></div>
+    </section>
+
+    <!-- 14.10 Relikte -->
+    <section id="screen-relics" class="screen screen-plain">
+      <button class="btn back-btn" data-goto="hub">← Zurück</button>
+      <h1 class="screen-title">Relikte</h1>
+      <div class="relic-slots" id="relic-slots"></div>
+      <div class="relic-inv panel" id="relic-inv"></div>
+      <div class="relic-detail panel" id="relic-detail"></div>
+    </section>
+
+    <!-- 14.11 Sammlung -->
+    <section id="screen-collection" class="screen screen-plain">
+      <button class="btn back-btn" data-goto="hub">← Zurück</button>
+      <h1 class="screen-title">Sammlung <span id="col-progress"></span></h1>
+      <div class="tabs" id="col-tabs"></div>
+      <div class="col-grid" id="col-grid"></div>
+    </section>
+
+    <!-- 14.12 Quests / Erfolge -->
+    <section id="screen-quests" class="screen screen-plain">
+      <button class="btn back-btn" data-goto="hub">← Zurück</button>
+      <h1 class="screen-title">Quests</h1>
+      <div class="list" id="quest-list"></div>
+    </section>
+    <section id="screen-achievements" class="screen screen-plain">
+      <button class="btn back-btn" data-goto="hub">← Zurück</button>
+      <h1 class="screen-title">Erfolge <span id="ach-progress"></span></h1>
+      <div class="list ach" id="ach-list"></div>
+    </section>
+
+    <!-- 14.13 Einstellungen -->
+    <section id="screen-settings" class="screen screen-plain">
+      <button class="btn back-btn" id="settings-back">← Zurück</button>
+      <div class="settings panel">
+        <h2>Einstellungen</h2>
+        <label class="row-set">Musik <input type="range" min="0" max="100" data-volume="musicVolume"></label>
+        <label class="row-set">Effekte <input type="range" min="0" max="100" data-volume="sfxVolume"></label>
+        <label class="row-set">Effekt-Transparenz <input type="range" min="20" max="100" data-percent="effectAlpha"></label>
+        <label class="row-set">Bildschirmwackeln <input type="checkbox" data-setting="screenShake"></label>
+        <label class="row-set">Schadenszahlen <input type="checkbox" data-setting="damageNumbers"></label>
+        <label class="row-set">Schnelles Pack-Öffnen <input type="checkbox" data-setting="fastPackOpening"></label>
+        <label class="row-set">Animationen überspringen <input type="checkbox" data-setting="skipAnimations"></label>
+        <label class="row-set">Sprache <select id="language"><option value="de">Deutsch</option><option value="en" disabled>English (bald)</option></select></label>
+        <button class="btn btn-danger" id="btn-reset">Spielstand löschen</button>
+        <div class="debug-meta hidden" id="debug-meta"><b>Debug:</b>
+          <button class="btn" id="dbg-currency">+1000 aller Währungen</button>
+          <button class="btn" id="dbg-chapters">Kapitel freischalten</button>
+          <button class="btn" id="dbg-cards">Alle Karten</button>
+          <button class="btn" id="dbg-relics">Alle Relikte</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Overlays -->
+    <div class="overlay hidden" id="overlay-newcard"><div class="newcard" id="newcard"></div><div class="newcard-hint">Klicken zum Weiterspielen</div></div>
+    <div class="overlay hidden" id="overlay-pause">
+      <div class="panel pause-box">
+        <h2>Pause</h2>
+        <button class="btn btn-primary btn-big" id="pause-resume">Weiter</button>
+        <button class="btn btn-big" id="pause-settings">Einstellungen</button>
+        <button class="btn btn-big btn-danger" id="pause-end">Run beenden</button>
+        <p class="muted">Beim Beenden bleiben alle Belohnungen erhalten.</p>
+      </div>
+    </div>
+    <div class="overlay hidden" id="overlay-result"><div class="panel result-box" id="result-box"></div></div>
+    <div class="overlay hidden" id="overlay-popup"><canvas id="confetti" width="1920" height="1080"></canvas><div class="panel popup-box" id="popup-box"></div></div>
+    <div class="overlay hidden" id="overlay-confirm">
+      <div class="panel confirm-box"><p id="confirm-text"></p>
+        <div class="row"><button class="btn btn-primary" id="confirm-yes">Ja</button><button class="btn" id="confirm-no">Abbrechen</button></div></div>
+    </div>
+    <div class="tip hidden" id="tip"><div class="tip-text" id="tip-text"></div><div class="tip-arrow" id="tip-arrow"></div></div>
+    <div id="toasts"></div>
+    <div id="fade" class="fade"></div>
+  </div>
+</div>
+<div class="rotate-hint">↻<br>Bitte das Gerät ins Querformat drehen.</div>
+<div id="load-error" class="load-error hidden"></div>
+<script type="module" src="src/main.js"></script>
 </body>
 </html>

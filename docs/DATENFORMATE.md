@@ -2,22 +2,24 @@
 
 Alle Inhalte stehen in `data/*.json`. Jede Datei hat ein JSON-Schema in `data/schemas/`.
 `node tools/validate-data.mjs` prüft Schemas **und** Querverweise, zum Beispiel ob jede Karte in einem Pack-Pool existiert und jeder Sternenkarten-Knoten vom Start aus erreichbar ist.
-Die Datenübersicht auf der Startseite (`index.html`) zeigt dieselbe Prüfung im Browser.
+Die Entwickler-Seite `dev/overview.html` zeigt dieselbe Prüfung im Browser.
 
 | Datei | Inhalt |
 |---|---|
-| `balance.json` | Zentrale Zahlen: Arena, Turm, Cursor, Run-Ablauf, Karten (Foil, Grenzgänger), Wellen, Belohnungen, Wirtschaft, Shop |
+| `balance.json` | Zentrale Zahlen: Arena, Turm, Cursor, Run-Ablauf, Karten (Foil, Grenzgänger), Wellen, Belohnungen, Wirtschaft, Shop, Relikte, Akte, Prestige, Gesucht |
 | `rarities.json` | Seltenheiten mit Farbe, Rang, Effekten (`geheim` = Grenzgänger) |
 | `units.json` | Helden und Beschwörungen |
 | `tomes.json` | Zauberbücher |
 | `packs.json` | Packs, Kisten, Reliktpacks |
-| `shop.json` | Shop-Angebote (Artikel, Grundpreis, Gewicht) |
+| `shop.json` | Shop-Angebote (Artikel, Grundpreis, Gewicht) und Jackpots |
 | `enemies.json` | Gegner und Bosse |
 | `chapters.json` | Kapitel: Gegner-Pool, Boss-Zeit, Spawn-Modus, Gefahren |
+| `acts.json` | Akte mit Kapitel-Liste und dem Alten Tor (Schlüsselsteine) |
 | `modifiers.json` | Kapitel-Modifikatoren |
 | `buildings.json` | Gebäude, die Packs aufs Feld werfen |
 | `relics.json` | Relikte |
 | `quests.json` | Quests |
+| `achievements.json` | Erfolge |
 | `starmap.json` | Sternenkarte (Skill-Tree) |
 
 ## Gemeinsame Bausteine
@@ -51,7 +53,7 @@ Jede gezogene Karte wird zu einer eigenen Einheit, Duplikate ergeben also mehrer
 
 - `art: pack`: `widerstand` (Lebenspunkte, die der Cursor abbauen muss), `kartenProPack`, `pool`, `seltenheitsGewichte` (in Prozent).
 - `art: kiste`: `inhalt: { pack, anzahl }`. Landet als mehrere Einzelpacks auf dem Feld.
-- `art: relikt`: `inhalt: { relikte: 1 }`. Nur über Quests erhältlich.
+- `art: relikt`: `inhalt: { relikte: 1 }`. Erhältlich über Jackpots im Shop, Quests und die Reliktjagd. Wird sofort geöffnet und bevorzugt ein noch fehlendes Relikt.
 - `freischaltung.typ`: `start`, `boss` (mit `kapitel`), `quest`, `sternenkarte`.
 - Fehlt eine gewürfelte Seltenheit im Pool, wird die nächstniedrigere vorhandene genommen (`balance.karten.seltenheitsFallback`).
 
@@ -81,7 +83,8 @@ Jede gezogene Karte wird zu einer eigenen Einheit, Duplikate ergeben also mehrer
 Felder je Knoten (laut Spezifikation): `id`, `name`, `beschreibung`, `typ`, `ast`, `position {x,y}`, `verbindungen`, `maxStufe`, `basisKosten`, `kostenFaktor`, `kristallKosten`, `effekt`, optional `voraussetzung` und `symbol`.
 
 - **Typen:** `klein` (Kreis, mehrere Stufen), `gross` (Sechseck), `schluessel` (Stern, Mastery-Punkte + Kristalle), `freischalt` (Schloss), `start`.
-- **Kosten:** `basisKosten × kostenFaktor^Stufe` Mastery-Punkte, plus `kristallKosten`.
+- **Kosten:** `basisKosten × kostenFaktor^Stufe` in `waehrung` (`mastery` oder `foilstaub` für Ast H), plus `kristallKosten`.
+- **Akt:** Knoten mit `akt: 2` erscheinen erst nach dem Öffnen des Tors. Beim Durchschreiten wird die Karte mit voller Rückerstattung zurückgesetzt (`balance.akte.sternenkarteResetBeiAktwechsel`).
 - **Kaufbar:** wenn ein verbundener Nachbar mindestens Stufe 1 hat. Bei `voraussetzung.karte` muss diese Karte zusätzlich schon gefunden sein.
 - **Verbindungen:** in **beiden** Knoten eintragen (prüft der Validator).
 
@@ -90,8 +93,9 @@ Felder je Knoten (laut Spezifikation): `id`, `name`, `beschreibung`, `typ`, `ast
 | Ziel | Wirkung pro Stufe |
 |---|---|
 | `cursorSchaden`, `cursorRadiusMul`, `cursorTickMul`, `cursorPackSchadenMul`, `cursorKrit` | Runenkreis |
-| `grundEinkommen`, `muenzenMul`, `shopPlaetze`, `masteryMul` | Wirtschaft |
-| `packWiderstandMul`, `foilChance`, `kartenProPack`, `packImPack` | Packs |
+| `tagesEinkommen`, `muenzenMul`, `shopPlaetze`, `taschenPlaetze`, `masteryMul`, `jackpotChance` | Wirtschaft |
+| `packWiderstandMul`, `foilChance`, `kartenProPack`, `packImPack`, `grenzgaengerChance` | Packs |
+| `foilStaerkeMul`, `foilMonsterChance` | Foil (Ast H) |
 | `heldenSchadenMul`, `heldenLebenMul`, `heldenTempoMul` | alle Helden |
 | `turmLebenMul`, `turmRegen`, `turmSchuetze`, `turmDornen` | Turm |
 | `tomeWirkungMul`, `tomeDoppeltChance`, `tomeZweimalChance` | Tomes |
@@ -106,4 +110,15 @@ Felder je Knoten (laut Spezifikation): `id`, `name`, `beschreibung`, `typ`, `ast
 - **Modifikatoren:** `effekte[]` mit `ziel`, `op`, `wert`, dazu `belohnung.masteryMul`.
 - **Gebäude:** `pack`, optional `kiste`, `position.winkel` am Arenarand, `stufen[]` mit `intervall` und `kistenChance`.
 - **Relikte:** `ausloeser` (`passiv`, `runStart`, `packGeoeffnet`, `heldGestorben`, `kill`, `turmGetroffen`, `tomeGenutzt`, `bossErscheint`) und `aktion`.
-- **Quests:** `ziel.statistik` (z. B. `packsGeoeffnet`, `foilsGezogen`, `kills`, `bossBesiegt`), optional `filter`, dazu `anzahl` und `belohnung` (`grundEinkommen`, `kristalle`, `reliktpack`).
+- **Quests:** `ziel.statistik` (z. B. `packsGeoeffnet`, `foilsGezogen`, `kills`, `bossBesiegt`), optional `filter`, dazu `anzahl` und `belohnung` (`tagesEinkommen`, `kristalle`, `reliktpack`).
+- **Relikte, verflucht:** `verflucht: true` plus `nachteil` (Text); `aktion.typ: werte` setzt mehrere Modifikatoren (Vorteil und Nachteil). Zerstörte Relikte geben einen weiteren Platz (`balance.relikte`).
+- **Erfolge:** wie Quests, aber ohne Belohnung und mit `kategorie`. `anzahl: "alle"` zählt bis zur Gesamtzahl (z. B. alle Karten).
+- **Akte:** `kapitel[]`, `sonder[]` (z. B. Reliktjagd), `tor` mit `schluesselsteine[]` (je Kapitel-Boss einer) und `warnung`.
+
+## Wirtschaft (Kurzüberblick)
+
+- Ein Run ist ein **Tag**: danach werden Münzen und Tageseinkommen gutgeschrieben, der Shop würfelt neu.
+- Münzen pro Kill: `gegner.muenzen × balance.belohnungen.muenzenProKill × Kapitel-Münzmultiplikator`. Nachkommastellen werden zufällig gerundet.
+- Die Run-Tasche fasst `balance.shop.taschenPlaetze` Artikel (eine Kiste zählt als einer), erweiterbar über die Sternenkarte.
+- Preise steigen pro erreichtem Kapitel um `balance.wirtschaft.preisWachstumProKapitel`.
+- Mastery: `masteryProSekunde`, `masteryProKill`, `masteryProElitewelle`, `masteryProBoss`, multipliziert mit dem Münzmultiplikator des Kapitels.

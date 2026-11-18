@@ -1,11 +1,10 @@
 // Kartenziehung aus Packs: Seltenheit (mit Fallback), Foil, geheime Grenzgänger.
 import { weightedPick, deepClone, applyPatches } from './util.js';
 
-/** Chance auf einen Grenzgänger (steigt leicht mit der Gesamtspielzeit). */
-export function grenzgaengerChance(data, save) {
+/** Chance auf einen Grenzgänger: steigt leicht mit der Spielzeit der aktuellen Sitzung (+ Sternenkarte). */
+export function grenzgaengerChance(data, sessionMinutes = 0, bonus = 0) {
   const G = data.balance.karten.grenzgaenger;
-  const hours = (save?.stats?.zeitGesamt || 0) / 3600;
-  return Math.min(G.maxChance, G.grundChance + G.proSpielstunde * hours);
+  return Math.min(G.maxChance + bonus, G.grundChance + G.proSitzungsMinute * sessionMinutes + bonus);
 }
 
 /**

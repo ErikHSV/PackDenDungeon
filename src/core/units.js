@@ -18,7 +18,13 @@ function nearestEnemy(run, u, from, maxDist) {
 }
 
 export function unitDamage(run, u) {
-  return u.def.werte.schaden * run.mods.heldenSchadenMul;
+  const giant = run.buffs.riesen.t > 0 ? run.buffs.riesen.schadenMul : 1;
+  return u.def.werte.schaden * run.mods.heldenSchadenMul * (u.foil ? run.mods.foilStaerkeMul : 1) * giant;
+}
+
+/** Reichweite inkl. Foil (+50 %) und Riesenwuchs. */
+export function unitRange(run, u) {
+  return u.range * (run.buffs.riesen.t > 0 ? run.buffs.riesen.reichweiteMul : 1);
 }
 
 export function unitAttackInterval(run, u) {
@@ -51,6 +57,22 @@ const ATTACKS = {
     const sp = u.def.angriff.spiegelung;
     if (sp) for (const o of run.enemies) if (o !== t && canHit(u, o) && dist(o, t) <= sp.radius) damageEnemy(run, o, dmg * sp.anteil, u.def.werte.schadensTyp, { aoe: true, source: u });
   },
+  /** Kegel nach vorne: trifft alle Gegner im Radius innerhalb des Öffnungswinkels Richtung Ziel. */
+  kegel(run, u, t, dmg) {
+    const a = u.def.angriff;
+    const r = (a.radius ?? 90) * (u.foil ? run.data.balance.karten.foil.flaecheMul : 1) * (run.buffs.riesen.t > 0 ? run.buffs.riesen.reichweiteMul : 1);
+    const half = ((a.winkel ?? 100) * Math.PI) / 360;
+    const dir = Math.atan2(t.y - u.y, t.x - u.x);
+    fx(run, { type: 'cone', x: u.x, y: u.y - 20, r, dir, half, color: u.def.farbe, life: 0.22 });
+    for (const e of run.enemies) {
+      if (!canHit(u, e) || dist(e, u) > r + e.r) continue;
+      let d = Math.abs(Math.atan2(e.y - u.y, e.x - u.x) - dir);
+      if (d > Math.PI) d = Math.PI * 2 - d;
+      if (d > half && e !== t) continue;
+      damageEnemy(run, e, dmg, u.def.werte.schadensTyp, { aoe: true, source: u });
+      applyOnHit(run, e, a.beiTreffer, dmg, u);
+    }
+  },
   halbkreis(run, u, t, dmg) {
     const r = (u.def.angriff.radius ?? 70) * (u.foil ? run.data.balance.karten.foil.flaecheMul : 1);
     fx(run, { type: 'arc', x: t.x, y: t.y, r, color: u.def.farbe, life: 0.22 });
@@ -65,6 +87,7 @@ const ATTACKS = {
       x: u.x + u.facing * 14, y: u.y - 30, target: t, tx: t.x, ty: t.y, speed: a.geschossTempo ?? 600, damage: dmg,
       type: u.def.werte.schadensTyp, source: u, bounces: a.abpraller ?? 0, hit: new Set(), color: u.def.farbe,
       onHit: a.beiTreffer, zone: a.flaeche ? { ...a.flaeche, radius: a.flaeche.radius * (u.foil ? run.data.balance.karten.foil.flaecheMul : 1) } : null,
+      explosion: a.explosion ? a.explosion.radius * (u.foil ? run.data.balance.karten.foil.flaecheMul : 1) : 0,
     });
   },
 };
@@ -91,9 +114,9 @@ export function densest(run, list, radius) {
 }
 
 const ABILITIES = {
-  /** Sprint durch Gegnergruppen: Schaden + Rückstoß auf der Strecke. */
+  /** Sprint durch Gegnergruppen: Schaden + Rückstoß auf der Strecke (bei beiAngriff: ausgelöst durch jeden Angriff). */
   sprint(run, u, ab, dt) {
-    if (u.dash) return;
+    if (u.dash || ab.beiAngriff) return;
     if (!timer(u, 'sprint', ab.intervall, dt)) return;
     const t = nearestEnemy(run, u, u, 700);
     if (!t) { u.timers.sprint = 0.3; return; }
@@ -206,11 +229,12 @@ export function updateUnits(run, dt) {
     for (const [type, params] of Object.entries(u.def.faehigkeiten)) ABILITIES[type]?.(run, u, params, dt);
 
     const target = chooseTarget(run, u);
-    const reach = u.range + (target ? target.r : 0) + UNIT_R * 0.5;
+    const range = unitRange(run, u);
+    const reach = range + (target ? target.r : 0) + UNIT_R * 0.5;
     if (target) {
       const d = dist(u, target);
       if (u.def.ki === 'abstand') {
-        if (d < u.range * 0.4) {
+        if (d < range * 0.4) {
           // zu nah: etwas zurückweichen (Richtung Turm)
           const ang = Math.atan2(u.y - target.y, u.x - target.x);
           moveToward(run, u, u.x + Math.cos(ang) * 60 + (T.x - u.x) * 0.1, u.y + Math.sin(ang) * 60 + (T.y - u.y) * 0.1, dt);
@@ -222,6 +246,9 @@ export function updateUnits(run, dt) {
         ATTACKS[u.def.angriff.art]?.(run, u, target, unitDamage(run, u));
         u.atkTimer = unitAttackInterval(run, u);
         u.attackAnim = 0.3;
+        // Windläufer: sprintet bei jedem Angriff durch die Gegnergruppe
+        const sp = u.def.faehigkeiten.sprint;
+        if (sp?.beiAngriff && !u.dash) u.dash = { ang: Math.atan2(target.y - u.y, target.x - u.x), left: sp.laenge, hit: new Set(), remaining: (sp.anzahl ?? 1) - 1, ab: sp };
         // Bannerträger: Angriffe feuern nahe Verbündete an
         const ch = u.def.faehigkeiten.anfeuern;
         if (ch) for (const o of run.units) if (o !== u && !o.dead && dist(o, u) <= ch.radius) { o.cheer = ch.dauer; o.cheerBonus = ch.tempoBonus; }
@@ -264,6 +291,10 @@ export function updateProjectiles(run, dt) {
       damageEnemy(run, t, p.damage, p.type, { source: p.source, from: p.source ?? run.tower, cursor: p.isTower });
       applyOnHit(run, t, p.onHit, p.damage, p.source);
       p.hit.add(t);
+    }
+    if (p.explosion) {
+      fx(run, { type: 'burst', x: p.tx, y: p.ty, r: p.explosion, color: '#ff9a3a', life: 0.35 });
+      for (const e of run.enemies) if (e !== t && !e.dead && !e.fliegt && Math.hypot(e.x - p.tx, e.y - p.ty) <= p.explosion) damageEnemy(run, e, p.damage * 0.7, p.type, { aoe: true, source: p.source });
     }
     if (p.zone) run.zones.push({ type: 'brand', x: p.tx, y: p.ty + 10, r: p.zone.radius, t: p.zone.dauer, max: p.zone.dauer, dps: p.zone.schadenProSekunde * run.mods.heldenSchadenMul, source: p.source });
     // Abpraller auf ein weiteres Ziel

@@ -17,7 +17,7 @@
     "gebaeudeRing": 0.94
   },
   "turm": {
-    "leben": 300,
+    "leben": 120,
     "breite": 120,
     "hoehe": 160,
     "kontaktRadius": 70,
@@ -69,8 +69,8 @@
   "wellen": {
     "$kommentar": "Monster kommen kontinuierlich. Werte gelten, falls das Kapitel nichts anderes angibt.",
     "intervall": 6,
-    "grundAnzahl": 3,
-    "anzahlProWelle": 1,
+    "grundAnzahl": 6,
+    "anzahlProWelle": 1.5,
     "maxAnzahl": 30,
     "lebenWachstum": 1.08,
     "schadenWachstum": 1.05,
@@ -90,8 +90,8 @@
     }
   },
   "belohnungen": {
-    "muenzenProKill": 1,
-    "masteryProSekunde": 0.1,
+    "muenzenProKill": 0.4,
+    "masteryProSekunde": 0.2,
     "masteryProKill": 0.05,
     "masteryProBoss": 15,
     "kristalleNeueKarte": 2,
@@ -117,7 +117,8 @@
     "jackpot": {
       "$kommentar": "Chance pro Angebotsplatz auf einen goldenen Jackpot-Platz (Inhalte in shop.json → jackpots).",
       "chance": 0.04
-    }
+    },
+    "taschenPlaetze": 10
   },
   "sternenkarte": {
     "kostenFaktorStandard": 1.45
