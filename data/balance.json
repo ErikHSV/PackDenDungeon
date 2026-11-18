@@ -149,7 +149,12 @@
       "foilStaub": 1,
       "chance": 0.25
     },
-    "masteryEliteKill": 5
+    "masteryEliteKill": 5,
+    "schatzpackOhneRelikt": {
+      "$kommentar": "Schatzpack, wenn alle zufälligen Relikte gefunden sind; Shiny-Schatzträger gibt zusätzlich shinyBonus.",
+      "foilStaub": 3,
+      "shinyBonus": 3
+    }
   },
   "wirtschaft": {
     "$kommentar": "Münzen nur für den Shop: Tageseinkommen (zu Beginn jedes Tages gutgeschrieben) plus Bonus-Münzen (Relikte, Fähigkeiten). Erhöht vor allem durch Quest-Knoten.",
@@ -167,8 +172,10 @@
     },
     "rueckerstattung": 1.0,
     "jackpot": {
-      "$kommentar": "Jackpots entstehen nur beim Neu-Würfeln: Chance je neu gewürfeltem Platz.",
-      "chance": 0.1
+      "$kommentar": "Jackpot (4): drei gleiche Pack-Angebote gleichzeitig (Tagesangebot oder Neu-Würfeln) → goldener Rahmen, bonusAnzahl Packs dieser Art gratis; mit Foil-Knoten „Jackpot-Relikt“ zu reliktChance zusätzlich ein Reliktpack. Höchstens einer pro Tag, nur wenn mindestens minTypen Angebotsarten möglich sind.",
+      "bonusAnzahl": 1,
+      "reliktChance": 0.25,
+      "minTypen": 2
     },
     "rabatt": {
       "$kommentar": "Chance je normalem Angebot auf einen Rabatt (rotes Etikett).",

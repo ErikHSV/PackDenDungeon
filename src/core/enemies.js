@@ -166,6 +166,7 @@ function attack(run, e, dt, target) {
 
 export function updateEnemies(run, dt) {
   const T = run.tower;
+  run.auraCarriers = run.enemies.filter((e) => !e.dead && e.def.eigenschaften?.aura);
   const contactTower = run.data.balance.turm.kontaktRadius;
   for (const e of run.enemies) {
     if (e.dead) continue;
@@ -179,6 +180,41 @@ export function updateEnemies(run, dt) {
     if (run.freezeAll > 0 || e.st.stun > 0 || e.boss?.scream) continue;
 
     const speed = e.speed * (e.st.slow.t > 0 ? e.st.slow.f : 1) * run.mods.gegnerTempoMul;
+    // Schatzträger und Eskorte laufen quer über das Feld zum Ausgang (der Träger kämpft nicht)
+    if (e.route) {
+      const isCarrier = !!e.def.eigenschaften?.schatztraeger;
+      if (!isCarrier && !e.fliegt) {
+        if (e.engaged && (e.engaged.dead || dist(e, e.engaged) > e.r + UNIT_R + 14)) e.engaged = null;
+        if (!e.engaged) for (const u of run.units) { if (!u.dead && !u.dash && dist(e, u) <= e.r + UNIT_R + 8) { e.engaged = u; break; } }
+        if (e.engaged) { e.facing = e.engaged.x >= e.x ? 1 : -1; attack(run, e, dt, e.engaged); continue; }
+      }
+      const rx = e.route.x - e.x, ry = e.route.y - e.y, rd = Math.hypot(rx, ry);
+      e.facing = rx >= 0 ? 1 : -1;
+      if (rd < 12) { e.dead = true; e.fled = true; if (isCarrier) fx(run, { type: 'text', x: e.x, y: e.y - 50, text: 'Entkommen!', color: '#E04848', size: 22, life: 1.2 }); continue; }
+      const st = Math.min(speed * dt, rd);
+      e.x += (rx / rd) * st; e.y += (ry / rd) * st;
+      e.moving = true;
+      continue;
+    }
+    // Armbrustschützen: auf Abstand bleiben und schießen (Helden in Reichweite zuerst, sonst der Turm)
+    const fk = e.def.eigenschaften?.fernkampf;
+    if (fk) {
+      const target = run.units.filter((u) => !u.dead && dist(u, e) <= fk.reichweite).sort((a, b) => dist(a, e) - dist(b, e))[0]
+        ?? (dist(T, e) <= fk.reichweite + contactTower ? T : null);
+      if (target) {
+        e.moving = false;
+        e.facing = target.x >= e.x ? 1 : -1;
+        e.rangedTimer = (e.rangedTimer ?? fk.intervall * 0.5) - dt;
+        if (e.rangedTimer <= 0) {
+          e.rangedTimer = fk.intervall;
+          e.attackAnim = 0.15;
+          fx(run, { type: 'arrow', x1: e.x, y1: e.y - 14, x2: target.x, y2: target.y - 10, life: 0.18 });
+          const dmg = fk.schaden * run.chapter.wellen.schadenMul * (1 + run.B.wellen.schadenProSekunde * run.time) * (e.elite ? run.B.wellen.elite.schadenMul : 1);
+          if (target === T) damageTower(run, dmg, e); else damageUnit(run, target, dmg, null);
+        }
+        continue;
+      }
+    }
     // Kampf gegen Helden, die im Weg stehen (fliegende Gegner ignorieren sie)
     if (!e.fliegt) {
       if (e.engaged && (e.engaged.dead || dist(e, e.engaged) > e.r + UNIT_R + 14)) e.engaged = null;

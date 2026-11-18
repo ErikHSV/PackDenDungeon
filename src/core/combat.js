@@ -73,7 +73,7 @@ export function damageEnemy(run, e, amount, type, opts = {}) {
     return 0;
   }
   // Frontschild: blockt Einzeltreffer von vorn (aus Richtung des Turms)
-  if (e.frontSchild && !opts.aoe && !opts.cursor && opts.from) {
+  if (e.frontSchild && type !== 'magic' && !opts.aoe && !opts.cursor && opts.from) {
     const facing = Math.atan2(run.tower.y - e.y, run.tower.x - e.x);
     const incoming = Math.atan2(opts.from.y - e.y, opts.from.x - e.x);
     let diff = Math.abs(facing - incoming);
@@ -84,7 +84,10 @@ export function damageEnemy(run, e, amount, type, opts = {}) {
     }
   }
   let d = amount;
-  if (type === 'physical') d = Math.max(d * 0.2, d - e.ruestung);
+  // Banner-Aura eines Hauptmanns: Soldaten in der Nähe haben mehr Rüstung
+  let armor = e.ruestung;
+  if (run.auraCarriers?.length && !e.def.eigenschaften?.aura) for (const h of run.auraCarriers) if (!h.dead && dist(h, e) <= h.def.eigenschaften.aura.radius) { armor += h.def.eigenschaften.aura.ruestung; break; }
+  if (type === 'physical') d = Math.max(d * 0.2, d - armor);
   else if (type === 'magic') d *= 1 - e.magieResistenz;
   if (e.st.vuln.t > 0) d *= 1 + e.st.vuln.a;
   if (e.boss && opts.source) d *= run.mods.bossSchadenMul;
@@ -93,6 +96,9 @@ export function damageEnemy(run, e, amount, type, opts = {}) {
   e.wasHit = true;
   if (opts.source) opts.source.damage = (opts.source.damage || 0) + d;
   if (!opts.silent) dmgText(run, e, d, opts.crit, type === 'magic');
+  // Relikt Funkenlaute: Angriffe seltener (und besserer) Helden können elektrisieren
+  const src = opts.source;
+  if (run.mods.flags.funkenlaute && src?.kind === 'unit' && !opts.chain && (run.data.rarities[src.def.rarity]?.rang ?? 0) >= run.data.rarities.rare.rang && run.rng() < 0.12) run.chainLightning(e, 1, d * 0.6, 'funkenlaute');
   if (e.hp <= 0) killEnemy(run, e, opts.source);
   return d;
 }

@@ -34,6 +34,7 @@ export class Hub {
       play('buy');
       this.game.persist();
       this.renderShop();
+      this.announceJackpot();
     });
     $('#shop-reset').addEventListener('click', () => {
       const { data, save } = this.game;
@@ -52,11 +53,13 @@ export class Hub {
   open(opts = {}) {
     const { data, save } = this.game;
     if (!save.shop.offers.length) { rollOffers(data, save, this.game.mods()); this.game.persist(); }
-    if (!chapterUnlocked(data.chapterIndex[save.selection.chapter], save, data)) { save.selection.chapter = 1; save.selection.prestige = 0; }
+    const selCh = data.chapterIndex[save.selection.chapter];
+    if (!selCh || !chapterUnlocked(selCh, save, data)) { save.selection.chapter = 1; save.selection.prestige = 0; }
     this.active = true;
     this.renderChapter();
     this.renderShop();
     this.showTab(opts.tab ?? this.tab);
+    setTimeout(() => { if (this.active) this.announceJackpot(); }, 700);
     this.t0 = performance.now();
     cancelAnimationFrame(this.raf);
     this.raf = requestAnimationFrame((t) => this.loop(t));
@@ -196,6 +199,11 @@ export class Hub {
       const G = data.balance.gesucht;
       extra.push(`<button class="chip${sel.gesucht ? ' on' : ''}" id="sel-gesucht" title="Der Boss erscheint als Shiny-Boss: stärker, mit Zusatzangriff. Jeder Sieg: +${st} Schimmer.${first ? ` Erster Sieg zusätzlich +${G.erstsiegSchimmer} Schimmer und ${G.erstsiegMastery} Mastery.` : ''}">GESUCHT ✦ +${st} <img src="${this.game.bank.iconUrl('crystal_regen')}" alt="">${first ? ` · 1. SIEG +${G.erstsiegSchimmer}` : ''}</button>`);
     }
+    // Infotafel: Relikt-Jagd verfügbar bzw. erledigt (9.6.2)
+    if (ch.reliktJagd) {
+      const done = !!save.stats.reliktJagden?.[`${save.act}:${ch.id}`];
+      extra.push(`<span class="chip hunt${done ? ' done' : ''}" title="${done ? 'In diesem Akt bereits geschafft.' : 'Bei der Hälfte des Runs läuft ein Schatzträger quer über das Feld. Besiege ihn, bevor er entkommt!'}"><img src="${this.game.bank.iconUrl('truhe')}" alt=""> RELIKT-JAGD ${done ? 'ERLEDIGT' : 'VERFÜGBAR'}</span>`);
+    }
     const modsAvail = ch.art === 'kapitel' ? modifiersAvailable(data, save) : [];
     if (!modsAvail.some((m) => m.id === sel.modifier)) sel.modifier = null;
     if (modsAvail.length) extra.push(`<span class="chip"><select id="sel-mod" title="Kapitel-Modifikator"><option value="">kein Modifikator</option>${modsAvail.map((m) => `<option value="${m.id}"${sel.modifier === m.id ? ' selected' : ''} title="${escapeHtml(m.beschreibung)}">${escapeHtml(m.name)} (×${m.belohnung.masteryMul})</option>`).join('')}</select></span>`);
@@ -239,7 +247,7 @@ export class Hub {
       const o = describeOffer(slot, data, save);
       if (!o) return;
       const div = document.createElement('div');
-      div.className = `offer${o.kind === 'jackpot' ? ' jackpot' : ''}${o.kind === 'glanz' ? ' glanz' : ''}${o.sold ? ' sold' : total < o.preis ? ' poor' : ''}${o.opened ? ' final' : ''}`;
+      div.className = `offer${o.jackpot ? ' jackpot' : ''}${o.kind === 'glanz' ? ' glanz' : ''}${o.sold ? ' sold' : total < o.preis ? ' poor' : ''}${o.opened ? ' final' : ''}`;
       const shiny = o.foil || o.kind === 'glanz';
       div.innerHTML = `<div class="tag-price">${o.rabatt && !o.sold ? `<s>${o.basisPreis}</s>` : ''}${o.preis}<img src="${bank.iconUrl('coin')}" alt=""></div>
         <div class="field${shiny ? ' shiny-frame shiny-sheen' : ''}">${this.offerArt(o)}</div>
@@ -250,6 +258,15 @@ export class Hub {
       this.bindInfo(div, o);
       grid.appendChild(div);
     });
+    // Jackpot: Hinweis über dem Raster mit dem Gratis-Bonus
+    const jp = save.shop.jackpot;
+    const jbox = $('#shop-jackpot');
+    if (jp) {
+      const pk = data.packIndex[jp.artikel];
+      const bonus = jp.bonus?.length ? `+${jp.bonus.length} × ${escapeHtml(pk.name)} gratis` : 'Bonus eingelöst';
+      jbox.innerHTML = `<b>JACKPOT!</b> ${bonus}${jp.relikt ? ` · Relikt: ${escapeHtml(data.relicIndex[jp.relikt].name)}` : jp.staub ? ` · +${jp.staub} Schimmer` : ''}`;
+    }
+    show('#shop-jackpot', !!jp);
     this.renderCoins(animate ? this.lastCoins : null);
     this.lastCoins = save.coins;
     $('#shop-reset').disabled = !save.shop.offers.some((s) => s.sold && !s.opened);
@@ -259,6 +276,23 @@ export class Hub {
       const cost = rerollCost(data, save, mods);
       rr.innerHTML = `REROLL&nbsp; ${cost} <img src="${bank.iconUrl('coin')}" alt="">`;
       rr.disabled = total < cost;
+    }
+  }
+
+  /** Neuer Jackpot: Klang, goldenes Funkeln, ggf. Relikt-Einblendung (einmal pro Jackpot). */
+  announceJackpot() {
+    const { data, save, bank } = this.game;
+    const jp = save.shop.jackpot;
+    if (!jp || jp.gezeigt) return;
+    jp.gezeigt = true;
+    this.game.persist();
+    play('fanfare');
+    const box = $('#shop-jackpot');
+    box.classList.remove('pop'); void box.offsetWidth; box.classList.add('pop');
+    if (jp.relikt) {
+      const r = data.relicIndex[jp.relikt];
+      showUnlocks([{ title: 'NEUES RELIKT!', name: `Jackpot-Relikt – ${r.name}: ${r.beschreibung}`, img: bank.iconUrl(r.symbol), w: 180, h: 180 }]);
+      this.renderDots();
     }
   }
 

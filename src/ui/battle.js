@@ -3,7 +3,7 @@
 import { $, $$, show, stage, toast, showTip, confirmDialog, escapeHtml } from './dom.js';
 import { cardElement } from './cardView.js';
 import { showResult } from './result.js';
-import { NewCardReveal } from './reveal.js';
+import { NewCardReveal, showUnlocks } from './reveal.js';
 import { Run } from '../core/run.js';
 import { bagItems, consumeBag, masteryFor, levelOf, nodeVisible, questProgress, questChapters, chapterUnlocked } from '../core/meta.js';
 import { worldOf } from '../render/arena.js';
@@ -50,6 +50,7 @@ export class BattleController {
     $('#btn-speed').disabled = !this.fastUnlocked;
     $('#btn-speed').title = this.fastUnlocked ? '' : 'Tempo 2× wird mit Kapitel 2 freigeschaltet.';
     this.renderer.eliteWarn = null;
+    this.renderer.huntWarn = null;
     this.renderer.bossWarn = 0;
     $('#hud-progress').classList.remove('blink');
     this.setupHud();
@@ -64,7 +65,7 @@ export class BattleController {
   stop() { cancelAnimationFrame(this.raf); this.raf = null; }
 
   timeScale() {
-    if (this.paused || this.presenting.length) return 0;
+    if (this.paused || this.presenting.length || !$('#overlay-unlock').classList.contains('hidden')) return 0;
     const run = this.run;
     if (run.over) return 0.35;
     const base = this.game.data.balance.run.geschwindigkeiten[this.speedIndex];
@@ -248,6 +249,14 @@ export class BattleController {
         break;
       }
       case 'bossSegment': play('starUp'); break;
+      case 'huntWarning': play('horn'); this.renderer.huntWarn = { ...p.point, t: this.run.chapter.reliktJagd?.ankuendigung ?? 3 }; this.banner('RELIKT-JAGD!', 'gold'); break;
+      case 'huntWon': play('unlock'); this.banner('Schatzträger besiegt! Öffne das Schatzpack!', 'gold'); break;
+      case 'huntLost': play('error'); this.banner('Der Schatz ist entkommen …', 'danger'); break;
+      case 'treasureOpened':
+        play('fanfare');
+        if (p.relic) showUnlocks([{ title: 'NEUES RELIKT!', name: `${p.relic.name}: ${p.relic.beschreibung} (ab dem nächsten Run im Reiter RELIKTE)`, img: this.game.bank.iconUrl(p.relic.symbol), w: 180, h: 180 }]);
+        else this.banner('Alle Relikte gefunden – Schimmer!', 'gold');
+        break;
       case 'bossSpawned':
         show('#boss-warn', false);
         $('#hud-progress').classList.remove('blink');

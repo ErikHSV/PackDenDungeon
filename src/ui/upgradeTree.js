@@ -62,6 +62,7 @@ export class UpgradeTree {
     if (this.foil && !foilTreeUnlocked(this.save)) this.kind = 'skill';
     if (!this.cam.centered) {
       this.cam.centered = true;
+      if (!this.foil) this.cam.zoom = 0.8; // hochkanter Baum: etwas kleiner, damit beide Seiten sichtbar sind
       this.centerOn((!this.foil && this.data.starIndex[this.save.lastBought]) || this.index[this.map.start]);
     }
     this.updateCurrency(false);
@@ -459,7 +460,7 @@ export class UpgradeTree {
     const sp = this.index[this.map.start].position;
     const s = this.toScreen(sp.x, sp.y);
     const z = this.cam.zoom;
-    const cx = s.x, cy = s.y + 30 * z;
+    const cx = s.x, cy = s.y + 120 * z; // Basis unter dem Startknoten
     c.fillStyle = '#1d1424';
     c.beginPath(); c.ellipse(cx, cy + 40 * z, 420 * z, 150 * z, 0, 0, Math.PI * 2); c.fill();
     const tower = bank.tower(0);
@@ -573,8 +574,13 @@ export class UpgradeTree {
     }
   }
 
+  /** Rechtwinklige Leitung: hochkanter Skill-Tree waagerecht – senkrecht – waagerecht, sonst senkrecht – waagerecht – senkrecht. */
   wirePoints(a, b) {
     if (a.x === b.x || a.y === b.y) return [a, b];
+    if (this.map.leitung === 'hvh') {
+      const mx = (a.x + b.x) / 2;
+      return [a, { x: mx, y: a.y }, { x: mx, y: b.y }, b];
+    }
     const my = (a.y + b.y) / 2;
     return [a, { x: a.x, y: my }, { x: b.x, y: my }, b];
   }

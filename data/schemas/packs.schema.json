@@ -24,7 +24,8 @@
         "enum": [
           "pack",
           "kiste",
-          "relikt"
+          "relikt",
+          "schatz"
         ]
       },
       "beschreibung": {

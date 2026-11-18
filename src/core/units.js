@@ -19,7 +19,7 @@ function nearestEnemy(run, u, from, maxDist) {
 
 export function unitDamage(run, u) {
   const giant = run.buffs.riesen.t > 0 ? run.buffs.riesen.schadenMul : 1;
-  return u.def.werte.schaden * run.mods.heldenSchadenMul * giant; // Shiny ändert den Schaden nicht
+  return u.def.werte.schaden * run.mods.heldenSchadenMul * giant * (u.riese ? 1.3 : 1); // Shiny ändert den Schaden nicht
 }
 
 /** Reichweite inkl. Foil (+50 %) und Riesenwuchs. */
@@ -36,7 +36,7 @@ function moveToward(run, u, tx, ty, dt, stopAt = 0) {
   const dx = tx - u.x, dy = ty - u.y;
   const d = Math.hypot(dx, dy);
   if (d <= stopAt || d < 1) return true;
-  const step = Math.min(d - stopAt, u.def.werte.lauftempo * (u.slow ?? 1) * dt);
+  const step = Math.min(d - stopAt, u.def.werte.lauftempo * run.mods.heldenLaufMul * (u.slow ?? 1) * dt);
   u.x += (dx / d) * step;
   u.y += (dy / d) * step;
   u.facing = dx >= 0 ? 1 : -1;

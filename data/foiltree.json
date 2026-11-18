@@ -163,7 +163,7 @@
     {
       "id": "f_jackpotrelikt",
       "name": "Jackpot-Relikt",
-      "beschreibung": "Jackpots beim Neu-Würfeln können ein Reliktpack enthalten.",
+      "beschreibung": "Jeder Jackpot im Shop gibt mit 25 % Chance zusätzlich ein Reliktpack.",
       "typ": "klein",
       "ast": "shop",
       "akt": 2,

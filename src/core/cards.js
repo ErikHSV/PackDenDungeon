@@ -11,7 +11,7 @@ export function grenzgaengerChance(data, sessionMinutes = 0, bonus = 0) {
  * Zieht eine Karte aus einem Pack.
  * @returns {{ id: string, foil: boolean }}
  */
-export function drawCard(pack, data, rng, { foilChance, grenzChance }) {
+export function drawCard(pack, data, rng, { foilChance, grenzChance, seltenheitMul = {} }) {
   if (grenzChance > 0 && rng() < grenzChance) {
     const gg = data.units.filter((u) => u.rarity === 'grenzgaenger');
     if (gg.length) return { id: gg[Math.floor(rng() * gg.length)].id, foil: rng() < foilChance };
@@ -21,7 +21,7 @@ export function drawCard(pack, data, rng, { foilChance, grenzChance }) {
     const c = data.cardIndex[id];
     if (c) (byRarity[c.def.rarity] ||= []).push(id);
   }
-  let rarity = weightedPick(Object.entries(pack.seltenheitsGewichte), rng);
+  let rarity = weightedPick(Object.entries(pack.seltenheitsGewichte).map(([r, w]) => [r, w * (seltenheitMul[r] ?? 1)]), rng);
   if (!byRarity[rarity]) {
     // Fallback: nächstniedrigere vorhandene Seltenheit (sonst nächsthöhere)
     const order = Object.keys(data.rarities).sort((a, b) => data.rarities[a].rang - data.rarities[b].rang);

@@ -4,8 +4,7 @@
   "title": "Shop-Angebote",
   "type": "object",
   "required": [
-    "angebote",
-    "jackpots"
+    "angebote"
   ],
   "properties": {
     "angebote": {
@@ -34,43 +33,6 @@
           },
           "gewicht": {
             "type": "number"
-          }
-        }
-      }
-    },
-    "jackpots": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "id",
-          "name",
-          "inhalt",
-          "grundPreis",
-          "gewicht"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "grundPreis": {
-            "type": "number"
-          },
-          "gewicht": {
-            "type": "number"
-          },
-          "inhalt": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": [
-                "artikel",
-                "anzahl"
-              ]
-            }
           }
         }
       }

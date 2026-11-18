@@ -130,6 +130,32 @@ export class Renderer {
     }
     if (run.state === 'countdown') this.text(String(Math.ceil(run.countdown)), run.tower.x, run.tower.y - 130, 96, '#FFD24A');
     c.restore();
+    if (this.huntWarn) {
+      this.huntWarn.t -= dtReal;
+      if (this.huntWarn.t <= 0) this.huntWarn = null;
+      else {
+        const w = this.huntWarn;
+        const x = Math.max(40, Math.min(1880, w.x)), y = Math.max(50, Math.min(1040, w.y));
+        const s = 34 + Math.sin(t * 10) * 6;
+        const g = c.createRadialGradient(x, y, 0, x, y, s * 1.6);
+        g.addColorStop(0, 'rgba(255,210,74,0.6)'); g.addColorStop(1, 'rgba(255,210,74,0)');
+        c.fillStyle = g; c.fillRect(x - s * 2, y - s * 2, s * 4, s * 4);
+        c.drawImage(this.bank.icon('truhe'), Math.round(x - s / 2), Math.round(y - s / 2), s, s);
+      }
+    }
+    const hunt = run.hunt;
+    if (hunt?.routeT > 0 && hunt.from && hunt.to) {
+      c.save();
+      c.globalAlpha = Math.min(1, hunt.routeT);
+      c.strokeStyle = '#FFD24A'; c.lineWidth = 4; c.setLineDash([16, 12]); c.lineDashOffset = -t * 40;
+      c.beginPath(); c.moveTo(hunt.from.x, hunt.from.y); c.lineTo(hunt.to.x, hunt.to.y); c.stroke();
+      c.setLineDash([]);
+      const a = Math.atan2(hunt.to.y - hunt.from.y, hunt.to.x - hunt.from.x);
+      const ex = hunt.from.x + (hunt.to.x - hunt.from.x) * 0.85, ey = hunt.from.y + (hunt.to.y - hunt.from.y) * 0.85;
+      c.fillStyle = '#FFD24A';
+      c.beginPath(); c.moveTo(ex + Math.cos(a) * 22, ey + Math.sin(a) * 22); c.lineTo(ex + Math.cos(a + 2.5) * 18, ey + Math.sin(a + 2.5) * 18); c.lineTo(ex + Math.cos(a - 2.5) * 18, ey + Math.sin(a - 2.5) * 18); c.closePath(); c.fill();
+      c.restore();
+    }
     if (this.eliteWarn) {
       this.eliteWarn.t -= dtReal;
       if (this.eliteWarn.t <= 0) this.eliteWarn = null;
@@ -236,7 +262,13 @@ export class Renderer {
     c.globalAlpha = 0.5;
     for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) c.drawImage(halo, -w / 2 + dx, -h / 2 + dy, w, h);
     c.globalAlpha = 1;
+    if (p.schatz) {
+      const g = c.createRadialGradient(0, 0, 0, 0, 0, 42);
+      g.addColorStop(0, `rgba(255,210,74,${(0.45 + 0.25 * Math.sin(t * 5)).toFixed(2)})`); g.addColorStop(1, 'rgba(255,210,74,0)');
+      c.fillStyle = g; c.fillRect(-42, -42, 84, 84);
+    }
     c.drawImage(img, -w / 2, -h / 2, w, h);
+    if (p.schatz && p.shiny) this.shinySheen(img, -w / 2, -h / 2, w, h, t, p.uid);
     if (p.wobble > 0.12) { c.globalAlpha = 0.6; c.drawImage(halo, -w / 2, -h / 2, w, h); c.globalAlpha = 1; } // blinkt weiß beim Treffer
     // Risse
     c.strokeStyle = '#120a16'; c.lineWidth = 2;
@@ -246,7 +278,8 @@ export class Renderer {
     const k = (t * 0.6 + p.uid * 0.37) % 1.6;
     if (k < 1) { c.fillStyle = 'rgba(255,255,255,0.3)'; c.fillRect(-w / 2 + k * w - 2, -h / 2 + 3, 3, h - 6); }
     c.restore();
-    if (p.landed && p.hp < p.maxHp) this.bar(p.x - 15, p.y + 6, 30, 3, p.hp / p.maxHp, '#F4EBD9');
+    if (p.schatz) this.glitter(p.x, p.y - 44, 40, 40, t, p.uid);
+    if (p.landed && p.hp < p.maxHp) this.bar(p.x - 15, p.y + 6, 30, 3, p.hp / p.maxHp, p.schatz ? '#FFD24A' : '#F4EBD9');
   }
 
   /** Tome: Buch mit Motiv auf dem Einband, liegt leicht gedreht auf dem Boden und glimmt. */
@@ -303,7 +336,7 @@ export class Renderer {
   drawUnit(run, u, t) {
     const c = this.ctx;
     const frames = this.bank.unit(u.id, u.def.sprite);
-    const scale = u.giant ? 2 : 1; // Helden ca. 16–24 px hoch (Abschnitt 3)
+    const scale = u.giant || u.riese ? 2 : 1; // Helden ca. 16–24 px hoch (Abschnitt 3); Riesen (Riesenhelm) doppelt
     const size = 32 * scale;
     let img;
     if (u.hitFlash > 0.05) img = frames.hit[0];
@@ -370,7 +403,14 @@ export class Renderer {
       const z = this.bank.icon(run.freezeAll > 0 ? 'slow' : 'zap');
       for (let i = 0; i < 2; i++) { const a = t * 6 + i * Math.PI; c.drawImage(z, Math.round(e.x + Math.cos(a) * size * 0.4 - 6), Math.round(top + 2 + Math.sin(a) * 3), 12, 12); }
     }
-    if (e.wasHit && !e.isBoss) this.bar(e.x - size * 0.4, top - 4, size * 0.8, 2, e.hp / e.maxHp, '#E04848');
+    if (e.def.eigenschaften?.schatztraeger) {
+      c.drawImage(this.bank.icon('truhe'), Math.round(e.x - 30), Math.round(top - 14), 14, 14);
+      this.bar(e.x - 14, top - 8, 40, 4, e.hp / e.maxHp, '#FFD24A');
+    } else if (e.wasHit && !e.isBoss) this.bar(e.x - size * 0.4, top - 4, size * 0.8, 2, e.hp / e.maxHp, '#E04848');
+    if (e.def.eigenschaften?.aura) {
+      c.strokeStyle = 'rgba(224,72,72,0.22)'; c.lineWidth = 2;
+      c.beginPath(); c.ellipse(e.x, e.y, e.def.eigenschaften.aura.radius, e.def.eigenschaften.aura.radius * 0.6, 0, 0, Math.PI * 2); c.stroke();
+    }
     // Schrei mit Schwachpunkt (Medaillon)
     if (e.boss?.scream) {
       const s = e.boss.scream;
@@ -472,6 +512,13 @@ export class Renderer {
         c.beginPath(); c.moveTo(f.x1, f.y1);
         for (let i = 1; i < 5; i++) c.lineTo(f.x1 + (f.x2 - f.x1) * (i / 5) + (Math.random() - 0.5) * 22, f.y1 + (f.y2 - f.y1) * (i / 5) + (Math.random() - 0.5) * 22);
         c.lineTo(f.x2, f.y2); c.stroke(); c.strokeStyle = f.color; c.lineWidth = 2; c.stroke();
+        break;
+      }
+      case 'arrow': {
+        const x = f.x1 + (f.x2 - f.x1) * k, y = f.y1 + (f.y2 - f.y1) * k;
+        const a = Math.atan2(f.y2 - f.y1, f.x2 - f.x1);
+        c.globalAlpha = 1; c.strokeStyle = '#d8c8a0'; c.lineWidth = 2;
+        c.beginPath(); c.moveTo(x - Math.cos(a) * 10, y - Math.sin(a) * 10); c.lineTo(x, y); c.stroke();
         break;
       }
       case 'slash': c.fillStyle = f.color; for (let i = -3; i <= 3; i++) c.fillRect(Math.round(f.x + i * 5), Math.round(f.y - 30 + i * 5), 6, 6); break;

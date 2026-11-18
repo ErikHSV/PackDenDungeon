@@ -385,3 +385,10 @@ h1, h2, h3 { font-family: var(--pixel); margin: 0 0 12px; }
 .bb-track { position: relative; }
 .bb-track::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 calc(var(--seg, 20%) - 2px), #1a0a10 calc(var(--seg, 20%) - 2px) var(--seg, 20%)); pointer-events: none; }
 #btn-speed:disabled { opacity: .5; }
+.shop-jackpot { margin: 0 18px 8px; padding: 6px 12px; text-align: center; font-family: var(--pixel); font-size: 20px; color: #1A1020; background: linear-gradient(90deg, #f2b630, #ffe07a, #f2b630); border-radius: 8px; box-shadow: 0 0 16px #FFD24A88; }
+.shop-jackpot b { letter-spacing: 2px; }
+.shop-jackpot.pop { animation: shimpop .4s cubic-bezier(.3,1.6,.5,1); }
+.offer.jackpot:not(.sold) .field::after { content: '✦'; position: absolute; right: 6px; top: 4px; color: #FFD24A; font-size: 18px; animation: blink 1s steps(2) infinite; }
+.banner.gold { color: #FFD24A; text-shadow: 0 4px 0 #6b4a12, 0 0 24px #FFD24A88; }
+.chip.hunt { border-color: #FFD24A; color: #FFD24A; cursor: default; }
+.chip.hunt.done { border-color: #6b5a7a; color: #8a8296; }

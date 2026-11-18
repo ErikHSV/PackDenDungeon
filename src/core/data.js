@@ -74,7 +74,6 @@ export function validateReferences(data) {
   }
   // Shop
   for (const a of data.shop.angebote) if (!data.packIndex[a.artikel]) e.push(`Shop ${a.id}: unbekannter Artikel ${a.artikel}`);
-  for (const j of data.shop.jackpots) for (const i of j.inhalt) if (!data.packIndex[i.artikel]) e.push(`Jackpot ${j.id}: unbekannter Artikel ${i.artikel}`);
   // Akte und Tor
   for (const a of data.acts) {
     for (const k of [...a.kapitel, ...(a.sonder || [])]) if (!data.chapterIndex[k]) e.push(`Akt ${a.id}: unbekanntes Kapitel ${k}`);

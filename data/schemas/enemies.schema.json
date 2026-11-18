@@ -93,7 +93,10 @@
             "explodiertBeimTod",
             "frontSchild",
             "teiltSichBeimTod",
-            "verlangsamtHelden"
+            "verlangsamtHelden",
+            "fernkampf",
+            "aura",
+            "schatztraeger"
           ]
         }
       },
@@ -137,6 +140,16 @@
             }
           }
         }
+      },
+      "formation": {
+        "type": "array",
+        "items": {
+          "type": "integer"
+        },
+        "description": "Formation [min, max]: erscheinen als Trupp in Reihen"
+      },
+      "fraktion": {
+        "type": "string"
       }
     }
   }

@@ -157,6 +157,183 @@
     "gesuchtSchimmer": 3
   },
   {
+    "id": 4,
+    "akt": 2,
+    "name": "Die Eiserne Marsch",
+    "intro": "Über die Ebene marschiert die Eiserne Garde – Reihe um Reihe, Schild an Schild.",
+    "boden": {
+      "grund": "#2a2620",
+      "akzent": "#3a342c",
+      "detail": "#8d97a6"
+    },
+    "bossNachSekunden": 240,
+    "spawn": {
+      "modus": "ring"
+    },
+    "wellen": {
+      "lebenMul": 3.2,
+      "muenzenMul": 3.0,
+      "schadenMul": 2.5
+    },
+    "gegner": [
+      {
+        "id": "gardist",
+        "gewicht": 6
+      },
+      {
+        "id": "armbrustschuetze",
+        "gewicht": 2,
+        "abSekunde": 30
+      },
+      {
+        "id": "schildwall",
+        "gewicht": 2,
+        "abSekunde": 75
+      }
+    ],
+    "boss": "kastellan",
+    "gefahren": [],
+    "art": "kapitel",
+    "prestige": true,
+    "gesucht": true,
+    "farbwelt": {
+      "thema": "festung",
+      "boden": "#24221E",
+      "turmlicht": "#ffd27a"
+    },
+    "gesuchtSchimmer": 4,
+    "eliteGegner": "hauptmann",
+    "reliktJagd": {
+      "beiAnteil": 0.5,
+      "traeger": "schatztraeger",
+      "eskorte": "gardist",
+      "eskorteAnzahl": [
+        3,
+        5
+      ],
+      "ankuendigung": 3
+    }
+  },
+  {
+    "id": 5,
+    "akt": 2,
+    "name": "Festung am Pass",
+    "intro": "Hoch oben im Pass verschanzt sich die Garde hinter Mauern und Bannern.",
+    "boden": {
+      "grund": "#262a30",
+      "akzent": "#353a42",
+      "detail": "#b8323a"
+    },
+    "bossNachSekunden": 270,
+    "spawn": {
+      "modus": "ring"
+    },
+    "wellen": {
+      "lebenMul": 4.2,
+      "muenzenMul": 3.6,
+      "schadenMul": 3.0
+    },
+    "gegner": [
+      {
+        "id": "gardist",
+        "gewicht": 5
+      },
+      {
+        "id": "armbrustschuetze",
+        "gewicht": 3
+      },
+      {
+        "id": "schildwall",
+        "gewicht": 3,
+        "abSekunde": 45
+      }
+    ],
+    "boss": "bannerherrin",
+    "gefahren": [],
+    "art": "kapitel",
+    "prestige": true,
+    "gesucht": true,
+    "farbwelt": {
+      "thema": "festung",
+      "boden": "#22262C",
+      "turmlicht": "#ff8a6a"
+    },
+    "gesuchtSchimmer": 5,
+    "eliteGegner": "hauptmann",
+    "reliktJagd": {
+      "beiAnteil": 0.5,
+      "traeger": "schatztraeger",
+      "eskorte": "gardist",
+      "eskorteAnzahl": [
+        3,
+        5
+      ],
+      "ankuendigung": 3
+    }
+  },
+  {
+    "id": 6,
+    "akt": 2,
+    "name": "Thronsaal des Feldherrn",
+    "intro": "Im Herzen der Festung wartet Feldherr Eisenfaust auf den letzten Angriff.",
+    "boden": {
+      "grund": "#2a2030",
+      "akzent": "#3a2e42",
+      "detail": "#FFD24A"
+    },
+    "bossNachSekunden": 300,
+    "spawn": {
+      "modus": "ring"
+    },
+    "wellen": {
+      "lebenMul": 5.5,
+      "muenzenMul": 4.2,
+      "schadenMul": 3.6
+    },
+    "gegner": [
+      {
+        "id": "gardist",
+        "gewicht": 4
+      },
+      {
+        "id": "schildwall",
+        "gewicht": 3
+      },
+      {
+        "id": "armbrustschuetze",
+        "gewicht": 3,
+        "abSekunde": 20
+      },
+      {
+        "id": "hauptmann",
+        "gewicht": 1,
+        "abSekunde": 90
+      }
+    ],
+    "boss": "feldherr",
+    "gefahren": [],
+    "art": "kapitel",
+    "prestige": true,
+    "gesucht": true,
+    "farbwelt": {
+      "thema": "festung",
+      "boden": "#221E2A",
+      "turmlicht": "#d8a0ff"
+    },
+    "gesuchtSchimmer": 6,
+    "eliteGegner": "hauptmann",
+    "reliktJagd": {
+      "beiAnteil": 0.5,
+      "traeger": "schatztraeger",
+      "eskorte": "gardist",
+      "eskorteAnzahl": [
+        3,
+        5
+      ],
+      "ankuendigung": 3
+    }
+  },
+  {
     "id": 9,
     "akt": 3,
     "name": "Riss des Frosts",
@@ -166,7 +343,7 @@
       "akzent": "#b0c4d6",
       "detail": "#ffffff"
     },
-    "bossNachSekunden": 240,
+    "bossNachSekunden": 330,
     "spawn": {
       "modus": "portale",
       "portale": [
@@ -229,62 +406,9 @@
       "boden": "#1E3A52",
       "turmlicht": "#F4FBFF"
     },
-    "gesuchtSchimmer": 4
-  },
-  {
-    "id": 90,
-    "akt": 1,
-    "art": "reliktjagd",
-    "name": "Relikt-Jagd: Das Moorgrab",
-    "intro": "Ein Sonderkapitel: Wer bis zum Ende durchhält, erhält garantiert ein noch fehlendes Relikt.",
-    "boden": {
-      "grund": "#2f3a28",
-      "akzent": "#4a5a3a",
-      "detail": "#C9A45C"
-    },
-    "bossNachSekunden": 150,
-    "spawn": {
-      "modus": "ring"
-    },
-    "wellen": {
-      "lebenMul": 1.5,
-      "muenzenMul": 0.5,
-      "schadenMul": 1.4
-    },
-    "gegner": [
-      {
-        "id": "moorling",
-        "gewicht": 4
-      },
-      {
-        "id": "sumpfratte",
-        "gewicht": 3
-      },
-      {
-        "id": "kraehe",
-        "gewicht": 2,
-        "abSekunde": 30
-      },
-      {
-        "id": "knochenritter",
-        "gewicht": 2,
-        "abSekunde": 60
-      }
-    ],
-    "boss": "trommler",
-    "gefahren": [],
-    "belohnung": {
-      "fehlendesRelikt": true
-    },
+    "gesuchtSchimmer": 7,
     "freischaltung": {
-      "boss": 1
-    },
-    "prestige": false,
-    "gesucht": false,
-    "farbwelt": {
-      "thema": "moor",
-      "boden": "#14231C",
-      "turmlicht": "#c58cff"
+      "boss": 6
     }
   }
 ]

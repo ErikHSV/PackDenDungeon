@@ -31,6 +31,7 @@ export function showResult(game, r, mods, opts) {
     ${info.neueKarten.length ? `<div class="res-row"><b>Neue Karten:</b>${info.neueKarten.map((id) => `<img src="${bank.cardUrl(id)}" title="${escapeHtml(data.cardIndex[id].def.name)}">`).join('')}</div>` : ''}
     ${best ? `<div class="res-row"><b>Beste Einheit:</b><img src="${bank.unitUrl(best.id)}"> ${escapeHtml(best.name)}${best.foil ? ' ✦' : ''} – ${best.schaden} Schaden, ${best.kills} Kills</div>` : ''}
     <div class="res-row">${claimableQuests(data, save) ? `<span style="color:#FFD24A">${claimableQuests(data, save)} Quest(s) im Skill-Tree erfüllt – abholen!</span>` : ''}
+      ${info.schatzRelikt ? `<span style="color:#FFD24A">Relikt-Jagd: ${escapeHtml(info.schatzRelikt.name)} ist jetzt im Reiter RELIKTE.</span>` : ''}
       ${r.ersteShinys?.length ? `<span class="rainbow-text">Erste Shinys: ${r.ersteShinys.map((id) => escapeHtml(data.cardIndex[id].def.name)).join(', ')}</span>` : ''}
       ${info.erfolge.map((a) => `<span style="color:#FFD24A">★ Erfolg: ${escapeHtml(a.name)}</span>`).join('')}</div>
     <div class="row">

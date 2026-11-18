@@ -1,5 +1,5 @@
 {
-  "$kommentar": "Shop-Angebote (4, 14.2.3). Jeder Run ist ein Tag. Jeder Platz ist einmal kaufbar; ein erneuter Klick macht den Kauf rückgängig. Zu Beginn gibt es nur Holzpacks; weitere Artikel schalten Knoten im Skill-Tree (Kisten, Einzelhelden) bzw. Bosse (Silber-/Sternenpack) frei. Jackpots entstehen nur beim Neu-Würfeln; Relikt-Jackpots erst mit dem Foil-Knoten „Jackpot-Relikt“.",
+  "$kommentar": "Shop-Angebote (4, 14.2.3). Jeder Run ist ein Tag. Jeder Platz ist einmal kaufbar; ein erneuter Klick macht den Kauf rückgängig. Zu Beginn gibt es nur Holzpacks; Kisten und Einzelhelden schalten Knoten frei, Silber-/Sternenpack die Bosse. Jackpot: drei gleiche Pack-Angebote gleichzeitig (balance.shop.jackpot).",
   "angebote": [
     {
       "id": "a_holz",
@@ -35,55 +35,6 @@
       "anzahl": 1,
       "grundPreis": 7,
       "gewicht": 12
-    }
-  ],
-  "jackpots": [
-    {
-      "id": "j_relikt",
-      "name": "Jackpot: Reliktpack",
-      "inhalt": [
-        {
-          "artikel": "reliktpack",
-          "anzahl": 1
-        }
-      ],
-      "grundPreis": 6,
-      "gewicht": 3,
-      "bedingung": {
-        "flag": "jackpotRelikt"
-      }
-    },
-    {
-      "id": "j_holz_bonus",
-      "name": "Jackpot: Holzkiste + 2 Bonus-Packs",
-      "inhalt": [
-        {
-          "artikel": "kiste_holz",
-          "anzahl": 1
-        },
-        {
-          "artikel": "holzpack",
-          "anzahl": 2
-        }
-      ],
-      "grundPreis": 6,
-      "gewicht": 5
-    },
-    {
-      "id": "j_silber_bonus",
-      "name": "Jackpot: Silberkiste + Bonus-Pack",
-      "inhalt": [
-        {
-          "artikel": "kiste_silber",
-          "anzahl": 1
-        },
-        {
-          "artikel": "silberpack",
-          "anzahl": 1
-        }
-      ],
-      "grundPreis": 10,
-      "gewicht": 3
     }
   ],
   "einzelkarten": {

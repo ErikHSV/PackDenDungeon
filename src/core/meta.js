@@ -1,4 +1,4 @@
-// Meta-Ebene zwischen den Runs: Modifikatoren, Shop (Tage, Jackpots beim Neu-Würfeln, Run-Tasche), Belohnungen,
+// Meta-Ebene zwischen den Runs: Modifikatoren, Shop (Tage, Jackpot bei drei gleichen Angeboten, Run-Tasche), Belohnungen,
 // Skill-Tree (Upgrade-, Freischalt-, Relikt-, Quest- und Tor-Knoten), Foil-Baum, Akt-Wechsel, Prestige, Relikte, Erfolge.
 //
 // Währungen (Abschnitt 10) – genau drei:
@@ -15,13 +15,13 @@ export const MOD_DEFAULTS = {
   // Runenkreis
   cursorSchaden: 0, cursorSchadenMul: 1, cursorRadiusMul: 1, cursorTickMul: 1, cursorPackSchadenMul: 1, cursorKrit: 0,
   // Wirtschaft
-  tagesEinkommen: 0, bonusEinkommen: 0, shopPlaetze: 0, freieRerolls: 0, masteryMul: 1, jackpotChance: 0, rabattChance: 0, masteryNeueKarte: 0,
+  tagesEinkommen: 0, bonusEinkommen: 0, shopPlaetze: 0, freieRerolls: 0, masteryMul: 1, jackpotBonus: 0, rabattChance: 0, masteryNeueKarte: 0,
   // Packs
   packWiderstandMul: 1, foilChance: 0, foilChanceMul: 1, kartenProPack: 0, bonusKarteChance: 0, packImPack: 0, grenzgaengerChance: 0,
   // Shiny / Foil-Baum
   foilStaerkeMul: 1, foilMonsterChance: 0, reliktPlaetze: 0, zinsen: 0, aktStartMastery: 0, gesuchtStaub: 0,
   // Helden
-  heldenSchadenMul: 1, heldenLebenMul: 1, heldenTempoMul: 1, bossSchadenMul: 1, heldenVerfallProSekunde: 0, heldenHeilungProKill: 0,
+  heldenSchadenMul: 1, heldenLebenMul: 1, heldenTempoMul: 1, heldenLaufMul: 1, turmVerfallProSekunde: 0, bossSchadenMul: 1, heldenVerfallProSekunde: 0, heldenHeilungProKill: 0,
   // Turm und Gebäude
   turmLebenMul: 1, turmRegen: 0, turmSchuetze: 0, turmDornen: 0, gebaeudeIntervallMul: 1,
   // Tomes
@@ -55,7 +55,7 @@ function applyNodeEffect(mods, node, lvl) {
  * @param {object} opts { modifierId, prestige, gesucht }
  */
 export function computeMods(data, save, opts = {}) {
-  const mods = { ...MOD_DEFAULTS, gebaeude: {}, einheiten: {}, tomes: {}, flags: {}, modifierMastery: 1, prestige: null, gesucht: false };
+  const mods = { ...MOD_DEFAULTS, gebaeude: {}, einheiten: {}, tomes: {}, flags: {}, seltenheitMul: {}, modifierMastery: 1, prestige: null, gesucht: false };
   mods.tagesEinkommen = data.balance.wirtschaft.tagesEinkommen ?? 0;
   for (const node of data.starmap.knoten) {
     const lvl = levelOf(save, node.id);
@@ -74,6 +74,9 @@ export function computeMods(data, save, opts = {}) {
     if (r?.ausloeser !== 'passiv') continue;
     if (r.aktion.typ === 'wert') applyOp(mods, r.aktion.ziel, r.aktion.op, r.aktion.wert);
     if (r.aktion.typ === 'werte') for (const w of r.aktion.werte) applyOp(mods, w.ziel, w.op, w.wert);
+    // Seltenheits-Gewichte beim Ziehen (Funkenlaute, Riesenhelm) plus optionales Flag
+    if (r.aktion.typ === 'seltenheit') for (const [rar, m] of Object.entries(r.aktion.gewichte)) mods.seltenheitMul[rar] = (mods.seltenheitMul[rar] ?? 1) * m;
+    if (r.aktion.flag) mods.flags[r.aktion.flag] = true;
   }
   mods.bonusEinkommen = Math.max(0, mods.tagesEinkommen - vorRelikten);
   mods.tagesEinkommen = vorRelikten;
@@ -99,7 +102,7 @@ export function packUnlocked(pack, save) {
 
 export function chapterUnlocked(ch, save, data) {
   if (ch.art === 'reliktjagd') return save.act >= 2 && (save.stats.bossKills[ch.freischaltung?.boss ?? 1] || 0) > 0; // Relikte erst nach dem ersten Akt-Wechsel
-  if (ch.art === 'riss') return save.act >= 2; // Elementar-Risse öffnen sich mit dem Tor
+  if (ch.art === 'riss') return save.act >= 2 && (save.stats.bossKills[ch.freischaltung?.boss ?? 6] || 0) > 0; // Riss nach dem Ende von Akt 2
   if (ch.akt > save.act) return false;
   const act = data.actIndex[ch.akt];
   const list = act.kapitel;
@@ -142,12 +145,13 @@ export function modifiersAvailable(data, save) {
 }
 
 // ===========================================================================
-// Shop: Tage, Angebote, Jackpots (nur beim Neu-Würfeln), Einzelkarten (Paar/Trio, Shiny), Glanzpack,
+// Shop: Tage, Angebote, Jackpot (drei gleiche Pack-Angebote), Einzelkarten (Paar/Trio, Shiny), Glanzpack,
 // Rabatt, Kaufen/Rückgängig, Reset, Reroll
 // ===========================================================================
 //
-// save.shop.offers[] = { uid, kind: 'angebot'|'jackpot'|'karte'|'glanz', id, karte?, anzahl?, foil?, rabatt, neu, sold, paid: {coins, bonus}, opened }
-// Gekaufte Plätze bilden die Run-Tasche (bagItems). Relikt-Jackpots werden sofort geöffnet und sind endgültig.
+// save.shop.offers[] = { uid, kind: 'angebot'|'karte'|'glanz', id, karte?, anzahl?, foil?, jackpot?, rabatt, neu, sold, paid: {coins, bonus} }
+// save.shop.jackpot = { id, artikel, bonus: [Pack-IDs], relikt?, gezeigt } – höchstens einer pro Tag.
+// Gekaufte Plätze und Jackpot-Bonus-Packs bilden die Run-Tasche (bagItems).
 
 export function shopSlots(data, mods) {
   return Math.min(data.balance.shop.angebotsPlaetzeMax, data.balance.shop.angebotsPlaetzeStart + mods.shopPlaetze);
@@ -169,11 +173,9 @@ export function describeOffer(slot, data, save) {
   const S = data.balance.shop;
   const base = { uid: slot.uid, sold: !!slot.sold, rabatt: !!slot.rabatt, neu: !!slot.neu, opened: !!slot.opened, foil: !!slot.foil };
   let o;
-  if (slot.kind === 'jackpot') {
-    const j = data.shop.jackpots.find((x) => x.id === slot.id);
-    if (!j) return null;
-    o = { ...base, kind: 'jackpot', id: j.id, name: j.name, items: j.inhalt, basisPreis: Math.max(1, Math.round(j.grundPreis * f)) };
-  } else if (slot.kind === 'karte') {
+  if (slot.kind === 'jackpot') return null; // alte Jackpot-Plätze (vor 4/9.6) gibt es nicht mehr
+  base.jackpot = !!slot.jackpot;
+  if (slot.kind === 'karte') {
     const c = data.cardIndex[slot.karte];
     if (!c) return null;
     const E = data.shop.einzelkarten;
@@ -216,12 +218,9 @@ export const cardFoilChance = (data, mods) => (data.balance.karten.foilChance + 
 function rollSlot(data, save, mods, rng, index, uid, fromReroll) {
   const S = data.balance.shop;
   const pool = data.shop.angebote.filter((o) => packUnlocked(data.packIndex[o.artikel], save));
-  const jpPool = data.shop.jackpots.filter((j) => condOk(j.bedingung, mods) && j.inhalt.every((i) => { const p = data.packIndex[i.artikel]; return p.art === 'relikt' || packUnlocked(p, save); }));
   const E = condOk(data.shop.einzelkarten.bedingung, mods) ? data.shop.einzelkarten : null;
   let slot;
-  if (fromReroll && index > 0 && jpPool.length && rng() < S.jackpot.chance + (mods?.jackpotChance || 0)) {
-    slot = { kind: 'jackpot', id: weightedPick(jpPool.map((j) => [j.id, j.gewicht]), rng) };
-  } else if (index > 0 && mods?.flags?.glanzpack && rng() < S.glanzpack.chance) {
+  if (index > 0 && mods?.flags?.glanzpack && rng() < S.glanzpack.chance) {
     slot = { kind: 'glanz', id: data.shop.glanzpack.artikel };
   } else {
     const total = pool.reduce((a, o) => a + o.gewicht, 0) + (E ? E.gewicht : 0);
@@ -244,7 +243,36 @@ function rollSlot(data, save, mods, rng, index, uid, fromReroll) {
 
 function nextUid(save) { save.shop.uid = (save.shop.uid || 0) + 1; return save.shop.uid; }
 
-/** Würfelt die Angebotsplätze (gekaufte bleiben stehen, falls keepSold). Jackpots nur beim Neu-Würfeln. */
+/**
+ * Jackpot (4): erscheinen drei gleiche Pack-Angebote gleichzeitig, leuchten ihre Kacheln golden und es gibt ein
+ * Bonus-Pack gratis (mit „Glückssträhne“ mehr); mit dem Foil-Knoten „Jackpot-Relikt“ zu 25 % zusätzlich ein Reliktpack.
+ * Höchstens ein Jackpot pro Tag; nur wenn mindestens zwei Angebotsarten im Shop möglich sind (sonst wäre zu Beginn,
+ * wenn es nur Holzpacks gibt, jeder Tag ein Jackpot).
+ */
+function checkJackpot(data, save, mods, rng) {
+  const J = data.balance.shop.jackpot;
+  if (save.shop.jackpot) return null;
+  const types = data.shop.angebote.filter((o) => packUnlocked(data.packIndex[o.artikel], save)).length + (condOk(data.shop.einzelkarten.bedingung, mods) ? 1 : 0);
+  if (types < J.minTypen) return null;
+  const groups = {};
+  save.shop.offers.forEach((o, i) => { if (o.kind === 'angebot') (groups[o.id] ||= []).push(i); });
+  const hit = Object.entries(groups).find(([, list]) => list.length >= 3);
+  if (!hit) return null;
+  const [id, list] = hit;
+  for (const i of list.slice(0, 3)) save.shop.offers[i].jackpot = true;
+  const artikel = data.offerIndex[id].artikel;
+  const jp = { id, artikel, bonus: Array(J.bonusAnzahl + (mods?.jackpotBonus || 0)).fill(artikel), relikt: null, staub: 0, gezeigt: false };
+  if (mods?.flags?.jackpotRelikt && save.act >= 2 && rng() < J.reliktChance) {
+    const before = save.foilDust;
+    const r = openRelicPack(data, save, rng);
+    jp.relikt = r?.id ?? null;
+    jp.staub = save.foilDust - before;
+  }
+  save.shop.jackpot = jp;
+  return jp;
+}
+
+/** Würfelt die Angebotsplätze (gekaufte bleiben stehen, falls keepSold) und prüft auf einen Jackpot. */
 export function rollOffers(data, save, mods, rng = Math.random, keepSold = false, fromReroll = false) {
   const n = shopSlots(data, mods);
   const old = save.shop.offers || [];
@@ -257,6 +285,7 @@ export function rollOffers(data, save, mods, rng = Math.random, keepSold = false
   if (!keepSold && !out.some((o) => o.kind === 'angebot' && o.id === 'a_holz')) out[0] = { kind: 'angebot', id: 'a_holz', uid: nextUid(save), neu: !(save.shop.seen || []).includes('angebot:a_holz') };
   if (!(save.shop.seen || []).includes('angebot:a_holz')) (save.shop.seen ||= []).push('angebot:a_holz');
   save.shop.offers = out;
+  return checkJackpot(data, save, mods, rng);
 }
 
 export const canReroll = (mods) => !!mods.flags.neuWuerfeln;
@@ -282,15 +311,14 @@ function refund(save, paid) {
   save.stats.muenzenAusgegeben -= paid.bonus + paid.coins;
 }
 
-/** Würfelt alle nicht gekauften Angebote neu (nur hier können Jackpots entstehen). */
+/** Würfelt alle nicht gekauften Angebote neu (dabei kann ein Jackpot entstehen). */
 export function reroll(data, save, mods, rng = Math.random) {
   if (!canReroll(mods)) return false;
   const cost = rerollCost(data, save, mods);
   if (walletTotal(save) < cost) return false;
   if (cost === 0) save.shop.freeUsed = (save.shop.freeUsed || 0) + 1;
   else { pay(save, cost); save.shop.rerolls = (save.shop.rerolls || 0) + 1; }
-  rollOffers(data, save, mods, rng, true, true);
-  return true;
+  return { jackpot: rollOffers(data, save, mods, rng, true, true) };
 }
 
 /**
@@ -326,9 +354,9 @@ export function resetPurchases(data, save) {
   return n;
 }
 
-/** Inhalt der Run-Tasche: Pack-/Kisten-IDs und Einzelkarten als "karte:<id>" bzw. "karte:<id>:foil". */
+/** Inhalt der Run-Tasche: Pack-/Kisten-IDs, Jackpot-Bonus-Packs und Einzelkarten als "karte:<id>" bzw. "karte:<id>:foil". */
 export function bagItems(data, save) {
-  const out = [];
+  const out = [...(save.shop.jackpot?.bonus || [])];
   for (const slot of save.shop.offers) {
     if (!slot.sold) continue;
     const o = describeOffer(slot, data, save);
@@ -343,6 +371,7 @@ export function bagItems(data, save) {
 /** Zu Beginn eines Runs: gekaufte Plätze werden verbraucht. */
 export function consumeBag(save) {
   save.shop.offers = save.shop.offers.filter((s) => !s.sold);
+  if (save.shop.jackpot) save.shop.jackpot.bonus = [];
 }
 
 // ===========================================================================
@@ -361,7 +390,7 @@ export function masteryFor(result, data, mods) {
 export const SCHIMMER_QUELLEN = {
   shinyMonster: 'Shiny-Monster', ersteShinyMonster: 'neues Shiny-Monster', neueShinyKarte: 'neue Shiny-Karte',
   doppelteShinyKarte: 'doppelte Shiny-Karte', gesucht: 'Shiny-Boss', gesuchtErst: 'erster Sieg gegen den Shiny-Boss',
-  reliktpack: 'Reliktpack', erfolge: 'Erfolge',
+  reliktpack: 'Reliktpack', erfolge: 'Erfolge', schatzpack: 'Schatzpack', shinySchatz: 'Shiny-Schatzträger',
 };
 
 /** Schimmer pro Sieg gegen den Shiny-Boss eines Kapitels (Kapitel 1: 1, Kapitel 4: 4 …) plus Foil-Knoten „Gesucht-Belohnung“. */
@@ -412,6 +441,13 @@ export function applyRunResult(result, data, save, mods, rng = Math.random) {
   }
   s.besteZeit[result.kapitel] = Math.max(s.besteZeit[result.kapitel] || 0, result.zeit);
 
+  // Relikt-Jagd: einmal pro Kapitel und Akt; das Relikt aus dem Schatzpack gibt es nach dem Run
+  if (result.reliktJagd) {
+    (s.reliktJagden ||= {})[`${save.act}:${result.kapitel}`] = true;
+    s.reliktJagdenGesamt = (s.reliktJagdenGesamt || 0) + 1;
+    const r = result.schatzRelikt && data.relicIndex[result.schatzRelikt];
+    if (r && !save.relics.owned.includes(r.id) && !save.relics.destroyed?.includes(r.id)) { giveRelic(r, data, save); out.schatzRelikt = r; }
+  }
   if (result.sieg) {
     const first = !s.bossKills[result.kapitel];
     s.bossKills[result.kapitel] = (s.bossKills[result.kapitel] || 0) + 1;
@@ -451,7 +487,8 @@ export function applyRunResult(result, data, save, mods, rng = Math.random) {
   }
   save.shop.rerolls = 0;
   save.shop.freeUsed = 0;
-  rollOffers(data, save, mods, rng);
+  save.shop.jackpot = null;
+  out.jackpot = rollOffers(data, save, mods, rng);
   return out;
 }
 
@@ -464,6 +501,7 @@ export function questChapters(node, data) {
   const a = node.aufgabe, f = a.filter || {};
   if (f.kapitel) return [f.kapitel];
   if (a.statistik === 'killsGegner') return data.chapters.filter((c) => c.art === 'kapitel' && (c.gegner.some((g) => g.id === f.gegner) || c.boss === f.gegner)).map((c) => c.id);
+  if (a.statistik === 'reliktJagden') return data.chapters.filter((c) => c.reliktJagd).map((c) => c.id);
   if (a.statistik === 'bossBesiegt' && f.boss) return data.chapters.filter((c) => c.art === 'kapitel' && c.boss === f.boss).map((c) => c.id);
   return null;
 }
@@ -482,6 +520,7 @@ export function questRunValue(node, r, data) {
     case 'foilMonsterBesiegt': return r.foilMonster;
     case 'bossBesiegt': return r.sieg && (!f.boss || r.boss === f.boss) ? 1 : 0;
     case 'tomesGenutzt': return r.tomesGenutzt;
+    case 'reliktJagden': return r.reliktJagd ? 1 : 0;
     default: return 0;
   }
 }
@@ -520,6 +559,11 @@ export function claimQuestNode(node, data, save, rng = Math.random) {
   const out = { parts: [], relics: [] };
   if (b.tagesEinkommen) out.parts.push(`+${b.tagesEinkommen} Tageseinkommen (dauerhaft)`);
   if (b.mastery) { save.mastery += b.mastery; out.parts.push(`+${b.mastery} Mastery`); }
+  if (b.relikt) {
+    const r = data.relicIndex[b.relikt];
+    if (r && !save.relics.owned.includes(r.id) && !save.relics.destroyed?.includes(r.id)) { giveRelic(r, data, save); out.relics.push(r); out.parts.push(`Relikt: ${r.name}`); }
+    else { const st = data.balance.belohnungen.reliktDoppelt.foilStaub; save.foilDust += st; save.stats.foilStaubGesamt = (save.stats.foilStaubGesamt || 0) + st; out.parts.push(`+${st} Schimmer`); }
+  }
   for (let i = 0; i < (b.reliktpack || 0); i++) {
     const before = save.foilDust;
     const r = openRelicPack(data, save, rng);
@@ -529,11 +573,12 @@ export function claimQuestNode(node, data, save, rng = Math.random) {
   return out;
 }
 
-export function describeReward(b = {}) {
+export function describeReward(b = {}, relicName = null) {
   const p = [];
   if (b.tagesEinkommen) p.push(`+${b.tagesEinkommen} Tageseinkommen`);
   if (b.mastery) p.push(`+${b.mastery} Mastery`);
   if (b.reliktpack) p.push(b.reliktpack > 1 ? `${b.reliktpack} Reliktpacks` : 'Reliktpack');
+  if (b.relikt) p.push(`Relikt „${relicName ?? b.relikt}“`);
   return p.join(', ') || 'Neue Knoten';
 }
 

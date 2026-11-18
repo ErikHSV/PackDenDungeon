@@ -1011,6 +1011,80 @@ Object.assign(ICON_ART, {
   },
   /** Tor-Knoten: steinerner Torbogen mit Leuchten */
   gate(p) { p.rect(1, 3, 3, 9, '#8d97a6'); p.rect(8, 3, 3, 9, '#8d97a6'); p.rect(1, 1, 10, 3, '#a8b2c0'); p.rect(4, 4, 4, 8, '#FF9A3A'); p.rect(5, 5, 2, 7, '#ffe07a'); p.px(6, 2, '#FFD24A'); },
+  /** Flinke Sohlen: Stiefel mit Flügel */
+  boot(p) { p.rect(4, 2, 4, 7, '#8a5a32'); p.rect(4, 8, 7, 3, '#8a5a32'); p.rect(4, 10, 7, 1, '#3a2a1a'); p.rect(5, 3, 2, 5, '#b07a48'); p.tri(1, 3, 4, 3, 2, 7, '#e8f4ff'); },
+  /** Relikt-Jagd: goldene Truhe */
+  truhe(p) { p.rect(1, 5, 10, 6, '#b8862a'); p.rect(1, 3, 10, 3, '#e0a83a'); p.rect(1, 5, 10, 1, '#6b4a12'); p.rect(5, 5, 2, 3, '#fff2a0'); p.rect(1, 3, 1, 8, '#6b4a12'); p.rect(10, 3, 1, 8, '#6b4a12'); },
   /** Ausrufezeichen (Quest erfüllt) */
   exclam(p) { p.rect(5, 1, 3, 7, '#FFD24A'); p.rect(5, 9, 3, 2, '#FFD24A'); },
+});
+
+// ---------------------------------------------------------------------------
+// Akt 2: Die Eiserne Garde (eigene Entwürfe) – gepanzerte Soldaten in Stahl und Rot
+// ---------------------------------------------------------------------------
+const STAHL = '#8d97a6', STAHL_H = '#b8c2d0', STAHL_D = '#5d6572', ROT = '#b8323a', ROT_H = '#e04848', LEDER = '#5a4030';
+
+/** Soldat im 24er-Raster. o.waffe: speer | armbrust | truhe; o.umhang: Farbe */
+function soldat24(p, f, o = {}) {
+  const b = f.b;
+  const step = f.anim === 'idle' ? f.i % 2 : 0;
+  const lunge = f.anim === 'attack' ? [0, -1, 2, 3, 1, 0][f.i] : 0;
+  // Beine im Gleichschritt
+  p.rect(9, 15, 2, 7 - step, STAHL_D); p.rect(13, 15, 2, 6 + step, STAHL_D);
+  p.rect(8, 21, 3, 2, '#2a2a30'); p.rect(13, 21, 3, 2, '#2a2a30');
+  if (o.umhang) p.rect(7, 9 + b, 2, 8, o.umhang);
+  // Brustpanzer
+  p.rect(8, 8 + b, 8, 8, STAHL); p.rect(8, 8 + b, 8, 1, STAHL_H); p.rect(11, 9 + b, 2, 6, STAHL_D);
+  p.rect(8, 13 + b, 8, 1, ROT);
+  // Helm mit Visier und rotem Kamm
+  p.rect(9, 2 + b, 6, 6, STAHL); p.rect(9, 2 + b, 6, 1, STAHL_H); p.rect(10, 5 + b, 5, 1, '#1a1a22');
+  p.rect(11, 0 + b, 2, 2, ROT_H);
+  if (o.waffe === 'armbrust') {
+    p.rect(14 + lunge, 10 + b, 7, 1, '#7a5a3a'); p.line(17 + lunge, 8 + b, 17 + lunge, 12 + b, '#4a3a2a'); p.px(21 + lunge, 10 + b, STAHL_H);
+  } else if (o.waffe === 'truhe') {
+    // goldene Truhe auf dem Rücken
+    p.rect(2, 4 + b, 8, 7, '#b8862a'); p.rect(2, 4 + b, 8, 2, '#e0a83a'); p.rect(5, 6 + b, 2, 2, '#fff2a0'); p.rect(2, 6 + b, 8, 1, '#6b4a12');
+  } else {
+    // Speer
+    p.line(17 + lunge, 1 + b, 17 + lunge, 20 + b, '#7a5a3a'); p.tri(16 + lunge, 2 + b, 18 + lunge, 2 + b, 17 + lunge, -1 + b, STAHL_H);
+  }
+}
+
+/** Gepanzerter Krieger im 32er-Raster (Schildwall, Hauptmann, Bosse). */
+function ritter32(p, f, o = {}) {
+  const b = f.b;
+  const step = f.anim === 'idle' ? f.i % 2 : 0;
+  const lunge = f.anim === 'attack' ? [0, -1, 3, 4, 2, 0][f.i] : 0;
+  const arm = o.ruestung ?? STAHL, armH = o.ruestungH ?? STAHL_H, armD = o.ruestungD ?? STAHL_D;
+  p.rect(11, 21, 4, 9 - step, armD); p.rect(17, 21, 4, 8 + step, armD);
+  p.rect(10, 28, 5, 3, '#22222a'); p.rect(17, 28, 5, 3, '#22222a');
+  if (o.umhang) { p.rect(8, 11 + b, 3, 14, o.umhang); p.rect(21, 11 + b, 3, 14, o.umhang); }
+  p.rect(10, 10 + b, 12, 12, arm); p.rect(10, 10 + b, 12, 2, armH); p.rect(15, 12 + b, 2, 9, armD);
+  p.rect(10, 18 + b, 12, 2, o.guertel ?? ROT);
+  p.rect(9, 10 + b, 3, 4, armH); p.rect(20, 10 + b, 3, 4, armH); // Schulterplatten
+  p.rect(12, 2 + b, 8, 8, arm); p.rect(12, 2 + b, 8, 1, armH); p.rect(13, 6 + b, 6, 1, '#14141a');
+  if (o.krone) { p.rect(12, 0 + b, 8, 2, '#FFD24A'); p.px(13, -1 + b, '#FFD24A'); p.px(16, -1 + b, '#FFD24A'); p.px(19, -1 + b, '#FFD24A'); }
+  else p.rect(15, -1 + b, 2, 3, o.kamm ?? ROT_H);
+  if (o.waffe === 'schild') {
+    p.rect(22 + lunge, 6 + b, 6, 20, '#6a6f7a'); p.rect(23 + lunge, 7 + b, 4, 18, STAHL); p.rect(24 + lunge, 12 + b, 2, 6, ROT);
+  } else if (o.waffe === 'banner') {
+    p.line(25, 0 + b, 25, 28 + b, '#6b4a2e', 2); p.rect(26, 1 + b, 6, 8, ROT); p.rect(27, 3 + b, 3, 3, '#FFD24A');
+    p.rect(22 + lunge, 15 + b, 2, 1, STAHL_H);
+  } else if (o.waffe === 'speer') {
+    p.line(25 + lunge, 0 + b, 25 + lunge, 29 + b, '#6b4a2e', 2); p.tri(23 + lunge, 1 + b, 27 + lunge, 1 + b, 25 + lunge, -3 + b, STAHL_H);
+  } else {
+    // Schwert
+    p.rect(22 + lunge, 13 + b, 8, 2, STAHL_H); p.rect(21 + lunge, 12 + b, 2, 4, '#6b4a2e');
+  }
+}
+
+Object.assign(ENEMY_ART, {
+  gardist(p, f) { soldat24(p, f, { waffe: 'speer' }); },
+  armbrustschuetze(p, f) { soldat24(p, f, { waffe: 'armbrust', umhang: '#3a5a3a' }); },
+  schatztraeger(p, f) { soldat24(p, f, { waffe: 'truhe' }); },
+  schildwall(p, f) { ritter32(p, f, { waffe: 'schild' }); },
+  hauptmann(p, f) { ritter32(p, f, { waffe: 'banner', umhang: ROT, kamm: '#FFD24A' }); },
+  kastellan(p, f) { ritter32(p, f, { waffe: 'schwert', ruestung: '#7a6a5a', ruestungH: '#a8987a', ruestungD: '#4a3e34', umhang: '#5a3a2a' }); },
+  bannerherrin(p, f) { ritter32(p, f, { waffe: 'banner', umhang: '#7a2a5a', guertel: '#FFD24A', kamm: '#ff7ac8' }); },
+  feldherr(p, f) { ritter32(p, f, { waffe: 'speer', ruestung: '#4a4e5a', ruestungH: '#7a8090', ruestungD: '#2a2e36', umhang: ROT, krone: true }); },
 });

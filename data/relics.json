@@ -226,5 +226,108 @@
     },
     "verflucht": false,
     "nurBaum": true
+  },
+  {
+    "id": "hammerrhythmus",
+    "name": "Hammerrhythmus",
+    "rarity": "rare",
+    "symbol": "hammer",
+    "beschreibung": "Jeder dritte Cursor-Treffer macht doppelten Schaden und betäubt kurz.",
+    "ausloeser": "passiv",
+    "aktion": {
+      "typ": "cursorRhythmus",
+      "jeder": 3,
+      "schadenMul": 2,
+      "betaeubung": 0.6
+    },
+    "verflucht": false
+  },
+  {
+    "id": "frostklinge",
+    "name": "Frostklinge",
+    "rarity": "rare",
+    "symbol": "ice",
+    "beschreibung": "Alle 4 s friert der nächste Cursor-Treffer das Ziel 1,5 s lang ein.",
+    "ausloeser": "passiv",
+    "aktion": {
+      "typ": "cursorFrost",
+      "intervall": 4,
+      "dauer": 1.5
+    },
+    "verflucht": false
+  },
+  {
+    "id": "flinke_sohlen",
+    "name": "Flinke Sohlen",
+    "rarity": "uncommon",
+    "symbol": "boot",
+    "beschreibung": "Helden laufen 30 % schneller.",
+    "ausloeser": "passiv",
+    "aktion": {
+      "typ": "wert",
+      "ziel": "heldenLaufMul",
+      "op": "mul",
+      "wert": 1.3
+    },
+    "verflucht": false
+  },
+  {
+    "id": "funkenlaute",
+    "name": "Funkenlaute",
+    "rarity": "epic",
+    "symbol": "bolt",
+    "beschreibung": "Seltene Helden erscheinen häufiger, und Angriffe seltener und besserer Helden können elektrisieren.",
+    "ausloeser": "passiv",
+    "aktion": {
+      "typ": "seltenheit",
+      "gewichte": {
+        "rare": 1.6
+      },
+      "flag": "funkenlaute"
+    },
+    "verflucht": false
+  },
+  {
+    "id": "riesenhelm",
+    "name": "Riesenhelm",
+    "rarity": "epic",
+    "symbol": "crown",
+    "beschreibung": "Epische Helden erscheinen häufiger und als Riesen.",
+    "nachteil": "Gewöhnliche Helden erscheinen seltener.",
+    "ausloeser": "passiv",
+    "aktion": {
+      "typ": "seltenheit",
+      "gewichte": {
+        "epic": 2,
+        "common": 0.5
+      },
+      "flag": "riesenhelm"
+    },
+    "verflucht": true
+  },
+  {
+    "id": "opferdolch",
+    "name": "Opferdolch",
+    "rarity": "epic",
+    "symbol": "sword",
+    "beschreibung": "+50 % Heldenschaden.",
+    "nachteil": "Der Turm verliert langsam Leben (0,4 % pro Sekunde).",
+    "ausloeser": "passiv",
+    "aktion": {
+      "typ": "werte",
+      "werte": [
+        {
+          "ziel": "heldenSchadenMul",
+          "op": "mul",
+          "wert": 1.5
+        },
+        {
+          "ziel": "turmVerfallProSekunde",
+          "op": "add",
+          "wert": 0.004
+        }
+      ]
+    },
+    "verflucht": true
   }
 ]

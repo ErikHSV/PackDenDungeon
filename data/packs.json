@@ -191,5 +191,22 @@
       "relikte": 1,
       "auswahl": 3
     }
+  },
+  {
+    "id": "schatzpack",
+    "name": "Schatzpack",
+    "art": "schatz",
+    "farbe": "#e0a83a",
+    "beschreibung": "Fällt vom Schatzträger (Relikt-Jagd). Enthält ein noch nicht gefundenes Relikt – sonst Schimmer.",
+    "freischaltung": {
+      "typ": "quelle",
+      "quellen": [
+        "reliktjagd"
+      ]
+    },
+    "widerstand": 40,
+    "inhalt": {
+      "relikte": 1
+    }
   }
 ]

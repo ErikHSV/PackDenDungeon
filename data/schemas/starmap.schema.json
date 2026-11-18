@@ -172,7 +172,8 @@
                   "ueberleben",
                   "foilMonsterBesiegt",
                   "bossBesiegt",
-                  "tomesGenutzt"
+                  "tomesGenutzt",
+                  "reliktJagden"
                 ]
               },
               "filter": {
@@ -195,6 +196,9 @@
               },
               "reliktpack": {
                 "type": "integer"
+              },
+              "relikt": {
+                "type": "string"
               }
             }
           },
@@ -204,6 +208,12 @@
           }
         }
       }
+    },
+    "leitung": {
+      "enum": [
+        "hvh",
+        "vhv"
+      ]
     }
   }
 }

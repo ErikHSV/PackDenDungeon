@@ -161,7 +161,7 @@ export class Run {
     const cracks = frac < 0.25 ? 3 : frac < 0.5 ? 2 : frac < 0.8 ? 1 : 0;
     if (cracks > p.cracks) { p.cracks = cracks; fx(this, { type: 'splinter', x: p.x, y: p.y - 30, color: p.def.farbe, life: 0.4 }); }
     this.emit('sound', 'packHit');
-    if (p.hp <= 0) this.openPack(p);
+    if (p.hp <= 0) { if (p.schatz) this.openTreasure(p); else this.openPack(p); }
   }
 
   /** Pack platzt auf: Karten werden gezogen und fliegen zu ihrem Landepunkt. */
@@ -186,7 +186,7 @@ export class Run {
       src = { ...def, pool: missing.length ? missing : all };
     }
     for (let i = 0; i < count; i++) {
-      const card = drawCard(src, this.data, this.rng, { foilChance, grenzChance });
+      const card = drawCard(src, this.data, this.rng, { foilChance, grenzChance, seltenheitMul: this.mods.seltenheitMul });
       const a = (i / count) * Math.PI * 2 + this.rng();
       const land = { x: p.x + Math.cos(a) * 60, y: p.y + Math.sin(a) * 34 };
       this.clampToArena(land, 0.95);
@@ -283,6 +283,7 @@ export class Run {
       atkTimer: 0.3 + this.rng() * 0.3, timers: {}, kills: 0, blocks: 0, damage: 0, facing: 1, evolved: false,
       homeDx: Math.cos(a) * 110, homeDy: Math.sin(a) * 70, animTime: this.rng() * 2, spawnDelay: 0.15,
     };
+    if (this.mods.flags.riesenhelm && base.rarity === 'epic' && life == null) { u.riese = true; u.maxHp *= 1.6; }
     u.hp = u.maxHp;
     this.units.push(u);
     fx(this, { type: 'ring', x, y, r: 50, color: this.data.rarities[base.rarity].farbe, life: 0.45 });
@@ -527,16 +528,42 @@ export class Run {
     if (!pool.length) return;
     // Öffnungsphase: nur das schwächste (erste) Monster des Kapitels
     const g = this.time < this.B.wellen.strom.oeffnungBis ? pool[0] : weightedPick(pool.map((x) => [x, x.gewicht]), this.rng);
-    const group = this.data.enemyIndex[g.id].gruppe || 1;
+    const def = this.data.enemyIndex[g.id];
     const p = this.spawnPoint();
+    if (def.formation) { this.spawnFormation(g.id, p); return; }
+    const group = def.gruppe || 1;
     for (let i = 0; i < group; i++) this.spawnEnemy(g.id, i ? { x: p.x + (this.rng() - 0.5) * 40, y: p.y + (this.rng() - 0.5) * 30 } : { x: p.x, y: p.y });
+  }
+
+  /**
+   * Formation (Eiserne Garde, 9.6.1): 4–8 Soldaten in Reihen quer zur Marschrichtung, gleiches Tempo.
+   * Ein Trupp zählt als mehrere Spawns (der Strom pausiert entsprechend länger).
+   */
+  spawnFormation(id, p, opts = {}) {
+    const [lo, hi] = this.data.enemyIndex[id].formation ?? [4, 6];
+    const n = opts.n ?? lo + Math.floor(this.rng() * (hi - lo + 1));
+    const ang = Math.atan2(this.tower.y - p.y, this.tower.x - p.x);
+    const perRow = n > 4 ? Math.ceil(n / 2) : n;
+    const nx = -Math.sin(ang), ny = Math.cos(ang); // quer zur Richtung
+    const members = [];
+    for (let i = 0; i < n; i++) {
+      const row = Math.floor(i / perRow), col = i % perRow;
+      const off = (col - (perRow - 1) / 2) * 26;
+      const x = p.x + nx * off - Math.cos(ang) * row * 26, y = p.y + ny * off * 0.7 - Math.sin(ang) * row * 20;
+      const e = this.spawnEnemy(id, { x, y, elite: opts.elite });
+      if (e) members.push(e);
+    }
+    const speed = Math.min(...members.map((m) => m.speed));
+    for (const m of members) m.speed = speed;
+    this.spawnTimer += this.spawnInterval() * Math.max(0, n - 1) * 0.5;
+    return members;
   }
 
   /** Elitegruppe: 3–5 Elitemonster aus einer Richtung, 2 s vorher Warnsymbol am Bildrand. */
   announceElite() {
     const E = this.B.wellen.elite;
     const pool = this.chapter.gegner.filter((g) => this.time + E.warnung >= (g.abSekunde ?? 0) && this.time <= (g.bisSekunde ?? Infinity));
-    const g = pool[pool.length - 1] ?? this.chapter.gegner[0];
+    const g = this.chapter.eliteGegner ? { id: this.chapter.eliteGegner } : pool[pool.length - 1] ?? this.chapter.gegner[0];
     const ang = this.chapter.spawn.modus === 'portale' ? this.chapter.spawn.portale[Math.floor(this.rng() * this.chapter.spawn.portale.length)].winkel : this.rng() * 360;
     const n = E.gruppe[0] + Math.floor(this.rng() * (E.gruppe[1] - E.gruppe[0] + 1));
     this.pendingElite = { id: g.id, ang, n, t: E.warnung };
@@ -558,15 +585,19 @@ export class Run {
       const pe = this.pendingElite;
       pe.t -= dt;
       if (pe.t <= 0) {
+        const lead = this.data.enemyIndex[pe.id];
         for (let i = 0; i < pe.n; i++) {
           const p = this.edgePoint(pe.ang + (i - (pe.n - 1) / 2) * 3, this.A.spawnRand);
-          this.spawnEnemy(pe.id, { elite: true, x: p.x, y: p.y });
+          // Hauptmann führt, die übrigen sind Elite-Gardisten
+          const id = lead.fraktion && i > 0 ? (this.chapter.reliktJagd?.eskorte ?? this.chapter.gegner[0].id) : pe.id;
+          this.spawnEnemy(id, { elite: true, x: p.x, y: p.y });
         }
         this.emit('eliteWave');
         this.pendingElite = null;
         this.eliteTimer += W.elite.alleSekunden * this.mods.elitewelleIntervallMul;
       }
     }
+    this.updateRelicHunt(dt);
     // 5 s vor dem Boss: Warnung (UI: roter Rand, Trommel, blinkender Balken)
     if (!this.bossWarned && !this.bossSpawned && this.time >= this.bossTime - W.boss.warnungSekunden) { this.bossWarned = true; this.emit('bossWarnung'); }
     if (!this.bossSpawned && this.time >= this.bossTime) {
@@ -590,6 +621,88 @@ export class Run {
       }
     }
     if (this.blizzard > 0) this.blizzard -= dt;
+  }
+
+  // =====================================================================
+  // Relikt-Jagd (9.6.2): Schatzträger mit Eskorte läuft quer über das Feld
+  // =====================================================================
+
+  /** Ist die Relikt-Jagd in diesem Run aktiv (Kapitel hat eine und sie wurde in diesem Akt noch nicht geschafft)? */
+  huntAvailable() {
+    const rj = this.chapter.reliktJagd;
+    return !!rj && !this.save.stats.reliktJagden?.[`${this.save.act}:${this.chapter.id}`];
+  }
+
+  updateRelicHunt(dt) {
+    const rj = this.chapter.reliktJagd;
+    if (!rj || this.hunt?.done) return;
+    if (!this.hunt) {
+      if (!this.huntAvailable()) { this.hunt = { done: true }; return; }
+      this.hunt = { at: this.bossTime * rj.beiAnteil, announced: false, spawned: false };
+    }
+    const h = this.hunt;
+    if (!h.announced && this.time >= h.at - (rj.ankuendigung ?? 3)) {
+      h.announced = true;
+      h.ang = this.rng() * 360;
+      h.from = this.edgePoint(h.ang, this.A.spawnRand);
+      h.to = this.edgePoint(h.ang + 180 + (this.rng() - 0.5) * 50, this.A.spawnRand);
+      this.emit('huntWarning', { point: this.edgePoint(h.ang, 0.97) });
+    }
+    if (h.announced && !h.spawned && this.time >= h.at) {
+      h.spawned = true;
+      h.routeT = 3; // gestrichelter Pfeil am Boden
+      const carrier = this.spawnEnemy(rj.traeger, { x: h.from.x, y: h.from.y, foil: this.rng() < this.B.wellen.foilMonster.chance + this.mods.foilMonsterChance });
+      carrier.route = h.to;
+      h.carrier = carrier;
+      const [lo, hi] = rj.eskorteAnzahl ?? [3, 5];
+      const n = lo + Math.floor(this.rng() * (hi - lo + 1));
+      h.escort = [];
+      for (let i = 0; i < n; i++) {
+        const a = (i / n) * Math.PI * 2;
+        const e = this.spawnEnemy(rj.eskorte, { x: h.from.x + Math.cos(a) * 34, y: h.from.y + Math.sin(a) * 24, elite: true });
+        e.route = { x: h.to.x + Math.cos(a) * 34, y: h.to.y + Math.sin(a) * 24 };
+        e.speed = carrier.speed;
+        h.escort.push(e);
+      }
+      this.emit('huntStart', { carrier });
+    }
+    if (h.routeT > 0) h.routeT -= dt;
+    if (h.spawned && !h.done) {
+      const c = h.carrier;
+      if (c.dead && !c.fled) {
+        h.done = true;
+        this.dropTreasure(c);
+        this.emit('huntWon');
+      } else if (c.fled) {
+        h.done = true;
+        this.emit('huntLost');
+      }
+    }
+  }
+
+  /** Schatzpack fällt an der Stelle des Schatzträgers (liegt sofort, wird wie ein Pack geöffnet). */
+  dropTreasure(carrier) {
+    const def = this.data.packIndex.schatzpack;
+    const hp = def.widerstand * this.mods.packWiderstandMul;
+    this.packs.push({ uid: this.uid++, packId: def.id, def, sx: carrier.x, sy: carrier.y, tx: carrier.x, ty: carrier.y, x: carrier.x, y: carrier.y,
+      t: 0, flight: 0, landed: true, hp, maxHp: hp, wobble: 0, cracks: 0, rot: 0, schatz: true, shiny: !!carrier.foil });
+    fx(this, { type: 'flash', x: carrier.x, y: carrier.y - 20, r: 120, color: '#FFD24A', life: 0.5 });
+  }
+
+  /** Schatzpack öffnen: ein noch fehlendes, zufälliges Relikt (wird nach dem Run gutgeschrieben), sonst Schimmer. */
+  openTreasure(p) {
+    p.opened = true;
+    const destroyed = this.save.relics.destroyed || [];
+    const free = this.data.relics.filter((r) => !r.nurBaum && !this.save.relics.owned.includes(r.id) && !destroyed.includes(r.id));
+    const B = this.B.belohnungen.schatzpackOhneRelikt;
+    const relic = free.length ? free[Math.floor(this.rng() * free.length)] : null;
+    this.stats.schatzRelikt = relic?.id ?? null;
+    this.stats.reliktJagd = true;
+    if (!relic) this.gainShimmer(B.foilStaub, 'schatzpack', p.x, p.y - 20);
+    if (p.shiny) this.gainShimmer(B.shinyBonus, 'shinySchatz', p.x, p.y - 20);
+    fx(this, { type: 'rays', x: p.x, y: p.y - 20, life: 1.2 });
+    fx(this, { type: 'sparkles', x: p.x, y: p.y - 20, life: 1.2 });
+    this.emit('treasureOpened', { relic });
   }
 
   /** Boss-Abschnitte (Mastery-Bonus je erreichtem Abschnitt) und Wut nach 3 Minuten Bosskampf. */
@@ -707,13 +820,27 @@ export class Run {
     cur.tick = cs.tick;
     cur.pulse = 0.15;
     let hitSomething = false;
+    // Relikt Hammerrhythmus: jeder dritte Treffer-Tick doppelt und betäubend
+    const rhythm = this.relicAction('cursorRhythmus');
+    cur.ticks = (cur.ticks || 0) + 1;
+    const strong = rhythm && cur.ticks % rhythm.jeder === 0;
+    // Relikt Frostklinge: alle paar Sekunden friert der nächste Treffer ein
+    const frost = this.relicAction('cursorFrost');
     for (const c of circles) {
       const crit = cs.crit > 0 && this.rng() < cs.crit;
-      const dmg = cs.damage * c.f * (crit ? 2 : 1);
+      const dmg = cs.damage * c.f * (crit ? 2 : 1) * (strong ? rhythm.schadenMul : 1);
       for (const e of this.enemies) {
         if (e.dead || !inside(c, body(e), e.r)) continue;
         hitSomething = true;
-        damageEnemy(this, e, dmg, this.B.cursor.schadensTyp, { cursor: true, aoe: true, crit });
+        damageEnemy(this, e, dmg, this.B.cursor.schadensTyp, { cursor: true, aoe: true, crit: crit || strong });
+        if (strong && !e.dead) applyStatus(this, e, { typ: 'betaeubung', dauer: rhythm.betaeubung });
+        if (frost && !e.dead && this.time >= (cur.frostReady || 0)) {
+          cur.frostReady = this.time + frost.intervall;
+          applyStatus(this, e, { typ: 'betaeubung', dauer: frost.dauer });
+          e.st.slow = { t: frost.dauer + 1, f: 0.5 };
+          fx(this, { type: 'ring', x: e.x, y: e.y - 10, r: 30, color: '#a6e3ff', life: 0.4 });
+          this.emit('relicTriggered', { id: 'frostklinge' });
+        }
         // Relikt Funkennadel: Cursor-Treffer springen mit Chance als Kettenblitz über
         const spark = this.relicValue('kettenblitz', 'chance');
         if (spark > 0 && this.rng() < spark) this.chainLightning(e, this.relicValue('kettenblitz', 'ziele') || 3, dmg * (this.relicValue('kettenblitz', 'schadenMul') || 1));
@@ -724,21 +851,28 @@ export class Run {
       for (const p of this.packs) if (p.landed && !p.opened && inside(c, packAt(p), PACK_HIT)) { hitSomething = true; this.damagePack(p, dmg * cs.packMul * this.relicMul('cursorPackSchadenMul')); }
     }
     if (hitSomething) cur.hit = 0.12; // Kreis blitzt kurz heller auf
+    if (hitSomething && strong) this.emit('relicTriggered', { id: 'hammerrhythmus' });
   }
 
-  /** Kettenblitz von einem Gegner zu den nächsten (Relikt Funkennadel). */
-  chainLightning(from, n, dmg) {
+  /** Erste Aktion eines ausgerüsteten Relikts dieses Typs (oder null). */
+  relicAction(typ) {
+    for (const id of this.save.relics.equipped) { const r = this.data.relicIndex[id]; if (r?.aktion.typ === typ) return r.aktion; }
+    return null;
+  }
+
+  /** Kettenblitz von einem Gegner zu den nächsten (Relikte Funkennadel, Funkenlaute). */
+  chainLightning(from, n, dmg, relicTyp = 'kettenblitz') {
     let cur = from;
     const hit = new Set([from]);
     for (let i = 0; i < n; i++) {
       const next = this.enemies.filter((e) => !e.dead && !hit.has(e)).sort((a, b) => dist(a, cur) - dist(b, cur))[0];
       if (!next || dist(next, cur) > 220) break;
       fx(this, { type: 'bolt', x1: cur.x, y1: cur.y - 10, x2: next.x, y2: next.y - 10, color: '#a6e3ff', life: 0.2 });
-      damageEnemy(this, next, dmg, 'magic', { aoe: true, cursor: true });
+      damageEnemy(this, next, dmg, 'magic', { aoe: true, cursor: true, chain: true });
       hit.add(next);
       cur = next;
     }
-    this.emit('relicTriggered', { id: this.save.relics.equipped.find((id) => this.data.relicIndex[id]?.aktion.typ === 'kettenblitz') });
+    this.emit('relicTriggered', { id: this.save.relics.equipped.find((id) => { const a = this.data.relicIndex[id]?.aktion; return a?.typ === relicTyp || a?.flag === relicTyp; }) });
   }
 
   /** Klick/Tipp auf das Spielfeld: Tomes auslösen, Hämmer parieren. Gibt zurück, was getroffen wurde. */
@@ -772,6 +906,8 @@ export class Run {
   // =====================================================================
 
   updateTower(dt) {
+    // Relikt Opferdolch: der Turm verliert langsam Leben (nie unter 1)
+    if (this.mods.turmVerfallProSekunde > 0 && this.tower.hp > 1) this.tower.hp = Math.max(1, this.tower.hp - this.tower.maxHp * this.mods.turmVerfallProSekunde * dt);
     const t = this.tower;
     t.hitFlash = Math.max(0, t.hitFlash - dt);
     if (this.mods.turmRegen > 0) t.hp = Math.min(t.maxHp, t.hp + t.maxHp * this.mods.turmRegen * dt);
@@ -913,6 +1049,7 @@ export class Run {
     this.result = {
       sieg: victory, kapitel: this.chapter.id, boss: this.chapter.boss, zeit: this.time,
       kills: this.stats.kills, killWert: this.stats.killWert, bossAbschnitte: this.stats.bossAbschnitte,
+      reliktJagd: !!this.stats.reliktJagd, schatzRelikt: this.stats.schatzRelikt ?? null,
       muenzen: Math.max(0, this.coins), bonusMastery: this.stats.bonusMastery, foilStaub: this.stats.foilStaub, schimmer: this.stats.schimmer, ersteShinys: this.stats.ersteShinys,
       killsNachArt: this.stats.killsNachArt, foilMonster: this.stats.foilMonster, elitewellen: this.stats.elitewellen,
       packsGeoeffnet: this.stats.packsGeoeffnet, gezogen: this.stats.gezogen, neueKarten: this.stats.neueKarten,

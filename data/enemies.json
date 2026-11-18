@@ -503,5 +503,319 @@
         ]
       }
     ]
+  },
+  {
+    "id": "gardist",
+    "name": "Gardist",
+    "beschreibung": "Standard-Soldat der Eisernen Garde: mittlere Rüstung, marschiert in Reihen.",
+    "leben": 30,
+    "tempo": 45,
+    "ruestung": 2,
+    "magieResistenz": 0,
+    "fliegt": false,
+    "immun": [],
+    "schaden": 5,
+    "angriffsIntervall": 1.2,
+    "groesse": 24,
+    "farbe": "#8d97a6",
+    "sprite": "gardist",
+    "eigenschaften": {},
+    "formation": [
+      4,
+      8
+    ],
+    "fraktion": "eiserne_garde"
+  },
+  {
+    "id": "schildwall",
+    "name": "Schildwall",
+    "beschreibung": "Frontal fast unverwundbar – greife von der Seite an oder setze Magie ein.",
+    "leben": 55,
+    "tempo": 34,
+    "ruestung": 3,
+    "magieResistenz": 0,
+    "fliegt": false,
+    "immun": [],
+    "schaden": 6,
+    "angriffsIntervall": 1.3,
+    "groesse": 32,
+    "farbe": "#6a6f7a",
+    "sprite": "schildwall",
+    "eigenschaften": {
+      "frontSchild": true
+    },
+    "formation": [
+      3,
+      4
+    ],
+    "fraktion": "eiserne_garde"
+  },
+  {
+    "id": "armbrustschuetze",
+    "name": "Armbrustschütze",
+    "beschreibung": "Bleibt auf Abstand und beschießt Helden und Turm.",
+    "leben": 22,
+    "tempo": 48,
+    "ruestung": 1,
+    "magieResistenz": 0,
+    "fliegt": false,
+    "immun": [],
+    "schaden": 6,
+    "angriffsIntervall": 1.6,
+    "groesse": 24,
+    "farbe": "#3a5a3a",
+    "sprite": "armbrustschuetze",
+    "eigenschaften": {
+      "fernkampf": {
+        "reichweite": 230,
+        "intervall": 1.8,
+        "schaden": 7
+      }
+    },
+    "formation": [
+      2,
+      4
+    ],
+    "fraktion": "eiserne_garde"
+  },
+  {
+    "id": "hauptmann",
+    "name": "Hauptmann",
+    "beschreibung": "Elite: sein Banner gibt Soldaten in der Nähe +3 Rüstung.",
+    "leben": 70,
+    "tempo": 40,
+    "ruestung": 3,
+    "magieResistenz": 0,
+    "fliegt": false,
+    "immun": [],
+    "schaden": 8,
+    "angriffsIntervall": 1.2,
+    "groesse": 32,
+    "farbe": "#b8323a",
+    "sprite": "hauptmann",
+    "eigenschaften": {
+      "aura": {
+        "radius": 150,
+        "ruestung": 3
+      }
+    },
+    "fraktion": "eiserne_garde"
+  },
+  {
+    "id": "schatztraeger",
+    "name": "Schatzträger",
+    "beschreibung": "Trägt eine goldene Truhe quer über das Feld. Besiege ihn, bevor er entkommt!",
+    "leben": 320,
+    "tempo": 52,
+    "ruestung": 4,
+    "magieResistenz": 0,
+    "fliegt": false,
+    "immun": [],
+    "schaden": 0,
+    "angriffsIntervall": 1.5,
+    "groesse": 48,
+    "farbe": "#e0a83a",
+    "sprite": "schatztraeger",
+    "eigenschaften": {
+      "schatztraeger": true
+    },
+    "fraktion": "eiserne_garde"
+  },
+  {
+    "id": "kastellan",
+    "name": "Der Kastellan",
+    "beschreibung": "Hält die Marsch mit eiserner Hand. Seine Schläge erschüttern den Boden.",
+    "leben": 35000,
+    "tempo": 22,
+    "ruestung": 6,
+    "magieResistenz": 0.1,
+    "fliegt": false,
+    "immun": [],
+    "schaden": 32,
+    "angriffsIntervall": 1.5,
+    "groesse": 112,
+    "farbe": "#7a6a5a",
+    "sprite": "kastellan",
+    "eigenschaften": {},
+    "boss": true,
+    "bossFaehigkeiten": {
+      "schockwelle": {
+        "intervall": 7,
+        "vorwarnung": 1.5,
+        "radius": 480,
+        "rueckstoss": 180,
+        "schaden": 12,
+        "text": "Der Kastellan stampft auf!"
+      },
+      "beschwoeren": {
+        "intervall": 11,
+        "gegner": "gardist",
+        "anzahl": 5
+      }
+    },
+    "phasen": [
+      {
+        "lebenUnter": 0.5,
+        "text": "Phase 2: Zu den Waffen!",
+        "tempoMul": 1.15,
+        "patches": [
+          {
+            "pfad": "bossFaehigkeiten.schockwelle.intervall",
+            "op": "mul",
+            "wert": 0.75
+          },
+          {
+            "pfad": "bossFaehigkeiten.beschwoeren.gegner",
+            "op": "set",
+            "wert": "schildwall"
+          }
+        ],
+        "beschwoeren": [
+          {
+            "gegner": "gardist",
+            "anzahl": 6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bannerherrin",
+    "name": "Die Bannerherrin",
+    "beschreibung": "Ihr Kriegsbanner treibt die Garde an. Triff das Banner, wenn sie zum Sturm ruft!",
+    "leben": 45000,
+    "tempo": 22,
+    "ruestung": 6,
+    "magieResistenz": 0.15,
+    "fliegt": false,
+    "immun": [],
+    "schaden": 36,
+    "angriffsIntervall": 1.5,
+    "groesse": 112,
+    "farbe": "#7a2a5a",
+    "sprite": "bannerherrin",
+    "eigenschaften": {},
+    "boss": true,
+    "bossFaehigkeiten": {
+      "schrei": {
+        "intervall": 10,
+        "aufladen": 3,
+        "turmSchaden": 80,
+        "heldenSchaden": 60,
+        "schwachpunkt": {
+          "name": "Banner",
+          "treffer": 7,
+          "versatzY": -30
+        },
+        "text": "Die Bannerherrin ruft zum Sturm – triff das Banner!"
+      },
+      "beschwoeren": {
+        "intervall": 12,
+        "gegner": "armbrustschuetze",
+        "anzahl": 3
+      }
+    },
+    "phasen": [
+      {
+        "lebenUnter": 0.5,
+        "text": "Phase 2: Die Garde formiert sich!",
+        "tempoMul": 1.15,
+        "patches": [
+          {
+            "pfad": "bossFaehigkeiten.schrei.intervall",
+            "op": "mul",
+            "wert": 0.8
+          },
+          {
+            "pfad": "bossFaehigkeiten.schockwelle",
+            "op": "set",
+            "wert": {
+              "intervall": 9,
+              "vorwarnung": 1.5,
+              "radius": 300,
+              "rueckstoss": 120,
+              "schaden": 14,
+              "text": "Das Banner fegt über das Feld!"
+            }
+          }
+        ],
+        "beschwoeren": [
+          {
+            "gegner": "hauptmann",
+            "anzahl": 1
+          },
+          {
+            "gegner": "gardist",
+            "anzahl": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feldherr",
+    "name": "Feldherr Eisenfaust",
+    "beschreibung": "Der Anführer der Eisernen Garde. Wirft Speere – pariere sie im richtigen Moment!",
+    "leben": 60000,
+    "tempo": 20,
+    "ruestung": 7,
+    "magieResistenz": 0.2,
+    "fliegt": false,
+    "immun": [],
+    "schaden": 45,
+    "angriffsIntervall": 1.5,
+    "groesse": 112,
+    "farbe": "#4a4e5a",
+    "sprite": "feldherr",
+    "eigenschaften": {},
+    "boss": true,
+    "bossFaehigkeiten": {
+      "hammerwurf": {
+        "intervall": 6,
+        "anzahl": 2,
+        "flugzeit": 1.6,
+        "parierFenster": 0.4,
+        "schaden": 50,
+        "radius": 80,
+        "text": "Speere im Anflug – klicke sie kurz vor dem Einschlag!"
+      },
+      "beschwoeren": {
+        "intervall": 12,
+        "gegner": "schildwall",
+        "anzahl": 2
+      }
+    },
+    "phasen": [
+      {
+        "lebenUnter": 0.5,
+        "text": "Phase 2: Eiserne Faust!",
+        "tempoMul": 1.2,
+        "patches": [
+          {
+            "pfad": "bossFaehigkeiten.hammerwurf.anzahl",
+            "op": "set",
+            "wert": 3
+          },
+          {
+            "pfad": "bossFaehigkeiten.schockwelle",
+            "op": "set",
+            "wert": {
+              "intervall": 8,
+              "vorwarnung": 1.5,
+              "radius": 320,
+              "rueckstoss": 140,
+              "schaden": 18,
+              "text": "Der Feldherr stößt die Lanze in den Boden!"
+            }
+          }
+        ],
+        "beschwoeren": [
+          {
+            "gegner": "hauptmann",
+            "anzahl": 2
+          }
+        ]
+      }
+    ]
   }
 ]

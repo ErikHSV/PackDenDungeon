@@ -37,6 +37,12 @@ function decor(p, theme, x, y, i, s) {
       else if (i % 3 === 1) { p.rect(x - 4, y - 4, 8, 2, '#3a3438'); p.rect(x - 2, y - 2, 4, 2, '#2a2428'); p.rect(x - 3, y, 6, 1, '#3a3438'); }
       else { p.ellipse(x, y, big ? 6 : 4, 3, '#3a1e16'); p.px(x + 1, y - 1, '#5a2e1e'); }
       break;
+    case 'festung': // Mauerreste, rote Banner, Palisaden
+      if (i % 4 === 0) { p.rect(x - 6, y - 6, 12, 6, '#4a4640'); p.rect(x - 6, y - 6, 12, 1, '#5e5a52'); p.rect(x - 2, y - 4, 1, 4, '#33302c'); p.rect(x + 3, y - 6, 1, 3, '#33302c'); }
+      else if (i % 4 === 1) { p.line(x, y, x, y - (big ? 12 : 8), '#5a4030'); p.rect(x + 1, y - (big ? 12 : 8), 4, 5, '#b8323a'); p.px(x + 2, y - (big ? 10 : 6), '#FFD24A'); }
+      else if (i % 4 === 2) { for (let k = 0; k < 3; k++) { p.line(x - 3 + k * 3, y, x - 3 + k * 3, y - 6 - (k % 2) * 2, '#6b4a2e'); p.px(x - 3 + k * 3, y - 7 - (k % 2) * 2, '#8d97a6'); } }
+      else { p.ellipse(x, y, big ? 5 : 3, 2, '#36322c'); p.px(x - 1, y - 1, '#4a4640'); }
+      break;
     default: // frost: lila-weiße Eiskristall-Gruppen
       for (let k = 0; k < (big ? 3 : 2); k++) {
         const dx = (k - 1) * 3, h = (big ? 10 : 6) - Math.abs(k - 1) * 3;
@@ -53,6 +59,7 @@ function detail(p, theme, x, y, i, base) {
     case 'moor': if (i % 2) { p.px(x, y, '#2a4a34'); p.px(x + 1, y - 1, '#2a4a34'); } else p.px(x, y, c); break;
     case 'gruft': p.px(x, y, c); if (i % 3 === 0) p.px(x + 1, y, c); break;
     case 'schmiede': if (i % 4 === 0) p.rect(x, y, 2, 1, '#6a2a14'); else p.px(x, y, c); break;
+    case 'festung': if (i % 3 === 0) { p.rect(x, y, 2, 1, '#3a3630'); p.px(x + 1, y - 1, '#4a4640'); } else p.px(x, y, c); break;
     default: if (i % 3 === 0) { p.px(x, y, '#9ab8e8'); p.px(x, y - 1, '#d8e8ff'); } else p.px(x, y, c);
   }
 }

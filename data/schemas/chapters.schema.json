@@ -148,17 +148,23 @@
         }
       },
       "freischaltung": {
-        "type": "object",
-        "properties": {
-          "boss": {
-            "type": "integer"
-          }
-        }
+        "type": "object"
       },
       "gesuchtSchimmer": {
         "type": "integer",
         "minimum": 1,
         "description": "Schimmer pro Sieg gegen den Shiny-Boss (Gesucht)."
+      },
+      "eliteGegner": {
+        "type": "string"
+      },
+      "reliktJagd": {
+        "type": "object",
+        "required": [
+          "beiAnteil",
+          "traeger"
+        ],
+        "description": "Relikt-Jagd (9.6.2): Schatzträger mit Eskorte bei beiAnteil der Bosszeit"
       }
     }
   }

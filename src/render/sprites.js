@@ -109,6 +109,7 @@ export class SpriteBank {
     const def = this.data.enemyIndex[id];
     const art = ENEMY_ART[def.sprite ?? id] ?? fallback(def.farbe);
     if (def.boss) return this.get(`boss:${id}`, () => buildFrames(art, 32, { scale: 2 }));
+    if (def.eigenschaften?.schatztraeger) return this.get(`schatz:${id}`, () => buildFrames(art, 24, { outlineColor: '#FFD24A', scale: 2 }));
     const base = def.groesse === 32 ? 32 : 24;
     if (elite) return this.get(`elite:${id}`, () => buildFrames(art, base, { outlineColor: '#E04848', scale: 2 }));
     return this.get(`enemy:${id}`, () => buildFrames(art, base));
@@ -197,6 +198,7 @@ export class SpriteBank {
     return this.get(`shop:${artikel}`, () => {
       const def = this.data.packIndex[artikel];
       const packDef = def?.art === 'kiste' ? this.data.packIndex[def.inhalt.pack] : def;
+      if (def?.art === 'schatz') { const q = new Pix(28); CRATE_ART(q, '#e0a83a', '#fff2a0'); return upscale(outline(q.c, '#6b4a12'), 4); }
       const color = def?.art === 'relikt' ? '#F2B630' : packDef?.farbe ?? '#8b5a2b';
       const motif = artikel.includes('sternen') ? '#fff6a0' : artikel.includes('silber') ? '#5AA9F0' : def?.art === 'relikt' ? '#E04848' : '#FFD24A';
       let p;

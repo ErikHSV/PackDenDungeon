@@ -59,7 +59,10 @@
               "werte",
               "kettenblitz",
               "skelett",
-              "spawnBetaeubung"
+              "spawnBetaeubung",
+              "cursorRhythmus",
+              "cursorFrost",
+              "seltenheit"
             ]
           }
         }

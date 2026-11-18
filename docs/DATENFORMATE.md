@@ -134,6 +134,14 @@ Gleiches Knotenformat, Positionen von Hand. Bezahlt mit Foil-Staub (`basisKosten
 - `boss`: `warnungSekunden`, `introSekunden`/`introTempo`, `spawnRand`, `abschnitte`/`abschnittBonus` (Mastery je Abschnitt als Anteil der Run-Mastery), `wutAbSekunden`/`wutAlleSekunden`/`wutSchadenPlus`.
 - Bosszeit steht je Kapitel in `bossNachSekunden` (150, 180, 210, 240 …). `run.zweifachAbKapitel` schaltet Tempo 2× frei.
 
+## Akt 2 und Relikt-Jagd (9.6)
+
+- Gegner: `formation [min, max]` (Trupp in Reihen, gleiches Tempo), `fraktion`, `eigenschaften.fernkampf { reichweite, intervall, schaden }`, `eigenschaften.aura { radius, ruestung }`, `eigenschaften.schatztraeger`. `frontSchild` blockt keine Magie.
+- Kapitel: `eliteGegner` (führt Elitegruppen an), `reliktJagd { beiAnteil, traeger, eskorte, eskorteAnzahl, ankuendigung }`. Erfolgreiche Jagden stehen in `save.stats.reliktJagden["<Akt>:<Kapitel>"]`.
+- `packs.json`: `art: "schatz"` (Schatzpack, fällt vom Schatzträger, öffnet ein Relikt).
+- Relikt-Aktionen: `cursorRhythmus`, `cursorFrost`, `seltenheit { gewichte, flag }` (Seltenheits-Gewichte beim Ziehen), außerdem Modifikatoren `heldenLaufMul`, `turmVerfallProSekunde`.
+- Jackpot: `balance.shop.jackpot { bonusAnzahl, reliktChance, minTypen }`, Zustand in `save.shop.jackpot`.
+
 ## Währungen und Wirtschaft (Abschnitt 10)
 
 - Genau drei Währungen: **Münzen** (`save.coins` + `save.bonusCoins`, nur Shop), **Mastery** (`save.mastery`, Skill-Tree), **Foil-Staub** (`save.foilDust`, Anzeige „Schimmer“, Foil-Baum).
