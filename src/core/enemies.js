@@ -164,12 +164,36 @@ function attack(run, e, dt, target) {
   }
 }
 
+/** Nächste lebende Einheit (Ziel der Gegner, bevor sie den Turm angreifen). */
+function nearestUnit(run, e, maxDist) {
+  let best = null, bd = maxDist;
+  for (const u of run.units) {
+    if (u.dead) continue;
+    const d = dist(u, e);
+    if (d < bd) { bd = d; best = u; }
+  }
+  return best;
+}
+
+function stepToward(e, tx, ty, speed, dt, stopAt = 0) {
+  const dx = tx - e.x, dy = ty - e.y, d = Math.hypot(dx, dy);
+  e.facing = dx >= 0 ? 1 : -1;
+  if (d <= stopAt + 0.5) { e.moving = false; return true; }
+  const st = Math.min(speed * dt, d - stopAt);
+  e.x += (dx / d) * st; e.y += (dy / d) * st;
+  e.moving = true;
+  return false;
+}
+
 export function updateEnemies(run, dt) {
   const T = run.tower;
   run.auraCarriers = run.enemies.filter((e) => !e.dead && e.def.eigenschaften?.aura);
   const contactTower = run.data.balance.turm.kontaktRadius;
+  const Z = run.B.wellen.zielsuche ?? { radius: 2000, neuwahl: 0.4, enttarnRadius: 200 };
   for (const e of run.enemies) {
     if (e.dead) continue;
+    // Getarnte Gegner (Meuchler) sind für Helden unsichtbar, bis sie nah am Turm sind; der Cursor trifft sie immer
+    e.verborgen = !!e.def.eigenschaften?.getarnt && dist(e, T) > Z.enttarnRadius;
     e.hitFlash = Math.max(0, (e.hitFlash || 0) - dt);
     e.attackAnim = Math.max(0, (e.attackAnim || 0) - dt);
     e.spawnAge += dt;
@@ -199,8 +223,14 @@ export function updateEnemies(run, dt) {
     // Armbrustschützen: auf Abstand bleiben und schießen (Helden in Reichweite zuerst, sonst der Turm)
     const fk = e.def.eigenschaften?.fernkampf;
     if (fk) {
+      const anyUnit = run.units.some((u) => !u.dead);
       const target = run.units.filter((u) => !u.dead && dist(u, e) <= fk.reichweite).sort((a, b) => dist(a, e) - dist(b, e))[0]
-        ?? (dist(T, e) <= fk.reichweite + contactTower ? T : null);
+        ?? (!anyUnit && dist(T, e) <= fk.reichweite + contactTower ? T : null);
+      if (!target && anyUnit) {
+        const u = nearestUnit(run, e, Infinity);
+        stepToward(e, u.x, u.y, speed, dt, fk.reichweite * 0.85);
+        continue;
+      }
       if (target) {
         e.moving = false;
         e.facing = target.x >= e.x ? 1 : -1;
@@ -215,8 +245,8 @@ export function updateEnemies(run, dt) {
         continue;
       }
     }
-    // Kampf gegen Helden, die im Weg stehen (fliegende Gegner ignorieren sie)
-    if (!e.fliegt) {
+    // Zuerst die Einheiten (Wiki: Gegner binden sich an die Armee). Ausnahme: Gegner mit „zumTurm“ (Meuchler) laufen direkt zum Turm.
+    if (!e.def.eigenschaften?.zumTurm) {
       if (e.engaged && (e.engaged.dead || dist(e, e.engaged) > e.r + UNIT_R + 14)) e.engaged = null;
       if (!e.engaged) {
         for (const u of run.units) {
@@ -224,7 +254,10 @@ export function updateEnemies(run, dt) {
           if (dist(e, u) <= e.r + UNIT_R + 8) { e.engaged = u; break; }
         }
       }
-      if (e.engaged) { e.facing = e.engaged.x >= e.x ? 1 : -1; attack(run, e, dt, e.engaged); continue; }
+      if (e.engaged) { e.facing = e.engaged.x >= e.x ? 1 : -1; e.moving = false; attack(run, e, dt, e.engaged); continue; }
+      e.seekT = (e.seekT ?? 0) - dt;
+      if (e.seekT <= 0 || !e.seek || e.seek.dead) { e.seekT = Z.neuwahl; e.seek = nearestUnit(run, e, Z.radius); }
+      if (e.seek) { stepToward(e, e.seek.x, e.seek.y, speed, dt, e.r + UNIT_R + 4); continue; }
     }
     const dx = T.x - e.x, dy = (T.y - e.y);
     const d = Math.hypot(dx, dy);

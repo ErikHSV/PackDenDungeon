@@ -6,7 +6,7 @@ import { damageEnemy, applyOnHit, applyStatus, fx } from './combat.js';
 export const UNIT_R = 12; // Kollisionsradius einer Einheit (Weltpixel; Helden sind ca. 16–24 px hoch)
 
 // Fliegende Gegner: nur Luft-Treffer – außer sie greifen gerade den Turm an (dann sind sie in Reichweite aller Helden)
-const canHit = (u, e) => !e.dead && (!e.fliegt || u.def.trifftLuft || !e.moving);
+const canHit = (u, e) => !e.dead && !e.verborgen && (!e.fliegt || u.def.trifftLuft || !e.moving);
 
 function nearestEnemy(run, u, from, maxDist) {
   let best = null, bd = maxDist;

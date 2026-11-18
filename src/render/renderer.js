@@ -381,6 +381,7 @@ export class Renderer {
     c.translate(Math.round(e.x), Math.round(e.y - lift));
     if (e.facing < 0) c.scale(-1, 1);
     if (e.spawnAge < 0.4) c.globalAlpha = e.spawnAge / 0.4;
+    if (e.verborgen) c.globalAlpha *= 0.28 + 0.08 * Math.sin(t * 6);
     if (e.foil) {
       const tint = this.tinted(img, RAINBOW[Math.floor(t * 8) % RAINBOW.length]);
       c.globalAlpha *= 0.9;

@@ -602,6 +602,27 @@
     "fraktion": "eiserne_garde"
   },
   {
+    "id": "meuchler",
+    "name": "Meuchler",
+    "beschreibung": "Getarnt und schnell: ignoriert deine Helden und läuft direkt zum Turm. Erst nah am Turm wird er für Helden sichtbar – der Cursor trifft ihn immer.",
+    "leben": 26,
+    "tempo": 110,
+    "ruestung": 0,
+    "magieResistenz": 0,
+    "fliegt": false,
+    "immun": [],
+    "schaden": 9,
+    "angriffsIntervall": 0.8,
+    "groesse": 24,
+    "farbe": "#3a3048",
+    "sprite": "meuchler",
+    "eigenschaften": {
+      "zumTurm": true,
+      "getarnt": true
+    },
+    "fraktion": "eiserne_garde"
+  },
+  {
     "id": "schatztraeger",
     "name": "Schatzträger",
     "beschreibung": "Trägt eine goldene Truhe quer über das Feld. Besiege ihn, bevor er entkommt!",

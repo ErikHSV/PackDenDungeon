@@ -1060,6 +1060,21 @@ function soldat24(p, f, o = {}) {
   }
 }
 
+/** Meuchler im 24er-Raster: dunkler Kapuzenmantel, zwei Dolche, geduckter Lauf. */
+function meuchler24(p, f) {
+  const b = f.b;
+  const step = f.anim === 'idle' ? f.i % 2 : 0;
+  const lunge = f.anim === 'attack' ? [0, -1, 2, 3, 1, 0][f.i] : 0;
+  const M = '#3a3048', MH = '#5a4a6e', MD = '#221c2c';
+  p.rect(9, 16, 2, 6 - step, MD); p.rect(13, 16, 2, 5 + step, MD);
+  p.rect(8, 21, 3, 2, '#141018'); p.rect(13, 21, 3, 2, '#141018');
+  p.rect(7, 9 + b, 10, 8, M); p.rect(7, 9 + b, 10, 1, MH); p.rect(6, 14 + b, 2, 4, M); p.rect(16, 14 + b, 2, 4, M);
+  p.rect(8, 15 + b, 8, 1, ROT);
+  p.rect(9, 3 + b, 6, 6, M); p.rect(8, 4 + b, 8, 1, MH); p.rect(10, 6 + b, 4, 2, '#0c0a10');
+  p.px(10, 6 + b, '#e04848'); p.px(13, 6 + b, '#e04848');
+  p.rect(16 + lunge, 11 + b, 4, 1, STAHL_H); p.rect(3 - lunge, 12 + b, 4, 1, STAHL_H);
+}
+
 /** Gepanzerter Krieger im 32er-Raster (Schildwall, Hauptmann, Bosse). */
 function ritter32(p, f, o = {}) {
   const b = f.b;
@@ -1092,6 +1107,7 @@ Object.assign(ENEMY_ART, {
   gardist(p, f) { soldat24(p, f, { waffe: 'speer' }); },
   armbrustschuetze(p, f) { soldat24(p, f, { waffe: 'armbrust', umhang: '#3a5a3a' }); },
   schatztraeger(p, f) { soldat24(p, f, { waffe: 'truhe' }); },
+  meuchler(p, f) { meuchler24(p, f); },
   schildwall(p, f) { ritter32(p, f, { waffe: 'schild' }); },
   hauptmann(p, f) { ritter32(p, f, { waffe: 'banner', umhang: ROT, kamm: '#FFD24A' }); },
   kastellan(p, f) { ritter32(p, f, { waffe: 'schwert', ruestung: '#7a6a5a', ruestungH: '#a8987a', ruestungD: '#4a3e34', umhang: '#5a3a2a' }); },

@@ -82,6 +82,8 @@ Einheiten-Fähigkeiten, die Knoten setzen können: `faehigkeiten.killHeilung { a
 
 `phasen`: Ab `lebenUnter` (Anteil) werden Patches angewendet und Gegner beschworen.
 
+- **Gegner-Eigenschaften (neu):** `zumTurm: true` (ignoriert Einheiten, läuft direkt zum Turm), `getarnt: true` (für Helden erst innerhalb `balance.wellen.zielsuche.enttarnRadius` um den Turm sichtbar; der Cursor trifft immer).
+
 ## Kapitel (`chapters.json`)
 
 - `masteryMul`: Mastery-Faktor des Kapitels (1 / 5 / 20 in Akt 1, 40–85 in Akt 2), damit die Kosten bis 75.000 erreichbar sind.

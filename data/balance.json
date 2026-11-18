@@ -125,6 +125,12 @@
       "tempoMul": 1.25,
       "belohnungMul": 3,
       "schimmerChance": 0.25
+    },
+    "zielsuche": {
+      "$kommentar": "Gegner greifen zuerst die nächste Einheit an (Suchradius in px, Neuwahl in s); den Turm erst, wenn keine Einheit mehr lebt. Ausnahme: eigenschaften.zumTurm. Getarnte Gegner (eigenschaften.getarnt) sind für Helden erst innerhalb enttarnRadius um den Turm sichtbar.",
+      "radius": 2000,
+      "neuwahl": 0.4,
+      "enttarnRadius": 200
     }
   },
   "belohnungen": {

@@ -253,6 +253,11 @@
         "id": "schildwall",
         "gewicht": 3,
         "abSekunde": 45
+      },
+      {
+        "id": "meuchler",
+        "gewicht": 2,
+        "abSekunde": 30
       }
     ],
     "boss": "bannerherrin",
@@ -316,6 +321,11 @@
         "id": "hauptmann",
         "gewicht": 1,
         "abSekunde": 90
+      },
+      {
+        "id": "meuchler",
+        "gewicht": 3,
+        "abSekunde": 30
       }
     ],
     "boss": "feldherr",
