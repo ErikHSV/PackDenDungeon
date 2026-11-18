@@ -90,7 +90,7 @@
     }
   },
   "belohnungen": {
-    "muenzenProKill": 0.4,
+    "muenzenProKill": 0.16,
     "masteryProSekunde": 0.2,
     "masteryProKill": 0.05,
     "masteryProBoss": 15,
@@ -101,15 +101,15 @@
   },
   "wirtschaft": {
     "$kommentar": "Jeder Run ist ein Tag: Tageseinkommen wird gutgeschrieben, der Shop würfelt neu.",
-    "startMuenzen": 30,
+    "startMuenzen": 12,
     "tagesEinkommen": 0,
     "preisWachstumProKapitel": 0.35
   },
   "shop": {
-    "angebotsPlaetzeStart": 3,
-    "angebotsPlaetzeMax": 6,
+    "angebotsPlaetzeStart": 6,
+    "angebotsPlaetzeMax": 9,
     "neuWuerfeln": {
-      "grundKosten": 5,
+      "grundKosten": 2,
       "wachstum": 1.5,
       "freischaltKnoten": "g_wuerfeln"
     },
@@ -118,7 +118,12 @@
       "$kommentar": "Chance pro Angebotsplatz auf einen goldenen Jackpot-Platz (Inhalte in shop.json → jackpots).",
       "chance": 0.04
     },
-    "taschenPlaetze": 10
+    "rabatt": {
+      "$kommentar": "Chance je normalem Angebot auf einen Rabatt (rotes Etikett).",
+      "chance": 0.12,
+      "faktor": 0.6
+    },
+    "spalten": 3
   },
   "sternenkarte": {
     "kostenFaktorStandard": 1.45

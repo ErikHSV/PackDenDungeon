@@ -10,7 +10,7 @@ export const MOD_DEFAULTS = {
   // Runenkreis
   cursorSchaden: 0, cursorSchadenMul: 1, cursorRadiusMul: 1, cursorTickMul: 1, cursorPackSchadenMul: 1, cursorKrit: 0,
   // Wirtschaft
-  tagesEinkommen: 0, muenzenMul: 1, shopPlaetze: 0, taschenPlaetze: 0, masteryMul: 1, jackpotChance: 0,
+  tagesEinkommen: 0, bonusEinkommen: 0, muenzenMul: 1, shopPlaetze: 0, freieRerolls: 0, masteryMul: 1, jackpotChance: 0,
   // Packs
   packWiderstandMul: 1, foilChance: 0, foilChanceMul: 1, kartenProPack: 0, packImPack: 0, grenzgaengerChance: 0,
   // Foil
@@ -48,12 +48,14 @@ export function computeMods(data, save, opts = {}) {
     else if (e.ziel === 'einheit') { const list = (mods.einheiten[e.karte] ||= []); for (let i = 0; i < lvl; i++) list.push(...e.patches); }
     else if ('wert' in e) applyOp(mods, e.ziel, e.rechenart === 'multiplizieren' ? 'mul' : 'add', e.wert, lvl);
   }
+  const vorRelikten = mods.tagesEinkommen;
   for (const id of save.relics.equipped) {
     const r = data.relicIndex[id];
     if (r?.ausloeser !== 'passiv') continue;
     if (r.aktion.typ === 'wert') applyOp(mods, r.aktion.ziel, r.aktion.op, r.aktion.wert);
     if (r.aktion.typ === 'werte') for (const w of r.aktion.werte) applyOp(mods, w.ziel, w.op, w.wert);
   }
+  mods.bonusEinkommen = Math.max(0, mods.tagesEinkommen - vorRelikten) + (save.questBonus.tagesEinkommen || 0);
   mods.tagesEinkommen += save.questBonus.tagesEinkommen || 0;
   const m = opts.modifierId && data.modifierIndex[opts.modifierId];
   if (m) { for (const ef of m.effekte) applyOp(mods, ef.ziel, ef.op, ef.wert); mods.modifierMastery = m.belohnung.masteryMul ?? 1; }
@@ -116,90 +118,185 @@ export function modifiersAvailable(data, save) {
 }
 
 // ===========================================================================
-// Shop: Tage, Angebote, Jackpots, Run-Tasche
+// Shop: Tage, Angebote, Jackpots, Einzelkarten, Rabatt, Kaufen/Rückgängig, Reset, Reroll
 // ===========================================================================
+//
+// save.shop.offers[] = { uid, kind: 'angebot'|'jackpot'|'karte', id, karte?, rabatt, neu, sold, paid: {coins, bonus}, opened }
+// Gekaufte Plätze bilden die Run-Tasche (bagItems). Relikt-Jackpots werden sofort geöffnet und sind endgültig.
 
 export function shopSlots(data, mods) {
   return Math.min(data.balance.shop.angebotsPlaetzeMax, data.balance.shop.angebotsPlaetzeStart + mods.shopPlaetze);
-}
-
-/** Fassungsvermögen der Run-Tasche (Packs pro Run). */
-export function bagCapacity(data, mods) {
-  return (data.balance.shop.taschenPlaetze ?? Infinity) + (mods?.taschenPlaetze || 0);
 }
 
 function priceFactor(data, save) {
   return Math.pow(1 + data.balance.wirtschaft.preisWachstumProKapitel, highestChapter(save, data) - 1);
 }
 
-/** Angebot eines Platzes: { kind: 'angebot'|'jackpot', id, name, items:[{artikel, anzahl}], preis } */
+/** Verfügbare Münzen gesamt (Tagesmünzen + Bonus-Münzen). */
+export const walletTotal = (save) => (save.coins || 0) + (save.bonusCoins || 0);
+
+/** Angebot eines Platzes: { kind, name, items:[{artikel|karte, anzahl}], preis, basisPreis, sold, rabatt, neu } */
 export function describeOffer(slot, data, save) {
   if (!slot) return null;
-  if (slot.jackpot) {
+  const f = priceFactor(data, save);
+  const base = { uid: slot.uid, sold: !!slot.sold, rabatt: !!slot.rabatt, neu: !!slot.neu, opened: !!slot.opened };
+  let o;
+  if (slot.kind === 'jackpot') {
     const j = data.shop.jackpots.find((x) => x.id === slot.id);
-    return { kind: 'jackpot', id: j.id, name: j.name, items: j.inhalt, preis: Math.round(j.grundPreis * priceFactor(data, save)), sold: slot.sold };
+    if (!j) return null;
+    o = { ...base, kind: 'jackpot', id: j.id, name: j.name, items: j.inhalt, basisPreis: Math.max(1, Math.round(j.grundPreis * f)) };
+  } else if (slot.kind === 'karte') {
+    const c = data.cardIndex[slot.karte];
+    if (!c) return null;
+    const E = data.shop.einzelkarten;
+    const p = E.preisNachSeltenheit[c.def.rarity] ?? 5;
+    o = { ...base, kind: 'karte', id: slot.karte, name: c.def.name, items: [{ karte: slot.karte, anzahl: 1 }], basisPreis: Math.max(1, Math.round((p + (c.art === 'tome' ? E.tomeAufschlag : 0)) * f)) };
+  } else {
+    const a = data.offerIndex[slot.id];
+    if (!a) return null;
+    const pk = data.packIndex[a.artikel];
+    o = { ...base, kind: 'angebot', id: a.id, name: a.anzahl > 1 ? `${a.anzahl} × ${pk.name}` : pk.name, items: [{ artikel: a.artikel, anzahl: a.anzahl }], basisPreis: Math.max(1, Math.round(a.grundPreis * f)) };
   }
-  const o = data.offerIndex[slot.id];
-  const p = data.packIndex[o.artikel];
-  return { kind: 'angebot', id: o.id, name: o.anzahl > 1 ? `${o.anzahl} × ${p.name}` : p.name, items: [{ artikel: o.artikel, anzahl: o.anzahl }], preis: Math.round(o.grundPreis * priceFactor(data, save)), sold: slot.sold };
+  o.preis = o.rabatt ? Math.max(1, Math.round(o.basisPreis * data.balance.shop.rabatt.faktor)) : o.basisPreis;
+  if (slot.sold && slot.paid) o.preis = slot.paid.coins + slot.paid.bonus;
+  return o;
 }
 
-/** Würfelt die Angebotsplätze für den neuen Tag. */
-export function rollOffers(data, save, mods, rng = Math.random) {
+const contentKey = (slot) => (slot.kind === 'karte' ? `karte:${slot.karte}` : `${slot.kind}:${slot.id}`);
+
+/** Zufällige Einzelkarte aus einem freigeschalteten Pack. */
+function rollSingleCard(data, save, rng) {
+  const packs = data.packs.filter((p) => p.art === 'pack' && p.pool?.length && packUnlocked(p, save));
+  if (!packs.length) return null;
+  const pack = packs[Math.floor(rng() * packs.length)];
+  const rars = Object.entries(pack.seltenheitsGewichte).filter(([r]) => pack.pool.some((id) => data.cardIndex[id]?.def.rarity === r));
+  const r = weightedPick(rars, rng);
+  const ids = pack.pool.filter((id) => data.cardIndex[id]?.def.rarity === r);
+  return ids[Math.floor(rng() * ids.length)];
+}
+
+function rollSlot(data, save, mods, rng, index, uid) {
   const pool = data.shop.angebote.filter((o) => packUnlocked(data.packIndex[o.artikel], save));
   const jpPool = data.shop.jackpots.filter((j) => j.inhalt.every((i) => { const p = data.packIndex[i.artikel]; return p.art === 'relikt' || packUnlocked(p, save); }));
   const jpChance = data.balance.shop.jackpot.chance + mods.jackpotChance;
-  save.shop.offers = Array.from({ length: shopSlots(data, mods) }, (_, i) => {
-    if (i > 0 && jpPool.length && rng() < jpChance) return { id: weightedPick(jpPool.map((j) => [j.id, j.gewicht]), rng), jackpot: true };
-    return { id: weightedPick(pool.map((o) => [o.id, o.gewicht]), rng), jackpot: false };
-  });
-  if (!save.shop.offers.some((o) => o.id === 'a_holz')) save.shop.offers[0] = { id: 'a_holz', jackpot: false }; // nie ohne Einstiegsangebot
+  const E = data.shop.einzelkarten;
+  let slot;
+  if (index > 0 && jpPool.length && rng() < jpChance) slot = { kind: 'jackpot', id: weightedPick(jpPool.map((j) => [j.id, j.gewicht]), rng) };
+  else {
+    const total = pool.reduce((a, o) => a + o.gewicht, 0) + (E ? E.gewicht : 0);
+    let x = rng() * total;
+    const karte = E && index > 0 && x >= total - E.gewicht ? rollSingleCard(data, save, rng) : null;
+    slot = karte ? { kind: 'karte', karte } : { kind: 'angebot', id: weightedPick(pool.map((o) => [o.id, o.gewicht]), rng) };
+    if (rng() < data.balance.shop.rabatt.chance) slot.rabatt = true;
+  }
+  slot.uid = uid;
+  const seen = (save.shop.seen ||= []);
+  const key = contentKey(slot);
+  if (!seen.includes(key)) { slot.neu = true; seen.push(key); }
+  return slot;
 }
 
-export function rerollCost(data, save) {
-  const r = data.balance.shop.neuWuerfeln;
-  return Math.round(r.grundKosten * Math.pow(r.wachstum, save.shop.rerolls || 0));
+function nextUid(save) { save.shop.uid = (save.shop.uid || 0) + 1; return save.shop.uid; }
+
+/** Würfelt die Angebotsplätze für den neuen Tag (gekaufte bleiben stehen, falls keepSold). */
+export function rollOffers(data, save, mods, rng = Math.random, keepSold = false) {
+  const n = shopSlots(data, mods);
+  const old = save.shop.offers || [];
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    if (keepSold && old[i]?.sold) out.push(old[i]);
+    else out.push(rollSlot(data, save, mods, rng, i, nextUid(save)));
+  }
+  // Nie ohne Einstiegsangebot: Platz 0 ist ein Holzpack, wenn sonst keines da ist
+  if (!keepSold && !out.some((o) => o.kind === 'angebot' && o.id === 'a_holz')) out[0] = { kind: 'angebot', id: 'a_holz', uid: nextUid(save), neu: !(save.shop.seen || []).includes('angebot:a_holz') };
+  if (!(save.shop.seen || []).includes('angebot:a_holz')) (save.shop.seen ||= []).push('angebot:a_holz');
+  save.shop.offers = out;
 }
 
 export const canReroll = (mods) => !!mods.flags.neuWuerfeln;
 
+export function rerollCost(data, save, mods) {
+  if ((save.shop.freeUsed || 0) < (mods?.freieRerolls || 0)) return 0;
+  const r = data.balance.shop.neuWuerfeln;
+  return Math.max(1, Math.round(r.grundKosten * Math.pow(r.wachstum, save.shop.rerolls || 0)));
+}
+
+/** Pay with bonus coins first, then normal coins. Returns the split for an exact refund. */
+function pay(save, amount) {
+  const bonus = Math.min(save.bonusCoins || 0, amount);
+  save.bonusCoins = (save.bonusCoins || 0) - bonus;
+  save.coins -= amount - bonus;
+  save.stats.muenzenAusgegeben += amount;
+  return { bonus, coins: amount - bonus };
+}
+
+function refund(save, paid) {
+  save.bonusCoins = (save.bonusCoins || 0) + paid.bonus;
+  save.coins += paid.coins;
+  save.stats.muenzenAusgegeben -= paid.bonus + paid.coins;
+}
+
+/** Würfelt alle nicht gekauften Angebote neu. */
 export function reroll(data, save, mods, rng = Math.random) {
-  const cost = rerollCost(data, save);
-  if (!canReroll(mods) || save.coins < cost) return false;
-  save.coins -= cost;
-  save.stats.muenzenAusgegeben += cost;
-  save.shop.rerolls = (save.shop.rerolls || 0) + 1;
-  rollOffers(data, save, mods, rng);
+  if (!canReroll(mods)) return false;
+  const cost = rerollCost(data, save, mods);
+  if (walletTotal(save) < cost) return false;
+  if (cost === 0) save.shop.freeUsed = (save.shop.freeUsed || 0) + 1;
+  else { pay(save, cost); save.shop.rerolls = (save.shop.rerolls || 0) + 1; }
+  rollOffers(data, save, mods, rng, true);
   return true;
 }
 
-/** Kauft ein Angebot. Normale Angebote sind beliebig oft kaufbar, Jackpots nur einmal. Reliktpacks werden sofort geöffnet. */
-export function buyOffer(slotIndex, data, save, rng = Math.random, cap = Infinity) {
+/**
+ * Kauft ein Angebot – oder macht den Kauf rückgängig, wenn es schon gekauft ist (volle Erstattung).
+ * Rückgabe: { bought, undone, offer, relics: [...] } oder null (zu teuer / nicht möglich).
+ */
+export function buyOffer(slotIndex, data, save, rng = Math.random) {
   const slot = save.shop.offers[slotIndex];
   const o = describeOffer(slot, data, save);
-  if (!o || o.sold || save.coins < o.preis) return null;
-  const packs = o.items.filter((i) => data.packIndex[i.artikel].art !== 'relikt').reduce((s, i) => s + i.anzahl, 0);
-  if (packs && save.shop.bag.length + packs > cap) return { full: true };
-  save.coins -= o.preis;
-  save.stats.muenzenAusgegeben += o.preis;
-  const n = o.items.reduce((s, i) => s + i.anzahl, 0);
-  const got = [];
-  for (const i of o.items) for (let k = 0; k < i.anzahl; k++) {
-    if (data.packIndex[i.artikel].art === 'relikt') got.push({ relikt: openRelicPack(data, save, rng) });
-    else save.shop.bag.push({ artikel: i.artikel, preis: o.preis / n });
+  if (!o) return null;
+  if (slot.sold) {
+    if (slot.opened) return null; // sofort geöffnete Reliktpacks sind endgültig
+    refund(save, slot.paid);
+    slot.sold = false;
+    slot.paid = null;
+    return { undone: true, offer: o, relics: [] };
   }
-  if (o.kind === 'jackpot') slot.sold = true;
-  return { offer: o, got };
+  if (walletTotal(save) < o.preis) return null;
+  slot.paid = pay(save, o.preis);
+  slot.sold = true;
+  slot.neu = false;
+  const relics = [];
+  for (const i of o.items) for (let k = 0; k < i.anzahl; k++) {
+    if (i.artikel && data.packIndex[i.artikel].art === 'relikt') { relics.push(openRelicPack(data, save, rng)); slot.opened = true; }
+  }
+  return { bought: true, offer: o, relics };
 }
 
-/** Pack aus der Run-Tasche entfernen: volle Rückerstattung. */
-export function removeFromBag(index, data, save) {
-  const item = save.shop.bag[index];
-  if (!item) return;
-  const back = Math.round(item.preis * data.balance.shop.rueckerstattung);
-  save.coins += back;
-  save.stats.muenzenAusgegeben -= back;
-  save.shop.bag.splice(index, 1);
+/** Macht alle Käufe des Tages rückgängig (außer sofort geöffneten Reliktpacks). */
+export function resetPurchases(data, save) {
+  let n = 0;
+  for (const slot of save.shop.offers) if (slot.sold && !slot.opened) { refund(save, slot.paid); slot.sold = false; slot.paid = null; n++; }
+  return n;
+}
+
+/** Inhalt der Run-Tasche: Pack-/Kisten-IDs und Einzelkarten als "karte:<id>". */
+export function bagItems(data, save) {
+  const out = [];
+  for (const slot of save.shop.offers) {
+    if (!slot.sold) continue;
+    const o = describeOffer(slot, data, save);
+    for (const i of o.items) for (let k = 0; k < i.anzahl; k++) {
+      if (i.karte) out.push(`karte:${i.karte}`);
+      else if (data.packIndex[i.artikel].art !== 'relikt') out.push(i.artikel);
+    }
+  }
+  return out;
+}
+
+/** Zu Beginn eines Runs: gekaufte Plätze werden verbraucht. */
+export function consumeBag(save) {
+  save.shop.offers = save.shop.offers.filter((s) => !s.sold);
 }
 
 // ===========================================================================
@@ -223,7 +320,11 @@ export function applyRunResult(result, data, save, mods, rng = Math.random) {
   out.mastery = masteryFor(result, data, mods);
   out.kristalle = Math.round(result.kristalle * prestMul) + (result.sieg && mods.gesucht ? data.balance.gesucht.kristalle : 0);
   out.foilStaub = result.foilStaub + (result.sieg && mods.gesucht ? data.balance.gesucht.foilStaub : 0);
-  save.coins += out.muenzen + out.einkommen;
+  // Tagesbudget = Münzen aus dem Run + Einkommen aus der Sternenkarte; Bonus-Münzen = Einkommen aus Quests und Relikten
+  out.bonus = Math.min(out.einkommen, mods.bonusEinkommen || 0);
+  save.coins += out.muenzen + out.einkommen - out.bonus;
+  save.bonusCoins = (save.bonusCoins || 0) + out.bonus;
+  save.dayBudget = out.muenzen + out.einkommen - out.bonus;
   save.mastery += out.mastery;
   save.crystals += out.kristalle;
   save.foilDust += out.foilStaub;
@@ -270,6 +371,7 @@ export function applyRunResult(result, data, save, mods, rng = Math.random) {
   // Neuer Tag: Tageseinkommen ist gutgeschrieben, Shop würfelt neu
   save.day++;
   save.shop.rerolls = 0;
+  save.shop.freeUsed = 0;
   rollOffers(data, save, mods, rng);
   return out;
 }
@@ -343,7 +445,7 @@ export function describeNodeEffect(node, level) {
   switch (e.ziel) {
     case 'cursorSchaden': return `+${v} Runen-Schaden`;
     case 'tagesEinkommen': return `+${v} Münzen pro Tag`;
-    case 'shopPlaetze': case 'kartenProPack': case 'taschenPlaetze': return level ? `+${v}` : '–';
+    case 'shopPlaetze': case 'kartenProPack': case 'freieRerolls': return level ? `+${v}` : '–';
     case 'turmSchuetze': return `Stufe ${v}`;
     case 'turmDornen': return `${v} Schaden zurück`;
     case 'turmRegen': return `${pct(v)} Leben/s`;

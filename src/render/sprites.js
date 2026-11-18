@@ -2,7 +2,7 @@
 // Frames: idle (4), attack (6), hit (2, weißes Aufblitzen), death (5, Zerfall in Funken).
 // Gegner werden mit Blick nach rechts erzeugt und beim Zeichnen je nach Laufrichtung gespiegelt.
 import { Pix, outline, whiteOut, upscale, hash, makeCanvas } from './pixel.js';
-import { HERO_ART, ENEMY_ART, ICON_ART, PACK_ART, TOME_ART, BUILDING_ART, TOWER_TOP_ART } from './spriteArt.js';
+import { HERO_ART, ENEMY_ART, ICON_ART, PACK_ART, TOME_ART, BUILDING_ART, TOWER_TOP_ART, SHOP_PACK_ART, CRATE_ART } from './spriteArt.js';
 
 export const ANIM = { idle: 4, attack: 6, hit: 2, death: 5 };
 const BREATH = [0, 1, 1, 0];
@@ -172,6 +172,21 @@ export class SpriteBank {
       return outline(p.c, OUTLINE);
     });
   }
+
+  /** Shop-Bild eines Artikels: Pack (24×32) oder Kiste (28×28), ganzzahlig ×4 skaliert. */
+  shopItem(artikel) {
+    return this.get(`shop:${artikel}`, () => {
+      const def = this.data.packIndex[artikel];
+      const packDef = def?.art === 'kiste' ? this.data.packIndex[def.inhalt.pack] : def;
+      const color = def?.art === 'relikt' ? '#F2B630' : packDef?.farbe ?? '#8b5a2b';
+      const motif = artikel.includes('sternen') ? '#fff6a0' : artikel.includes('silber') ? '#5AA9F0' : def?.art === 'relikt' ? '#E04848' : '#FFD24A';
+      let p;
+      if (def?.art === 'kiste') { p = new Pix(28); CRATE_ART(p, color, motif); }
+      else { p = new Pix(24, 32); SHOP_PACK_ART(p, color, motif); }
+      return upscale(outline(p.c, OUTLINE), 4);
+    });
+  }
+  shopItemUrl(artikel) { return this.url(this.shopItem(artikel)); }
 
   url(canvas) {
     if (!this.urls.has(canvas)) this.urls.set(canvas, canvas.toDataURL());

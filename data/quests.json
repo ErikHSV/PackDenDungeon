@@ -11,7 +11,7 @@
       "anzahl": 25
     },
     "belohnung": {
-      "tagesEinkommen": 2
+      "tagesEinkommen": 1
     }
   },
   {
@@ -79,7 +79,7 @@
       "anzahl": 10
     },
     "belohnung": {
-      "tagesEinkommen": 2
+      "tagesEinkommen": 1
     }
   },
   {
@@ -103,7 +103,7 @@
       "anzahl": 120
     },
     "belohnung": {
-      "tagesEinkommen": 3
+      "tagesEinkommen": 1
     }
   },
   {
@@ -128,7 +128,7 @@
       "anzahl": 10
     },
     "belohnung": {
-      "tagesEinkommen": 3
+      "tagesEinkommen": 1
     }
   }
 ]

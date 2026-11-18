@@ -21,33 +21,80 @@
       <div class="start-blink">Klicken zum Starten</div>
     </section>
 
-    <!-- 14.2 Hub -->
+    <!-- 14.2 Hub: Shop links, Reiter-Panel rechts -->
     <section id="screen-hub" class="screen">
       <canvas id="hub-canvas" class="full-canvas"></canvas>
-      <div class="hub-top">
-        <div class="cur" title="Münzen"><img data-icon="coin" alt=""><span id="hub-coins"></span></div>
-        <div class="cur" title="Mastery-Punkte"><img data-icon="rune" alt=""><span id="hub-mastery"></span></div>
-        <div class="cur" title="Kristalle"><img data-icon="crystal" alt=""><span id="hub-crystals"></span></div>
-        <div class="cur" title="Foil-Staub"><img data-icon="stun" alt=""><span id="hub-dust"></span></div>
-        <div class="cur day" id="hub-day"></div>
+
+      <div class="hub-chapter" id="hub-chapter">
+        <div class="ch-arrows">
+          <button class="ch-arrow" id="ch-prev" aria-label="Vorheriges Kapitel">▲</button>
+          <button class="ch-arrow" id="ch-next" aria-label="Nächstes Kapitel">▼</button>
+        </div>
+        <div class="ch-text"><div class="ch-sub" id="ch-sub"></div><div class="ch-name" id="ch-name"></div></div>
+        <div class="ch-extra" id="ch-extra"></div>
       </div>
-      <nav class="hub-left">
-        <button class="side-btn" data-goto="starmap"><img data-icon="rune" alt="">Sternenkarte<span class="red-dot hidden" id="dot-starmap"></span></button>
-        <button class="side-btn" data-goto="relics"><img data-icon="relic" alt="">Relikte<span class="red-dot hidden" id="dot-relics"></span></button>
-        <button class="side-btn" data-goto="collection"><img data-icon="book" alt="">Sammlung</button>
-        <button class="side-btn" data-goto="quests"><img data-icon="quest" alt="">Quests<span class="red-dot hidden" id="dot-quests"></span></button>
-        <button class="side-btn" data-goto="achievements"><img data-icon="crown" alt="">Erfolge</button>
-        <button class="side-btn" data-goto="settings"><img data-icon="settings" alt="">Einstellungen</button>
-      </nav>
-      <div class="chapter-pick panel" id="chapter-pick"></div>
-      <div class="shop panel">
-        <div class="shop-head"><h2>Shop</h2><button class="btn" id="btn-reroll"></button></div>
-        <div class="offers" id="offers"></div>
-        <div class="bag-head">Run-Tasche <span id="bag-count"></span> <span class="muted">(antippen = zurückgeben)</span></div>
-        <div class="bag" id="bag"></div>
+
+      <div class="hub-shop" id="hub-shop">
+        <div class="shop-head">
+          <h2>SHOP</h2>
+          <div class="shop-coins" title="verfügbare Münzen + Bonus-Münzen / Tagesbudget"><span id="shop-coins">0</span><span class="bonus" id="shop-bonus"></span><span class="budget" id="shop-budget"></span><img data-icon="coin" alt=""></div>
+        </div>
+        <div class="shop-grid" id="shop-grid"></div>
+        <div class="shop-buttons">
+          <button class="btn shop-reset" id="shop-reset">RESET</button>
+          <button class="btn shop-reroll" id="shop-reroll"></button>
+        </div>
       </div>
-      <div class="gate panel" id="gate"></div>
-      <button class="btn btn-primary fight-btn" id="btn-fight">Kampf beginnen</button>
+      <div class="shop-info panel hidden" id="shop-info"></div>
+
+      <div class="hub-tabs" id="hub-tabs">
+        <button class="hub-tab" data-tab="upgrade" style="--tab:#3B78D8">UPGRADE<span class="red-dot hidden"></span></button>
+        <button class="hub-tab" data-tab="sammlung" style="--tab:#D8D8E0">SAMMLUNG<span class="red-dot hidden"></span></button>
+        <button class="hub-tab" data-tab="bestiarium" style="--tab:#E0603A">BESTIARIUM<span class="red-dot hidden"></span></button>
+        <button class="hub-tab" data-tab="relikte" style="--tab:#B23ED8">RELIKTE<span class="red-dot hidden"></span></button>
+      </div>
+      <div class="hub-icons">
+        <button class="icon-btn" data-goto="quests" title="Quests"><img data-icon="quest" alt=""><span class="red-dot hidden" id="dot-quests"></span></button>
+        <button class="icon-btn" data-goto="achievements" title="Erfolge"><img data-icon="crown" alt=""></button>
+        <button class="icon-btn" data-goto="settings" title="Einstellungen"><img data-icon="settings" alt=""></button>
+      </div>
+
+      <div class="hub-panel" id="hub-panel">
+        <!-- UPGRADE -->
+        <div class="tab-page" data-page="upgrade">
+          <canvas id="tree-canvas"></canvas>
+          <div class="tree-cur">
+            <span title="Mastery-Punkte"><b id="tree-mp">0</b><img data-icon="mastery" alt=""></span>
+            <span title="Kristalle"><b id="tree-kr">0</b><img data-icon="gem" alt=""></span>
+            <span title="Foil-Staub" id="tree-fs-wrap"><b id="tree-fs">0</b><img data-icon="dust" alt=""></span>
+          </div>
+          <div class="tree-nav">
+            <button class="icon-btn" id="tree-jump" title="Zu kaufbaren Knoten springen"><img data-icon="mastery" alt=""></button>
+            <button class="icon-btn" id="tree-up" title="Nach oben"><img data-icon="up" alt=""></button>
+            <button class="icon-btn" id="tree-down" title="Nach unten"><img data-icon="down2" alt=""></button>
+            <button class="icon-btn" id="tree-reset" title="Alle Punkte zurückerhalten">↺</button>
+          </div>
+          <div class="tree-info panel hidden" id="tree-info"></div>
+          <div class="tree-banner hidden" id="tree-banner"></div>
+        </div>
+        <!-- SAMMLUNG -->
+        <div class="tab-page" data-page="sammlung">
+          <div class="page-head"><div class="filters" id="col-filters"></div><div class="progress" id="col-progress"></div></div>
+          <div class="tile-grid" id="col-grid"></div>
+        </div>
+        <!-- BESTIARIUM -->
+        <div class="tab-page" data-page="bestiarium">
+          <div class="page-head"><div class="progress" id="beast-progress"></div></div>
+          <div class="beast-list" id="beast-list"></div>
+        </div>
+        <!-- RELIKTE -->
+        <div class="tab-page" data-page="relikte">
+          <div class="relic-slots" id="relic-slots"></div>
+          <div class="relic-inv" id="relic-inv"></div>
+          <div class="relic-detail" id="relic-detail"></div>
+        </div>
+      </div>
+      <button class="btn fight-btn" id="btn-fight">KAMPF</button>
     </section>
 
     <!-- 14.5 Kampf -->
@@ -75,41 +122,6 @@
         <button class="btn" data-debug="pack">+Silberpack</button>
         <button class="btn" data-debug="end">Run beenden</button>
       </div>
-    </section>
-
-    <!-- 14.9 Sternenkarte -->
-    <section id="screen-starmap" class="screen">
-      <canvas id="star-canvas" class="full-canvas"></canvas>
-      <div class="star-currency">
-        <div class="star-mp"><img data-icon="rune" alt=""><span id="star-mp">0</span></div>
-        <div class="star-sub"><img data-icon="crystal" alt=""><span id="star-kr">0</span><img data-icon="stun" alt=""><span id="star-fs">0</span></div>
-      </div>
-      <div class="star-buttons">
-        <button class="btn" id="star-center">Zentrieren</button>
-        <button class="btn btn-danger" id="star-reset">Zurücksetzen</button>
-        <button class="btn" id="star-back">Zurück</button>
-      </div>
-      <button class="btn btn-primary btn-big star-newrun" id="star-newrun">Neuer Run</button>
-      <div class="star-info panel hidden" id="star-info"></div>
-      <div class="star-banner hidden" id="star-banner"></div>
-      <div class="star-flash" id="star-flash"></div>
-    </section>
-
-    <!-- 14.10 Relikte -->
-    <section id="screen-relics" class="screen screen-plain">
-      <button class="btn back-btn" data-goto="hub">← Zurück</button>
-      <h1 class="screen-title">Relikte</h1>
-      <div class="relic-slots" id="relic-slots"></div>
-      <div class="relic-inv panel" id="relic-inv"></div>
-      <div class="relic-detail panel" id="relic-detail"></div>
-    </section>
-
-    <!-- 14.11 Sammlung -->
-    <section id="screen-collection" class="screen screen-plain">
-      <button class="btn back-btn" data-goto="hub">← Zurück</button>
-      <h1 class="screen-title">Sammlung <span id="col-progress"></span></h1>
-      <div class="tabs" id="col-tabs"></div>
-      <div class="col-grid" id="col-grid"></div>
     </section>
 
     <!-- 14.12 Quests / Erfolge -->
@@ -149,6 +161,7 @@
 
     <!-- Overlays -->
     <div class="overlay hidden" id="overlay-newcard"><div class="newcard" id="newcard"></div><div class="newcard-hint">Klicken zum Weiterspielen</div></div>
+    <div class="overlay hidden" id="overlay-card"><div class="card-detail" id="card-detail"></div></div>
     <div class="overlay hidden" id="overlay-pause">
       <div class="panel pause-box">
         <h2>Pause</h2>

@@ -1,39 +1,39 @@
 {
-  "$kommentar": "Shop-Angebote. Jeder Run ist ein Tag: die Angebotsplätze werden pro Tag gewürfelt (nur freigeschaltete Artikel). Preis = grundPreis × (1 + balance.wirtschaft.preisWachstumProKapitel)^(höchstes freigeschaltetes Kapitel − 1). Mit balance.shop.jackpot.chance wird ein Platz zum goldenen Jackpot.",
+  "$kommentar": "Shop-Angebote (14.2.3). Jeder Run ist ein Tag: die Angebotsplätze werden pro Tag gewürfelt (nur freigeschaltete Artikel). Jeder Platz ist einmal kaufbar; ein erneuter Klick macht den Kauf rückgängig. Preis = grundPreis × (1 + balance.wirtschaft.preisWachstumProKapitel)^(höchstes Kapitel − 1), Rabatt siehe balance.shop.rabatt. Mit balance.shop.jackpot.chance wird ein Platz zum goldenen Jackpot. 'einzelkarten': einzelne Helden/Tomes aus den Pools freigeschalteter Packs.",
   "angebote": [
     {
       "id": "a_holz",
       "artikel": "holzpack",
       "anzahl": 1,
-      "grundPreis": 10,
+      "grundPreis": 4,
       "gewicht": 50
     },
     {
       "id": "a_holz_kiste",
       "artikel": "kiste_holz",
       "anzahl": 1,
-      "grundPreis": 27,
+      "grundPreis": 10,
       "gewicht": 20
     },
     {
       "id": "a_silber",
       "artikel": "silberpack",
       "anzahl": 1,
-      "grundPreis": 35,
+      "grundPreis": 12,
       "gewicht": 25
     },
     {
       "id": "a_silber_kiste",
       "artikel": "kiste_silber",
       "anzahl": 1,
-      "grundPreis": 95,
+      "grundPreis": 30,
       "gewicht": 10
     },
     {
       "id": "a_sternen",
       "artikel": "sternenpack",
       "anzahl": 1,
-      "grundPreis": 120,
+      "grundPreis": 20,
       "gewicht": 12
     }
   ],
@@ -47,7 +47,7 @@
           "anzahl": 1
         }
       ],
-      "grundPreis": 40,
+      "grundPreis": 15,
       "gewicht": 3
     },
     {
@@ -63,7 +63,7 @@
           "anzahl": 2
         }
       ],
-      "grundPreis": 27,
+      "grundPreis": 10,
       "gewicht": 5
     },
     {
@@ -79,8 +79,20 @@
           "anzahl": 1
         }
       ],
-      "grundPreis": 95,
+      "grundPreis": 30,
       "gewicht": 3
     }
-  ]
+  ],
+  "einzelkarten": {
+    "$kommentar": "Einzelner Held oder Tome als Angebot. Preis nach Seltenheit; die Karte wird aus einem freigeschalteten Pack gezogen (ohne Foil und Grenzgänger).",
+    "gewicht": 22,
+    "preisNachSeltenheit": {
+      "common": 2,
+      "uncommon": 4,
+      "rare": 7,
+      "epic": 11,
+      "legendary": 16
+    },
+    "tomeAufschlag": 1
+  }
 }

@@ -1,6 +1,6 @@
 // Ergebnis-Bildschirm (14.8) und Freischaltungs-Popups mit Konfetti.
 import { $, el, escapeHtml, show, countTo } from './dom.js';
-import { applyRunResult, claimableQuests, anyNodeAffordable, buyOffer, describeOffer, bagCapacity } from '../core/meta.js';
+import { applyRunResult, claimableQuests, anyNodeAffordable, buyOffer, bagItems } from '../core/meta.js';
 import { play, startMusic } from '../audio.js';
 
 const fmtTime = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
@@ -33,7 +33,7 @@ export function showResult(game, r, mods, opts) {
       ${info.erfolge.map((a) => `<span style="color:#FFD24A">★ Erfolg: ${escapeHtml(a.name)}</span>`).join('')}</div>
     <div class="row">
       <button class="btn btn-primary btn-big" id="res-hub">Zum Hub</button>
-      <button class="btn btn-big" id="res-star">Sternenkarte${anyNodeAffordable(data, save) ? ' •' : ''}</button>
+      <button class="btn btn-big" id="res-star">Upgrades${anyNodeAffordable(data, save) ? ' •' : ''}</button>
       <button class="btn btn-big" id="res-again">Nochmal</button>
     </div>`;
   show('#overlay-result', true);
@@ -41,15 +41,17 @@ export function showResult(game, r, mods, opts) {
 
   const close = () => show('#overlay-result', false);
   $('#res-hub').onclick = () => { close(); game.goto('hub'); };
-  $('#res-star').onclick = () => { close(); game.goto('starmap', { back: 'hub' }); };
+  $('#res-star').onclick = () => { close(); game.goto('hub', { tab: 'upgrade' }); };
   $('#res-again').onclick = () => {
     // Dieselben Packs erneut kaufen, soweit sie heute angeboten werden und bezahlbar sind
-    for (const artikel of lastBag) {
-      const i = save.shop.offers.findIndex((s) => { const o = describeOffer(s, data, save); return o && !o.sold && o.items.length === 1 && o.items[0].artikel === artikel; });
-      if (i >= 0) buyOffer(i, data, save, Math.random, bagCapacity(data, game.mods()));
+    // Gleiche Angebote wie beim letzten Run kaufen, soweit sie heute im Shop liegen und bezahlbar sind
+    for (const want of lastBag) {
+      const i = save.shop.offers.findIndex((s) => !s.sold && s.kind === want.kind && s.id === want.id && s.karte === want.karte);
+      if (i >= 0) buyOffer(i, data, save);
     }
+    game.persist();
     close();
-    if (!save.shop.bag.length) { game.goto('hub'); game.toast('Keine passenden Packs im Angebot – bitte im Shop wählen.', true); return; }
+    if (!bagItems(data, save).length) { game.goto('hub'); game.toast('Keine passenden Angebote im Shop – bitte selbst wählen.', true); return; }
     game.startRun(opts);
   };
 

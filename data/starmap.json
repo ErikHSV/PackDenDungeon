@@ -1,8 +1,8 @@
 {
-  "$kommentar": "Sternenkarte (Skill-Tree). Kosten pro Stufe = basisKosten × kostenFaktor^Stufe in 'waehrung' (mastery oder foilstaub) + kristallKosten. Kaufbar, wenn ein verbundener Nachbar Stufe ≥ 1 hat. Sichtbar: gekaufte Knoten und direkte Nachbarn. Knoten mit akt 2 erscheinen erst nach dem Tor. Effekt-Ziele siehe docs/DATENFORMATE.md.",
+  "$kommentar": "Sternenkarte als Schaltplan (14.2.5). Positionen und Symbole erzeugt tools/layout-starmap.mjs – danach von Hand anpassbar. abzeichen: clock|sword|heart|plus|arrow|bolt|star.",
   "groesse": {
-    "breite": 4800,
-    "hoehe": 4800
+    "breite": 2304,
+    "hoehe": 1728
   },
   "start": "start",
   "aeste": [
@@ -61,8 +61,8 @@
       "ast": "start",
       "akt": 1,
       "position": {
-        "x": 2400,
-        "y": 2400
+        "x": 1200,
+        "y": 864
       },
       "verbindungen": [
         "c_schaden",
@@ -82,7 +82,7 @@
       "effekt": {
         "ziel": "keiner"
       },
-      "symbol": "rune"
+      "symbol": "tower"
     },
     {
       "id": "c_schaden",
@@ -92,8 +92,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 2400,
-        "y": 2140
+        "x": 528,
+        "y": 768
       },
       "verbindungen": [
         "start",
@@ -109,7 +109,8 @@
         "wert": 1,
         "rechenart": "addieren"
       },
-      "symbol": "rune"
+      "symbol": "claw",
+      "abzeichen": "sword"
     },
     {
       "id": "c_radius",
@@ -119,8 +120,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 2400,
-        "y": 1930
+        "x": 528,
+        "y": 672
       },
       "verbindungen": [
         "c_schaden",
@@ -137,7 +138,8 @@
         "wert": 0.08,
         "rechenart": "addieren"
       },
-      "symbol": "rune"
+      "symbol": "hand",
+      "abzeichen": "arrow"
     },
     {
       "id": "c_tempo",
@@ -147,8 +149,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 2312,
-        "y": 1726
+        "x": 480,
+        "y": 576
       },
       "verbindungen": [
         "c_radius",
@@ -164,7 +166,8 @@
         "wert": -0.04,
         "rechenart": "addieren"
       },
-      "symbol": "rune"
+      "symbol": "hand",
+      "abzeichen": "clock"
     },
     {
       "id": "c_packbrecher",
@@ -174,8 +177,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 2488,
-        "y": 1726
+        "x": 576,
+        "y": 576
       },
       "verbindungen": [
         "c_radius",
@@ -191,7 +194,8 @@
         "wert": 0.25,
         "rechenart": "addieren"
       },
-      "symbol": "chest"
+      "symbol": "hand",
+      "abzeichen": "sword"
     },
     {
       "id": "c_krit",
@@ -201,8 +205,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 2311,
-        "y": 1514
+        "x": 480,
+        "y": 480
       },
       "verbindungen": [
         "c_tempo",
@@ -218,7 +222,8 @@
         "wert": 0.03,
         "rechenart": "addieren"
       },
-      "symbol": "stun"
+      "symbol": "claw",
+      "abzeichen": "sword"
     },
     {
       "id": "c_glut",
@@ -228,8 +233,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 2181,
-        "y": 1322
+        "x": 480,
+        "y": 384
       },
       "verbindungen": [
         "c_krit",
@@ -244,7 +249,8 @@
         "ziel": "flag",
         "flag": "glutkreis"
       },
-      "symbol": "burn"
+      "symbol": "hand",
+      "abzeichen": "bolt"
     },
     {
       "id": "c_zwilling",
@@ -254,8 +260,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 2601,
-        "y": 1502
+        "x": 576,
+        "y": 480
       },
       "verbindungen": [
         "c_packbrecher"
@@ -269,18 +275,19 @@
         "ziel": "flag",
         "flag": "zwillingsrune"
       },
-      "symbol": "rune"
+      "symbol": "hand",
+      "abzeichen": "bolt"
     },
     {
       "id": "w_einkommen",
       "name": "Tageseinkommen",
-      "beschreibung": "+5 Münzen Tageseinkommen pro Run.",
+      "beschreibung": "+2 Münzen Tageseinkommen.",
       "typ": "klein",
       "ast": "wirtschaft",
       "akt": 1,
       "position": {
-        "x": 2602,
-        "y": 2236
+        "x": 912,
+        "y": 768
       },
       "verbindungen": [
         "start",
@@ -293,10 +300,11 @@
       "kristallKosten": 0,
       "effekt": {
         "ziel": "tagesEinkommen",
-        "wert": 5,
+        "wert": 2,
         "rechenart": "addieren"
       },
-      "symbol": "coin"
+      "symbol": "coin",
+      "abzeichen": "plus"
     },
     {
       "id": "w_kill",
@@ -306,14 +314,14 @@
       "ast": "wirtschaft",
       "akt": 1,
       "position": {
-        "x": 2765,
-        "y": 2104
+        "x": 912,
+        "y": 672
       },
       "verbindungen": [
         "w_einkommen",
         "g_wuerfeln",
         "w_platz4",
-        "w_tasche"
+        "w_freiwurf"
       ],
       "maxStufe": 10,
       "basisKosten": 3,
@@ -325,7 +333,8 @@
         "wert": 0.05,
         "rechenart": "addieren"
       },
-      "symbol": "coin"
+      "symbol": "coin",
+      "abzeichen": "plus"
     },
     {
       "id": "g_wuerfeln",
@@ -335,8 +344,8 @@
       "ast": "wirtschaft",
       "akt": 1,
       "position": {
-        "x": 2869,
-        "y": 1907
+        "x": 768,
+        "y": 576
       },
       "verbindungen": [
         "w_kill",
@@ -351,18 +360,19 @@
         "ziel": "flag",
         "flag": "neuWuerfeln"
       },
-      "symbol": "lock"
+      "symbol": "coin",
+      "abzeichen": "bolt"
     },
     {
       "id": "w_platz4",
       "name": "Vierter Angebotsplatz",
-      "beschreibung": "Ein weiterer Platz im Shop.",
+      "beschreibung": "+1 Angebotsplatz im Shop.",
       "typ": "freischalt",
       "ast": "wirtschaft",
       "akt": 1,
       "position": {
-        "x": 2979,
-        "y": 2044
+        "x": 912,
+        "y": 576
       },
       "verbindungen": [
         "w_kill",
@@ -379,18 +389,19 @@
         "wert": 1,
         "rechenart": "addieren"
       },
-      "symbol": "lock"
+      "symbol": "coin",
+      "abzeichen": "plus"
     },
     {
       "id": "w_platz5",
       "name": "Fünfter Angebotsplatz",
-      "beschreibung": "Ein weiterer Platz im Shop.",
+      "beschreibung": "+1 Angebotsplatz im Shop.",
       "typ": "freischalt",
       "ast": "wirtschaft",
       "akt": 1,
       "position": {
-        "x": 3158,
-        "y": 1934
+        "x": 864,
+        "y": 480
       },
       "verbindungen": [
         "w_platz4",
@@ -406,18 +417,19 @@
         "wert": 1,
         "rechenart": "addieren"
       },
-      "symbol": "lock"
+      "symbol": "coin",
+      "abzeichen": "plus"
     },
     {
       "id": "w_platz6",
       "name": "Sechster Angebotsplatz",
-      "beschreibung": "Ein weiterer Platz im Shop.",
+      "beschreibung": "+1 Angebotsplatz im Shop.",
       "typ": "freischalt",
       "ast": "wirtschaft",
       "akt": 1,
       "position": {
-        "x": 3337,
-        "y": 1824
+        "x": 864,
+        "y": 384
       },
       "verbindungen": [
         "w_platz5",
@@ -433,7 +445,8 @@
         "wert": 1,
         "rechenart": "addieren"
       },
-      "symbol": "lock"
+      "symbol": "coin",
+      "abzeichen": "plus"
     },
     {
       "id": "w_schueler",
@@ -443,8 +456,8 @@
       "ast": "wirtschaft",
       "akt": 1,
       "position": {
-        "x": 3013,
-        "y": 1755
+        "x": 768,
+        "y": 480
       },
       "verbindungen": [
         "g_wuerfeln"
@@ -459,7 +472,8 @@
         "wert": 0.1,
         "rechenart": "addieren"
       },
-      "symbol": "rune"
+      "symbol": "coin",
+      "abzeichen": "star"
     },
     {
       "id": "p_widerstand",
@@ -469,8 +483,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 2653,
-        "y": 2458
+        "x": 1344,
+        "y": 768
       },
       "verbindungen": [
         "start",
@@ -487,7 +501,8 @@
         "wert": -0.05,
         "rechenart": "addieren"
       },
-      "symbol": "chest"
+      "symbol": "pack",
+      "abzeichen": "sword"
     },
     {
       "id": "p_foil",
@@ -497,8 +512,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 2867,
-        "y": 2450
+        "x": 1296,
+        "y": 672
       },
       "verbindungen": [
         "p_widerstand",
@@ -515,7 +530,8 @@
         "wert": 0.005,
         "rechenart": "addieren"
       },
-      "symbol": "stun"
+      "symbol": "pack",
+      "abzeichen": "star"
     },
     {
       "id": "p_karten",
@@ -525,8 +541,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 2842,
-        "y": 2560
+        "x": 1440,
+        "y": 672
       },
       "verbindungen": [
         "p_widerstand",
@@ -542,7 +558,8 @@
         "wert": 1,
         "rechenart": "addieren"
       },
-      "symbol": "chest"
+      "symbol": "pack",
+      "abzeichen": "plus"
     },
     {
       "id": "p_packimpack",
@@ -552,8 +569,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3049,
-        "y": 2635
+        "x": 1440,
+        "y": 576
       },
       "verbindungen": [
         "p_karten"
@@ -568,7 +585,8 @@
         "wert": 0.1,
         "rechenart": "addieren"
       },
-      "symbol": "chest"
+      "symbol": "pack",
+      "abzeichen": "plus"
     },
     {
       "id": "p_aufplatzen",
@@ -578,8 +596,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3097,
-        "y": 2461
+        "x": 1248,
+        "y": 576
       },
       "verbindungen": [
         "p_foil"
@@ -593,7 +611,8 @@
         "ziel": "flag",
         "flag": "aufplatzen"
       },
-      "symbol": "burn"
+      "symbol": "pack",
+      "abzeichen": "bolt"
     },
     {
       "id": "b_taverne",
@@ -603,8 +622,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 2514,
-        "y": 2634
+        "x": 1728,
+        "y": 768
       },
       "verbindungen": [
         "start",
@@ -622,7 +641,8 @@
         "wert": 1,
         "rechenart": "addieren"
       },
-      "symbol": "tower"
+      "symbol": "house",
+      "abzeichen": "plus"
     },
     {
       "id": "b_taverne_aus",
@@ -632,8 +652,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 2519,
-        "y": 2824
+        "x": 1632,
+        "y": 672
       },
       "verbindungen": [
         "b_taverne"
@@ -649,7 +669,8 @@
         "wert": 1,
         "rechenart": "addieren"
       },
-      "symbol": "tower"
+      "symbol": "house",
+      "abzeichen": "clock"
     },
     {
       "id": "b_kaserne",
@@ -659,8 +680,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 2606,
-        "y": 2822
+        "x": 1776,
+        "y": 672
       },
       "verbindungen": [
         "b_taverne",
@@ -678,7 +699,8 @@
         "wert": 1,
         "rechenart": "addieren"
       },
-      "symbol": "tower"
+      "symbol": "house",
+      "abzeichen": "plus"
     },
     {
       "id": "b_kaserne_aus",
@@ -688,8 +710,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 2576,
-        "y": 3026
+        "x": 1728,
+        "y": 576
       },
       "verbindungen": [
         "b_kaserne"
@@ -705,7 +727,8 @@
         "wert": 1,
         "rechenart": "addieren"
       },
-      "symbol": "tower"
+      "symbol": "house",
+      "abzeichen": "clock"
     },
     {
       "id": "b_sternwarte",
@@ -715,8 +738,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 2610,
-        "y": 3047
+        "x": 1824,
+        "y": 576
       },
       "verbindungen": [
         "b_kaserne",
@@ -733,7 +756,8 @@
         "wert": 1,
         "rechenart": "addieren"
       },
-      "symbol": "tower"
+      "symbol": "house",
+      "abzeichen": "plus"
     },
     {
       "id": "b_sternwarte_aus",
@@ -743,8 +767,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 2515,
-        "y": 3252
+        "x": 1824,
+        "y": 480
       },
       "verbindungen": [
         "b_sternwarte"
@@ -760,7 +784,8 @@
         "wert": 1,
         "rechenart": "addieren"
       },
-      "symbol": "tower"
+      "symbol": "house",
+      "abzeichen": "clock"
     },
     {
       "id": "t_leben",
@@ -770,8 +795,8 @@
       "ast": "turm",
       "akt": 1,
       "position": {
-        "x": 2147,
-        "y": 2458
+        "x": 1392,
+        "y": 960
       },
       "verbindungen": [
         "start",
@@ -788,7 +813,8 @@
         "wert": 0.08,
         "rechenart": "addieren"
       },
-      "symbol": "tower"
+      "symbol": "bigheart",
+      "abzeichen": "heart"
     },
     {
       "id": "t_regen",
@@ -798,8 +824,8 @@
       "ast": "turm",
       "akt": 1,
       "position": {
-        "x": 1958,
-        "y": 2560
+        "x": 1344,
+        "y": 1056
       },
       "verbindungen": [
         "t_leben",
@@ -815,7 +841,8 @@
         "wert": 0.005,
         "rechenart": "addieren"
       },
-      "symbol": "tower"
+      "symbol": "tower",
+      "abzeichen": "heart"
     },
     {
       "id": "t_schuetze",
@@ -825,8 +852,8 @@
       "ast": "turm",
       "akt": 1,
       "position": {
-        "x": 1933,
-        "y": 2450
+        "x": 1440,
+        "y": 1056
       },
       "verbindungen": [
         "t_leben",
@@ -842,7 +869,8 @@
         "wert": 1,
         "rechenart": "addieren"
       },
-      "symbol": "bow"
+      "symbol": "tower",
+      "abzeichen": "sword"
     },
     {
       "id": "t_dornen",
@@ -852,8 +880,8 @@
       "ast": "turm",
       "akt": 1,
       "position": {
-        "x": 1751,
-        "y": 2635
+        "x": 1344,
+        "y": 1152
       },
       "verbindungen": [
         "t_regen"
@@ -868,7 +896,8 @@
         "wert": 2,
         "rechenart": "addieren"
       },
-      "symbol": "shield"
+      "symbol": "tower",
+      "abzeichen": "sword"
     },
     {
       "id": "t_blitz",
@@ -878,8 +907,8 @@
       "ast": "turm",
       "akt": 1,
       "position": {
-        "x": 1703,
-        "y": 2461
+        "x": 1440,
+        "y": 1152
       },
       "verbindungen": [
         "t_schuetze",
@@ -894,7 +923,8 @@
         "ziel": "flag",
         "flag": "blitzableiter"
       },
-      "symbol": "stun"
+      "symbol": "tower",
+      "abzeichen": "bolt"
     },
     {
       "id": "to_wirkung",
@@ -904,8 +934,8 @@
       "ast": "tomes",
       "akt": 1,
       "position": {
-        "x": 2198,
-        "y": 2236
+        "x": 1680,
+        "y": 960
       },
       "verbindungen": [
         "start",
@@ -922,7 +952,8 @@
         "wert": 0.1,
         "rechenart": "addieren"
       },
-      "symbol": "staff"
+      "symbol": "book",
+      "abzeichen": "bolt"
     },
     {
       "id": "to_doppelt",
@@ -932,8 +963,8 @@
       "ast": "tomes",
       "akt": 1,
       "position": {
-        "x": 2035,
-        "y": 2104
+        "x": 1632,
+        "y": 1056
       },
       "verbindungen": [
         "to_wirkung",
@@ -949,7 +980,8 @@
         "wert": 0.05,
         "rechenart": "addieren"
       },
-      "symbol": "staff"
+      "symbol": "book",
+      "abzeichen": "plus"
     },
     {
       "id": "to_doppelseite",
@@ -959,8 +991,8 @@
       "ast": "tomes",
       "akt": 1,
       "position": {
-        "x": 1872,
-        "y": 1972
+        "x": 1632,
+        "y": 1152
       },
       "verbindungen": [
         "to_doppelt"
@@ -975,7 +1007,8 @@
         "wert": 0.15,
         "rechenart": "addieren"
       },
-      "symbol": "staff"
+      "symbol": "book",
+      "abzeichen": "plus"
     },
     {
       "id": "e_kampf",
@@ -985,8 +1018,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2286,
-        "y": 2634
+        "x": 720,
+        "y": 960
       },
       "verbindungen": [
         "start",
@@ -1003,7 +1036,8 @@
         "wert": 0.04,
         "rechenart": "addieren"
       },
-      "symbol": "sword"
+      "symbol": "sword",
+      "abzeichen": "sword"
     },
     {
       "id": "e_leben",
@@ -1013,8 +1047,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2258,
-        "y": 2838
+        "x": 480,
+        "y": 1056
       },
       "verbindungen": [
         "e_kampf",
@@ -1034,7 +1068,8 @@
         "wert": 0.05,
         "rechenart": "addieren"
       },
-      "symbol": "heart"
+      "symbol": "sword",
+      "abzeichen": "heart"
     },
     {
       "id": "e_tempo",
@@ -1044,8 +1079,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2143,
-        "y": 2781
+        "x": 960,
+        "y": 1056
       },
       "verbindungen": [
         "e_kampf",
@@ -1065,7 +1100,8 @@
         "wert": 0.03,
         "rechenart": "addieren"
       },
-      "symbol": "bow"
+      "symbol": "sword",
+      "abzeichen": "clock"
     },
     {
       "id": "u_stalljunge_1",
@@ -1075,8 +1111,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2469,
-        "y": 3117
+        "x": 288,
+        "y": 1152
       },
       "verbindungen": [
         "e_leben",
@@ -1101,7 +1137,8 @@
       "voraussetzung": {
         "karte": "stalljunge"
       },
-      "symbol": "card:stalljunge"
+      "symbol": "card:stalljunge",
+      "abzeichen": "clock"
     },
     {
       "id": "u_stalljunge_2",
@@ -1111,8 +1148,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2487,
-        "y": 3306
+        "x": 288,
+        "y": 1248
       },
       "verbindungen": [
         "u_stalljunge_1",
@@ -1137,7 +1174,8 @@
       "voraussetzung": {
         "karte": "stalljunge"
       },
-      "symbol": "card:stalljunge"
+      "symbol": "card:stalljunge",
+      "abzeichen": "heart"
     },
     {
       "id": "u_stalljunge_3",
@@ -1147,8 +1185,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2506,
-        "y": 3495
+        "x": 288,
+        "y": 1344
       },
       "verbindungen": [
         "u_stalljunge_2"
@@ -1172,7 +1210,8 @@
       "voraussetzung": {
         "karte": "stalljunge"
       },
-      "symbol": "card:stalljunge"
+      "symbol": "card:stalljunge",
+      "abzeichen": "sword"
     },
     {
       "id": "u_kettenschwinger_1",
@@ -1182,8 +1221,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2381,
-        "y": 3120
+        "x": 384,
+        "y": 1152
       },
       "verbindungen": [
         "e_leben",
@@ -1208,7 +1247,8 @@
       "voraussetzung": {
         "karte": "kettenschwinger"
       },
-      "symbol": "card:kettenschwinger"
+      "symbol": "card:kettenschwinger",
+      "abzeichen": "arrow"
     },
     {
       "id": "u_kettenschwinger_2",
@@ -1218,8 +1258,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2376,
-        "y": 3310
+        "x": 384,
+        "y": 1248
       },
       "verbindungen": [
         "u_kettenschwinger_1",
@@ -1244,7 +1284,8 @@
       "voraussetzung": {
         "karte": "kettenschwinger"
       },
-      "symbol": "card:kettenschwinger"
+      "symbol": "card:kettenschwinger",
+      "abzeichen": "clock"
     },
     {
       "id": "u_kettenschwinger_3",
@@ -1254,8 +1295,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2371,
-        "y": 3500
+        "x": 384,
+        "y": 1344
       },
       "verbindungen": [
         "u_kettenschwinger_2"
@@ -1279,7 +1320,8 @@
       "voraussetzung": {
         "karte": "kettenschwinger"
       },
-      "symbol": "card:kettenschwinger"
+      "symbol": "card:kettenschwinger",
+      "abzeichen": "sword"
     },
     {
       "id": "u_schleuderin_1",
@@ -1289,8 +1331,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2294,
-        "y": 3112
+        "x": 480,
+        "y": 1152
       },
       "verbindungen": [
         "e_leben",
@@ -1315,7 +1357,8 @@
       "voraussetzung": {
         "karte": "schleuderin"
       },
-      "symbol": "card:schleuderin"
+      "symbol": "card:schleuderin",
+      "abzeichen": "plus"
     },
     {
       "id": "u_schleuderin_2",
@@ -1325,8 +1368,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2266,
-        "y": 3300
+        "x": 480,
+        "y": 1248
       },
       "verbindungen": [
         "u_schleuderin_1",
@@ -1351,7 +1394,8 @@
       "voraussetzung": {
         "karte": "schleuderin"
       },
-      "symbol": "card:schleuderin"
+      "symbol": "card:schleuderin",
+      "abzeichen": "clock"
     },
     {
       "id": "u_schleuderin_3",
@@ -1361,8 +1405,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2238,
-        "y": 3488
+        "x": 480,
+        "y": 1344
       },
       "verbindungen": [
         "u_schleuderin_2"
@@ -1386,7 +1430,8 @@
       "voraussetzung": {
         "karte": "schleuderin"
       },
-      "symbol": "card:schleuderin"
+      "symbol": "card:schleuderin",
+      "abzeichen": "arrow"
     },
     {
       "id": "u_torwaechterin_1",
@@ -1396,8 +1441,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2208,
-        "y": 3094
+        "x": 576,
+        "y": 1152
       },
       "verbindungen": [
         "e_leben",
@@ -1422,7 +1467,8 @@
       "voraussetzung": {
         "karte": "torwaechterin"
       },
-      "symbol": "card:torwaechterin"
+      "symbol": "card:torwaechterin",
+      "abzeichen": "bolt"
     },
     {
       "id": "u_torwaechterin_2",
@@ -1432,8 +1478,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2157,
-        "y": 3277
+        "x": 576,
+        "y": 1248
       },
       "verbindungen": [
         "u_torwaechterin_1",
@@ -1458,7 +1504,8 @@
       "voraussetzung": {
         "karte": "torwaechterin"
       },
-      "symbol": "card:torwaechterin"
+      "symbol": "card:torwaechterin",
+      "abzeichen": "heart"
     },
     {
       "id": "u_torwaechterin_3",
@@ -1468,8 +1515,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2106,
-        "y": 3460
+        "x": 576,
+        "y": 1344
       },
       "verbindungen": [
         "u_torwaechterin_2"
@@ -1493,7 +1540,8 @@
       "voraussetzung": {
         "karte": "torwaechterin"
       },
-      "symbol": "card:torwaechterin"
+      "symbol": "card:torwaechterin",
+      "abzeichen": "bolt"
     },
     {
       "id": "u_windlaeufer_1",
@@ -1503,8 +1551,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2124,
-        "y": 3065
+        "x": 672,
+        "y": 1152
       },
       "verbindungen": [
         "e_leben",
@@ -1529,7 +1577,8 @@
       "voraussetzung": {
         "karte": "windlaeufer"
       },
-      "symbol": "card:windlaeufer"
+      "symbol": "card:windlaeufer",
+      "abzeichen": "arrow"
     },
     {
       "id": "u_windlaeufer_2",
@@ -1539,8 +1588,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2052,
-        "y": 3241
+        "x": 672,
+        "y": 1248
       },
       "verbindungen": [
         "u_windlaeufer_1",
@@ -1565,7 +1614,8 @@
       "voraussetzung": {
         "karte": "windlaeufer"
       },
-      "symbol": "card:windlaeufer"
+      "symbol": "card:windlaeufer",
+      "abzeichen": "bolt"
     },
     {
       "id": "u_windlaeufer_3",
@@ -1575,8 +1625,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1979,
-        "y": 3416
+        "x": 672,
+        "y": 1344
       },
       "verbindungen": [
         "u_windlaeufer_2"
@@ -1600,7 +1650,8 @@
       "voraussetzung": {
         "karte": "windlaeufer"
       },
-      "symbol": "card:windlaeufer"
+      "symbol": "card:windlaeufer",
+      "abzeichen": "sword"
     },
     {
       "id": "u_glutweberin_1",
@@ -1610,8 +1661,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2045,
-        "y": 3027
+        "x": 768,
+        "y": 1152
       },
       "verbindungen": [
         "e_tempo",
@@ -1636,7 +1687,8 @@
       "voraussetzung": {
         "karte": "glutweberin"
       },
-      "symbol": "card:glutweberin"
+      "symbol": "card:glutweberin",
+      "abzeichen": "arrow"
     },
     {
       "id": "u_glutweberin_2",
@@ -1646,8 +1698,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1952,
-        "y": 3192
+        "x": 768,
+        "y": 1248
       },
       "verbindungen": [
         "u_glutweberin_1",
@@ -1672,7 +1724,8 @@
       "voraussetzung": {
         "karte": "glutweberin"
       },
-      "symbol": "card:glutweberin"
+      "symbol": "card:glutweberin",
+      "abzeichen": "sword"
     },
     {
       "id": "u_glutweberin_3",
@@ -1682,8 +1735,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1858,
-        "y": 3357
+        "x": 768,
+        "y": 1344
       },
       "verbindungen": [
         "u_glutweberin_2"
@@ -1707,7 +1760,8 @@
       "voraussetzung": {
         "karte": "glutweberin"
       },
-      "symbol": "card:glutweberin"
+      "symbol": "card:glutweberin",
+      "abzeichen": "clock"
     },
     {
       "id": "u_bannertraeger_1",
@@ -1717,8 +1771,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1972,
-        "y": 2979
+        "x": 864,
+        "y": 1152
       },
       "verbindungen": [
         "e_tempo",
@@ -1743,7 +1797,8 @@
       "voraussetzung": {
         "karte": "bannertraeger"
       },
-      "symbol": "card:bannertraeger"
+      "symbol": "card:bannertraeger",
+      "abzeichen": "arrow"
     },
     {
       "id": "u_bannertraeger_2",
@@ -1753,8 +1808,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1859,
-        "y": 3131
+        "x": 864,
+        "y": 1248
       },
       "verbindungen": [
         "u_bannertraeger_1",
@@ -1779,7 +1834,8 @@
       "voraussetzung": {
         "karte": "bannertraeger"
       },
-      "symbol": "card:bannertraeger"
+      "symbol": "card:bannertraeger",
+      "abzeichen": "clock"
     },
     {
       "id": "u_bannertraeger_3",
@@ -1789,8 +1845,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1746,
-        "y": 3284
+        "x": 864,
+        "y": 1344
       },
       "verbindungen": [
         "u_bannertraeger_2"
@@ -1814,7 +1870,8 @@
       "voraussetzung": {
         "karte": "bannertraeger"
       },
-      "symbol": "card:bannertraeger"
+      "symbol": "card:bannertraeger",
+      "abzeichen": "heart"
     },
     {
       "id": "u_moorhexer_1",
@@ -1824,8 +1881,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1904,
-        "y": 2922
+        "x": 960,
+        "y": 1152
       },
       "verbindungen": [
         "e_tempo",
@@ -1850,7 +1907,8 @@
       "voraussetzung": {
         "karte": "moorhexer"
       },
-      "symbol": "card:moorhexer"
+      "symbol": "card:moorhexer",
+      "abzeichen": "sword"
     },
     {
       "id": "u_moorhexer_2",
@@ -1860,8 +1918,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1774,
-        "y": 3060
+        "x": 960,
+        "y": 1248
       },
       "verbindungen": [
         "u_moorhexer_1",
@@ -1886,7 +1944,8 @@
       "voraussetzung": {
         "karte": "moorhexer"
       },
-      "symbol": "card:moorhexer"
+      "symbol": "card:moorhexer",
+      "abzeichen": "arrow"
     },
     {
       "id": "u_moorhexer_3",
@@ -1896,8 +1955,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1643,
-        "y": 3198
+        "x": 960,
+        "y": 1344
       },
       "verbindungen": [
         "u_moorhexer_2"
@@ -1921,7 +1980,8 @@
       "voraussetzung": {
         "karte": "moorhexer"
       },
-      "symbol": "card:moorhexer"
+      "symbol": "card:moorhexer",
+      "abzeichen": "clock"
     },
     {
       "id": "u_wolkenhirtin_1",
@@ -1931,8 +1991,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1844,
-        "y": 2858
+        "x": 1056,
+        "y": 1152
       },
       "verbindungen": [
         "e_tempo",
@@ -1957,7 +2017,8 @@
       "voraussetzung": {
         "karte": "wolkenhirtin"
       },
-      "symbol": "card:wolkenhirtin"
+      "symbol": "card:wolkenhirtin",
+      "abzeichen": "clock"
     },
     {
       "id": "u_wolkenhirtin_2",
@@ -1967,8 +2028,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1698,
-        "y": 2979
+        "x": 1056,
+        "y": 1248
       },
       "verbindungen": [
         "u_wolkenhirtin_1",
@@ -1993,7 +2054,8 @@
       "voraussetzung": {
         "karte": "wolkenhirtin"
       },
-      "symbol": "card:wolkenhirtin"
+      "symbol": "card:wolkenhirtin",
+      "abzeichen": "arrow"
     },
     {
       "id": "u_wolkenhirtin_3",
@@ -2003,8 +2065,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1551,
-        "y": 3100
+        "x": 1056,
+        "y": 1344
       },
       "verbindungen": [
         "u_wolkenhirtin_2",
@@ -2029,7 +2091,8 @@
       "voraussetzung": {
         "karte": "wolkenhirtin"
       },
-      "symbol": "card:wolkenhirtin"
+      "symbol": "card:wolkenhirtin",
+      "abzeichen": "clock"
     },
     {
       "id": "u_glockenmoench_1",
@@ -2039,8 +2102,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1793,
-        "y": 2787
+        "x": 1152,
+        "y": 1152
       },
       "verbindungen": [
         "e_tempo",
@@ -2065,7 +2128,8 @@
       "voraussetzung": {
         "karte": "glockenmoench"
       },
-      "symbol": "card:glockenmoench"
+      "symbol": "card:glockenmoench",
+      "abzeichen": "clock"
     },
     {
       "id": "u_glockenmoench_2",
@@ -2075,8 +2139,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1632,
-        "y": 2889
+        "x": 1152,
+        "y": 1248
       },
       "verbindungen": [
         "u_glockenmoench_1",
@@ -2101,7 +2165,8 @@
       "voraussetzung": {
         "karte": "glockenmoench"
       },
-      "symbol": "card:glockenmoench"
+      "symbol": "card:glockenmoench",
+      "abzeichen": "bolt"
     },
     {
       "id": "u_glockenmoench_3",
@@ -2111,8 +2176,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1472,
-        "y": 2991
+        "x": 1152,
+        "y": 1344
       },
       "verbindungen": [
         "u_glockenmoench_2",
@@ -2137,7 +2202,8 @@
       "voraussetzung": {
         "karte": "glockenmoench"
       },
-      "symbol": "card:glockenmoench"
+      "symbol": "card:glockenmoench",
+      "abzeichen": "arrow"
     },
     {
       "id": "p_grenz",
@@ -2147,8 +2213,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3088,
-        "y": 2350
+        "x": 1344,
+        "y": 576
       },
       "verbindungen": [
         "p_foil"
@@ -2163,7 +2229,8 @@
         "wert": 0.001,
         "rechenart": "addieren"
       },
-      "symbol": "stun"
+      "symbol": "pack",
+      "abzeichen": "star"
     },
     {
       "id": "w_jackpot",
@@ -2173,8 +2240,8 @@
       "ast": "wirtschaft",
       "akt": 1,
       "position": {
-        "x": 3226,
-        "y": 2069
+        "x": 960,
+        "y": 480
       },
       "verbindungen": [
         "w_platz4"
@@ -2189,7 +2256,8 @@
         "wert": 0.01,
         "rechenart": "addieren"
       },
-      "symbol": "coin"
+      "symbol": "coin",
+      "abzeichen": "star"
     },
     {
       "id": "to_dauer",
@@ -2199,8 +2267,8 @@
       "ast": "tomes",
       "akt": 1,
       "position": {
-        "x": 2119,
-        "y": 2023
+        "x": 1728,
+        "y": 1056
       },
       "verbindungen": [
         "to_wirkung"
@@ -2215,7 +2283,8 @@
         "wert": 0.1,
         "rechenart": "addieren"
       },
-      "symbol": "clock"
+      "symbol": "book",
+      "abzeichen": "clock"
     },
     {
       "id": "f_chance",
@@ -2225,8 +2294,8 @@
       "ast": "foil",
       "akt": 1,
       "position": {
-        "x": 2636,
-        "y": 2585
+        "x": 1968,
+        "y": 960
       },
       "verbindungen": [
         "start",
@@ -2243,7 +2312,8 @@
         "wert": 0.005,
         "rechenart": "addieren"
       },
-      "symbol": "stun"
+      "symbol": "dust",
+      "abzeichen": "star"
     },
     {
       "id": "f_staerke",
@@ -2253,8 +2323,8 @@
       "ast": "foil",
       "akt": 1,
       "position": {
-        "x": 2837,
-        "y": 2664
+        "x": 1920,
+        "y": 1056
       },
       "verbindungen": [
         "f_chance",
@@ -2270,7 +2340,8 @@
         "wert": 0.1,
         "rechenart": "addieren"
       },
-      "symbol": "sword"
+      "symbol": "dust",
+      "abzeichen": "star"
     },
     {
       "id": "f_monster",
@@ -2280,8 +2351,8 @@
       "ast": "foil",
       "akt": 1,
       "position": {
-        "x": 2761,
-        "y": 2760
+        "x": 2016,
+        "y": 1056
       },
       "verbindungen": [
         "f_chance",
@@ -2297,7 +2368,8 @@
         "wert": 0.005,
         "rechenart": "addieren"
       },
-      "symbol": "skull"
+      "symbol": "dust",
+      "abzeichen": "star"
     },
     {
       "id": "f_prisma",
@@ -2307,8 +2379,8 @@
       "ast": "foil",
       "akt": 1,
       "position": {
-        "x": 2967,
-        "y": 2843
+        "x": 1920,
+        "y": 1152
       },
       "verbindungen": [
         "f_staerke",
@@ -2323,7 +2395,8 @@
         "ziel": "flag",
         "flag": "prismenglanz"
       },
-      "symbol": "coin"
+      "symbol": "dust",
+      "abzeichen": "bolt"
     },
     {
       "id": "a2_cursor",
@@ -2333,8 +2406,8 @@
       "ast": "cursor",
       "akt": 2,
       "position": {
-        "x": 2334,
-        "y": 1082
+        "x": 480,
+        "y": 288
       },
       "verbindungen": [
         "c_glut"
@@ -2349,7 +2422,8 @@
         "wert": 3,
         "rechenart": "addieren"
       },
-      "symbol": "rune"
+      "symbol": "claw",
+      "abzeichen": "sword"
     },
     {
       "id": "a2_helden",
@@ -2359,8 +2433,8 @@
       "ast": "einheiten",
       "akt": 2,
       "position": {
-        "x": 1786,
-        "y": 3658
+        "x": 1056,
+        "y": 1440
       },
       "verbindungen": [
         "u_glockenmoench_3",
@@ -2376,18 +2450,19 @@
         "wert": 0.08,
         "rechenart": "addieren"
       },
-      "symbol": "sword"
+      "symbol": "sword",
+      "abzeichen": "sword"
     },
     {
       "id": "a2_einkommen",
       "name": "Handelsroute",
-      "beschreibung": "+15 Münzen Tageseinkommen.",
+      "beschreibung": "+5 Münzen Tageseinkommen.",
       "typ": "klein",
       "ast": "wirtschaft",
       "akt": 2,
       "position": {
-        "x": 3525,
-        "y": 1709
+        "x": 864,
+        "y": 288
       },
       "verbindungen": [
         "w_platz6"
@@ -2399,10 +2474,11 @@
       "kristallKosten": 0,
       "effekt": {
         "ziel": "tagesEinkommen",
-        "wert": 15,
+        "wert": 5,
         "rechenart": "addieren"
       },
-      "symbol": "coin"
+      "symbol": "coin",
+      "abzeichen": "plus"
     },
     {
       "id": "a2_turm",
@@ -2412,8 +2488,8 @@
       "ast": "turm",
       "akt": 2,
       "position": {
-        "x": 1483,
-        "y": 2480
+        "x": 1440,
+        "y": 1248
       },
       "verbindungen": [
         "t_blitz"
@@ -2428,33 +2504,35 @@
         "wert": 0.2,
         "rechenart": "addieren"
       },
-      "symbol": "tower"
+      "symbol": "bigheart",
+      "abzeichen": "heart"
     },
     {
-      "id": "w_tasche",
-      "name": "Tiefe Taschen",
-      "beschreibung": "+2 Plätze in der Run-Tasche.",
+      "id": "w_freiwurf",
+      "name": "Glückswürfel",
+      "beschreibung": "+1 kostenloser Reroll pro Tag (benötigt „Neu würfeln“).",
       "typ": "klein",
       "ast": "wirtschaft",
       "akt": 1,
       "position": {
-        "x": 2930,
-        "y": 2220
+        "x": 1056,
+        "y": 576
       },
       "verbindungen": [
         "w_kill"
       ],
-      "maxStufe": 5,
-      "basisKosten": 6,
-      "kostenFaktor": 1.6,
+      "maxStufe": 3,
+      "basisKosten": 8,
+      "kostenFaktor": 1.8,
       "waehrung": "mastery",
       "kristallKosten": 0,
       "effekt": {
-        "ziel": "taschenPlaetze",
-        "wert": 2,
+        "ziel": "freieRerolls",
+        "wert": 1,
         "rechenart": "addieren"
       },
-      "symbol": "chest"
+      "symbol": "coin",
+      "abzeichen": "plus"
     }
   ]
 }

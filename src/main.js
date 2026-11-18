@@ -6,9 +6,8 @@ import { setVolumes, play, startMusic } from './audio.js';
 import { $, $$, stage, toast, show } from './ui/dom.js';
 import { cardElement } from './ui/cardView.js';
 import { BattleController } from './ui/battle.js';
-import { StarmapScreen } from './ui/starmapScreen.js';
 import { Hub } from './ui/hub.js';
-import { renderCollection, renderRelics, renderQuests, renderAchievements, bindSettings, refreshSettings } from './ui/screens.js';
+import { renderQuests, renderAchievements, bindSettings, refreshSettings } from './ui/screens.js';
 import { SpriteBank, frameAt } from './render/sprites.js';
 import { arenaFloor } from './render/arena.js';
 
@@ -95,14 +94,13 @@ async function boot() {
     },
     /** Bildschirm wechseln. opts.back: wohin "Zurück" führt. */
     goto(name, opts = {}) {
-      if (this.current === 'starmap' && name !== 'starmap') this.starmap.close();
+      // Sternenkarte, Relikte und Sammlung sind Reiter im Hub
+      const tabOf = { starmap: 'upgrade', upgrade: 'upgrade', relics: 'relikte', collection: 'sammlung', bestiary: 'bestiarium' };
+      if (tabOf[name]) { opts = { ...opts, tab: tabOf[name] }; name = 'hub'; }
       if (this.current === 'hub' && name !== 'hub') this.hub.close();
       if (name !== 'battle' && this.current === 'battle' && !this.battle.paused) this.battle.stop();
       show('#tip', false);
       switch (name) {
-        case 'starmap': this.starmap.backTarget = opts.back ?? 'hub'; break;
-        case 'collection': renderCollection(this); break;
-        case 'relics': renderRelics(this); break;
         case 'quests': renderQuests(this); break;
         case 'achievements': renderAchievements(this); break;
         case 'settings': this.settingsBack = opts.back ?? 'hub'; refreshSettings(this); break;
@@ -111,14 +109,12 @@ async function boot() {
       // Einstellungen aus der Pause: Pause-Overlay aus- und bei der Rückkehr wieder einblenden
       show('#overlay-pause', name === 'battle' && this.battle.paused);
       this.showScreen(name);
-      if (name === 'starmap') this.starmap.open();
-      if (name === 'hub') this.hub.open();
+      if (name === 'hub') this.hub.open(opts);
     },
     /** Run starten: Abblenden (0,4 s), Kampfbildschirm mit leerem Feld. */
     startRun(opts) {
-      this.lastBag = this.save.shop.bag.map((b) => b.artikel);
+      this.lastBag = this.save.shop.offers.filter((o) => o.sold && !o.opened).map((o) => ({ kind: o.kind, id: o.id, karte: o.karte }));
       stage.fade(() => {
-        if (this.current === 'starmap') this.starmap.close();
         if (this.current === 'hub') this.hub.close();
         ['#overlay-result', '#overlay-pause', '#overlay-popup'].forEach((s) => show(s, false));
         this.showScreen('battle');
@@ -127,7 +123,6 @@ async function boot() {
     },
   };
   game.battle = new BattleController(game);
-  game.starmap = new StarmapScreen(game);
   game.hub = new Hub(game);
   setVolumes(game.save.settings.musicVolume, game.save.settings.sfxVolume);
   bindSettings(game);

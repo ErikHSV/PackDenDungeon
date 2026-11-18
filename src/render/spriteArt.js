@@ -907,3 +907,64 @@ Object.assign(ICON_ART, {
   settings(p) { p.circle(6, 6, 4.5, '#9a9fb0'); p.circle(6, 6, 2, '#1E1B2E'); for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2; p.rect(6 + Math.cos(a) * 5 - 1, 6 + Math.sin(a) * 5 - 1, 2, 2, '#9a9fb0'); } },
   arrow(p) { for (let y = 0; y < 10; y++) p.rect(0, y, Math.max(1, Math.min(y + 1, 7 - Math.max(0, y - 6))), 1, '#F4EBD9'); p.line(0, 0, 0, 10, '#1E1B2E'); },
 });
+
+// ---------------------------------------------------------------------------
+// Hub (14.2): neue Symbole für Knoten-Eckabzeichen, Shop und Navigation
+// ---------------------------------------------------------------------------
+
+Object.assign(ICON_ART, {
+  /** Zeiger-Hand (Cursor-Upgrade) */
+  hand(p) { p.rect(4, 1, 2, 6, '#f4d8b0'); p.rect(4, 6, 7, 5, '#f4d8b0'); p.rect(6, 5, 2, 2, '#f4d8b0'); p.rect(8, 5, 2, 2, '#f4d8b0'); p.rect(2, 7, 2, 3, '#f4d8b0'); p.px(5, 1, '#ffffff'); p.rect(4, 10, 7, 1, '#c8a080'); },
+  /** Grüne Kratzspuren (Cursor-Schaden) */
+  claw(p) { for (let i = 0; i < 3; i++) p.line(2 + i * 3, 10, 5 + i * 3, 1, i === 1 ? '#7CFF6A' : '#4ED85A', 1); },
+  /** Haus (Gebäude) */
+  house(p) { p.tri(0, 6, 12, 6, 6, 0, '#c0392b'); p.rect(2, 6, 8, 5, '#c08a52'); p.rect(5, 8, 2, 3, '#4a3020'); p.rect(3, 7, 1, 1, '#FFD24A'); },
+  /** Großes rotes Herz (Turm-Leben) */
+  bigheart(p) { p.circle(3.5, 4, 3.2, '#E04848'); p.circle(8.5, 4, 3.2, '#E04848'); p.tri(0.5, 5, 11.5, 5, 6, 11.5, '#E04848'); p.rect(2, 2, 2, 2, '#ffb0b0'); },
+  /** Pack (Pack-Upgrade) */
+  pack(p) { p.rect(2, 1, 8, 10, '#A55CE0'); for (let x = 2; x < 10; x += 2) { p.px(x, 0, '#6a3a9a'); p.px(x, 11, '#6a3a9a'); } p.rect(3, 2, 1, 8, '#d8a8ff'); p.circle(6.5, 6, 1.6, '#FFD24A'); },
+  plus(p) { p.rect(4, 1, 4, 10, '#5ED17A'); p.rect(1, 4, 10, 4, '#5ED17A'); p.rect(5, 2, 2, 8, '#a8ffb8'); },
+  bolt(p) { p.tri(7, 0, 2, 7, 6, 7, '#FFD24A'); p.tri(5, 5, 10, 5, 4, 12, '#FFD24A'); p.px(6, 3, '#fff6c0'); },
+  star(p) { p.tri(6, 0, 8, 5, 4, 5, '#FFD24A'); p.tri(1, 4, 11, 4, 6, 8, '#FFD24A'); p.tri(6, 7, 2, 11, 5, 6, '#FFD24A'); p.tri(6, 7, 10, 11, 7, 6, '#FFD24A'); p.px(6, 4, '#ffffff'); },
+  check(p) { p.line(1, 6, 4, 9, '#5ED17A', 2); p.line(4, 9, 10, 2, '#5ED17A', 2); },
+  /** Blauer Kristall (Mastery-Punkte) */
+  mastery(p) { p.tri(6, 0, 11, 5, 1, 5, '#7cc4ff'); p.tri(1, 5, 11, 5, 6, 12, '#3B78D8'); p.line(6, 1, 6, 10, '#d8f0ff'); },
+  /** Rosa-goldener Kristall (Kristalle) */
+  gem(p) { p.tri(6, 0, 11, 5, 1, 5, '#ffc8e0'); p.tri(1, 5, 11, 5, 6, 12, '#e8a04a'); p.line(6, 1, 6, 10, '#fff0d0'); },
+  /** Foil-Staub */
+  dust(p) { p.px(2, 3, '#FF7AC8'); p.px(6, 1, '#7ae8ff'); p.px(9, 4, '#ffe07a'); p.px(4, 7, '#a8ff7a'); p.px(8, 9, '#FF7AC8'); p.px(2, 10, '#7ae8ff'); p.rect(5, 5, 2, 2, '#ffffff'); },
+  up(p) { p.tri(6, 2, 11, 8, 1, 8, '#F4EBD9'); },
+  down2(p) { p.tri(1, 1, 11, 1, 6, 5, '#F4EBD9'); p.tri(1, 6, 11, 6, 6, 10, '#F4EBD9'); },
+});
+
+/** Shop-Pack (24×32): Folienpack mit Spiel-Kürzel „PDD“ und kleinem Motiv. */
+export function SHOP_PACK_ART(p, color, motif = '#FFD24A') {
+  const dark = shade(color, -0.4), light = shade(color, 0.35);
+  p.rect(2, 2, 20, 28, color);
+  for (let x = 2; x < 22; x += 2) { p.px(x, 1, dark); p.px(x + 1, 2, dark); p.px(x, 30, dark); p.px(x + 1, 29, dark); }
+  p.rect(2, 5, 20, 1, light);
+  p.rect(2, 26, 20, 1, dark);
+  p.rect(4, 6, 2, 19, light);
+  // Kürzel "PDD" (3×5-Pixelschrift)
+  const ink = '#1E1B2E';
+  const glyph = { P: ['111', '101', '111', '100', '100'], D: ['110', '101', '101', '101', '110'] };
+  [...'PDD'].forEach((ch, i) => glyph[ch].forEach((row, y) => [...row].forEach((b, x) => { if (b === '1') p.px(7 + i * 4 + x, 8 + y, ink); })));
+  // Motiv
+  p.circle(12, 20, 3.5, motif);
+  p.circle(12, 20, 1.8, shade(motif, -0.35));
+}
+
+/** Kiste (28×28): würfelförmige Box in Pack-Farbe mit Kürzel und Motiv. */
+export function CRATE_ART(p, color, motif = '#FFD24A') {
+  const dark = shade(color, -0.4), light = shade(color, 0.3);
+  // Deckel (Rhombus) und zwei Seiten
+  p.tri(14, 2, 26, 8, 2, 8, light); p.tri(2, 8, 26, 8, 14, 14, light);
+  p.tri(2, 8, 14, 14, 2, 22, color); p.tri(14, 14, 14, 27, 2, 22, color); p.rect(2, 8, 1, 14, color);
+  p.tri(26, 8, 14, 14, 26, 22, dark); p.tri(14, 14, 14, 27, 26, 22, dark);
+  p.line(14, 14, 14, 27, shade(color, -0.6));
+  p.line(2, 8, 14, 14, shade(color, -0.6)); p.line(26, 8, 14, 14, shade(color, -0.6));
+  const ink = '#1E1B2E';
+  const glyph = { P: ['111', '101', '111', '100', '100'], D: ['110', '101', '101', '101', '110'] };
+  [...'PDD'].forEach((ch, i) => glyph[ch].forEach((row, y) => [...row].forEach((b, x) => { if (b === '1') p.px(3 + i * 3 + x, 12 + y + Math.floor(i * 1.5), ink); })));
+  p.circle(20, 18, 2.5, motif);
+}

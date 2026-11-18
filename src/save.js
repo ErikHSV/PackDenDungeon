@@ -5,7 +5,9 @@ const KEY = 'packdendungeon-save-v3';
 export function defaultSave(data) {
   return {
     version: 4,
-    coins: data?.balance.wirtschaft.startMuenzen ?? 30,
+    coins: data?.balance.wirtschaft.startMuenzen ?? 12,
+    bonusCoins: 0,      // Bonus-Münzen aus Quests und Relikten (werden zuerst ausgegeben)
+    dayBudget: data?.balance.wirtschaft.startMuenzen ?? 12, // Einkommen des aktuellen Tages (Anzeige "x+b/Budget")
     mastery: 0,
     crystals: 0,
     foilDust: 0,
@@ -19,8 +21,9 @@ export function defaultSave(data) {
     quests: { claimed: [] },
     questBonus: { tagesEinkommen: 0 },
     achievements: {},   // Erfolg-ID -> Tag der Freischaltung
-    shop: { offers: [], bag: [], rerolls: 0 },
+    shop: { offers: [], rerolls: 0, freeUsed: 0, seen: [], uid: 0 },
     selection: { chapter: 1, prestige: 0, gesucht: false, modifier: null },
+    ui: { cardsSeen: 0, beastsSeen: 0 }, // für die roten Punkte an den Hub-Reitern
     stats: {
       runs: 0, kills: 0, killsGegner: {}, zeitGesamt: 0, laengsterRun: 0, tomesGenutzt: 0, entwicklungen: 0,
       foilsGezogen: 0, foilMonsterBesiegt: 0, grenzgaengerGezogen: 0, packsGeoeffnet: {}, packsGesamt: 0,
@@ -37,7 +40,7 @@ export function defaultSave(data) {
 
 function merge(base, raw) {
   const out = { ...base, ...raw };
-  for (const k of ['stats', 'tutorial', 'settings', 'relics', 'shop', 'quests', 'questBonus', 'selection']) out[k] = { ...base[k], ...(raw[k] || {}) };
+  for (const k of ['stats', 'tutorial', 'settings', 'relics', 'shop', 'quests', 'questBonus', 'selection', 'ui']) out[k] = { ...base[k], ...(raw[k] || {}) };
   return out;
 }
 
@@ -45,7 +48,14 @@ export function loadSave(data) {
   const base = defaultSave(data);
   try {
     const raw = JSON.parse(localStorage.getItem(KEY));
-    return raw ? merge(base, raw) : base;
+    if (!raw) return base;
+    const s = merge(base, raw);
+    // Alter Shop (vor 14.2): Run-Tasche erstatten, Angebote neu würfeln
+    if (s.shop.offers.some((o) => !o.kind) || s.shop.bag) {
+      for (const b of s.shop.bag || []) s.coins += Math.round(b.preis || 0);
+      s.shop = { ...base.shop, seen: s.shop.seen || [] };
+    }
+    return s;
   } catch {
     return base;
   }

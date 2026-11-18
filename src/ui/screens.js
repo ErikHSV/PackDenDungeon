@@ -1,4 +1,4 @@
-// Nebenbildschirme: Sammlung (14.11), Relikte (14.10), Quests und Erfolge (14.12), Einstellungen (14.13).
+// Hub-Reiter Sammlung, Bestiarium, Relikte (14.2.6–14.2.8) sowie Quests, Erfolge und Einstellungen.
 import { $, $$, el, escapeHtml, show, confirmDialog, toast } from './dom.js';
 import { cardElement } from './cardView.js';
 import { relicSlots, equipRelic, destroyRelic, progressOf, claimQuest } from '../core/meta.js';
@@ -7,79 +7,135 @@ import { setVolumes, play } from '../audio.js';
 import { formatNumber } from '../core/util.js';
 
 // =====================================================================
-// Sammlung: Einheiten/Tomes, Foils, Bestiarium, Grenzgänger, Relikte
+// Reiter SAMMLUNG (14.2.6): Kacheln im Shop-Stil, Filter, Fortschritt, große Karte per Klick
 // =====================================================================
 
-const COL_TABS = [['karten', 'Einheiten & Tomes'], ['foils', 'Foils'], ['bestiarium', 'Bestiarium'], ['grenz', 'Grenzgänger'], ['relikte', 'Relikte']];
+const FILTERS = [['alle', 'Alle'], ['helden', 'Helden'], ['tomes', 'Tomes'], ['foil', 'Foil'], ['grenz', 'Grenzgänger']];
 
-export function renderCollection(game, tab = game.colTab ?? 'karten') {
+export function renderCollection(game, filter = game.colFilter ?? 'alle') {
   const { data, save, bank } = game;
-  game.colTab = tab;
+  game.colFilter = filter;
   const has = (id) => (save.collection[id]?.normal || 0) + (save.collection[id]?.foil || 0) > 0;
-  const normalCards = data.allCards.filter((id) => data.cardIndex[id].def.rarity !== 'grenzgaenger');
-  $('#col-progress').textContent = `${data.allCards.filter(has).length} / ${data.allCards.length} Karten`;
-  $('#col-tabs').innerHTML = COL_TABS.map(([id, name]) => `<button class="tab${id === tab ? ' active' : ''}" data-tab="${id}">${name}</button>`).join('');
-  $$('#col-tabs .tab').forEach((b) => b.addEventListener('click', () => { play('click'); renderCollection(game, b.dataset.tab); }));
+  const total = data.allCards.length;
+  $('#col-progress').innerHTML = `${data.allCards.filter(has).length} / ${total}<br><span style="color:var(--foil)">Foil: ${data.allCards.filter((id) => save.collection[id]?.foil > 0).length} / ${total}</span>`;
+  $('#col-filters').innerHTML = FILTERS.map(([id, n]) => `<button class="filter${id === filter ? ' active' : ''}" data-f="${id}">${n}</button>`).join('');
+  $$('#col-filters .filter').forEach((b) => b.addEventListener('click', () => { play('click'); renderCollection(game, b.dataset.f); }));
+  const rank = (id) => data.rarities[data.cardIndex[id].def.rarity].rang;
+  const ids = [...data.allCards].sort((a, b) => rank(a) - rank(b)).filter((id) => {
+    const c = data.cardIndex[id];
+    const gg = c.def.rarity === 'grenzgaenger';
+    if (filter === 'helden') return c.art === 'einheit' && !gg;
+    if (filter === 'tomes') return c.art === 'tome';
+    if (filter === 'foil') return !gg;
+    if (filter === 'grenz') return gg;
+    return true;
+  });
   const grid = $('#col-grid');
   grid.innerHTML = '';
-  const add = (node) => grid.appendChild(node);
-  const rank = (id) => data.rarities[data.cardIndex[id].def.rarity].rang;
-  const sorted = (ids) => [...ids].sort((a, b) => rank(a) - rank(b));
-
-  if (tab === 'karten') {
-    for (const id of sorted(normalCards)) {
-      const c = save.collection[id];
-      add(cardElement(id, game, { found: has(id), count: c ? c.normal + c.foil : null }));
-    }
-  } else if (tab === 'foils') {
-    for (const id of sorted(normalCards)) add(cardElement(id, game, { found: save.collection[id]?.foil > 0, foil: save.collection[id]?.foil > 0, count: save.collection[id]?.foil || null }));
-  } else if (tab === 'grenz') {
-    const ids = data.allCards.filter((id) => data.cardIndex[id].def.rarity === 'grenzgaenger');
-    add(el('<div class="beast" style="grid-column:1/-1;width:auto;height:auto;padding:14px">Grenzgänger sind geheime Karten. Die Chance auf sie steigt, je länger du am Stück spielst.</div>'));
-    for (const id of ids) add(cardElement(id, game, { found: has(id), count: save.collection[id] ? save.collection[id].normal + save.collection[id].foil : null }));
-  } else if (tab === 'bestiarium') {
-    for (const e of data.enemies) {
-      const b = save.bestiary[e.id];
-      const seen = (b?.normal || 0) + (b?.foil || 0) > 0;
-      add(el(`<div class="beast${b?.foil ? ' foil' : ''}${seen ? '' : ' unknown'}">
-        <img src="${bank.enemyUrl(e.id)}" alt="">
-        <b>${seen ? escapeHtml(e.name) : '???'}${e.boss ? ' (Boss)' : ''}</b>
-        <span class="muted">${seen ? `${b.normal} besiegt${b.foil ? ` · ${b.foil} Foil ✦` : ''}` : 'Noch nicht besiegt'}</span>
-        ${seen ? `<span style="font-size:13px">${escapeHtml(e.beschreibung ?? '')}</span>` : ''}</div>`));
-    }
-  } else {
-    for (const r of data.relics) {
-      const owned = save.relics.owned.includes(r.id);
-      const gone = save.relics.destroyed?.includes(r.id);
-      add(el(`<div class="beast${owned ? '' : ' unknown'}" style="border-color:${data.rarities[r.rarity].farbe}">
-        <img src="${bank.iconUrl(r.symbol)}" alt="">
-        <b>${owned || gone ? escapeHtml(r.name) : '???'}${r.verflucht && (owned || gone) ? ' ☠' : ''}</b>
-        <span class="muted">${gone ? 'Zerstört' : owned ? escapeHtml(r.beschreibung) : 'Noch nicht gefunden'}</span></div>`));
-    }
+  for (const id of ids) {
+    const c = data.cardIndex[id];
+    const col = save.collection[id];
+    const found = filter === 'foil' ? col?.foil > 0 : has(id);
+    const secret = c.def.rarity === 'grenzgaenger' && !found;
+    const t = el(`<div class="tile${found ? '' : ' unknown'}${filter === 'foil' && found ? ' foil' : ''}">
+      <div class="field" style="--r:${data.rarities[c.def.rarity].farbe}"><img src="${secret ? bank.iconUrl('quest') : bank.cardUrl(id)}" alt="">
+        <span class="r"></span>${found ? `<span class="cnt">×${filter === 'foil' ? col.foil : col.normal + col.foil}</span>` : ''}${col?.foil ? '<span class="fo">✦</span>' : ''}</div>
+      <div class="nm">${found ? escapeHtml(c.def.name) : '???'}</div></div>`);
+    t.addEventListener('click', () => { if (has(id)) { play('click'); showCardDetail(game, id); } });
+    grid.appendChild(t);
   }
 }
 
+/** Große Karte mit Fähigkeit, Herkunfts-Packs und Statistik. */
+export function showCardDetail(game, id) {
+  const { data, save, bank } = game;
+  const c = data.cardIndex[id];
+  const col = save.collection[id] || { normal: 0, foil: 0 };
+  const packs = data.packs.filter((p) => p.pool?.includes(id));
+  const box = $('#card-detail');
+  box.innerHTML = '';
+  const card = cardElement(id, game, { foil: col.foil > 0, count: col.normal + col.foil });
+  card.classList.add('big');
+  box.appendChild(card);
+  box.appendChild(el(`<div class="info panel">
+    <h2>${escapeHtml(c.def.name)}</h2>
+    <div style="color:${data.rarities[c.def.rarity].farbe}">${data.rarities[c.def.rarity].name} · ${c.art === 'tome' ? 'Tome' : escapeHtml(c.def.rolle ?? '')}</div>
+    <p>${escapeHtml(c.def.beschreibung)}</p>
+    ${c.def.entwicklung ? `<p class="muted">Entwicklung: ${escapeHtml(c.def.entwicklung.name ?? '')}</p>` : ''}
+    <p class="packs">Herkunft: ${packs.length ? packs.map((p) => `<img src="${bank.shopItemUrl(p.id)}" title="${escapeHtml(p.name)}">`).join('') : c.def.rarity === 'grenzgaenger' ? 'jedes Pack (sehr selten)' : 'Shop'}</p>
+    <p>Gezogen: ${col.normal} normal · ${col.foil} Foil</p>
+    <p class="muted">Klicken zum Schließen</p></div>`));
+  show('#overlay-card', true);
+  $('#overlay-card').onclick = () => show('#overlay-card', false);
+}
+
 // =====================================================================
-// Relikte: Plätze, Inventar, Ausrüsten (Klick oder Ziehen), Zerstören
+// Reiter BESTIARIUM (14.2.7): nach Kapiteln gruppiert, Foil-Markierung, Kills, Monster-Quests
+// =====================================================================
+
+export function renderBestiary(game) {
+  const { data, save, bank } = game;
+  const known = (id) => (save.bestiary[id]?.normal || 0) + (save.bestiary[id]?.foil || 0) > 0;
+  $('#beast-progress').textContent = `${data.enemies.filter((e) => known(e.id)).length} / ${data.enemies.length} · Foil: ${data.enemies.filter((e) => save.bestiary[e.id]?.foil > 0).length}`;
+  const traits = (e) => {
+    const t = [];
+    if (e.fliegt) t.push('fliegt');
+    if (e.ruestung) t.push(`Rüstung ${e.ruestung}`);
+    if (e.magieResistenz) t.push(`Magieresistenz ${Math.round(e.magieResistenz * 100)} %`);
+    const ei = e.eigenschaften || {};
+    if (ei.muenzenStehlen) t.push('stiehlt Münzen');
+    if (ei.explodiertBeimTod) t.push('explodiert');
+    if (ei.frontSchild) t.push('Frontschild');
+    if (ei.teiltSichBeimTod) t.push('teilt sich');
+    if (ei.verlangsamtHelden) t.push('verlangsamt Helden');
+    return t.join(' · ') || 'keine Besonderheiten';
+  };
+  const done = new Set();
+  let html = '';
+  for (const ch of data.chapters) {
+    const ids = [...new Set([...ch.gegner.map((g) => g.id), ch.boss])].filter((id) => data.enemyIndex[id] && !done.has(id));
+    // Nachwuchs (z. B. kleine Lavaschleime) gehört zum gleichen Kapitel
+    for (const id of [...ids]) { const sp = data.enemyIndex[id].eigenschaften?.teiltSichBeimTod?.in; if (sp && !ids.includes(sp)) ids.push(sp); }
+    if (!ids.length) continue;
+    ids.forEach((id) => done.add(id));
+    html += `<h3>${escapeHtml(ch.name)}</h3><div class="beast-row">`;
+    for (const id of ids) {
+      const e = data.enemyIndex[id];
+      const b = save.bestiary[id];
+      const k = known(id);
+      const quests = data.quests.filter((q) => q.ziel.statistik === 'killsGegner' && q.ziel.filter?.gegner === id);
+      html += `<div class="beast${k ? '' : ' unknown'}${e.boss ? ' boss' : ''}">
+        <img src="${bank.enemyUrl(id)}" alt="">
+        <div><b>${k ? escapeHtml(e.name) : '?'}${e.boss ? ' (Boss)' : ''}</b>
+          ${k ? `<div>${escapeHtml(traits(e))}</div><div>Besiegt: ${b.normal + b.foil}</div>` : '<div class="muted">Noch nicht besiegt</div>'}
+          <div class="foilmark${b?.foil ? ' on' : ''}">✦ Foil ${b?.foil ? `besiegt (${b.foil})` : 'noch nicht besiegt'}</div>
+          ${quests.map((q) => { const p = progressOf(q, data, save); return `<div style="font-size:13px">${escapeHtml(q.name)} ${formatNumber(p.value)}/${formatNumber(p.target)}</div><div class="qb"><div style="width:${(100 * p.value) / p.target}%"></div></div>`; }).join('')}
+        </div></div>`;
+    }
+    html += '</div>';
+  }
+  $('#beast-list').innerHTML = html;
+}
+
+// =====================================================================
+// Reiter RELIKTE (14.2.8): Plätze, Inventar, Klick = ausrüsten/ablegen, Zerstören mit Rückfrage
 // =====================================================================
 
 export function renderRelics(game, selected = null) {
   const { data, save, bank } = game;
-  save.relics.newCount = 0;
-  game.persist();
   const slots = relicSlots(data, save);
   const max = data.balance.relikte.plaetzeMax;
   const eq = save.relics.equipped;
   $('#relic-slots').innerHTML = Array.from({ length: max }, (_, i) => {
-    if (i >= slots) return '<div class="r-slot locked" title="Zerstöre ein Relikt, um einen Platz freizuschalten.">🔒</div>';
+    if (i >= slots) return `<div class="r-slot locked" title="Zerstöre ein Relikt, um einen Platz freizuschalten."><img src="${bank.iconUrl('lock')}" alt=""></div>`;
     const id = eq[i];
-    return id ? `<div class="r-slot filled" data-id="${id}" title="${escapeHtml(data.relicIndex[id].name)}"><img src="${bank.iconUrl(data.relicIndex[id].symbol)}" alt=""></div>` : '<div class="r-slot" data-drop="1"></div>';
+    const r = id && data.relicIndex[id];
+    return r ? `<div class="r-slot filled${r.verflucht ? ' cursed' : ''}" data-id="${id}" title="${escapeHtml(r.name)}"><img src="${bank.iconUrl(r.symbol)}" alt=""></div>` : '<div class="r-slot"></div>';
   }).join('');
   const inv = $('#relic-inv');
   inv.innerHTML = data.relics.map((r) => {
-    const owned = save.relics.owned.includes(r.id);
-    if (!owned) return `<div class="r-item unknown" style="--rar:#4a4266"><img src="${bank.iconUrl('relic')}" alt="">???</div>`;
-    return `<div class="r-item${eq.includes(r.id) ? ' equipped' : ''}${r.verflucht ? ' cursed' : ''}" style="--rar:${data.rarities[r.rarity].farbe}" data-id="${r.id}" draggable="true"><img src="${bank.iconUrl(r.symbol)}" alt="">${escapeHtml(r.name)}</div>`;
+    if (!save.relics.owned.includes(r.id)) return `<div class="r-item unknown" style="--rar:#4a4266"><img src="${bank.iconUrl('relic')}" alt="">${save.relics.destroyed?.includes(r.id) ? 'Zerstört' : '???'}</div>`;
+    return `<div class="r-item${eq.includes(r.id) ? ' equipped' : ''}${r.verflucht ? ' cursed' : ''}" style="--rar:${data.rarities[r.rarity].farbe}" data-id="${r.id}"><img src="${bank.iconUrl(r.symbol)}" alt="">${escapeHtml(r.name)}</div>`;
   }).join('');
   const sel = selected && data.relicIndex[selected];
   $('#relic-detail').innerHTML = sel ? `
@@ -87,13 +143,13 @@ export function renderRelics(game, selected = null) {
       <div style="color:${data.rarities[sel.rarity].farbe}">${data.rarities[sel.rarity].name}</div>
       <p>${escapeHtml(sel.beschreibung)}</p>
       ${sel.nachteil ? `<p class="curse">Nachteil: ${escapeHtml(sel.nachteil)}</p>` : ''}
-      <div class="row">
+      <div class="row" style="justify-content:flex-start">
         <button class="btn btn-primary" id="relic-toggle">${eq.includes(sel.id) ? 'Ablegen' : 'Ausrüsten'}</button>
         <button class="btn btn-danger" id="relic-destroy">Zerstören</button>
       </div>
       <p class="muted">Zerstören entfernt das Relikt dauerhaft und schaltet dafür einen weiteren Reliktplatz frei (max. ${max}). Fehlende Relikte findest du in der Reliktjagd.</p>`
     : `<h2>Relikte</h2><p>${save.relics.owned.length} von ${data.relics.length} gefunden · ${eq.length}/${slots} Plätze belegt.</p>
-       <p class="muted">Klicke ein Relikt an, um es auszurüsten, oder ziehe es auf einen Platz. Verfluchte Relikte sind stark, haben aber einen Nachteil.</p>`;
+       <p class="muted">Klicke ein Relikt an, um es auszurüsten oder abzulegen. Verfluchte Relikte (violett-roter Rand) sind stark, haben aber einen Nachteil.</p>`;
 
   const toggle = (id) => {
     if (!equipRelic(id, data, save)) { play('error'); toast('Alle Plätze belegt – lege zuerst ein Relikt ab.', true); return; }
@@ -101,15 +157,8 @@ export function renderRelics(game, selected = null) {
     game.persist();
     renderRelics(game, id);
   };
-  $$('.r-item[data-id]', inv).forEach((it) => {
-    it.addEventListener('click', () => { play('click'); renderRelics(game, it.dataset.id); });
-    it.addEventListener('dragstart', (e) => e.dataTransfer.setData('text/plain', it.dataset.id));
-  });
+  $$('.r-item[data-id]', inv).forEach((it) => it.addEventListener('click', () => toggle(it.dataset.id)));
   $$('.r-slot.filled').forEach((s) => s.addEventListener('click', () => toggle(s.dataset.id)));
-  $$('.r-slot[data-drop]').forEach((s) => {
-    s.addEventListener('dragover', (e) => e.preventDefault());
-    s.addEventListener('drop', (e) => { e.preventDefault(); const id = e.dataTransfer.getData('text/plain'); if (id && !eq.includes(id)) toggle(id); });
-  });
   $('#relic-toggle')?.addEventListener('click', () => toggle(sel.id));
   $('#relic-destroy')?.addEventListener('click', async () => {
     if (!(await confirmDialog(`${sel.name} wirklich zerstören? Es ist danach für immer weg, du erhältst einen zusätzlichen Reliktplatz.`, 'Zerstören', 'Behalten'))) return;
@@ -118,6 +167,7 @@ export function renderRelics(game, selected = null) {
     game.persist();
     renderRelics(game);
   });
+  // Zuletzt angeklicktes Relikt im Detail zeigen (Klick toggelt, Detail zeigt es trotzdem)
 }
 
 // =====================================================================

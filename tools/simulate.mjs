@@ -5,7 +5,7 @@
 //   node tools/simulate.mjs [tage=40] [seed=1] [--verbose]
 import { loadData } from './load-data.mjs';
 import { Run } from '../src/core/run.js';
-import { bagCapacity, computeMods, rollOffers, describeOffer, buyOffer, applyRunResult, buyNode, nodeBlocker, nodeCost, levelOf, chapterUnlocked, gateState, openGate, claimQuest, questDone } from '../src/core/meta.js';
+import { bagItems, consumeBag, walletTotal, canReroll, reroll, rerollCost, computeMods, rollOffers, describeOffer, buyOffer, applyRunResult, buyNode, nodeBlocker, nodeCost, levelOf, chapterUnlocked, gateState, openGate, claimQuest, questDone } from '../src/core/meta.js';
 import { defaultSave } from '../src/save.js';
 import { mulberry32 } from '../src/core/util.js';
 
@@ -49,16 +49,17 @@ function botRun(chapterId, mods, bag) {
 }
 
 function shop() {
-  // Bevorzugt das beste bezahlbare Angebot (teuerstes), solange Geld da ist
-  // Bevorzugt das beste bezahlbare Angebot (teuerstes), bis Geld oder Tasche erschöpft sind
-  const cap = bagCapacity(data, computeMods(data, save));
-  for (let guard = 0; guard < 60; guard++) {
-    const opts = save.shop.offers.map((s, i) => ({ i, o: describeOffer(s, data, save) })).filter((x) => x.o && !x.o.sold && x.o.preis <= save.coins);
-    if (!opts.length) break;
-    opts.sort((a, b) => b.o.preis - a.o.preis);
-    let ok = false;
-    for (const x of opts) { const r = buyOffer(x.i, data, save, rng, cap); if (r && !r.full) { ok = true; break; } }
-    if (!ok) break;
+  // Kauft die teuersten bezahlbaren Angebote; würfelt neu, solange Rerolls billig sind
+  const mods = computeMods(data, save);
+  for (let round = 0; round < 6; round++) {
+    for (let guard = 0; guard < 20; guard++) {
+      const opts = save.shop.offers.map((s, i) => ({ i, o: describeOffer(s, data, save) })).filter((x) => x.o && !x.o.sold && x.o.preis <= walletTotal(save));
+      if (!opts.length) break;
+      opts.sort((a, b) => b.o.preis - a.o.preis);
+      buyOffer(opts[0].i, data, save, rng);
+    }
+    if (!canReroll(mods) || rerollCost(data, save, mods) > walletTotal(save) / 3) break;
+    reroll(data, save, mods, rng);
   }
 }
 
@@ -83,8 +84,8 @@ rollOffers(data, save, computeMods(data, save), rng);
 const firstWin = {};
 for (let day = 1; day <= DAYS; day++) {
   shop();
-  const bag = save.shop.bag.map((b) => b.artikel);
-  save.shop.bag = [];
+  const bag = bagItems(data, save);
+  consumeBag(save);
   const ch = pickChapter();
   const mods = computeMods(data, save, {});
   const run = botRun(ch, mods, bag);

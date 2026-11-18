@@ -14,7 +14,7 @@ export class Run {
    * @param {object} o.save      Spielstand (nur gelesen: Sammlung, Relikte, Statistik)
    * @param {number} o.chapterId
    * @param {object} o.mods      computeMods(...)
-   * @param {string[]} o.bag     Pack-IDs aus der Run-Tasche
+   * @param {string[]} o.bag     Pack-IDs aus der Run-Tasche, Einzelkarten als "karte:<id>"
    * @param {function} o.events  (name, payload) => void
    * @param {boolean} o.headless Simulation ohne Darstellung (Karten erscheinen sofort)
    */
@@ -122,6 +122,13 @@ export class Run {
       uid: this.uid++, packId, def, sx: from.x, sy: from.y - 60, tx: target.x, ty: target.y, x: from.x, y: from.y,
       t: -delay, flight: this.headless ? 0 : this.B.run.packFlugzeit, landed: this.headless, hp, maxHp: hp, wobble: 0, cracks: 0,
     });
+  }
+
+  /** Einzelne, bereits aufgedeckte Karte (aus dem Shop) fliegt aufs Feld. */
+  launchCard(cardId, from = this.tower, delay = 0) {
+    if (!this.data.cardIndex[cardId]) return;
+    const land = this.randomRingPoint();
+    this.cards.push({ id: cardId, foil: false, x: from.x, y: from.y - 60, sx: from.x, sy: from.y - 60, tx: land.x, ty: land.y, t: -delay, dur: this.headless ? 0 : 0.8, shop: true });
   }
 
   updatePacks(dt) {
@@ -683,7 +690,8 @@ export class Run {
       if (this.countdown <= 0) {
         this.state = 'fight';
         // Alle gekauften Packs regnen aufs Feld
-        this.bag.forEach((id, i) => this.launchPack(id, this.tower, i * 0.08));
+        // Einzelkarten ("karte:<id>") landen als bereits aufgedeckte Karte und werden sofort zur Einheit bzw. zum Tome
+        this.bag.forEach((id, i) => (String(id).startsWith('karte:') ? this.launchCard(id.slice(6), this.tower, i * 0.08) : this.launchPack(id, this.tower, i * 0.08)));
         this.emit('fightStart');
         for (const r of this.relics('runStart')) if (r.aktion.typ === 'verstaerken') this.buffs.trommel = { t: r.aktion.dauer, bonus: r.aktion.bonus };
       }

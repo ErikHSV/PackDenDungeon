@@ -4,6 +4,7 @@ import { $, $$, show, stage, toast, showTip, confirmDialog, escapeHtml } from '.
 import { cardElement } from './cardView.js';
 import { showResult } from './result.js';
 import { Run } from '../core/run.js';
+import { bagItems, consumeBag } from '../core/meta.js';
 import { Renderer } from '../render/renderer.js';
 import { play, startMusic } from '../audio.js';
 import { formatNumber } from '../core/util.js';
@@ -26,8 +27,8 @@ export class BattleController {
     const { data, save } = this.game;
     this.opts = opts;
     this.mods = this.game.mods(opts);
-    const bag = save.shop.bag.map((b) => b.artikel);
-    save.shop.bag = []; // Packs werden im Run verbraucht
+    const bag = bagItems(data, save);
+    consumeBag(save); // gekaufte Angebote werden im Run verbraucht
     this.game.persist();
     this.run = new Run({
       data, save, chapterId: opts.chapter, mods: this.mods, bag,
