@@ -4,6 +4,7 @@ import { $, escapeHtml, show, stage, confirmDialog, countTo } from './dom.js';
 import { levelOf, nodeCost, nodeBlocker, buyNode, nodeReachable, describeNodeEffect, resetStarmap, nodeVisibleInAct, computeMods } from '../core/meta.js';
 import { hash } from '../render/pixel.js';
 import { play } from '../audio.js';
+import { showUnlocks } from './reveal.js';
 
 const NODE = 48;
 const ZMIN = 0.55, ZMAX = 1.5;
@@ -152,6 +153,10 @@ export class UpgradeTree {
     this.hint = null;
     this.showInfo(node);
     this.game.hub?.onUpgradeBought();
+    if (firstTime && node.effekt.ziel === 'gebaeude') {
+      const b = this.data.buildingIndex[node.effekt.gebaeude];
+      if (b) showUnlocks([{ title: 'NEUES GEBÄUDE!', name: `${b.name}: ${b.beschreibung}`, img: this.game.bank.url(this.game.bank.building(b.id)), w: 192, h: 192 }]);
+    }
     return true;
   }
 

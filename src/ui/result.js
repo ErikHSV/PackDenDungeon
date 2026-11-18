@@ -2,6 +2,7 @@
 import { $, el, escapeHtml, show, countTo } from './dom.js';
 import { applyRunResult, claimableQuests, anyNodeAffordable, buyOffer, bagItems } from '../core/meta.js';
 import { play, startMusic } from '../audio.js';
+import { showUnlocks } from './reveal.js';
 
 const fmtTime = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
@@ -55,13 +56,14 @@ export function showResult(game, r, mods, opts) {
     game.startRun(opts);
   };
 
-  // Freischaltungen nacheinander zeigen
-  const popups = [];
-  if (info.kapitelFrei) popups.push(`<h1>Neues Kapitel freigeschaltet!</h1><p style="font-size:30px">${escapeHtml(info.kapitelFrei.name)}</p>`);
-  for (const p of info.packsFrei) popups.push(`<h1>Neues Pack verfügbar!</h1><img src="${bank.packUrl(p.id)}" style="width:96px;height:126px"><p style="font-size:28px">${escapeHtml(p.name)}</p>`);
-  if (info.schluesselstein) popups.push(`<h1>Schlüsselstein erhalten!</h1><p style="font-size:28px;color:${info.schluesselstein.farbe}">${escapeHtml(info.schluesselstein.name)}</p><p>Setze alle Schlüsselsteine in das Alte Tor im Hub ein.</p>`);
-  if (info.relikt) popups.push(`<h1>Neues Relikt!</h1><img src="${bank.iconUrl(info.relikt.symbol)}" style="width:96px;height:96px"><p style="font-size:28px">${escapeHtml(info.relikt.name)}</p><p>${escapeHtml(info.relikt.beschreibung)}</p>`);
-  if (popups.length) setTimeout(() => showPopups(popups), 1200);
+  // Freischaltungen nacheinander zeigen (14.6b)
+  const items = [];
+  if (info.kapitelFrei) items.push({ title: 'NEUES KAPITEL!', name: info.kapitelFrei.name, img: bank.url(bank.fieldTower(info.kapitelFrei.farbwelt?.turmlicht ?? '#7ab8ff')), w: 100, h: 200 });
+  for (const p of info.packsFrei) items.push({ title: p.art === 'kiste' ? 'NEUE BOOSTER-KISTE!' : 'NEUES PACK!', name: p.name, img: bank.shopItemUrl(p.id), w: p.art === 'kiste' ? 200 : 180, h: p.art === 'kiste' ? 200 : 240 });
+  if (info.schluesselstein) items.push({ title: 'SCHLÜSSELSTEIN!', name: `${info.schluesselstein.name} – setze alle Steine in das Alte Tor ein.`, img: bank.iconUrl('gem'), w: 160, h: 160 });
+  if (info.relikt) items.push({ title: 'NEUES RELIKT!', name: `${info.relikt.name}: ${info.relikt.beschreibung}`, img: bank.iconUrl(info.relikt.symbol), w: 180, h: 180 });
+  for (const a of info.erfolge) items.push({ title: 'ERFOLG!', name: `${a.name} – ${a.beschreibung}`, img: bank.iconUrl('crown'), w: 160, h: 160 });
+  if (items.length) setTimeout(() => showUnlocks(items), 900);
 }
 
 export function showPopups(list) {

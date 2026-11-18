@@ -100,18 +100,14 @@
     <!-- 14.5 Kampf -->
     <section id="screen-battle" class="screen">
       <canvas id="field" class="full-canvas"></canvas>
-      <div class="hud-left">
-        <div class="relic-row" id="hud-relics"></div>
-        <div class="hud-coins"><img data-icon="coin" alt="" id="hud-coin-icon"><span id="hud-coins">0</span></div>
-      </div>
-      <div class="hud-center">
-        <div class="boss-label" id="boss-label"></div>
-        <div class="boss-track"><div class="boss-fill" id="boss-fill"></div></div>
-      </div>
-      <div class="hud-right">
-        <button class="btn hud-btn" id="btn-pause">II</button>
-        <button class="btn hud-btn" id="btn-speed">1×</button>
-      </div>
+      <!-- 14.5: so wenig HUD wie möglich -->
+      <div class="hud-progress" id="hud-progress"><div id="hud-progress-fill"></div></div>
+      <div class="hud-bossbar hidden" id="hud-bossbar"><div class="bb-name" id="bb-name"></div><div class="bb-track"><div id="bb-fill"></div></div></div>
+      <div class="hud-relics" id="hud-relics"></div>
+      <div class="hud-counter"><div class="hc-main"><span id="hud-mastery">0</span><img id="hud-mastery-icon" alt=""></div><div class="hc-mult hidden" id="hud-mult"></div></div>
+      <button class="hud-gear" id="btn-pause" title="Pause / Einstellungen"><img data-icon="settings" alt=""></button>
+      <div class="hud-quests hidden" id="hud-quests"></div>
+      <div class="relic-tip hidden" id="relic-tip"></div>
       <div class="banner hidden" id="banner"></div>
       <div class="info-pop panel hidden" id="info-pop"></div>
       <div class="debug-panel panel hidden" id="debug-panel">
@@ -160,12 +156,29 @@
     </section>
 
     <!-- Overlays -->
-    <div class="overlay hidden" id="overlay-newcard"><div class="newcard" id="newcard"></div><div class="newcard-hint">Klicken zum Weiterspielen</div></div>
+    <!-- 14.6 Neue-Karte-Präsentation -->
+    <div class="overlay hidden" id="overlay-newcard">
+      <div class="nc">
+        <div class="nc-name" id="nc-name"></div>
+        <div class="nc-ability" id="nc-ability"></div>
+        <div class="nc-stage"><canvas id="nc-blob" width="420" height="420"></canvas><img id="nc-fig" alt=""></div>
+        <div class="nc-next">&gt;</div>
+      </div>
+      <div class="nc-hint">Klicken zum Fortfahren</div>
+    </div>
+    <!-- 14.6b Freischaltung -->
+    <div class="overlay hidden" id="overlay-unlock">
+      <canvas id="ul-rays" width="1000" height="1000"></canvas>
+      <img id="ul-img" alt="">
+      <div class="ul-text"><div class="ul-title" id="ul-title"></div><div class="ul-name" id="ul-name"></div></div>
+      <div class="nc-next ul-next">&gt;</div>
+    </div>
     <div class="overlay hidden" id="overlay-card"><div class="card-detail" id="card-detail"></div></div>
     <div class="overlay hidden" id="overlay-pause">
       <div class="panel pause-box">
         <h2>Pause</h2>
         <button class="btn btn-primary btn-big" id="pause-resume">Weiter</button>
+        <button class="btn btn-big" id="btn-speed">Tempo: 1×</button>
         <button class="btn btn-big" id="pause-settings">Einstellungen</button>
         <button class="btn btn-big btn-danger" id="pause-end">Run beenden</button>
         <p class="muted">Beim Beenden bleiben alle Belohnungen erhalten.</p>

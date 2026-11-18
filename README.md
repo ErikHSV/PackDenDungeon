@@ -25,7 +25,12 @@ Alle 12 Phasen der überarbeiteten Spezifikation sind umgesetzt:
 | 11 | Akt-Tor mit Schlüsselsteinen, Prestige, „Gesucht“ (Foil-Bosse), Bestiarium, Grenzgänger | ✅ |
 | 12 | Feinschliff, Balancing-Simulation, Debug-Werkzeuge | ✅ |
 
-**So spielt man:** Im Hub Packs kaufen → „Kampf beginnen“ → Packs mit dem Runenkreis (Maus oder Finger) aufschlagen → Helden kämpfen allein, du hilfst mit dem Runenkreis, klickst Tomes an und wehrst Boss-Angriffe ab → nach dem Run Mastery-Punkte in der Sternenkarte ausgeben.
+**Nachträge zur Spezifikation (umgesetzt):**
+- **14.2 Hub:** ein einziger Bildschirm. Links Kapitelwahl (▲/▼, römische Ziffer = Prestige) und Shop (Raster mit 3 Spalten, Rabatt/NEU/Jackpot, Kauf rückgängig per Klick, RESET, REROLL), rechts Reiter UPGRADE (Skill-Tree als Schaltplan über der eigenen Basis), SAMMLUNG, BESTIARIUM, RELIKTE, dazu der KAMPF-Knopf.
+- **3/6/14.5/15 Kampf:** Das ganze Bild ist Spielfeld. Der Boden ist dunkel in Kapitelfarbe, der Rand ist mit Deko und Vignette bedeckt, der Turm ist schmal und leuchtet in Kapitelfarbe. Die Figuren sind klein. Der Cursor ist ein dünner Kreis. Das HUD ist minimal: Boss-Fortschritt, Relikt-Spalte, Mastery-Zähler, Zahnrad und Quests.
+- **14.6/14.6b:** Neue-Karte-Präsentation mit Halbton-Fleck; Freischaltungen (Pack, Kiste, Kapitel, Gebäude, Relikt, Erfolg) mit Strahlenkranz und Fanfare.
+
+**So spielt man:** Im Hub-Shop Packs, Kisten oder einzelne Helden kaufen → „KAMPF“ → Packs mit dem Cursor-Kreis (Maus oder Finger) aufschlagen → Helden kämpfen allein, du hilfst mit dem Cursor, klickst Tomes an und wehrst Boss-Angriffe ab → nach dem Run Mastery-Punkte im Reiter UPGRADE ausgeben.
 
 **Debug:** `?debug` an die URL hängen (z. B. `…/PackDenDungeon/?debug`). Dann gibt es im Kampf Knöpfe für Münzen, Zeitsprung, Boss, Packs und Run-Ende und in den Einstellungen Knöpfe für Währungen, Kapitel, Karten und Relikte.
 
@@ -77,10 +82,10 @@ src/
     cards.js          Kartenziehung (Seltenheit, Foil, Grenzgänger)
     meta.js           Shop, Tage, Sternenkarte, Tor, Relikte, Quests, Erfolge
   render/             Pixel-Art (prozedural), Sprites, Arena, Kampf-Renderer
-  ui/                 Bildschirme: Hub, Kampf, Ergebnis, Sternenkarte, Sammlung, Relikte, …
+  ui/                 Hub (Shop + Reiter), Upgrade-Baum, Kampf, Einblendungen, Ergebnis, Quests, Einstellungen
   dev/                Entwicklerseiten (Datenübersicht)
   main.js, save.js, audio.js
-tools/                Node-Werkzeuge (Validierung, Simulation)
+tools/                Node-Werkzeuge (Validierung, Simulation, Layout der Sternenkarte)
 docs/DATENFORMATE.md  Beschreibung aller Datenformate
 legacy/               frühere Spielversionen
 ```
@@ -96,7 +101,10 @@ legacy/               frühere Spielversionen
 - **Sternensplitter:** Aus der Vorversion werden die **Kristalle** der neuen Spezifikation. Sie bezahlen Gebäude und Schlüsselknoten.
 - **Einheiten-Ast:** Jede Karte hat einen Unterast mit 3 Knoten, der erst sichtbar wird, wenn die Karte gefunden wurde.
 - **Arena:** Oval mit 880 × 470 px Radius um den Turm bei (960, 560), mit Platz für eine schlanke obere Leiste.
-- **Run-Tasche:** fasst 10 Artikel (eine Kiste zählt als einer), über den Knoten „Tiefe Taschen“ erweiterbar. Das verhindert, dass die Wirtschaft nach langen Runs explodiert.
-- **Münzen:** Ein Kill bringt im Schnitt 0,4 × Münzwert des Gegners (zufällig gerundet). Höhere Kapitel zahlen mehr Münzen **und** mehr Mastery.
+- **Shop statt Run-Tasche:** Jeder Angebotsplatz ist pro Tag einmal kaufbar. Mehr Ware gibt es über REROLL (Knoten „Neu würfeln“, kostenlose Rerolls über „Glückswürfel“) und mehr Plätze (bis 9). Das ersetzt die frühere Taschengrenze und verhindert, dass die Wirtschaft nach langen Runs explodiert.
+- **Kleine Preise:** Holzpack 4, Kiste 10, Silberpack 12, Sternenpack 20 Münzen (steigen pro Kapitel). Ein Kill bringt im Schnitt 0,16 × Münzwert des Gegners. Höhere Kapitel zahlen mehr Münzen **und** mehr Mastery.
+- **Spiel-Kürzel** auf Packs und Kisten: „PDD“.
+- **Quests im Kampf:** Angezeigt werden bis zu drei offene Quests, die zum Kapitel passen (Monster des Kapitels, Packs in der Tasche, Kills, Foils).
+- **Zahnrad im Kampf** öffnet die Pause. Dort sind auch Tempo (1×/2×), Einstellungen und „Run beenden“.
 - **Akt 2:** Das Tor ist spielbar (Reset der Sternenkarte, Akt-2-Knoten, Modifikatoren, Riss des Frosts). Eigene Akt-2-Kapitel sind als „geplant“ in `acts.json` vermerkt.
-- **Balancing:** gemessen mit `tools/simulate.mjs` (menschenähnlicher Bot). Erster Run des Bots ≈ 40–50 s, ein echter Neuling stirbt meist nach 20–30 s. Boss von Kapitel 1 nach etwa 20 Runs, Kapitel 2 nach etwa 45.
+- **Balancing:** gemessen mit `tools/simulate.mjs` (menschenähnlicher Bot). Erster Run des Bots ≈ 40–60 s; Boss von Kapitel 1 nach etwa 20 Runs. Für Menschen habe ich die Dauer nicht gemessen.

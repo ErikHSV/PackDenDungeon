@@ -49,6 +49,7 @@ const SOUNDS = {
   parry:      [{ f: 1800, d: 0.06, type: 'square', v: 0.05 }, { f: 900, d: 0.2, at: 0.04, type: 'triangle' }],
   bolt:       [{ f: 1500, d: 0.08, type: 'sawtooth', v: 0.04, slide: 200 }],
   building:   [{ f: 330, d: 0.08, type: 'triangle' }, { f: 440, d: 0.1, at: 0.08, type: 'triangle' }],
+  fanfare:    [{ f: 523, d: 0.14, type: 'square', v: 0.04 }, { f: 659, d: 0.14, at: 0.12, type: 'square', v: 0.04 }, { f: 784, d: 0.14, at: 0.24, type: 'square', v: 0.04 }, { f: 1047, d: 0.5, at: 0.36, type: 'triangle', v: 0.06 }, { f: 784, d: 0.5, at: 0.36, type: 'triangle', v: 0.04 }],
   unlock:     [{ f: 523, d: 0.12 }, { f: 784, d: 0.12, at: 0.1 }, { f: 1047, d: 0.12, at: 0.2 }, { f: 1568, d: 0.4, at: 0.3 }],
 };
 

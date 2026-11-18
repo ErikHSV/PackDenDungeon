@@ -76,6 +76,7 @@ Jede gezogene Karte wird zu einer eigenen Einheit, Duplikate ergeben also mehrer
 ## Kapitel (`chapters.json`)
 
 `bossNachSekunden`: Zeit bis zum Boss. `spawn.modus`: `ring` (ganzer Arenarand) oder `portale` (feste Winkel in Grad, 0 = rechts, 90 = unten).
+`farbwelt`: `thema` (`moor`, `gruft`, `schmiede`, `frost`), `boden` (Bodenfarbe), `turmlicht` (Tor/Fenster des Turms), `waehrung` (`blau`, `rot`, `weiss` – Kristall im Run-Zähler).
 `gegner[]`: Gewicht, optional `abSekunde` und `bisSekunde`. `wellen`: Multiplikatoren für Leben, Münzen und Schaden. `gefahren`: z. B. `schneesturm`.
 
 ## Sternenkarte (`starmap.json`)
@@ -85,6 +86,7 @@ Felder je Knoten (laut Spezifikation): `id`, `name`, `beschreibung`, `typ`, `ast
 - **Typen:** `klein` (Kreis, mehrere Stufen), `gross` (Sechseck), `schluessel` (Stern, Mastery-Punkte + Kristalle), `freischalt` (Schloss), `start`.
 - **Kosten:** `basisKosten × kostenFaktor^Stufe` in `waehrung` (`mastery` oder `foilstaub` für Ast H), plus `kristallKosten`.
 - **Akt:** Knoten mit `akt: 2` erscheinen erst nach dem Öffnen des Tors. Beim Durchschreiten wird die Karte mit voller Rückerstattung zurückgesetzt (`balance.akte.sternenkarteResetBeiAktwechsel`).
+- **Darstellung (14.2.5):** Schaltplan mit rechtwinkligen Leitungen. `position` liegt auf einem Raster; `symbol` = was verbessert wird (`hand`, `claw`, `coin`, `pack`, `house`, `card:<id>`, `tower`, `bigheart`, `book`, `dust`), `abzeichen` = welcher Wert (`clock`, `sword`, `heart`, `plus`, `arrow`, `bolt`, `star`). `node tools/layout-starmap.mjs` erzeugt Positionen, Symbole und Abzeichen neu.
 - **Kaufbar:** wenn ein verbundener Nachbar mindestens Stufe 1 hat. Bei `voraussetzung.karte` muss diese Karte zusätzlich schon gefunden sein.
 - **Verbindungen:** in **beiden** Knoten eintragen (prüft der Validator).
 
@@ -93,7 +95,7 @@ Felder je Knoten (laut Spezifikation): `id`, `name`, `beschreibung`, `typ`, `ast
 | Ziel | Wirkung pro Stufe |
 |---|---|
 | `cursorSchaden`, `cursorRadiusMul`, `cursorTickMul`, `cursorPackSchadenMul`, `cursorKrit` | Runenkreis |
-| `tagesEinkommen`, `muenzenMul`, `shopPlaetze`, `taschenPlaetze`, `masteryMul`, `jackpotChance` | Wirtschaft |
+| `tagesEinkommen`, `muenzenMul`, `shopPlaetze`, `freieRerolls`, `masteryMul`, `jackpotChance` | Wirtschaft |
 | `packWiderstandMul`, `foilChance`, `kartenProPack`, `packImPack`, `grenzgaengerChance` | Packs |
 | `foilStaerkeMul`, `foilMonsterChance` | Foil (Ast H) |
 | `heldenSchadenMul`, `heldenLebenMul`, `heldenTempoMul` | alle Helden |
@@ -119,6 +121,7 @@ Felder je Knoten (laut Spezifikation): `id`, `name`, `beschreibung`, `typ`, `ast
 
 - Ein Run ist ein **Tag**: danach werden Münzen und Tageseinkommen gutgeschrieben, der Shop würfelt neu.
 - Münzen pro Kill: `gegner.muenzen × balance.belohnungen.muenzenProKill × Kapitel-Münzmultiplikator`. Nachkommastellen werden zufällig gerundet.
-- Die Run-Tasche fasst `balance.shop.taschenPlaetze` Artikel (eine Kiste zählt als einer), erweiterbar über die Sternenkarte.
+- **Shop (14.2.3):** `balance.shop.angebotsPlaetzeStart`/`Max` Plätze (3 Spalten). Jeder Platz ist einmal kaufbar; ein zweiter Klick macht den Kauf rückgängig, RESET erstattet alle Käufe des Tages. Gekaufte Plätze bilden die Run-Tasche. `balance.shop.rabatt` (Chance, Faktor) gibt rote Rabatt-Etiketten, „NEU“ markiert erstmals gesehene Angebote. `shop.einzelkarten` bietet einzelne Helden/Tomes (Preis nach Seltenheit), die im Kampf als aufgedeckte Karte landen.
+- **Münzanzeige „x+b/B“:** x = Münzen, b = Bonus-Münzen aus Quests und Relikten (werden zuerst ausgegeben), B = Tagesbudget (Einkommen des Tages).
 - Preise steigen pro erreichtem Kapitel um `balance.wirtschaft.preisWachstumProKapitel`.
 - Mastery: `masteryProSekunde`, `masteryProKill`, `masteryProElitewelle`, `masteryProBoss`, multipliziert mit dem Münzmultiplikator des Kapitels.

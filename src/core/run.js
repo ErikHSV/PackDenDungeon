@@ -7,6 +7,9 @@ import { updateEnemies } from './enemies.js';
 
 export const SIM_STEP = 1 / 60;
 
+const PACK_MID = 20; // Packs liegen ca. 30×40 px groß; Mitte 20 px über dem Fußpunkt
+const PACK_HIT = 18;
+
 export class Run {
   /**
    * @param {object} o
@@ -120,14 +123,16 @@ export class Run {
     const hp = def.widerstand * this.mods.packWiderstandMul;
     this.packs.push({
       uid: this.uid++, packId, def, sx: from.x, sy: from.y - 60, tx: target.x, ty: target.y, x: from.x, y: from.y,
-      t: -delay, flight: this.headless ? 0 : this.B.run.packFlugzeit, landed: this.headless, hp, maxHp: hp, wobble: 0, cracks: 0,
+      t: -delay, flight: this.headless ? 0 : this.B.run.packFlugzeit, landed: this.headless, hp, maxHp: hp, wobble: 0, cracks: 0, rot: (this.rng() - 0.5) * 0.52,
     });
   }
 
   /** Einzelne, bereits aufgedeckte Karte (aus dem Shop) fliegt aufs Feld. */
   launchCard(cardId, from = this.tower, delay = 0) {
     if (!this.data.cardIndex[cardId]) return;
-    const land = this.randomRingPoint();
+    // Gekaufte Helden sammeln sich nah am Turmfuß
+    const a = this.rng() * Math.PI * 2, d = 70 + this.rng() * 60;
+    const land = { x: this.tower.x + Math.cos(a) * d, y: this.tower.y + 20 + Math.abs(Math.sin(a)) * d * 0.6 };
     this.cards.push({ id: cardId, foil: false, x: from.x, y: from.y - 60, sx: from.x, sy: from.y - 60, tx: land.x, ty: land.y, t: -delay, dur: this.headless ? 0 : 0.8, shop: true });
   }
 
@@ -315,7 +320,7 @@ export class Run {
   // =====================================================================
 
   spawnTome(id, x, y) {
-    this.tomes.push({ uid: this.uid++, id, def: this.data.tomeIndex[id], x, y, bob: this.rng() * 6 });
+    this.tomes.push({ uid: this.uid++, id, def: this.data.tomeIndex[id], x, y, bob: this.rng() * 6, rot: (this.rng() - 0.5) * 0.52 });
   }
 
   /** Klick auf ein Buch löst den Zauber aus (einmalig). */
@@ -416,11 +421,12 @@ export class Run {
     const foil = !base.boss ? (opts.foil ?? this.rng() < FM.chance + this.mods.foilMonsterChance) : this.mods.gesucht;
     const hp = base.leben * ch.lebenMul * scale * this.mods.gegnerLebenMul * (elite ? E.lebenMul : 1) * (P?.lebenMul ?? 1)
       * (foil ? (base.boss ? G.bossLebenMul : FM.lebenMul) : 1);
-    const px = base.boss ? 96 * 2 : elite ? 96 : base.groesse * 3;
+    // Darstellungsgröße (Abschnitt 3): kleine Massenmonster, Elite doppelt, Bosse 64 px
+    const px = base.boss ? 64 : elite ? base.groesse * 2 : base.groesse;
     const e = {
       uid: this.uid++, kind: 'enemy', id, def: base.boss ? JSON.parse(JSON.stringify(base)) : base, name: base.name,
       x: p.x, y: p.y, wave, elite, fliegt: base.fliegt, frontSchild: !!base.eigenschaften?.frontSchild,
-      r: Math.round(px * 0.28), px, hp, maxHp: hp, speed: base.tempo * (0.9 + this.rng() * 0.2),
+      r: Math.max(9, Math.round(px * 0.4)), px, hp, maxHp: hp, speed: base.tempo * (0.9 + this.rng() * 0.2),
       ruestung: base.ruestung, magieResistenz: base.magieResistenz, immun: base.immun,
       damage: base.schaden * ch.schadenMul * Math.pow(W.schadenWachstum, wave) * (elite ? E.schadenMul : 1) * (P?.schadenMul ?? 1) * this.mods.gegnerSchadenMul * (foil && base.boss ? G.bossSchadenMul : 1),
       muenzen: base.muenzen * (elite ? E.muenzenMul : 1) * (foil && !base.boss ? FM.muenzenMul : 1), foil, atkTimer: 0.4, st: newStatus(), facing: 1, spawnAge: 0, animTime: this.rng() * 2,
@@ -548,6 +554,7 @@ export class Run {
     const cs = this.cursorStats();
     cur.angle += dt * 1.6;
     cur.pulse = Math.max(0, cur.pulse - dt);
+    cur.hit = Math.max(0, (cur.hit || 0) - dt);
     const circles = [{ x: cur.x, y: cur.y, r: cs.radius, f: 1 }];
     if (this.mods.flags.zwillingsrune) {
       const d = cs.radius * 1.7;
@@ -555,24 +562,29 @@ export class Run {
     }
     cur.circles = circles;
     const inside = (c, o, extra = 0) => Math.hypot(o.x - c.x, o.y - c.y) <= c.r + extra;
-    cur.busy = cur.active && circles.some((c) => this.enemies.some((e) => !e.dead && inside(c, e, e.r * 0.6)) || this.packs.some((p) => p.landed && !p.opened && inside(c, { x: p.x, y: p.y - 30 }, 30)));
+    const body = (e) => ({ x: e.x, y: e.y - e.px * 0.45 - (e.fliegt ? 30 : 0) }); // Körpermitte statt Fußpunkt
+    const packAt = (p) => ({ x: p.x, y: p.y - PACK_MID });
+    cur.busy = cur.active && circles.some((c) => this.enemies.some((e) => !e.dead && inside(c, body(e), e.r)) || this.packs.some((p) => p.landed && !p.opened && inside(c, packAt(p), PACK_HIT)));
     if (!cur.active) return;
     cur.tick -= dt;
     if (cur.tick > 0) return;
     cur.tick = cs.tick;
     cur.pulse = 0.15;
+    let hitSomething = false;
     for (const c of circles) {
       const crit = cs.crit > 0 && this.rng() < cs.crit;
       const dmg = cs.damage * c.f * (crit ? 2 : 1);
       for (const e of this.enemies) {
-        if (e.dead || !inside(c, e, e.r * 0.6)) continue;
+        if (e.dead || !inside(c, body(e), e.r)) continue;
+        hitSomething = true;
         damageEnemy(this, e, dmg, this.B.cursor.schadensTyp, { cursor: true, aoe: true, crit });
         if (this.mods.flags.glutkreis) applyStatus(this, e, { typ: 'brennen', schadenProSekunde: dmg * 0.6, dauer: 3 });
         // Schwachpunkt (Medaillon) beim Schrei
         if (e.boss?.scream) e.boss.scream.hits++;
       }
-      for (const p of this.packs) if (p.landed && !p.opened && inside(c, { x: p.x, y: p.y - 30 }, 30)) this.damagePack(p, dmg * cs.packMul * this.relicMul('cursorPackSchadenMul'));
+      for (const p of this.packs) if (p.landed && !p.opened && inside(c, packAt(p), PACK_HIT)) { hitSomething = true; this.damagePack(p, dmg * cs.packMul * this.relicMul('cursorPackSchadenMul')); }
     }
+    if (hitSomething) cur.hit = 0.12; // Kreis blitzt kurz heller auf
   }
 
   /** Klick/Tipp auf das Spielfeld: Tomes auslösen, Hämmer parieren. Gibt zurück, was getroffen wurde. */
@@ -588,15 +600,15 @@ export class Run {
       fx(this, { type: 'text', x: h.x, y: h.y - 40, text: 'Zu früh!', color: '#b3a990', size: 18 });
       return 'early';
     }
-    const t = this.tomes.find((o) => Math.hypot(o.x - x, o.y - 40 - y) <= 50);
+    const t = this.tomes.find((o) => Math.hypot(o.x - x, o.y - 12 - y) <= 34);
     if (t) { this.useTome(t); return 'tome'; }
     return null;
   }
 
   /** Objekt unter dem Cursor (für das Info-Fenster). */
   thingAt(x, y) {
-    let best = null, bd = 60;
-    for (const u of this.units) { if (u.dead) continue; const d = Math.hypot(u.x - x, u.y - 40 - y); if (d < bd) { bd = d; best = u; } }
+    let best = null, bd = 30;
+    for (const u of this.units) { if (u.dead) continue; const d = Math.hypot(u.x - x, u.y - 12 - y); if (d < bd) { bd = d; best = u; } }
     for (const e of this.enemies) { if (e.dead) continue; const d = Math.hypot(e.x - x, e.y - e.px * 0.35 - y); if (d < Math.max(bd, e.r + 10)) { bd = d; best = e; } }
     return best;
   }
@@ -616,7 +628,7 @@ export class Run {
         let target = null, bd = 520;
         for (const e of this.enemies) { if (e.dead) continue; const d = dist(e, t); if (d < bd) { bd = d; target = e; } }
         if (target) {
-          this.projectiles.push({ x: t.x, y: t.y - 140, target, tx: target.x, ty: target.y, speed: 900, damage: 6 * (1 + 0.6 * (lvl - 1)) * this.chapter.wellen.lebenMul,
+          this.projectiles.push({ x: t.x, y: t.y - 76, target, tx: target.x, ty: target.y, speed: 900, damage: 6 * (1 + 0.6 * (lvl - 1)) * this.chapter.wellen.lebenMul,
             type: 'physical', source: null, bounces: 0, hit: new Set(), color: '#F4EBD9', isTower: true });
           t.shotTimer = 1.3 * (1 - 0.15 * (lvl - 1));
         } else t.shotTimer = 0.2;
@@ -629,7 +641,7 @@ export class Run {
         const near = this.enemies.filter((e) => !e.dead && dist(e, t) < 450);
         if (near.length) {
           const e = near[Math.floor(this.rng() * near.length)];
-          fx(this, { type: 'bolt', x1: t.x, y1: t.y - 150, x2: e.x, y2: e.y, color: '#fff6a0', life: 0.25 });
+          fx(this, { type: 'bolt', x1: t.x, y1: t.y - 80, x2: e.x, y2: e.y, color: '#fff6a0', life: 0.25 });
           damageEnemy(this, e, 40 * this.chapter.wellen.lebenMul, 'magic', { aoe: true });
           this.emit('sound', 'bolt');
         }
@@ -649,7 +661,9 @@ export class Run {
   }
 
   relics(trigger) {
-    return this.save.relics.equipped.map((id) => this.data.relicIndex[id]).filter((r) => r && r.ausloeser === trigger);
+    const list = this.save.relics.equipped.map((id) => this.data.relicIndex[id]).filter((r) => r && r.ausloeser === trigger);
+    for (const r of list) this.emit('relicTriggered', { id: r.id }); // Symbol in der Relikt-Spalte blinkt
+    return list;
   }
 
   relicValue(typ, key) {
@@ -749,3 +763,4 @@ export class Run {
 }
 
 export { UNIT_R };
+

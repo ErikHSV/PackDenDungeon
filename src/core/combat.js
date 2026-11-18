@@ -182,6 +182,7 @@ export function damageTower(run, amount, attacker = null, heavy = false) {
   if (run.over) return;
   t.hp -= amount;
   t.hitFlash = 0.15;
+  t.lastHit = run.time; // kleine Lebensleiste über dem Turm erscheint für 3 s
   run.emit('towerHit', { amount });
   if (heavy || amount >= t.maxHp * run.data.balance.turm.schweresTrefferAnteil) run.emit('shake', { power: heavy ? 14 : 8 });
   // Dornen (Sternenkarte) und Dornenmauer (Relikt)

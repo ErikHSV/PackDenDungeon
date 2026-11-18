@@ -2,7 +2,7 @@
 // Frames: idle (4), attack (6), hit (2, weißes Aufblitzen), death (5, Zerfall in Funken).
 // Gegner werden mit Blick nach rechts erzeugt und beim Zeichnen je nach Laufrichtung gespiegelt.
 import { Pix, outline, whiteOut, upscale, hash, makeCanvas } from './pixel.js';
-import { HERO_ART, ENEMY_ART, ICON_ART, PACK_ART, TOME_ART, BUILDING_ART, TOWER_TOP_ART, SHOP_PACK_ART, CRATE_ART } from './spriteArt.js';
+import { HERO_ART, ENEMY_ART, ICON_ART, PACK_ART, TOME_ART, BUILDING_ART, TOWER_TOP_ART, SHOP_PACK_ART, CRATE_ART, NARROW_TOWER_ART, TOME_MOTIF } from './spriteArt.js';
 
 export const ANIM = { idle: 4, attack: 6, hit: 2, death: 5 };
 const BREATH = [0, 1, 1, 0];
@@ -108,7 +108,7 @@ export class SpriteBank {
   enemy(id, elite = false) {
     const def = this.data.enemyIndex[id];
     const art = ENEMY_ART[def.sprite ?? id] ?? fallback(def.farbe);
-    if (def.boss) return this.get(`boss:${id}`, () => buildFrames(art, 32, { scale: 3 }));
+    if (def.boss) return this.get(`boss:${id}`, () => buildFrames(art, 32, { scale: 2 }));
     const base = def.groesse === 32 ? 32 : 24;
     if (elite) return this.get(`elite:${id}`, () => buildFrames(art, base, { outlineColor: '#E04848', scale: 2 }));
     return this.get(`enemy:${id}`, () => buildFrames(art, base));
@@ -132,7 +132,7 @@ export class SpriteBank {
     return this.get(`tome:${tomeId}:${open}`, () => {
       const def = this.data.tomeIndex[tomeId];
       const p = new Pix(16);
-      TOME_ART(p, this.data.rarities[def.rarity].farbe, open);
+      TOME_ART(p, this.data.rarities[def.rarity].farbe, open, (TOME_MOTIF[tomeId] ?? TOME_MOTIF._));
       return outline(p.c, OUTLINE);
     });
   }
@@ -158,6 +158,25 @@ export class SpriteBank {
         g.drawImage(c, 0, 0);
         g.globalCompositeOperation = 'source-atop';
         g.fillStyle = 'rgba(224,72,72,0.55)';
+        g.fillRect(0, 0, t.width, t.height);
+        c = t;
+      }
+      return upscale(c, 4);
+    });
+  }
+
+  /** Schmaler Kampf-Turm (40×80) mit Licht in Kapitelfarbe. */
+  fieldTower(light, cracks = 0, hit = false) {
+    return this.get(`ftower:${light}:${cracks}:${hit}`, () => {
+      const p = new Pix(10, 20);
+      NARROW_TOWER_ART(p, light, cracks);
+      let c = outline(p.c, OUTLINE);
+      if (hit) {
+        const t = makeCanvas(c.width, c.height);
+        const g = t.getContext('2d');
+        g.drawImage(c, 0, 0);
+        g.globalCompositeOperation = 'source-atop';
+        g.fillStyle = 'rgba(255,255,255,0.6)';
         g.fillRect(0, 0, t.width, t.height);
         c = t;
       }

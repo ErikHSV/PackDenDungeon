@@ -13,7 +13,7 @@
       "artikel": "kiste_holz",
       "anzahl": 1,
       "grundPreis": 10,
-      "gewicht": 20
+      "gewicht": 35
     },
     {
       "id": "a_silber",
@@ -27,7 +27,7 @@
       "artikel": "kiste_silber",
       "anzahl": 1,
       "grundPreis": 30,
-      "gewicht": 10
+      "gewicht": 16
     },
     {
       "id": "a_sternen",
@@ -85,7 +85,7 @@
   ],
   "einzelkarten": {
     "$kommentar": "Einzelner Held oder Tome als Angebot. Preis nach Seltenheit; die Karte wird aus einem freigeschalteten Pack gezogen (ohne Foil und Grenzgänger).",
-    "gewicht": 22,
+    "gewicht": 15,
     "preisNachSeltenheit": {
       "common": 2,
       "uncommon": 4,

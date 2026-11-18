@@ -3,7 +3,7 @@
 import { dist } from './util.js';
 import { damageEnemy, applyOnHit, applyStatus, fx } from './combat.js';
 
-export const UNIT_R = 22; // Kollisionsradius einer Einheit (Weltpixel)
+export const UNIT_R = 12; // Kollisionsradius einer Einheit (Weltpixel; Helden sind ca. 16–24 px hoch)
 
 const canHit = (u, e) => !e.dead && (!e.fliegt || u.def.trifftLuft);
 
@@ -63,7 +63,7 @@ const ATTACKS = {
     const r = (a.radius ?? 90) * (u.foil ? run.data.balance.karten.foil.flaecheMul : 1) * (run.buffs.riesen.t > 0 ? run.buffs.riesen.reichweiteMul : 1);
     const half = ((a.winkel ?? 100) * Math.PI) / 360;
     const dir = Math.atan2(t.y - u.y, t.x - u.x);
-    fx(run, { type: 'cone', x: u.x, y: u.y - 20, r, dir, half, color: u.def.farbe, life: 0.22 });
+    fx(run, { type: 'cone', x: u.x, y: u.y - 10, r, dir, half, color: u.def.farbe, life: 0.22 });
     for (const e of run.enemies) {
       if (!canHit(u, e) || dist(e, u) > r + e.r) continue;
       let d = Math.abs(Math.atan2(e.y - u.y, e.x - u.x) - dir);
@@ -84,7 +84,7 @@ const ATTACKS = {
   geschoss(run, u, t, dmg) {
     const a = u.def.angriff;
     run.projectiles.push({
-      x: u.x + u.facing * 14, y: u.y - 30, target: t, tx: t.x, ty: t.y, speed: a.geschossTempo ?? 600, damage: dmg,
+      x: u.x + u.facing * 6, y: u.y - 14, target: t, tx: t.x, ty: t.y, speed: a.geschossTempo ?? 600, damage: dmg,
       type: u.def.werte.schadensTyp, source: u, bounces: a.abpraller ?? 0, hit: new Set(), color: u.def.farbe,
       onHit: a.beiTreffer, zone: a.flaeche ? { ...a.flaeche, radius: a.flaeche.radius * (u.foil ? run.data.balance.karten.foil.flaecheMul : 1) } : null,
       explosion: a.explosion ? a.explosion.radius * (u.foil ? run.data.balance.karten.foil.flaecheMul : 1) : 0,

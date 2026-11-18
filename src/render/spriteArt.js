@@ -834,7 +834,7 @@ export function PACK_ART(p, color, emblem = '#FFD24A') {
 }
 
 /** Zauberbuch (16×16), Farbe = Seltenheit. */
-export function TOME_ART(p, color, open = false) {
+export function TOME_ART(p, color, open = false, motif = null) {
   if (open) {
     p.rect(1, 5, 7, 8, '#f4ebd9'); p.rect(8, 5, 7, 8, '#e8dcc0');
     p.rect(7, 4, 2, 10, shade(color, -0.3));
@@ -843,8 +843,8 @@ export function TOME_ART(p, color, open = false) {
     p.rect(3, 2, 10, 12, color);
     p.rect(3, 2, 2, 12, shade(color, -0.3));
     p.rect(12, 3, 1, 10, '#f4ebd9');
-    p.rect(6, 5, 5, 5, shade(color, 0.4));
-    p.px(8, 7, '#ffffff');
+    p.rect(6, 5, 5, 5, shade(color, -0.45));
+    if (motif) motif(p, 7, 6); else p.px(8, 7, '#ffffff');
   }
 }
 
@@ -968,3 +968,42 @@ export function CRATE_ART(p, color, motif = '#FFD24A') {
   [...'PDD'].forEach((ch, i) => glyph[ch].forEach((row, y) => [...row].forEach((b, x) => { if (b === '1') p.px(3 + i * 3 + x, 12 + y + Math.floor(i * 1.5), ink); })));
   p.circle(20, 18, 2.5, motif);
 }
+
+/** Schmaler, hoher, dunkler Turm (10×20 → ×4 = 40×80) mit leuchtendem Tor und Fenstern in Kapitelfarbe. */
+export function NARROW_TOWER_ART(p, light = '#7ab8ff', cracks = 0) {
+  const stone = '#2e2a38', dark = '#1e1a26', edge = '#423c50';
+  p.rect(1, 3, 8, 17, stone);
+  p.rect(1, 3, 2, 17, dark);
+  p.rect(8, 3, 1, 17, edge);
+  for (let y = 5; y < 20; y += 3) p.rect(1, y, 8, 1, dark);
+  // Zinnen
+  p.rect(0, 1, 10, 2, stone); p.px(0, 0, stone); p.px(3, 0, stone); p.px(6, 0, stone); p.px(9, 0, stone);
+  // Fenster und Tor leuchten
+  p.rect(4, 6, 2, 2, light); p.rect(4, 11, 2, 2, light);
+  p.rect(4, 16, 2, 4, light); p.px(4, 16, shade(light, -0.3)); p.px(5, 16, shade(light, -0.3));
+  const crack = '#0e0c14';
+  if (cracks >= 1) { p.px(2, 8, crack); p.px(3, 9, crack); }
+  if (cracks >= 2) { p.px(7, 13, crack); p.px(6, 14, crack); p.px(7, 15, crack); }
+  if (cracks >= 3) { p.px(2, 2, crack); p.px(8, 4, crack); p.px(2, 17, crack); p.px(3, 18, crack); }
+}
+
+/** Motiv auf dem Einband eines Tomes (12×12-Raster ab x,y). */
+export const TOME_MOTIF = {
+  hagelschauer(p, x, y) { p.px(x + 1, y, '#e8f8ff'); p.px(x + 3, y + 1, '#e8f8ff'); p.px(x, y + 3, '#a6e3ff'); p.px(x + 2, y + 3, '#e8f8ff'); },
+  knochenruf(p, x, y) { p.rect(x, y, 4, 3, '#f0ead8'); p.px(x + 1, y + 1, '#1E1B2E'); p.px(x + 2, y + 1, '#1E1B2E'); p.rect(x + 1, y + 3, 2, 1, '#f0ead8'); },
+  blutrausch(p, x, y) { p.px(x + 1, y, '#ff4a4a'); p.rect(x, y + 1, 3, 2, '#E04848'); p.px(x + 1, y + 3, '#a02828'); },
+  seelenkrug(p, x, y) { p.rect(x, y + 1, 4, 3, '#a8ecf4'); p.rect(x + 1, y, 2, 1, '#d8faff'); },
+  riesenwuchs(p, x, y) { p.tri(x + 2, y, x, y + 2, x + 4, y + 2, '#5ED17A'); p.rect(x + 1, y + 2, 2, 2, '#5ED17A'); },
+  zeitbruch(p, x, y) { p.rect(x, y, 4, 4, '#FFD24A'); p.rect(x + 1, y + 1, 2, 2, '#fff6dc'); p.px(x + 2, y + 1, '#1E1B2E'); },
+  _(p, x, y) { p.tri(x + 2, y, x, y + 2, x + 2, y + 2, '#FFD24A'); p.tri(x + 2, y + 1, x + 4, y + 1, x + 1, y + 4, '#FFD24A'); }, // Blitz
+};
+
+Object.assign(ICON_ART, {
+  /** Weiße Zickzack-Blitze (Betäubung, Schock) */
+  zap(p) { p.line(3, 0, 6, 4, '#ffffff'); p.line(6, 4, 3, 7, '#ffffff'); p.line(3, 7, 7, 11, '#ffffff'); p.line(8, 1, 10, 4, '#e8e8ff'); p.line(10, 4, 8, 6, '#e8e8ff'); },
+  /** Magentafarbenes Fragezeichen (Grenzgänger) */
+  grenz(p) { p.rect(3, 1, 6, 2, '#ff2ec8'); p.rect(8, 2, 2, 3, '#ff2ec8'); p.rect(5, 5, 4, 2, '#ff2ec8'); p.rect(5, 7, 2, 2, '#ff2ec8'); p.rect(5, 10, 2, 2, '#ff2ec8'); p.px(2, 2, '#ff2ec8'); },
+  /** Mastery-Kristalle je Gebiet */
+  crystal_rot(p) { p.tri(6, 0, 11, 5, 1, 5, '#ff8a8a'); p.tri(1, 5, 11, 5, 6, 12, '#d83030'); p.line(6, 1, 6, 10, '#ffd8d8'); },
+  crystal_weiss(p) { p.tri(6, 0, 11, 5, 1, 5, '#ffffff'); p.tri(1, 5, 11, 5, 6, 12, '#c8d8e8'); p.line(6, 1, 6, 10, '#ffffff'); },
+});

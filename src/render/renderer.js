@@ -1,6 +1,6 @@
 // Kampf-Darstellung auf einem 1920×1080-Canvas (Draufsicht-Arena, Turm in der Mitte).
 import { frameAt } from './sprites.js';
-import { arenaFloor } from './arena.js';
+import { arenaFloor, worldOf } from './arena.js';
 import { whiteOut, makeCanvas } from './pixel.js';
 
 const PIXEL = '"Pixelify Sans", monospace';
@@ -77,19 +77,29 @@ export class Renderer {
     for (const h of run.hammers) this.drawHammer(h, t);
     for (const f of run.effects) if (f.type !== 'coin') this.drawEffect(f, alpha);
     this.drawTowerBar(run);
+    if (worldOf(run.chapter).thema === 'frost') this.drawSnow(t);
     if (run.freezeAll > 0) { c.fillStyle = 'rgba(166,227,255,0.12)'; c.fillRect(0, 0, 1920, 1080); }
     if (ui.bossIntro > 0) {
       c.fillStyle = `rgba(0,0,0,${Math.min(0.6, ui.bossIntro * 0.5).toFixed(2)})`;
       c.fillRect(0, 0, 1920, 1080);
       if (run.boss) this.drawEnemy(run, run.boss, t);
     }
-    if (run.state === 'countdown') this.text(String(Math.ceil(run.countdown)), run.tower.x, run.tower.y - 190, 120, '#FFD24A');
+    if (run.state === 'countdown') this.text(String(Math.ceil(run.countdown)), run.tower.x, run.tower.y - 130, 96, '#FFD24A');
     c.restore();
-    for (const f of run.effects) if (f.type === 'coin') this.drawCoin(f);
     if (ui.cursor) this.drawCursor(run, ui.cursor, t);
   }
 
-  // ---------------------------------------------------------------------
+  /** Frost: Schneeflocken fallen langsam. */
+  drawSnow(t) {
+    const c = this.ctx;
+    c.fillStyle = 'rgba(255,255,255,0.7)';
+    for (let i = 0; i < 70; i++) {
+      const sp = 20 + (i % 7) * 6;
+      const x = ((i * 271) % 1920 + Math.sin(t * 0.6 + i) * 20 + 1920) % 1920;
+      const y = ((i * 137) % 1080 + t * sp) % 1080;
+      c.fillRect(Math.round(x), Math.round(y), i % 3 ? 2 : 3, i % 3 ? 2 : 3);
+    }
+  }
 
   drawTower(run) {
     const c = this.ctx;
@@ -97,16 +107,23 @@ export class Renderer {
     const frac = tw.hp / tw.maxHp;
     const st = this.data.balance.turm.rissStufen;
     const cracks = st.filter((s) => frac < s).length;
-    const img = this.bank.tower(cracks, tw.hitFlash > 0);
-    const x = tw.x - img.width / 2, y = tw.y - img.height + 30;
+    const light = worldOf(run.chapter).turmlicht;
+    const img = this.bank.fieldTower(light, cracks, tw.hitFlash > 0);
+    const x = tw.x - img.width / 2, y = tw.y + 16 - img.height;
+    // Lichtschein in Kapitelfarbe am Turmfuß
+    const g = c.createRadialGradient(tw.x, tw.y + 8, 0, tw.x, tw.y + 8, 70);
+    g.addColorStop(0, light + '55'); g.addColorStop(1, light + '00');
+    c.fillStyle = g; c.fillRect(tw.x - 70, tw.y - 62, 140, 140);
+    c.fillStyle = 'rgba(0,0,0,0.35)';
+    c.beginPath(); c.ellipse(tw.x, tw.y + 14, 26, 8, 0, 0, Math.PI * 2); c.fill();
     if (run.over && run.result && !run.result.sieg) {
       const k = Math.min(1, run.endAge / 1.4);
-      const B = 16;
+      const B = 8;
       for (let by = 0; by < img.height; by += B) for (let bx = 0; bx < img.width; bx += B) {
         const r = ((bx * 7919 + by * 104729) % 1000) / 1000;
         const kk = Math.max(0, k - (1 - by / img.height) * 0.3);
         c.globalAlpha = Math.max(0, 1 - kk);
-        c.drawImage(img, bx, by, B, B, Math.round(x + bx + (r - 0.5) * 140 * kk), Math.round(y + by + kk * kk * (250 + r * 250)), B, B);
+        c.drawImage(img, bx, by, B, B, Math.round(x + bx + (r - 0.5) * 80 * kk), Math.round(y + by + kk * kk * (120 + r * 120)), B, B);
       }
       c.globalAlpha = 1;
       return;
@@ -114,86 +131,102 @@ export class Renderer {
     c.drawImage(img, Math.round(x), Math.round(y));
   }
 
+  /** Kleine Lebensleiste direkt über dem Turm – nur nach Schaden, verblasst nach 3 s. */
   drawTowerBar(run) {
     const tw = run.tower;
     if (run.over && !run.result?.sieg) return;
-    this.bar(tw.x - 75, tw.y + 40, 150, 12, tw.hp / tw.maxHp, '#E04848');
+    if (tw.lastHit == null) return;
+    const age = run.time - tw.lastHit;
+    if (age > 3.5) return;
+    this.ctx.globalAlpha = age < 3 ? 1 : 1 - (age - 3) / 0.5;
+    this.bar(tw.x - 24, tw.y - 78, 48, 4, tw.hp / tw.maxHp, '#E04848');
+    this.ctx.globalAlpha = 1;
   }
 
   drawBuilding(b) {
     const c = this.ctx;
     const img = this.bank.building(b.id);
-    c.drawImage(img, Math.round(b.x - 36), Math.round(b.y - 60), 72, 72);
+    c.drawImage(img, Math.round(b.x - img.width), Math.round(b.y - img.height * 2 + 6), img.width * 2, img.height * 2);
     const k = 1 - b.timer / b.interval;
-    c.lineWidth = 6;
+    c.lineWidth = 3;
     c.strokeStyle = 'rgba(0,0,0,0.5)';
-    c.beginPath(); c.arc(b.x, b.y - 80, 16, 0, Math.PI * 2); c.stroke();
+    c.beginPath(); c.arc(b.x, b.y - 58, 8, 0, Math.PI * 2); c.stroke();
     c.strokeStyle = '#FFD24A';
-    c.beginPath(); c.arc(b.x, b.y - 80, 16, -Math.PI / 2, -Math.PI / 2 + k * Math.PI * 2); c.stroke();
+    c.beginPath(); c.arc(b.x, b.y - 58, 8, -Math.PI / 2, -Math.PI / 2 + k * Math.PI * 2); c.stroke();
   }
 
+  /** Pack wie im Shop: ca. 30×40 px, leicht gedreht auf dem Boden. */
   drawPack(p, t, ui) {
     const c = this.ctx;
-    const img = this.bank.pack(p.packId, p.cracks);
-    const w = 48, h = 63;
     if (p.t < 0) return;
-    // Schatten am Landepunkt
-    c.fillStyle = 'rgba(0,0,0,0.3)';
-    c.beginPath(); c.ellipse(p.landed ? p.x : p.tx, (p.landed ? p.y : p.ty) + 4, 24, 8, 0, 0, Math.PI * 2); c.fill();
+    const img = this.bank.shopItem(p.packId);
+    const w = 30, h = 40;
+    c.fillStyle = 'rgba(0,0,0,0.35)';
+    c.beginPath(); c.ellipse(p.landed ? p.x : p.tx, (p.landed ? p.y : p.ty) + 2, 16, 5, 0, 0, Math.PI * 2); c.fill();
     c.save();
-    c.translate(Math.round(p.x), Math.round(p.y));
-    if (p.wobble > 0) c.rotate(Math.sin(p.wobble * 70) * 0.12);
+    c.translate(Math.round(p.x), Math.round(p.y - h / 2));
+    c.rotate((p.landed ? p.rot || 0 : p.t * 9) + (p.wobble > 0 ? Math.sin(p.wobble * 70) * 0.15 : 0));
     const halo = this.halo(img);
-    for (const [dx, dy] of [[-3, 0], [3, 0], [0, -3], [0, 3]]) c.drawImage(halo, -w / 2 + dx, -h + dy, w, h);
-    c.drawImage(img, -w / 2, -h, w, h);
+    c.globalAlpha = 0.5;
+    for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) c.drawImage(halo, -w / 2 + dx, -h / 2 + dy, w, h);
+    c.globalAlpha = 1;
+    c.drawImage(img, -w / 2, -h / 2, w, h);
+    if (p.wobble > 0.12) { c.globalAlpha = 0.6; c.drawImage(halo, -w / 2, -h / 2, w, h); c.globalAlpha = 1; } // blinkt weiß beim Treffer
+    // Risse
+    c.strokeStyle = '#120a16'; c.lineWidth = 2;
+    const cr = [[-8, -14, -2, -2, -6, 6], [8, -12, 3, 0, 9, 10], [-10, 4, -2, 14, 6, 8]];
+    for (let i = 0; i < p.cracks; i++) { const q = cr[i]; c.beginPath(); c.moveTo(q[0], q[1]); c.lineTo(q[2], q[3]); c.lineTo(q[4], q[5]); c.stroke(); }
     // wandernder Folienglanz
     const k = (t * 0.6 + p.uid * 0.37) % 1.6;
-    if (k < 1) { c.fillStyle = 'rgba(255,255,255,0.35)'; c.fillRect(-w / 2 + k * w - 4, -h + 6, 6, h - 12); }
+    if (k < 1) { c.fillStyle = 'rgba(255,255,255,0.3)'; c.fillRect(-w / 2 + k * w - 2, -h / 2 + 3, 3, h - 6); }
     c.restore();
-    if (p.landed && p.hp < p.maxHp) this.bar(p.x - 24, p.y + 8, 48, 6, p.hp / p.maxHp, '#F4EBD9');
+    if (p.landed && p.hp < p.maxHp) this.bar(p.x - 15, p.y + 6, 30, 3, p.hp / p.maxHp, '#F4EBD9');
   }
 
+  /** Tome: Buch mit Motiv auf dem Einband, liegt leicht gedreht auf dem Boden und glimmt. */
   drawTome(tm, t, ui) {
     const c = this.ctx;
     const def = tm.def;
     const col = this.data.rarities[def.rarity].farbe;
-    const bob = Math.sin(tm.bob * 2) * 6;
-    const x = tm.x, y = tm.y - 40 + bob;
-    c.fillStyle = 'rgba(0,0,0,0.3)';
-    c.beginPath(); c.ellipse(x, tm.y + 4, 20, 6, 0, 0, Math.PI * 2); c.fill();
-    const g = c.createRadialGradient(x, y, 0, x, y, 50);
-    g.addColorStop(0, col + 'aa'); g.addColorStop(1, col + '00');
-    c.fillStyle = g; c.fillRect(x - 50, y - 50, 100, 100);
+    const x = tm.x, y = tm.y - 12;
+    const glow = 0.35 + 0.25 * Math.sin(t * 3 + tm.bob);
+    const g = c.createRadialGradient(x, y, 0, x, y, 34);
+    g.addColorStop(0, col + Math.round(glow * 255).toString(16).padStart(2, '0')); g.addColorStop(1, col + '00');
+    c.fillStyle = g; c.fillRect(x - 34, y - 34, 68, 68);
     const img = this.bank.tome(tm.id);
     const halo = this.halo(img);
-    const hover = ui.cursor && Math.hypot(ui.cursor.x - x, ui.cursor.y - y) < 50;
-    for (const [dx, dy] of [[-3, 0], [3, 0], [0, -3], [0, 3]]) c.drawImage(halo, x - 24 + dx, y - 24 + dy, 48, 48);
-    c.drawImage(img, x - 24, y - 24, 48, 48);
-    if (hover) { c.strokeStyle = '#FFD24A'; c.lineWidth = 4; c.setLineDash([8, 6]); c.beginPath(); c.arc(x, y, 38, 0, Math.PI * 2); c.stroke(); c.setLineDash([]); }
-    if (tm.souls) this.text(`${tm.souls}`, x + 26, y - 20, 22, '#a6e3ff');
+    c.save();
+    c.translate(Math.round(x), Math.round(y));
+    c.rotate(tm.rot || 0);
+    for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) c.drawImage(halo, -18 + dx, -18 + dy, 36, 36);
+    c.drawImage(img, -18, -18, 36, 36);
+    c.restore();
+    const hover = ui.cursor && Math.hypot(ui.cursor.x - x, ui.cursor.y - y) < 34;
+    if (hover) { c.strokeStyle = 'rgba(255,255,255,0.8)'; c.lineWidth = 2; c.beginPath(); c.arc(x, y, 26, 0, Math.PI * 2); c.stroke(); }
+    if (tm.souls) this.text(`${tm.souls}`, x + 20, y - 14, 16, '#a6e3ff');
   }
 
   drawFlyingCard(card) {
     if (card.t < 0) return;
     const c = this.ctx;
     const k = Math.min(1, card.t / card.dur);
-    const flip = Math.abs(Math.cos(k * Math.PI * 1.5));
+    const flip = card.shop ? 1 : Math.abs(Math.cos(k * Math.PI * 1.5));
     const def = this.data.cardIndex[card.id].def;
     const col = this.data.rarities[def.rarity].farbe;
-    const w = 40 * Math.max(0.1, flip), h = 56;
+    const w = 24 * Math.max(0.1, flip), h = 34;
     c.save();
     c.translate(Math.round(card.x), Math.round(card.y));
-    c.fillStyle = '#1a1422'; c.fillRect(-w / 2 - 3, -h / 2 - 3, w + 6, h + 6);
-    if (card.flipped) {
+    c.fillStyle = '#1a1422'; c.fillRect(-w / 2 - 2, -h / 2 - 2, w + 4, h + 4);
+    if (card.flipped || card.shop) {
       c.fillStyle = card.foil ? RAINBOW[Math.floor(k * 12) % 6] : col; c.fillRect(-w / 2, -h / 2, w, h);
-      c.fillStyle = '#2a2640'; c.fillRect(-w / 2 + 4, -h / 2 + 4, Math.max(0, w - 8), h - 8);
-      if (w > 24) {
+      c.fillStyle = '#2a2640'; c.fillRect(-w / 2 + 2, -h / 2 + 2, Math.max(0, w - 4), h - 4);
+      if (w > 14) {
         const img = this.data.cardIndex[card.id].art === 'tome' ? this.bank.tome(card.id) : this.bank.unit(card.id).idle[0];
-        c.drawImage(img, -16, -20, 32, 32);
+        c.drawImage(img, -10, -14, 20, 20);
       }
     } else {
       c.fillStyle = '#C9A45C'; c.fillRect(-w / 2, -h / 2, w, h);
-      c.fillStyle = '#3a2f66'; c.fillRect(-w / 2 + 4, -h / 2 + 4, Math.max(0, w - 8), h - 8);
+      c.fillStyle = '#3a2f66'; c.fillRect(-w / 2 + 2, -h / 2 + 2, Math.max(0, w - 4), h - 4);
     }
     c.restore();
   }
@@ -201,14 +234,14 @@ export class Renderer {
   drawUnit(run, u, t) {
     const c = this.ctx;
     const frames = this.bank.unit(u.id, u.def.sprite);
-    const scale = u.giant ? 4 : 3;
+    const scale = u.giant ? 2 : 1; // Helden ca. 16–24 px hoch (Abschnitt 3)
     const size = 32 * scale;
     let img;
     if (u.hitFlash > 0.05) img = frames.hit[0];
     else if (u.attackAnim > 0) img = frames.attack[Math.min(5, Math.floor((0.3 - u.attackAnim) / 0.05))];
     else img = frameAt(frames, 'idle', u.animTime, u.moving ? 8 : 5);
-    c.fillStyle = 'rgba(0,0,0,0.3)';
-    c.beginPath(); c.ellipse(u.x, u.y + 2, size * 0.25, size * 0.08, 0, 0, Math.PI * 2); c.fill();
+    c.fillStyle = 'rgba(0,0,0,0.35)';
+    c.beginPath(); c.ellipse(u.x, u.y, size * 0.3, size * 0.1, 0, 0, Math.PI * 2); c.fill();
     c.save();
     c.translate(Math.round(u.x), Math.round(u.y));
     if (u.facing < 0) c.scale(-1, 1);
@@ -216,28 +249,30 @@ export class Renderer {
     if (u.foil) {
       const ol = this.bank.foilOutline(u.id, u.def.sprite, frames.idle[0]);
       const tint = this.tinted(ol, RAINBOW[Math.floor(t * 8) % RAINBOW.length]);
-      for (const [dx, dy] of [[-scale, 0], [scale, 0], [0, -scale], [0, scale]]) c.drawImage(tint, -size / 2 + dx, -size + dy, size, size);
+      for (const [dx, dy] of [[-scale, 0], [scale, 0], [0, -scale], [0, scale]]) c.drawImage(tint, -size / 2 + dx, -size + 4 + dy, size, size);
     }
-    c.drawImage(img, -size / 2, -size, size, size);
+    c.drawImage(img, -size / 2, -size + 4, size, size);
     c.restore();
     c.globalAlpha = 1;
-    if (u.frozen > 0) { c.fillStyle = 'rgba(166,227,255,0.45)'; c.fillRect(u.x - 30, u.y - size + 10, 60, size - 10); }
-    if (u.hp < u.maxHp) this.bar(u.x - 28, u.y - size - 4, 56, 6, u.hp / u.maxHp, u.summoned ? '#a6e3ff' : '#5ED17A');
-    if (u.life != null) this.bar(u.x - 28, u.y - size + 4, 56, 3, u.life / 20, '#b3a990');
+    const top = u.y - size + 4;
+    if (u.frozen > 0) { c.fillStyle = 'rgba(166,227,255,0.45)'; c.fillRect(u.x - 12, top + 4, 24, size - 6); }
+    // Grenzgänger: magentafarbenes Fragezeichen über der Figur
+    if (u.def.rarity === 'grenzgaenger') c.drawImage(this.bank.icon('grenz'), Math.round(u.x - 7), Math.round(top - 16 + Math.sin(t * 4) * 2), 14, 14);
+    if (u.hp < u.maxHp) this.bar(u.x - 12, top - 3, 24, 3, u.hp / u.maxHp, u.summoned ? '#a6e3ff' : '#5ED17A');
+    if (u.life != null) this.bar(u.x - 12, top + 1, 24, 2, u.life / 20, '#b3a990');
   }
 
   drawEnemy(run, e, t) {
     const c = this.ctx;
     const frames = this.bank.enemy(e.id, e.elite);
-    const scale = e.isBoss ? 2 : e.elite ? 2 : 3;
-    const size = frames.size * scale;
+    const size = frames.size; // Massenmonster klein, Elite ×2, Bosse 64 px
     let img;
     // Bosse blitzen bei Dauertreffern nur kurz auf, statt komplett weiß zu bleiben
     if (e.hitFlash > 0.05 && (!e.isBoss || Math.floor(t * 10) % 4 === 0)) img = frames.hit[0];
     else if (e.attackAnim > 0) img = frames.attack[Math.min(5, Math.floor((0.15 - e.attackAnim) / 0.025))];
     else img = frameAt(frames, 'idle', e.animTime, run.freezeAll > 0 || e.st.stun > 0 ? 0 : 7);
-    const lift = e.fliegt ? 60 : 0;
-    if (e.fliegt || true) { c.fillStyle = 'rgba(0,0,0,0.28)'; c.beginPath(); c.ellipse(e.x, e.y + 2, size * 0.25, size * 0.07, 0, 0, Math.PI * 2); c.fill(); }
+    const lift = e.fliegt ? 30 : 0;
+    c.fillStyle = 'rgba(0,0,0,0.3)'; c.beginPath(); c.ellipse(e.x, e.y + 1, size * 0.3, size * 0.09, 0, 0, Math.PI * 2); c.fill();
     c.save();
     c.translate(Math.round(e.x), Math.round(e.y - lift));
     if (e.facing < 0) c.scale(-1, 1);
@@ -245,49 +280,48 @@ export class Renderer {
     if (e.foil) {
       const tint = this.tinted(img, RAINBOW[Math.floor(t * 8) % RAINBOW.length]);
       c.globalAlpha *= 0.9;
-      for (const [dx, dy] of [[-3, 0], [3, 0], [0, -3], [0, 3]]) c.drawImage(tint, -size / 2 + dx, -size + dy, size, size);
+      for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) c.drawImage(tint, -size / 2 + dx, -size + 2 + dy, size, size);
       c.globalAlpha = e.spawnAge < 0.4 ? e.spawnAge / 0.4 : 1;
     }
-    c.drawImage(img, -size / 2, -size, size, size);
+    c.drawImage(img, -size / 2, -size + 2, size, size);
     c.restore();
     c.globalAlpha = 1;
-    const top = e.y - lift - size;
-    // Statussymbole
+    const top = e.y - lift - size + 2;
+    // Statussymbole direkt am Monster
     const icons = [];
     if (e.st.slow.t > 0) icons.push('slow');
     if (e.st.burn.t > 0 || e.st.poison.t > 0) icons.push('burn');
     if (e.st.vuln.t > 0 || e.st.plague) icons.push('vuln');
-    icons.forEach((n, i) => c.drawImage(this.bank.icon(n), e.x - 30 + i * 22, top - 26, 20, 20));
+    icons.forEach((n, i) => c.drawImage(this.bank.icon(n), Math.round(e.x - 12 + i * 12), Math.round(top - 12), 11, 11));
     if (e.st.stun > 0 || run.freezeAll > 0) {
-      const star = this.bank.icon(run.freezeAll > 0 ? 'slow' : 'stun');
-      for (let i = 0; i < 3; i++) { const a = t * 5 + (i * Math.PI * 2) / 3; c.drawImage(star, Math.round(e.x + Math.cos(a) * 24 - 8), Math.round(top + 8 + Math.sin(a) * 6), 16, 16); }
+      const z = this.bank.icon(run.freezeAll > 0 ? 'slow' : 'zap');
+      for (let i = 0; i < 2; i++) { const a = t * 6 + i * Math.PI; c.drawImage(z, Math.round(e.x + Math.cos(a) * size * 0.4 - 6), Math.round(top + 2 + Math.sin(a) * 3), 12, 12); }
     }
-    if (e.wasHit && !e.isBoss) this.bar(e.x - size * 0.3, top - 6, size * 0.6, 5, e.hp / e.maxHp, '#E04848');
+    if (e.wasHit && !e.isBoss) this.bar(e.x - size * 0.4, top - 4, size * 0.8, 2, e.hp / e.maxHp, '#E04848');
     // Schrei mit Schwachpunkt (Medaillon)
     if (e.boss?.scream) {
       const s = e.boss.scream;
-      const mx = e.x, my = e.y - size * 0.55;
-      c.drawImage(this.bank.icon('medal'), mx - 24, my - 24, 48, 48);
-      c.strokeStyle = '#FFD24A'; c.lineWidth = 5;
-      c.beginPath(); c.arc(mx, my, 34, -Math.PI / 2, -Math.PI / 2 + (s.hits / s.need) * Math.PI * 2); c.stroke();
-      this.text('Triff das Medaillon!', e.x, top - 40, 24, '#FFD24A');
-      this.bar(e.x - 100, top - 30, 200, 10, 1 - s.t / s.max, '#ff7a2a');
+      const mx = e.x, my = e.y - size * 0.5;
+      c.drawImage(this.bank.icon('medal'), mx - 16, my - 16, 32, 32);
+      c.strokeStyle = '#FFD24A'; c.lineWidth = 4;
+      c.beginPath(); c.arc(mx, my, 24, -Math.PI / 2, -Math.PI / 2 + (s.hits / s.need) * Math.PI * 2); c.stroke();
+      this.text('Triff das Medaillon!', e.x, top - 30, 22, '#FFD24A');
+      this.bar(e.x - 70, top - 22, 140, 6, 1 - s.t / s.max, '#ff7a2a');
     }
   }
 
   drawCorpse(k) {
     const frames = k.kind === 'unit' ? this.bank.unit(k.id, k.def.sprite) : this.bank.enemy(k.id, k.elite);
-    const scale = k.kind === 'unit' ? 3 : k.isBoss || k.elite ? 2 : 3;
-    const size = frames.size * scale;
-    this.ctx.drawImage(frameAt(frames, 'death', k.deathAge, 9), Math.round(k.x - size / 2), Math.round(k.y - size - (k.fliegt ? 60 : 0)), size, size);
+    const size = frames.size;
+    this.ctx.drawImage(frameAt(frames, 'death', k.deathAge, 9), Math.round(k.x - size / 2), Math.round(k.y - size + 2 - (k.fliegt ? 30 : 0)), size, size);
   }
 
   drawProjectile(p) {
     const c = this.ctx;
     const x = Math.round(p.x), y = Math.round(p.y);
-    c.fillStyle = '#1a1422'; c.fillRect(x - 7, y - 7, 14, 14);
-    c.fillStyle = p.type === 'magic' ? (p.color || '#5AA9F0') : '#d8d0c0';
-    c.fillRect(x - 5, y - 5, 10, 10);
+    c.fillStyle = '#1a1422'; c.fillRect(x - 4, y - 4, 8, 8);
+    c.fillStyle = p.type === 'magic' ? (p.color || '#5AA9F0') : '#e8e0d0';
+    c.fillRect(x - 3, y - 3, 6, 6);
   }
 
   drawHammer(h, t) {
@@ -404,29 +438,22 @@ export class Renderer {
   }
 
   /** Runenkreis: blau (leer), orange pulsierend (etwas im Kreis), grau (gesperrt). */
+  /** Cursor (Abschnitt 6): dünner, schlichter Kreis mit Mittelpunkt; blitzt beim Treffer kurz heller auf. */
   drawCursor(run, cur, t) {
     const c = this.ctx;
     const cs = run.cursorStats();
     const circles = run.cursor.circles ?? [{ x: cur.x, y: cur.y, r: cs.radius }];
-    const locked = cur.locked;
-    const busy = run.cursor.busy && !locked;
-    const col = locked ? '#7a7a8a' : busy ? '#FF9A3A' : '#5AA9F0';
-    const pulse = busy ? 1 + Math.sin(t * 14) * 0.06 : 1;
-    c.globalAlpha = cur.fade ?? 1;
+    const hit = (run.cursor.hit || 0) > 0 && !cur.locked;
+    const a = (cur.fade ?? 1) * (cur.locked ? 0.25 : hit ? 0.95 : 0.5);
+    c.strokeStyle = `rgba(240,240,245,${a.toFixed(2)})`;
+    c.fillStyle = c.strokeStyle;
+    c.lineWidth = hit ? 2 : 1.5;
     circles.forEach((ci, i) => {
-      const r = (i === 0 ? cs.radius : ci.r) * pulse * (run.cursor.pulse > 0 ? 1.08 : 1);
       const x = i === 0 ? cur.x : ci.x, y = i === 0 ? cur.y : ci.y;
-      c.strokeStyle = '#1a1422'; c.lineWidth = 7;
+      const r = i === 0 ? cs.radius : ci.r;
       c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.stroke();
-      c.strokeStyle = col; c.lineWidth = 4;
-      c.setLineDash([10, 6]); c.lineDashOffset = -t * 30;
-      c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.stroke();
-      c.setLineDash([]);
-      for (let k = 0; k < 6; k++) { const a = t * 1.6 + (k * Math.PI) / 3; c.fillStyle = col; c.fillRect(Math.round(x + Math.cos(a) * r) - 4, Math.round(y + Math.sin(a) * r) - 4, 8, 8); }
     });
-    c.fillStyle = col;
-    c.fillRect(cur.x - 10, cur.y - 1, 20, 3); c.fillRect(cur.x - 1, cur.y - 10, 3, 20);
-    c.globalAlpha = 1;
+    c.fillRect(Math.round(cur.x) - 1, Math.round(cur.y) - 1, 3, 3);
   }
 
   text(str, x, y, size, color, align = 'center') {

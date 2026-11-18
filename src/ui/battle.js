@@ -3,8 +3,10 @@
 import { $, $$, show, stage, toast, showTip, confirmDialog, escapeHtml } from './dom.js';
 import { cardElement } from './cardView.js';
 import { showResult } from './result.js';
+import { NewCardReveal } from './reveal.js';
 import { Run } from '../core/run.js';
-import { bagItems, consumeBag } from '../core/meta.js';
+import { bagItems, consumeBag, masteryFor, progressOf } from '../core/meta.js';
+import { worldOf } from '../render/arena.js';
 import { Renderer } from '../render/renderer.js';
 import { play, startMusic } from '../audio.js';
 import { formatNumber } from '../core/util.js';
@@ -18,6 +20,7 @@ export class BattleController {
     this.presenting = [];
     this.speedIndex = 0;
     this.cursor = { x: 960, y: 560, active: false, fade: 1 };
+    this.reveal = new NewCardReveal(game, () => this.closePresentation());
     this.bind();
   }
 
@@ -41,21 +44,14 @@ export class BattleController {
     this.bossIntro = 0;
     this.ending = false;
     this.speedIndex = 0;
-    $('#btn-speed').textContent = '1×';
-    $('#hud-relics').innerHTML = save.relics.equipped.map((id) => {
-      const r = data.relicIndex[id];
-      return `<img src="${this.game.bank.iconUrl(r.symbol)}" title="${escapeHtml(r.name + ': ' + r.beschreibung + (r.nachteil ? ' Nachteil: ' + r.nachteil : ''))}" alt="">`;
-    }).join('');
-    $('#hud-coin-icon').src = this.game.bank.iconUrl('coin');
-    show('#debug-panel', this.game.debug);
-    $('.boss-track').classList.remove('boss');
+    $('#btn-speed').textContent = 'Tempo: 1×';
+    this.setupHud();
     startMusic(`akt${this.run.chapter.akt}`);
     this.firstRuns = save.stats.runs < 3;
     if (this.firstRuns && !save.tutorial.packHint) setTimeout(() => this.tip('Halte deinen Runenkreis über ein Pack, um es zu öffnen!', { x: 860, y: 380 }), 3600);
     this.last = performance.now();
     cancelAnimationFrame(this.raf);
     this.raf = requestAnimationFrame((t) => this.loop(t));
-    requestAnimationFrame(() => { const r = stage.rectOf($('#hud-coin-icon')); this.renderer.coinTarget = { x: r.cx, y: r.cy }; });
   }
 
   stop() { cancelAnimationFrame(this.raf); this.raf = null; }
@@ -89,18 +85,106 @@ export class BattleController {
     this.raf = requestAnimationFrame((t) => this.loop(t));
   }
 
+  /** HUD einrichten (14.5): Relikt-Spalte, Run-Zähler mit Gebiets-Kristall, Multiplikator, Quest-Anzeige. */
+  setupHud() {
+    const { data, save, bank } = this.game;
+    const run = this.run;
+    const box = $('#hud-relics');
+    box.innerHTML = save.relics.equipped.map((id) => {
+      const r = data.relicIndex[id];
+      return `<div data-relic="${id}" class="${r.verflucht ? 'cursed' : ''}"><img src="${bank.iconUrl(r.symbol)}" alt=""></div>`;
+    }).join('');
+    $$('[data-relic]', box).forEach((d) => {
+      d.addEventListener('pointerenter', () => {
+        const r = data.relicIndex[d.dataset.relic];
+        const tip = $('#relic-tip');
+        tip.innerHTML = `<b>${escapeHtml(r.name)}</b><br>${escapeHtml(r.beschreibung)}${r.nachteil ? `<br><span style="color:#ff7aa8">${escapeHtml(r.nachteil)}</span>` : ''}`;
+        tip.style.top = `${stage.rectOf(d).y - 4}px`;
+        show('#relic-tip', true);
+      });
+      d.addEventListener('pointerleave', () => show('#relic-tip', false));
+    });
+    const w = worldOf(run.chapter).waehrung;
+    $('#hud-mastery-icon').src = bank.iconUrl(w === 'rot' ? 'crystal_rot' : w === 'weiss' ? 'crystal_weiss' : 'mastery');
+    // Multiplikator und Herkunft (Prestige, Modifikator, Sternenkarte, Kapitel)
+    const m = this.mods;
+    const kapitelMul = run.chapter.wellen.muenzenMul ?? 1;
+    const parts = [];
+    if (m.prestige) parts.push(['crown', m.prestige.belohnungMul]);
+    if (m.modifierMastery !== 1) parts.push(['skull', m.modifierMastery]);
+    if (m.masteryMul !== 1) parts.push(['mastery', m.masteryMul]);
+    if (kapitelMul !== 1) parts.push(['tower', kapitelMul]);
+    const total = parts.reduce((a, [, v]) => a * v, 1);
+    $('#hud-mult').innerHTML = `${Math.round(total * 100)} % ${parts.map(([ic]) => `<img src="${bank.iconUrl(ic)}" alt="">`).join('')}`;
+    show('#hud-mult', Math.abs(total - 1) > 0.001);
+    this.questRows = this.chapterQuests();
+    show('#hud-quests', this.questRows.length > 0);
+    show('#hud-bossbar', false);
+    show('#relic-tip', false);
+    this.lastHud = {};
+    show('#debug-panel', this.game.debug);
+  }
+
+  /** Bis zu drei offene Quests, die zum aktuellen Kapitel passen. */
+  chapterQuests() {
+    const { data, save, bank } = this.game;
+    const ch = this.run.chapter;
+    const enemies = new Set([...ch.gegner.map((g) => g.id), ch.boss]);
+    const rows = [];
+    for (const q of data.quests) {
+      if (save.quests.claimed.includes(q.id)) continue;
+      const z = q.ziel;
+      const p = progressOf(q, data, save);
+      if (p.value >= p.target) continue;
+      let icon = null, live = null;
+      if (z.statistik === 'killsGegner' && enemies.has(z.filter?.gegner) && (!z.filter.kapitel || z.filter.kapitel === ch.id)) {
+        icon = bank.enemyUrl(z.filter.gegner);
+        live = (r) => { const k = r.stats.killsNachArt[z.filter.gegner]; return k ? k.normal + k.foil : 0; };
+      } else if (z.statistik === 'packsGeoeffnet' && (!z.filter?.pack || this.run.bag.some((b) => b === z.filter.pack || data.packIndex[b]?.inhalt?.pack === z.filter.pack))) {
+        icon = bank.shopItemUrl(z.filter?.pack ?? 'holzpack');
+        live = (r) => (z.filter?.pack ? r.stats.packsGeoeffnet[z.filter.pack] || 0 : Object.values(r.stats.packsGeoeffnet).reduce((a, b) => a + b, 0));
+      } else if (z.statistik === 'bossBesiegt' && (!z.filter?.boss || z.filter.boss === ch.boss)) {
+        icon = bank.enemyUrl(ch.boss);
+        live = (r) => (r.result?.sieg ? 1 : 0);
+      } else if (z.statistik === 'kills') {
+        icon = bank.iconUrl('skull');
+        live = (r) => r.stats.kills;
+      } else if (z.statistik === 'foilsGezogen') {
+        icon = bank.iconUrl('dust');
+        live = (r) => r.stats.foils;
+      } else continue;
+      rows.push({ q, base: p.value, target: p.target, icon, live });
+      if (rows.length >= 3) break;
+    }
+    return rows;
+  }
+
   hud() {
     const run = this.run;
-    $('#hud-coins').textContent = formatNumber(run.coins);
-    const track = $('.boss-track');
+    const { data } = this.game;
+    // Fortschritt bis zum Boss bzw. Boss-Lebensleiste
     if (run.boss && !run.boss.dead) {
-      track.classList.add('boss');
-      $('#boss-label').textContent = run.boss.name + (run.boss.foil ? ' (Foil)' : '');
-      $('#boss-fill').style.width = `${Math.max(0, run.boss.hp / run.boss.maxHp) * 100}%`;
-    } else if (!run.bossSpawned) {
-      const k = Math.min(1, run.time / run.bossTime);
-      $('#boss-label').textContent = run.state === 'countdown' ? 'Bereit machen …' : `Boss in ${Math.ceil(run.bossTime - run.time)} s`;
-      $('#boss-fill').style.width = `${k * 100}%`;
+      show('#hud-bossbar', true);
+      $('#bb-name').textContent = run.boss.name + (run.boss.foil ? ' ✦' : '');
+      $('#bb-fill').style.width = `${Math.max(0, run.boss.hp / run.boss.maxHp) * 100}%`;
+      $('#hud-progress').style.opacity = 0;
+    } else {
+      show('#hud-bossbar', false);
+      $('#hud-progress').style.opacity = 1;
+      $('#hud-progress-fill').style.width = `${Math.min(1, run.time / run.bossTime) * 100}%`;
+    }
+    // Run-Zähler: in diesem Run gesammelte Mastery
+    const mp = masteryFor({ zeit: run.time, kills: run.stats.kills, elitewellen: run.stats.elitewellen, sieg: !!run.result?.sieg, kapitel: run.chapter.id }, data, this.mods);
+    if (mp !== this.lastHud.mp) { $('#hud-mastery').textContent = formatNumber(mp); this.lastHud.mp = mp; }
+    // Quests live
+    if (this.questRows.length) {
+      const html = this.questRows.map((r) => {
+        const v = Math.min(r.target, r.base + r.live(run));
+        const done = v >= r.target;
+        const text = r.q.beschreibung.endsWith('.') ? r.q.beschreibung.slice(0, -1) : r.q.beschreibung;
+        return `<div class="hq${done ? ' done' : ''}"><img src="${r.icon}" alt=""><span>${escapeHtml(text.toUpperCase())}</span><b>${formatNumber(v)}/${formatNumber(r.target)}</b></div>`;
+      }).join('');
+      if (html !== this.lastHud.q) { $('#hud-quests').innerHTML = html; this.lastHud.q = html; }
     }
   }
 
@@ -142,6 +226,7 @@ export class BattleController {
       case 'towerHit': { const n = performance.now(); if (!this.towerSnd || n - this.towerSnd > 220) { play('towerHit'); this.towerSnd = n; } break; }
       case 'coins': { const n = performance.now(); if (!this.coinSnd || n - this.coinSnd > 90) { play('coin'); this.coinSnd = n; } break; } // zusammengefasst
       case 'shake': this.renderer.addShake(p.power); break;
+      case 'relicTriggered': { const d = $(`#hud-relics [data-relic="${p.id}"]`); if (d) { d.classList.remove('flash'); void d.offsetWidth; d.classList.add('flash'); } break; }
       case 'sound': play(p); break;
     }
   }
@@ -157,23 +242,17 @@ export class BattleController {
 
   tip(text, at) { showTip(text, at, 'down', 4500); }
 
-  /** Neue Karte groß präsentieren; weiter mit Klick irgendwo. */
+  /** Neue Karte groß präsentieren (14.6); weiter mit Klick irgendwo oder Escape. */
   presentNext() {
     const p = this.presenting[0];
     if (!p) return;
-    const box = $('#newcard');
-    box.innerHTML = '';
-    const card = cardElement(p.id, this.game, { foil: p.foil, isNew: true });
-    card.classList.add('big');
-    box.appendChild(card);
-    show('#overlay-newcard', true);
-    play('newCard');
+    this.reveal.open(p.id, p.foil);
   }
 
   closePresentation() {
     this.presenting.shift();
     if (this.presenting.length) this.presentNext();
-    else { show('#overlay-newcard', false); this.last = performance.now(); }
+    else this.last = performance.now();
   }
 
   /** Info-Fenster: 0,6 s still über einer Einheit, einem Monster oder Pack. */
@@ -241,12 +320,11 @@ export class BattleController {
     });
     field.addEventListener('pointerup', (ev) => { if (ev.pointerType !== 'mouse') this.cursor.active = false; });
     field.addEventListener('pointerleave', () => { this.cursor.active = false; });
-    $('#overlay-newcard').addEventListener('pointerdown', () => this.closePresentation());
 
     $('#btn-speed').addEventListener('click', () => {
       const sp = this.game.data.balance.run.geschwindigkeiten;
       this.speedIndex = (this.speedIndex + 1) % sp.length;
-      $('#btn-speed').textContent = `${sp[this.speedIndex]}×`;
+      $('#btn-speed').textContent = `Tempo: ${sp[this.speedIndex]}×`;
     });
     $('#btn-pause').addEventListener('click', () => this.pause(true));
     $('#pause-resume').addEventListener('click', () => this.pause(false));

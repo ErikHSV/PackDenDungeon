@@ -20,7 +20,7 @@
     "leben": 120,
     "breite": 120,
     "hoehe": 160,
-    "kontaktRadius": 70,
+    "kontaktRadius": 34,
     "rissStufen": [
       0.75,
       0.5,
@@ -30,7 +30,7 @@
   },
   "cursor": {
     "$kommentar": "Runenkreis: trifft alles im Kreis (Monster und Packs) in festen Ticks, ohne Klick.",
-    "radius": 35,
+    "radius": 25,
     "schaden": 2,
     "tickAbstand": 0.4,
     "schadensTyp": "magic",
