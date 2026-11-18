@@ -68,13 +68,13 @@
   {
     "id": "goldfieber",
     "name": "Glanzfieber",
-    "beschreibung": "Gegner bringen +50 % Schimmer-Chance (Shiny-Monster), haben aber +40 % Leben.",
+    "beschreibung": "Doppelte Chance auf Shiny-Monster, aber Monster haben +40 % Leben.",
     "abAkt": 2,
     "effekte": [
       {
         "ziel": "foilMonsterChance",
         "op": "add",
-        "wert": 0.005
+        "wert": 0.001
       },
       {
         "ziel": "gegnerLebenMul",

@@ -75,7 +75,7 @@ export class Run {
     });
 
     // bonusMastery: Mastery außerhalb der Überlebensformel (erste Shinys, Tome-Verbot), foilStaub: Schimmer aus Shinys
-    this.stats = { kills: 0, muenzen: 0, bonusMastery: 0, foilStaub: 0, ersteShinys: [], packsGeoeffnet: {}, gezogen: {}, neueKarten: [], foils: 0, grenzgaenger: 0, tomesGenutzt: 0, entwicklungen: 0, killsNachArt: {}, foilMonster: 0, elitewellen: 0 };
+    this.stats = { kills: 0, muenzen: 0, bonusMastery: 0, foilStaub: 0, schimmer: {}, ersteShinys: [], packsGeoeffnet: {}, gezogen: {}, neueKarten: [], foils: 0, grenzgaenger: 0, tomesGenutzt: 0, entwicklungen: 0, killsNachArt: {}, foilMonster: 0, elitewellen: 0 };
     this.over = false;
     this.result = null;
     this.endAge = 0;
@@ -239,9 +239,9 @@ export class Run {
       this.emit('foil', { card: c });
       if (firstShiny) {
         const E = this.B.belohnungen.erstesShiny;
-        S.foilStaub += E.foilStaubKarte; S.bonusMastery += E.masteryKarte; S.ersteShinys.push(c.id);
-        fx(this, { type: 'text', x: c.tx, y: c.ty - 70, text: `+${E.foilStaubKarte} Schimmer`, color: 'rainbow', size: 20, life: 1.4 });
-      }
+        S.bonusMastery += E.masteryKarte; S.ersteShinys.push(c.id);
+        this.gainShimmer(E.foilStaubKarte, 'neueShinyKarte', c.tx, c.ty - 30);
+      } else if (this.rng() < (this.B.belohnungen.doppelteShinyKarte.chance ?? 1)) this.gainShimmer(this.B.belohnungen.doppelteShinyKarte.foilStaub, 'doppelteShinyKarte', c.tx, c.ty - 30);
     }
     if (def.rarity === 'grenzgaenger') S.grenzgaenger++;
     if (rar.lichtblitz && !c.foil) { fx(this, { type: 'flash', x: c.tx, y: c.ty - 30, r: 160, color: rar.farbe, life: 0.5 }); this.emit('rareCard', { card: c, rarity: def.rarity }); }
@@ -286,6 +286,18 @@ export class Run {
     this.units.push(u);
     fx(this, { type: 'ring', x, y, r: 50, color: this.data.rarities[base.rarity].farbe, life: 0.45 });
     return u;
+  }
+
+  /**
+   * Schimmer verdienen (10.1): Betrag merken (für die Aufschlüsselung im Ergebnis), kleiner Regenbogen-Kristall
+   * springt aus der Quelle und fliegt zum Run-Zähler oben mittig.
+   */
+  gainShimmer(n, source, x, y) {
+    if (!n) return;
+    this.stats.foilStaub += n;
+    this.stats.schimmer[source] = (this.stats.schimmer[source] || 0) + n;
+    for (let i = 0; i < n; i++) fx(this, { type: 'shimmerFly', x: x + (i - (n - 1) / 2) * 10, y, delay: i * 0.08, life: 0.9 + i * 0.08 });
+    this.emit('schimmer', { amount: n });
   }
 
   /** Shiny-Bonus als Faktor; „Starker Glanz“ (Foil-Baum) verstärkt nur den Bonusanteil. */
@@ -831,7 +843,7 @@ export class Run {
     this.result = {
       sieg: victory, kapitel: this.chapter.id, boss: this.chapter.boss, zeit: this.time,
       kills: this.stats.kills, killWert: this.stats.kills + (this.B.wellen.foilMonster.belohnungMul - 1) * this.stats.foilMonster,
-      muenzen: Math.max(0, this.coins), bonusMastery: this.stats.bonusMastery, foilStaub: this.stats.foilStaub, ersteShinys: this.stats.ersteShinys,
+      muenzen: Math.max(0, this.coins), bonusMastery: this.stats.bonusMastery, foilStaub: this.stats.foilStaub, schimmer: this.stats.schimmer, ersteShinys: this.stats.ersteShinys,
       killsNachArt: this.stats.killsNachArt, foilMonster: this.stats.foilMonster, elitewellen: this.stats.elitewellen,
       packsGeoeffnet: this.stats.packsGeoeffnet, gezogen: this.stats.gezogen, neueKarten: this.stats.neueKarten,
       foils: this.stats.foils, grenzgaenger: this.stats.grenzgaenger, tomesGenutzt: this.stats.tomesGenutzt, entwicklungen: this.stats.entwicklungen,

@@ -23,7 +23,7 @@ export function showResult(game, r, mods, opts) {
       <div>Überlebt<b>${fmtTime(r.zeit)}</b></div>
       <div>Kills<b data-to="${r.kills}">0</b></div>
       <div>Mastery <img class="cur" src="${bank.iconUrl('mastery')}" alt=""><b data-to="${info.mastery}">0</b><span class="muted">${info.zinsen ? `+${info.zinsen} Zinsen` : info.gesuchtErstsieg ? `inkl. ${info.gesuchtErstsieg} Erstsieg-Bonus` : ''}</span></div>
-      <div>Schimmer <img class="cur" src="${bank.iconUrl('crystal_regen')}" alt=""><b data-to="${info.foilStaub}">0</b></div>
+      <div>Schimmer <img class="cur" src="${bank.iconUrl('crystal_regen')}" alt=""><b data-to="${info.foilStaub}">0</b><span class="muted teile">${info.schimmerTeile.length ? info.schimmerTeile.map((t) => `${escapeHtml(t.name)} +${t.n}`).join(', ') : 'kein Shiny-Ereignis'}</span></div>
       <div>Neuer Tag: Münzen <img class="cur" src="${bank.iconUrl('coin')}" alt=""><b data-to="${info.einkommen}">0</b><span class="muted">Tageseinkommen${info.bonus ? ` · +${info.bonus} Bonus` : ''}</span></div>
       <div>Elitewellen<b>${r.elitewellen}</b></div>
       <div>Packs geöffnet<b>${Object.values(r.packsGeoeffnet).reduce((a, b) => a + b, 0)}</b></div>
@@ -65,7 +65,7 @@ export function showResult(game, r, mods, opts) {
   for (const q of info.questsFertig) items.push({ title: 'QUEST ERFÜLLT!', name: `${q.name} – hole die Belohnung im Skill-Tree ab.`, img: bank.iconUrl('quest'), w: 140, h: 140 });
   if (!info.relikt && info.reliktStaub) items.push({ title: 'ALLE RELIKTE GEFUNDEN!', name: `Stattdessen: +${info.reliktStaub} Schimmer`, img: bank.iconUrl('crystal_regen'), w: 160, h: 160 });
   if (info.relikt) items.push({ title: 'NEUES RELIKT!', name: `${info.relikt.name}: ${info.relikt.beschreibung}`, img: bank.iconUrl(info.relikt.symbol), w: 180, h: 180 });
-  for (const a of info.erfolge) items.push({ title: 'ERFOLG!', name: `${a.name} – ${a.beschreibung}`, img: bank.iconUrl('crown'), w: 160, h: 160 });
+  for (const a of info.erfolge) items.push({ title: 'ERFOLG!', name: `${a.name} – ${a.beschreibung}${a.belohnung?.foilStaub ? ` (+${a.belohnung.foilStaub} Schimmer)` : ''}`, img: bank.iconUrl('crown'), w: 160, h: 160 });
   if (items.length) setTimeout(() => showUnlocks(items), 900);
 }
 

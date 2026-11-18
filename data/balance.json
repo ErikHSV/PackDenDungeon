@@ -51,7 +51,7 @@
     ]
   },
   "karten": {
-    "foilChance": 0.02,
+    "foilChance": 0.007,
     "foil": {
       "$kommentar": "Shiny-Held: doppeltes Leben, +50 % Reichweite/Fläche, sonst gleiche Werte. Shiny-Tome: +50 % Dauer und +50 % Fläche bzw. Häufigkeit. Der Foil-Knoten „Starker Glanz“ verstärkt den Bonusanteil.",
       "lebenMul": 2,
@@ -85,12 +85,12 @@
       "groesse": 48
     },
     "foilMonster": {
-      "$kommentar": "Shiny-Monster: +100 % Leben, schneller, dreifache Belohnung (Mastery pro Kill) und Foil-Staub.",
-      "chance": 0.01,
+      "$kommentar": "Shiny-Monster: +100 % Leben, schneller, dreifache Mastery pro Kill. Schimmer: das erste Shiny jeder Monsterart +1 (einmalig), danach +1 mit schimmerChance (Bosse ausgenommen).",
+      "chance": 0.0005,
       "lebenMul": 2,
       "tempoMul": 1.25,
       "belohnungMul": 3,
-      "foilStaub": 1
+      "schimmerChance": 0.25
     }
   },
   "belohnungen": {
@@ -102,8 +102,9 @@
     "masteryProPack": 3,
     "masteryNeueKarte": 15,
     "erstesShiny": {
-      "$kommentar": "Erste Shiny-Version einer Karte bzw. eines Monsters.",
+      "$kommentar": "Einmalige Schimmer-Quellen (10.1) plus Mastery fürs Entdecken.",
       "foilStaubKarte": 2,
+      "foilStaubMonster": 1,
       "masteryKarte": 50,
       "masteryMonster": 30
     },
@@ -114,6 +115,11 @@
     "reliktDoppelt": {
       "$kommentar": "Relikt-Knoten nach einem Akt-Wechsel, wenn das Relikt schon da ist.",
       "foilStaub": 2
+    },
+    "doppelteShinyKarte": {
+      "$kommentar": "Shiny-Karte, die man schon als Shiny besitzt: +1 Schimmer mit dieser Chance.",
+      "foilStaub": 1,
+      "chance": 0.25
     }
   },
   "wirtschaft": {
@@ -185,10 +191,9 @@
     ]
   },
   "gesucht": {
-    "$kommentar": "Geschafftes Kapitel gegen die Shiny-Version seines Bosses: stärker, mit Zusatzangriff. Fester Foil-Staub pro Sieg, beim ersten Sieg zusätzlich eine große Mastery-Belohnung.",
+    "$kommentar": "Geschafftes Kapitel gegen die Shiny-Version seines Bosses: stärker, mit Zusatzangriff. Schimmer pro Sieg steht im Kapitel (gesuchtSchimmer); der erste Sieg je Boss gibt zusätzlich erstsiegSchimmer und erstsiegMastery.",
     "bossLebenMul": 2.5,
     "bossSchadenMul": 1.5,
-    "foilStaub": 4,
     "erstsiegMastery": 1500,
     "zusatzAngriff": {
       "intervall": 8,
@@ -197,7 +202,8 @@
       "radius": 60,
       "schaden": 22,
       "text": "Prisma-Salve!"
-    }
+    },
+    "erstsiegSchimmer": 5
   },
   "debug": {
     "$kommentar": "Debug-Werkzeuge (nur mit ?debug in der URL).",
@@ -211,5 +217,6 @@
     "kostenFaktorStandard": 1.6,
     "zinsenMax": 500,
     "reliktReparaturKosten": 10
-  }
+  },
+  "$kommentar_schimmer": "Schimmer ist bewusst knapp (10.1): 1–5 pro Ereignis, ein normaler Run ohne Shiny-Ereignis gibt 0."
 }

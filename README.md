@@ -36,6 +36,7 @@ Alle 12 Phasen der überarbeiteten Spezifikation sind umgesetzt:
 - **11.6 Foil-Baum:** 15 dauerhafte Knoten (Shop, Relikte, Mastery, Shiny), umschaltbar über den Regenbogen-Kristall, mit Regenbogen-Wisch, -Leitungen und -Rändern.
 - **11.7 Startset:** u. a. Würfelbecher, Händlerplatz, Sammlerfreude, Bonuskarte, Packreißer, Sturmspitze, Bollwerk (Schild mit Schockwelle, 25.000 Mastery), Helden-Blöcke mit Verhaltens-Knoten (z. B. Schildstoß, Zwillingsglut, Aufprall) und vier Baum-Relikte (Funkennadel, Knochenecho, Selbstschuss-Balliste, Portalsiegel).
 - **BESTIARIUM und RELIKTE** schalten sich erst mit dem ersten Akt-Wechsel frei.
+- **10.1 Schimmer verdienen:** einmalig erste Shiny-Karte +2, erstes Shiny je Monsterart +1, erster Shiny-Boss-Sieg +5, Shiny-Erfolge +3 bis +10; wiederholbar Shiny-Boss (Kapitel 1: 1 … Kapitel 4: 4, steht am GESUCHT-Chip), Shiny-Monster +1 mit 25 %, doppelte Shiny-Karte +1 mit 25 %, Reliktpack ohne fehlendes Relikt +3. Im Kampf fliegt ein Regenbogen-Kristall zum Zähler („+1 ◆“), das Ergebnis schlüsselt den Schimmer auf.
 
 **So spielt man:** Im Hub-Shop Packs kaufen → „KAMPF“ → Packs mit dem Cursor-Kreis (Maus oder Finger) aufschlagen → Helden kämpfen allein, du hilfst mit dem Cursor, klickst Tomes an und wehrst Boss-Angriffe ab → nach dem Run im Reiter UPGRADE Mastery ausgeben und erfüllte Quest-Knoten abholen.
 
@@ -110,6 +111,7 @@ legacy/               frühere Spielversionen
 - **Shop-Plätze:** 3 zum Start, +2 über den Foil-Knoten „Größere Theke“, +1 über „Händlerplatz“ im Skill-Tree.
 - **Relikte in Akt 1:** Da RELIKTE erst ab Akt 2 offen ist, geben Akt-1-Quests kein Reliktpack, und Relikt-Knoten, Relikt-Jagd und der Foil-Knoten „Jackpot-Relikt“ erscheinen erst ab Akt 2.
 - **Prestige-Hinweis:** Der ^-Pfeil im Upgrade-Reiter blinkt, wenn eine neue Prestige-Stufe verfügbar ist; ein Klick wählt sie in der Kapitelwahl aus.
+- **Schimmer-Balancing (10.1):** Damit der erste Schimmer nach etwa einer halben Stunde kommt und es nicht zu viel wird, habe ich die Shiny-Grundchancen gesenkt: Karten 0,7 % statt 2 %, Monster 0,05 % statt 1 % (ein Run hat später mehrere hundert Monster und Dutzende Karten). „Glanzauge“ (+0,25 %) und „Schimmerjagd“ (+0,05 %) sind im gleichen Verhältnis kleiner. Doppelte Shiny-Karten geben +1 nur mit 25 % Chance. Bot: erster Schimmer nach 19–34 min, 18–28 Schimmer nach etwa 90 min.
 - **Ziffern:** Die Pixelschrift zeigt „2“ und „5“ wie „Z“ und „S“. Ziffern kommen deshalb aus „Jersey 10“.
 - **Einheiten-Ast:** Jede Karte hat einen Block mit 4 Knoten (Werte, dann Verhalten), der erst sichtbar wird, wenn die Karte gefunden wurde. Tomes haben je Stärke und Dauer, Knochenruf zusätzlich „Knochensplitter“.
 - **Arena:** Oval mit 880 × 470 px Radius um den Turm bei (960, 560), mit Platz für eine schlanke obere Leiste.

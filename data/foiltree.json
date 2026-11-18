@@ -313,7 +313,7 @@
     {
       "id": "f_glanzauge",
       "name": "Glanzauge",
-      "beschreibung": "+0,5 % Shiny-Chance für Karten je Stufe.",
+      "beschreibung": "+0,25 % Shiny-Chance für Karten je Stufe.",
       "typ": "klein",
       "ast": "shiny",
       "akt": 1,
@@ -330,7 +330,7 @@
       "kostenFaktor": 1.6,
       "effekt": {
         "ziel": "foilChance",
-        "wert": 0.005,
+        "wert": 0.0025,
         "rechenart": "addieren"
       },
       "symbol": "dust",
@@ -339,7 +339,7 @@
     {
       "id": "f_schimmerjagd",
       "name": "Schimmerjagd",
-      "beschreibung": "+0,5 % Shiny-Chance für Monster je Stufe.",
+      "beschreibung": "+0,05 % Shiny-Chance für Monster je Stufe.",
       "typ": "klein",
       "ast": "shiny",
       "akt": 1,
@@ -357,7 +357,7 @@
       "kostenFaktor": 1.6,
       "effekt": {
         "ziel": "foilMonsterChance",
-        "wert": 0.005,
+        "wert": 0.0005,
         "rechenart": "addieren"
       },
       "symbol": "skull",

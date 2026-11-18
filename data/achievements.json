@@ -57,6 +57,22 @@
     "ziel": {
       "statistik": "foilsGezogen",
       "anzahl": 1
+    },
+    "belohnung": {
+      "foilStaub": 3
+    }
+  },
+  {
+    "id": "e_foil_10",
+    "name": "Glitzersammler",
+    "beschreibung": "Ziehe insgesamt 10 Shiny-Karten.",
+    "kategorie": "Shiny",
+    "ziel": {
+      "statistik": "foilsGezogen",
+      "anzahl": 10
+    },
+    "belohnung": {
+      "foilStaub": 5
     }
   },
   {
@@ -67,6 +83,9 @@
     "ziel": {
       "statistik": "foilMonsterBesiegt",
       "anzahl": 1
+    },
+    "belohnung": {
+      "foilStaub": 3
     }
   },
   {
@@ -156,6 +175,9 @@
     "ziel": {
       "statistik": "foilBossBesiegt",
       "anzahl": 1
+    },
+    "belohnung": {
+      "foilStaub": 5
     }
   },
   {
@@ -176,6 +198,9 @@
     "ziel": {
       "statistik": "foilArten",
       "anzahl": "alle"
+    },
+    "belohnung": {
+      "foilStaub": 10
     }
   },
   {
@@ -186,7 +211,10 @@
       "statistik": "foilMonsterArten",
       "anzahl": "alle"
     },
-    "kategorie": "Shiny"
+    "kategorie": "Shiny",
+    "belohnung": {
+      "foilStaub": 10
+    }
   },
   {
     "id": "e_bestiarium",

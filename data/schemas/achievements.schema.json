@@ -45,6 +45,16 @@
             "type": "object"
           }
         }
+      },
+      "belohnung": {
+        "type": "object",
+        "properties": {
+          "foilStaub": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "description": "Einmalige Belohnung beim Freischalten (Shiny-Erfolge: Schimmer)."
       }
     }
   }

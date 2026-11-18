@@ -43,7 +43,8 @@
       "thema": "moor",
       "boden": "#14231C",
       "turmlicht": "#7ab8ff"
-    }
+    },
+    "gesuchtSchimmer": 1
   },
   {
     "id": 2,
@@ -94,7 +95,8 @@
       "thema": "gruft",
       "boden": "#1C2430",
       "turmlicht": "#7aff9a"
-    }
+    },
+    "gesuchtSchimmer": 2
   },
   {
     "id": 3,
@@ -151,7 +153,8 @@
       "thema": "schmiede",
       "boden": "#2A1712",
       "turmlicht": "#ff9a3a"
-    }
+    },
+    "gesuchtSchimmer": 3
   },
   {
     "id": 9,
@@ -225,7 +228,8 @@
       "thema": "frost",
       "boden": "#1E3A52",
       "turmlicht": "#F4FBFF"
-    }
+    },
+    "gesuchtSchimmer": 4
   },
   {
     "id": 90,

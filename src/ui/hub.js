@@ -7,7 +7,7 @@ import { UpgradeTree } from './upgradeTree.js';
 import { renderCollection, renderBestiary, renderRelics } from './screens.js';
 import {
   chapterUnlocked, describeOffer, buyOffer, rollOffers, rerollCost, canReroll, reroll, resetPurchases, walletTotal, shopSlots,
-  prestigeAvailable, modifiersAvailable, anyNodeAffordable, claimableQuests, bagItems, tabUnlocked, foilTreeUnlocked,
+  prestigeAvailable, modifiersAvailable, anyNodeAffordable, claimableQuests, bagItems, tabUnlocked, foilTreeUnlocked, gesuchtSchimmer,
 } from '../core/meta.js';
 import { hash } from '../render/pixel.js';
 import { play } from '../audio.js';
@@ -190,7 +190,12 @@ export class Hub {
     const extra = [];
     const canWanted = ch.gesucht && save.stats.bossKills[ch.id] > 0;
     if (!canWanted) sel.gesucht = false;
-    if (canWanted) extra.push(`<button class="chip${sel.gesucht ? ' on' : ''}" id="sel-gesucht" title="Der Boss erscheint als Shiny-Boss: stärker, mit Zusatzangriff. Sieg: ${data.balance.gesucht.foilStaub} Schimmer, beim ersten Sieg zusätzlich ${data.balance.gesucht.erstsiegMastery} Mastery.">GESUCHT ✦</button>`);
+    if (canWanted) {
+      const st = gesuchtSchimmer(ch, data, this.game.mods());
+      const first = !(save.stats.gesuchtSiege?.[ch.boss] > 0);
+      const G = data.balance.gesucht;
+      extra.push(`<button class="chip${sel.gesucht ? ' on' : ''}" id="sel-gesucht" title="Der Boss erscheint als Shiny-Boss: stärker, mit Zusatzangriff. Jeder Sieg: +${st} Schimmer.${first ? ` Erster Sieg zusätzlich +${G.erstsiegSchimmer} Schimmer und ${G.erstsiegMastery} Mastery.` : ''}">GESUCHT ✦ +${st} <img src="${this.game.bank.iconUrl('crystal_regen')}" alt="">${first ? ` · 1. SIEG +${G.erstsiegSchimmer}` : ''}</button>`);
+    }
     const modsAvail = ch.art === 'kapitel' ? modifiersAvailable(data, save) : [];
     if (!modsAvail.some((m) => m.id === sel.modifier)) sel.modifier = null;
     if (modsAvail.length) extra.push(`<span class="chip"><select id="sel-mod" title="Kapitel-Modifikator"><option value="">kein Modifikator</option>${modsAvail.map((m) => `<option value="${m.id}"${sel.modifier === m.id ? ' selected' : ''} title="${escapeHtml(m.beschreibung)}">${escapeHtml(m.name)} (×${m.belohnung.masteryMul})</option>`).join('')}</select></span>`);

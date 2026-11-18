@@ -105,12 +105,15 @@ export function killEnemy(run, e, killer = null) {
   const k = (run.stats.killsNachArt[e.id] ||= { normal: 0, foil: 0 });
   k[e.foil ? 'foil' : 'normal']++;
   if (e.foil) {
-    // Shiny-Monster: Foil-Staub; das erste Shiny einer Art gibt zusätzlich Mastery
+    // Shiny-Monster (10.1): das erste Shiny jeder Art gibt sicher +1 Schimmer (und Mastery), danach +1 mit 25 % Chance.
+    // Shiny-Bosse zahlen ihren Schimmer erst nach dem Sieg (Gesucht).
     run.stats.foilMonster++;
-    run.stats.foilStaub += run.B.wellen.foilMonster.foilStaub;
-    fx(run, { type: 'text', x: e.x, y: e.y - 60, text: `+${run.B.wellen.foilMonster.foilStaub} Schimmer`, color: 'rainbow', size: 18 });
     fx(run, { type: 'sparkles', x: e.x, y: e.y - 20, life: 1 });
-    if (!(run.save.bestiary[e.id]?.foil > 0) && k.foil === 1) run.stats.bonusMastery += run.B.belohnungen.erstesShiny.masteryMonster;
+    if (!e.isBoss) {
+      const E = run.B.belohnungen.erstesShiny;
+      if (!(run.save.bestiary[e.id]?.foil > 0) && k.foil === 1) { run.stats.bonusMastery += E.masteryMonster; run.gainShimmer(E.foilStaubMonster, 'ersteShinyMonster', e.x, e.y - 20); }
+      else if (run.rng() < run.B.wellen.foilMonster.schimmerChance) run.gainShimmer(1, 'shinyMonster', e.x, e.y - 20);
+    }
   }
   if (killer && run.mods.heldenHeilungProKill && !killer.dead) killer.hp = Math.min(killer.maxHp, killer.hp + killer.maxHp * run.mods.heldenHeilungProKill);
   // Münzen gibt es nur aus dem Tageseinkommen. Fähigkeiten wie „Bonus-Münzen pro Kill“ bringen Bonus-Münzen für den nächsten Tag.

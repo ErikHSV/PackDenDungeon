@@ -154,6 +154,11 @@
             "type": "integer"
           }
         }
+      },
+      "gesuchtSchimmer": {
+        "type": "integer",
+        "minimum": 1,
+        "description": "Schimmer pro Sieg gegen den Shiny-Boss (Gesucht)."
       }
     }
   }

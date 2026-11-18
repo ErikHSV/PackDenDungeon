@@ -374,3 +374,8 @@ h1, h2, h3 { font-family: var(--pixel); margin: 0 0 12px; }
 .nc-sheen { position: absolute; left: 40px; top: 30px; width: 288px; height: 288px; background: linear-gradient(115deg, transparent 38%, #ffffffaa 50%, transparent 62%); background-size: 300% 100%; animation: sheen 1.5s linear infinite;
   -webkit-mask: var(--fig) center/contain no-repeat; mask: var(--fig) center/contain no-repeat; mix-blend-mode: screen; pointer-events: none; }
 .nc-name.rainbow-text { text-shadow: none; filter: drop-shadow(0 4px 0 #000); background-image: linear-gradient(90deg, #ff5f8a, #ffe07a, #5ED17A, #5ac8ff, #b88cff); }
+.hc-shimmer { font-family: var(--pixel); font-size: 26px; text-align: center; background: linear-gradient(90deg, #ff5f8a, #ffe07a, #5ED17A, #5ac8ff, #b88cff); -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimpop .35s cubic-bezier(.3,1.6,.5,1); }
+.hc-shimmer img { width: 22px; height: 22px; vertical-align: -3px; }
+@keyframes shimpop { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.res-grid .teile { display: block; font-size: 14px; margin-top: 2px; }
+.chip img { width: 14px; height: 14px; vertical-align: -2px; }

@@ -89,6 +89,9 @@ console.log(`Simulation: ${DAYS} Tage, Seed ${SEED}`);
 console.log('Tag Kap  Zeit   Sieg Kills Münzen   MP  Staub Packs Einh. Knoten Eink.');
 rollOffers(data, save, computeMods(data, save), rng);
 const firstWin = {};
+let minutes = 0, firstDust = null;
+const dustBy = {};
+const HUB_MINUTES = 0.75; // geschätzte Zeit im Hub pro Tag (Shop, Baum)
 for (let day = 1; day <= DAYS; day++) {
   const coinsBefore = walletTotal(save);
   shop();
@@ -100,9 +103,13 @@ for (let day = 1; day <= DAYS; day++) {
   const r = run.result;
   const info = applyRunResult(r, data, save, mods, rng);
   if (r.sieg && !firstWin[ch]) firstWin[ch] = day;
+  minutes += r.zeit / 60 + HUB_MINUTES;
+  for (const t of info.schimmerTeile) dustBy[t.quelle] = (dustBy[t.quelle] || 0) + t.n;
+  if (firstDust == null && save.stats.foilStaubGesamt > 0) firstDust = { day, min: Math.round(minutes), quellen: info.schimmerTeile.map((t) => t.quelle).join('+') };
   spendTrees();
   const nodes = Object.values(save.starmap).reduce((a, b) => a + b, 0);
   console.log(`${String(day).padStart(3)} ${String(ch).padStart(3)} ${r.zeit.toFixed(0).padStart(5)}s ${r.sieg ? ' ja ' : ' -  '} ${String(r.kills).padStart(5)} ${String(coinsBefore).padStart(6)} ${String(info.mastery).padStart(5)} ${String(info.foilStaub).padStart(5)} ${String(bag.length).padStart(5)} ${String(run.units.length).padStart(5)} ${String(nodes).padStart(6)} ${String(info.einkommen).padStart(5)}`);
   if (VERBOSE) console.log('   ', JSON.stringify(save.starmap), JSON.stringify(save.foiltree));
 }
+console.log(`Schimmer: erster an Tag ${firstDust?.day ?? '–'} (~${firstDust?.min ?? '–'} min, ${firstDust?.quellen ?? ''}), insgesamt ${save.stats.foilStaubGesamt} nach ${Math.round(minutes)} min`, JSON.stringify(dustBy));
 console.log('Erste Siege (Kapitel → Tag):', JSON.stringify(firstWin), '· Akt', save.act, '· Foil-Baum', JSON.stringify(save.foiltree));

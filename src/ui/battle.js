@@ -119,6 +119,8 @@ export class BattleController {
     this.questRows = this.chapterQuests();
     show('#hud-quests', this.questRows.length > 0);
     show('#hud-bossbar', false);
+    show('#hud-shimmer', false);
+    this.shimmerSum = 0;
     show('#relic-tip', false);
     this.lastHud = {};
     show('#debug-panel', this.game.debug);
@@ -212,6 +214,20 @@ export class BattleController {
         break;
       case 'rareCard': play(p.rarity === 'legendary' ? 'legendary' : p.rarity === 'epic' ? 'epic' : 'rare'); break;
       case 'foil': play('foil'); break;
+      case 'schimmer': {
+        // Kristall braucht ca. 0,9 s bis zum Zähler; dann kurz „+n ◆“ in Regenbogenfarbe
+        setTimeout(() => {
+          this.shimmerSum = (this.shimmerSum || 0) + p.amount;
+          const el = $('#hud-shimmer');
+          el.innerHTML = `+${this.shimmerSum} <img src="${this.game.bank.iconUrl('crystal_regen')}" alt="">`;
+          show('#hud-shimmer', true);
+          el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+          play('foil');
+          clearTimeout(this.shimmerT);
+          this.shimmerT = setTimeout(() => { show('#hud-shimmer', false); this.shimmerSum = 0; }, 1600);
+        }, 850);
+        break;
+      }
       case 'grenzgaenger': play('grenz'); this.banner('Ein Grenzgänger!', 'danger'); break;
       case 'eliteWave': play('eliteWave'); this.banner('Elitewelle!', 'danger'); break;
       case 'bossSpawned':

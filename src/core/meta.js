@@ -358,6 +358,17 @@ export function masteryFor(result, data, mods) {
   return Math.round(base * kapitelMul * mods.masteryMul * mods.modifierMastery * (mods.prestige?.belohnungMul ?? 1));
 }
 
+export const SCHIMMER_QUELLEN = {
+  shinyMonster: 'Shiny-Monster', ersteShinyMonster: 'neues Shiny-Monster', neueShinyKarte: 'neue Shiny-Karte',
+  doppelteShinyKarte: 'doppelte Shiny-Karte', gesucht: 'Shiny-Boss', gesuchtErst: 'erster Sieg gegen den Shiny-Boss',
+  reliktpack: 'Reliktpack', erfolge: 'Erfolge',
+};
+
+/** Schimmer pro Sieg gegen den Shiny-Boss eines Kapitels (Kapitel 1: 1, Kapitel 4: 4 …) plus Foil-Knoten „Gesucht-Belohnung“. */
+export function gesuchtSchimmer(ch, data, mods) {
+  return (ch?.gesuchtSchimmer ?? 1) + (mods?.gesuchtStaub || 0);
+}
+
 /** Überträgt das Ergebnis in den Spielstand. Ein Run = ein Tag; danach beginnt der nächste Tag. */
 export function applyRunResult(result, data, save, mods, rng = Math.random) {
   const s = save.stats;
@@ -368,16 +379,15 @@ export function applyRunResult(result, data, save, mods, rng = Math.random) {
 
   const packs = Object.values(result.packsGeoeffnet).reduce((a, b) => a + b, 0);
   out.mastery = Math.max(0, masteryFor({ ...result, kills: result.killWert ?? result.kills, packs }, data, mods) + (result.bonusMastery || 0));
-  out.foilStaub = result.foilStaub || 0;
+  // Schimmer (10.1) mit Aufschlüsselung für den Ergebnis-Bildschirm
+  const teile = { ...(result.schimmer || {}) };
   if (result.sieg && mods.gesucht) {
-    out.foilStaub += G.foilStaub + (mods.gesuchtStaub || 0);
+    teile.gesucht = gesuchtSchimmer(data.chapterIndex[result.kapitel], data, mods);
     const first = !(s.gesuchtSiege?.[result.boss] > 0);
     (s.gesuchtSiege ||= {})[result.boss] = (s.gesuchtSiege[result.boss] || 0) + 1;
-    if (first) { out.mastery += G.erstsiegMastery; out.gesuchtErstsieg = G.erstsiegMastery; }
+    if (first) { out.mastery += G.erstsiegMastery; out.gesuchtErstsieg = G.erstsiegMastery; teile.gesuchtErst = G.erstsiegSchimmer; }
   }
   save.mastery += out.mastery;
-  save.foilDust += out.foilStaub;
-  s.foilStaubGesamt = (s.foilStaubGesamt || 0) + out.foilStaub;
   out.bonusAusRun = Math.round(result.muenzen || 0); // Bonus-Münzen aus Fähigkeiten/Effekten im Run
 
   s.runs++;
@@ -409,7 +419,10 @@ export function applyRunResult(result, data, save, mods, rng = Math.random) {
     if (mods.prestige) { s.prestige[result.kapitel] = Math.max(s.prestige[result.kapitel] || 0, mods.prestige.stufe); s.prestigeGeschafft++; }
     if (mods.gesucht) { s.foilBossBesiegt++; const b = (save.bestiary[result.boss] ||= { normal: 0, foil: 0 }); b.foil++; }
     const ch = data.chapterIndex[result.kapitel];
-    if (ch.belohnung?.fehlendesRelikt) { const before = save.foilDust; out.relikt = openRelicPack(data, save, rng); out.reliktStaub = save.foilDust - before; }
+    if (ch.belohnung?.fehlendesRelikt) {
+      out.relikt = openRelicPack(data, save, rng, true);
+      if (!out.relikt) out.reliktStaub = teile.reliktpack = data.balance.belohnungen.reliktpackOhneRelikt.foilStaub;
+    }
     if (first && ch.art === 'kapitel') {
       const act = data.actIndex[ch.akt];
       const next = act.kapitel[act.kapitel.indexOf(ch.id) + 1];
@@ -417,7 +430,13 @@ export function applyRunResult(result, data, save, mods, rng = Math.random) {
       out.packsFrei = data.packs.filter((p) => p.freischaltung.typ === 'boss' && p.freischaltung.kapitel === ch.id);
     }
   }
-  out.erfolge = checkAchievements(data, save);
+  out.erfolge = checkAchievements(data, save, true);
+  const erfolgStaub = out.erfolge.reduce((a, e) => a + (e.belohnung?.foilStaub || 0), 0);
+  if (erfolgStaub) teile.erfolge = erfolgStaub;
+  out.schimmerTeile = Object.entries(teile).filter(([, n]) => n > 0).map(([k, n]) => ({ quelle: k, name: SCHIMMER_QUELLEN[k] ?? k, n }));
+  out.foilStaub = out.schimmerTeile.reduce((a, t) => a + t.n, 0);
+  save.foilDust += out.foilStaub;
+  s.foilStaubGesamt = (s.foilStaubGesamt || 0) + out.foilStaub;
 
   // Neuer Tag: Tageseinkommen wird gutgeschrieben (Bonus-Münzen getrennt), Zinsen auf ungenutzte Mastery, Shop würfelt neu
   save.day++;
@@ -654,10 +673,11 @@ function giveRelic(r, data, save) {
 }
 
 /** Reliktpack öffnen: ein noch fehlendes, zufällig erhältliches Relikt – sonst Foil-Staub. */
-export function openRelicPack(data, save, rng = Math.random) {
+export function openRelicPack(data, save, rng = Math.random, deferDust = false) {
   const destroyed = save.relics.destroyed || [];
   const free = data.relics.filter((r) => !r.nurBaum && !save.relics.owned.includes(r.id) && !destroyed.includes(r.id));
   if (!free.length) {
+    if (deferDust) return null;
     const st = data.balance.belohnungen.reliktpackOhneRelikt.foilStaub;
     save.foilDust += st;
     save.stats.foilStaubGesamt = (save.stats.foilStaubGesamt || 0) + st;
@@ -735,13 +755,21 @@ export function progressOf(item, data, save) {
   return { value: Math.min(target, statValue(item.ziel, data, save)), target };
 }
 
-/** Prüft Erfolge und schaltet neue frei. Gibt die neu freigeschalteten zurück. */
-export function checkAchievements(data, save) {
+/**
+ * Prüft Erfolge und schaltet neue frei. Gibt die neu freigeschalteten zurück.
+ * Shiny-Erfolge geben einmalig Schimmer (belohnung.foilStaub); mit deferDust zählt ihn der Aufrufer selbst.
+ */
+export function checkAchievements(data, save, deferDust = false) {
   const fresh = [];
   for (const a of data.achievements) {
     if (save.achievements[a.id]) continue;
     const p = progressOf(a, data, save);
-    if (p.value >= p.target) { save.achievements[a.id] = save.day; fresh.push(a); }
+    if (p.value >= p.target) {
+      save.achievements[a.id] = save.day;
+      fresh.push(a);
+      const st = a.belohnung?.foilStaub || 0;
+      if (st && !deferDust) { save.foilDust += st; save.stats.foilStaubGesamt = (save.stats.foilStaubGesamt || 0) + st; }
+    }
   }
   return fresh;
 }

@@ -118,7 +118,8 @@ export class Renderer {
     for (const card of run.cards) this.drawFlyingCard(card);
     for (const p of run.projectiles) this.drawProjectile(p);
     for (const h of run.hammers) this.drawHammer(h, t);
-    for (const f of run.effects) if (f.type !== 'coin') this.drawEffect(f, alpha);
+    for (const f of run.effects) if (f.type !== 'coin' && f.type !== 'shimmerFly') this.drawEffect(f, alpha);
+    for (const f of run.effects) if (f.type === 'shimmerFly') this.drawShimmerFly(f);
     this.drawTowerBar(run);
     if (worldOf(run.chapter).thema === 'frost') this.drawSnow(t);
     if (run.freezeAll > 0) { c.fillStyle = 'rgba(166,227,255,0.12)'; c.fillRect(0, 0, 1920, 1080); }
@@ -490,6 +491,28 @@ export class Renderer {
         break;
       }
     }
+    c.globalAlpha = 1;
+  }
+
+  /** Schimmer: kleiner Regenbogen-Kristall springt aus der Quelle und fliegt zum Run-Zähler oben mittig. */
+  drawShimmerFly(f) {
+    const k = (f.age - (f.delay || 0)) / (f.life - (f.delay || 0));
+    if (k < 0) return;
+    const c = this.ctx;
+    const ex = 960, ey = 34;
+    let x, y;
+    if (k < 0.3) { const j = k / 0.3; x = f.x; y = f.y - Math.sin(j * Math.PI) * 40 - j * 10; } // Sprung aus dem Monster
+    else {
+      const e = (k - 0.3) / 0.7, q = e * e;
+      const sx = f.x, sy = f.y - 10, cx = (sx + ex) / 2, cy = Math.min(sy, ey) - 120;
+      x = (1 - q) * (1 - q) * sx + 2 * (1 - q) * q * cx + q * q * ex;
+      y = (1 - q) * (1 - q) * sy + 2 * (1 - q) * q * cy + q * q * ey;
+    }
+    const s = 18;
+    c.globalAlpha = k > 0.92 ? (1 - k) / 0.08 : 1;
+    c.drawImage(this.bank.icon('crystal_regen'), Math.round(x - s / 2), Math.round(y - s / 2), s, s);
+    c.fillStyle = RAINBOW[Math.floor(f.age * 20) % RAINBOW.length];
+    c.fillRect(Math.round(x) - 1, Math.round(y + s / 2 + 2), 2, 2);
     c.globalAlpha = 1;
   }
 
