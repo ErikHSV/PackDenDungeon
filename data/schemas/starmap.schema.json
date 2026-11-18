@@ -173,7 +173,8 @@
                   "foilMonsterBesiegt",
                   "bossBesiegt",
                   "tomesGenutzt",
-                  "reliktJagden"
+                  "reliktJagden",
+                  "killsEinheit"
                 ]
               },
               "filter": {

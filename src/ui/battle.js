@@ -149,12 +149,14 @@ export class BattleController {
       if (chs && !chs.includes(ch.id)) continue;
       const a = n.aufgabe, f = a.filter || {};
       if (a.statistik === 'packsGeoeffnet' && f.pack && !packsHere.has(f.pack)) continue;
+      if (a.statistik === 'killsEinheit' && !run.units.some((u) => u.id === f.einheit) && !data.packs.some((pk) => pk.pool?.includes(f.einheit) && packsHere.has(pk.id)) && f.einheit !== 'skelettkrieger' && data.unitIndex[f.einheit]?.rarity !== 'grenzgaenger') continue;
       if (a.statistik === 'kartenGefunden' && !data.packs.some((pk) => pk.pool?.includes(f.karte) && packsHere.has(pk.id)) && !run.bag.includes(`karte:${f.karte}`)) continue;
       let icon = bank.iconUrl('quest');
       if (a.statistik === 'killsGegner') icon = bank.enemyUrl(f.gegner);
       else if (a.statistik === 'bossBesiegt') icon = bank.enemyUrl(f.boss ?? ch.boss);
       else if (a.statistik === 'packsGeoeffnet') icon = bank.shopItemUrl(f.pack ?? 'holzpack');
       else if (a.statistik === 'kartenGefunden') icon = bank.cardUrl(f.karte);
+      else if (a.statistik === 'killsEinheit') icon = bank.unitUrl(f.einheit);
       else if (a.statistik === 'foilMonsterBesiegt') icon = bank.iconUrl('crystal_regen');
       else if (a.statistik === 'kills') icon = bank.iconUrl('skull');
       else if (a.statistik === 'ueberleben') icon = bank.iconUrl('tower');
@@ -185,7 +187,7 @@ export class BattleController {
     // Quests live: gespeicherter Fortschritt + Werte des laufenden Runs
     if (this.questRows.length) {
       const live = {
-        kapitel: run.chapter.id, packsGeoeffnet: run.stats.packsGeoeffnet, kills: run.stats.kills, killsNachArt: run.stats.killsNachArt,
+        kapitel: run.chapter.id, packsGeoeffnet: run.stats.packsGeoeffnet, kills: run.stats.kills, killsNachArt: run.stats.killsNachArt, killsEinheit: run.stats.killsEinheit,
         gezogen: run.stats.gezogen, zeit: run.time, foilMonster: run.stats.foilMonster, sieg: !!run.result?.sieg, boss: run.chapter.boss, tomesGenutzt: run.stats.tomesGenutzt,
       };
       const html = this.questRows.map((r) => {

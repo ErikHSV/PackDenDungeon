@@ -91,7 +91,8 @@ export function damageEnemy(run, e, amount, type, opts = {}) {
   }
   let d = amount;
   // Helden-Krit (Skill-Tree „Heldenglück“): doppelter Schaden
-  if (opts.source?.kind === 'unit' && !opts.crit && run.mods.heldenKrit > 0 && run.rng() < run.mods.heldenKrit) { d *= 2; opts = { ...opts, crit: true }; }
+  const kritChance = opts.source?.kind === 'unit' ? run.mods.heldenKrit + (opts.source.def.werte.krit || 0) : 0;
+  if (kritChance > 0 && !opts.crit && run.rng() < kritChance) { d *= 2; opts = { ...opts, crit: true }; }
   // Banner-Aura eines Hauptmanns: Soldaten in der Nähe haben mehr Rüstung
   let armor = e.ruestung;
   if (run.auraCarriers?.length && !e.def.eigenschaften?.aura) for (const h of run.auraCarriers) if (!h.dead && dist(h, e) <= h.def.eigenschaften.aura.radius) { armor += h.def.eigenschaften.aura.ruestung; break; }
@@ -150,6 +151,7 @@ export function killEnemy(run, e, killer = null) {
   if (kh && !killer.dead && (!kh.nurEntwickelt || killer.evolved)) killer.hp = Math.min(killer.maxHp, killer.hp + killer.maxHp * kh.anteil);
   if (killer) {
     killer.kills = (killer.kills || 0) + 1;
+    if (killer.kind === 'unit') run.stats.killsEinheit[killer.id] = (run.stats.killsEinheit[killer.id] || 0) + 1;
     run.checkEvolution(killer);
   }
   const t = e.def.eigenschaften || {};

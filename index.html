@@ -142,6 +142,19 @@
         <label class="row-set">Schnelles Pack-Öffnen <input type="checkbox" data-setting="fastPackOpening"></label>
         <label class="row-set">Animationen überspringen <input type="checkbox" data-setting="skipAnimations"></label>
         <label class="row-set">Sprache <select id="language"><option value="de">Deutsch</option><option value="en" disabled>English (bald)</option></select></label>
+        <div class="save-box">
+          <h3>Spielstand</h3>
+          <p class="muted">Das Spiel speichert nach jedem Run und jedem Kauf automatisch in diesem Browser. Zum Sichern oder Mitnehmen auf ein anderes Gerät:</p>
+          <div class="save-row">
+            <button class="btn" id="save-file">Als Datei speichern</button>
+            <button class="btn" id="load-file">Aus Datei laden</button>
+            <button class="btn" id="save-code">Code kopieren</button>
+            <button class="btn" id="load-code">Code einfügen</button>
+          </div>
+          <input type="file" id="load-file-input" accept=".json,application/json,text/plain" class="hidden">
+          <textarea id="save-code-box" class="hidden" rows="3" spellcheck="false" placeholder="Spielstand-Code hier einfügen (beginnt mit PDD1:)"></textarea>
+          <button class="btn btn-primary hidden" id="load-code-go">Code laden</button>
+        </div>
         <button class="btn btn-danger" id="btn-reset">Spielstand löschen</button>
         <div class="debug-meta hidden" id="debug-meta"><b>Debug:</b>
           <button class="btn" id="dbg-currency">+1000 aller Währungen</button>

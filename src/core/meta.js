@@ -523,6 +523,7 @@ export function questRunValue(node, r, data) {
     case 'kills': return r.kills;
     case 'killsGegner': { const k = r.killsNachArt[f.gegner]; return k ? k.normal + k.foil : 0; }
     case 'kartenGefunden': { const g = r.gezogen[f.karte]; return g ? g.normal + g.foil : 0; }
+    case 'killsEinheit': return r.killsEinheit?.[f.einheit] || 0;
     case 'ueberleben': return Math.floor(r.zeit);
     case 'foilMonsterBesiegt': return r.foilMonster;
     case 'bossBesiegt': return r.sieg && (!f.boss || r.boss === f.boss) ? 1 : 0;

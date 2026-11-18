@@ -3,7 +3,7 @@
 import { $, $$, el, escapeHtml, show, confirmDialog, toast } from './dom.js';
 import { cardElement } from './cardView.js';
 import { relicSlots, relicsToNextSlot, equipRelic, destroyRelic, repairRelic, progressOf, levelOf, questProgress, nodeVisible } from '../core/meta.js';
-import { resetSave } from '../save.js';
+import { resetSave, exportSaveJson, exportSaveCode, importSave } from '../save.js';
 import { setVolumes, play } from '../audio.js';
 import { formatNumber } from '../core/util.js';
 
@@ -213,6 +213,53 @@ export function bindSettings(game) {
   for (const r of $$('[data-percent]')) r.addEventListener('input', () => { s()[r.dataset.percent] = Number(r.value) / 100; game.persist(); });
   for (const box of $$('[data-setting]')) box.addEventListener('change', () => { s()[box.dataset.setting] = box.checked; game.persist(); });
   $('#language').addEventListener('change', (ev) => { s().language = ev.target.value; game.persist(); });
+
+  // Spielstand speichern/laden
+  const applyImported = async (text) => {
+    let s;
+    try { s = importSave(game.data, text); } catch (err) { toast(err.message, true); return; }
+    const info = `Tag ${s.day ?? '?'}, Akt ${s.act ?? 1}, ${Object.keys(s.collection || {}).length} Karten`;
+    if (!(await confirmDialog(`Diesen Spielstand laden (${info})? Der aktuelle Spielstand wird ersetzt.`, 'Laden', 'Abbrechen'))) return;
+    game.save = s;
+    game.persist();
+    refreshSettings(game);
+    toast('Spielstand geladen');
+    game.goto('hub');
+  };
+  $('#save-file').addEventListener('click', () => {
+    game.persist();
+    const blob = new Blob([exportSaveJson(game.save)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `packdendungeon-tag${game.save.day ?? 1}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    toast('Spielstand als Datei gespeichert');
+  });
+  $('#load-file').addEventListener('click', () => $('#load-file-input').click());
+  $('#load-file-input').addEventListener('change', async (ev) => {
+    const file = ev.target.files?.[0];
+    ev.target.value = '';
+    if (file) await applyImported(await file.text());
+  });
+  $('#save-code').addEventListener('click', async () => {
+    game.persist();
+    const code = exportSaveCode(game.save);
+    const box = $('#save-code-box');
+    box.value = code;
+    box.classList.remove('hidden');
+    $('#load-code-go').classList.add('hidden');
+    box.select();
+    try { await navigator.clipboard.writeText(code); toast('Code kopiert – gut aufbewahren!'); } catch { toast('Code markiert – bitte mit Strg+C kopieren'); }
+  });
+  $('#load-code').addEventListener('click', () => {
+    const box = $('#save-code-box');
+    box.value = '';
+    box.classList.remove('hidden');
+    $('#load-code-go').classList.remove('hidden');
+    box.focus();
+  });
+  $('#load-code-go').addEventListener('click', () => applyImported($('#save-code-box').value));
 
   $('#btn-reset').addEventListener('click', async () => {
     if (!(await confirmDialog('Spielstand wirklich löschen? Skill-Tree, Foil-Baum, Sammlung, Relikte und Statistiken gehen verloren.', 'Löschen', 'Abbrechen'))) return;

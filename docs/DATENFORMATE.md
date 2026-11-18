@@ -127,6 +127,7 @@ Gleiches Knotenformat, Positionen von Hand. Bezahlt mit Foil-Staub (`basisKosten
 
 `rechenart`: `addieren` (Wert × Stufe) oder `multiplizieren` (Wert^Stufe).
 
+- **Helden-Äste:** Knoten eines Einheiten-Astes tragen `heldAst: "<einheit>"` und `voraussetzung.karte`. Quest-Statistik `killsEinheit` mit `filter.einheit` zählt Kills einer Einheit (auch `skelettkrieger`). `werte.krit` einer Einheit erhöht ihre Krit-Chance (doppelter Schaden) zusätzlich zu `heldenKrit`.
 - **Weitere Knotenfelder:** `muenzKosten` (zusätzliche Münzen bei der ersten Stufe, z. B. Prägewerk), `torBosse` am Tor-Knoten (Kapitel, deren Bosse der Tor-Zähler 1/3 – 3/3 zählt), `effekt.ziel: "einheit"` darf auch Einheiten ohne Karte patchen (z. B. `skelettkrieger`).
 - **Helden-Fähigkeiten aus dem Baum:** `faehigkeiten.wut { tempoMax }` (schneller bei wenig Leben), `todSkelett { chance, dauer }`, `killMuenze { chance }`, `killHeilung { anteil }`; Seuche (`beiTreffer` typ `seuche`) mit `verwundbar`, `lahm`, `springt`, `skelettChance`.
 

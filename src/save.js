@@ -45,22 +45,65 @@ function merge(base, raw) {
 }
 
 export function loadSave(data) {
-  const base = defaultSave(data);
   try {
     const raw = JSON.parse(localStorage.getItem(KEY));
-    if (!raw) return base;
-    const s = merge(base, raw);
-    // Alter Shop (vor 14.2): Run-Tasche erstatten, Angebote neu würfeln
-    if (s.shop.offers.some((o) => !o.kind) || s.shop.bag) {
-      for (const b of s.shop.bag || []) s.coins += Math.round(b.preis || 0);
-      s.shop = { ...base.shop, seen: s.shop.seen || [] };
-    }
-    if ((raw.version || 0) < 5) migrateV5(s, raw, data);
-    if ((raw.version || 0) < 6) migrateV6(s);
-    return s;
+    if (!raw) return defaultSave(data);
+    return parseSave(data, raw);
   } catch {
-    return base;
+    return defaultSave(data);
   }
+}
+
+/** Rohdaten (z. B. aus einer Datei) in einen gültigen Spielstand überführen, inkl. Migrationen. */
+function parseSave(data, raw) {
+  const base = defaultSave(data);
+  const s = merge(base, raw);
+  // Alter Shop (vor 14.2): Run-Tasche erstatten, Angebote neu würfeln
+  if (s.shop.offers.some((o) => !o.kind) || s.shop.bag) {
+    for (const b of s.shop.bag || []) s.coins += Math.round(b.preis || 0);
+    s.shop = { ...base.shop, seen: s.shop.seen || [] };
+  }
+  if ((raw.version || 0) < 5) migrateV5(s, raw, data);
+  if ((raw.version || 0) < 6) migrateV6(s);
+  return s;
+}
+
+// ---------------------------------------------------------------------------
+// Export / Import (Datei oder Code zum Kopieren)
+// ---------------------------------------------------------------------------
+
+const CODE_PREFIX = 'PDD1:';
+
+/** Spielstand als JSON-Text (für die Datei). */
+export function exportSaveJson(save) {
+  return JSON.stringify({ spiel: 'PackDenDungeon', exportiert: new Date().toISOString(), spielstand: save }, null, 1);
+}
+
+/** Spielstand als kurzer Text-Code (Base64, UTF-8-sicher). */
+export function exportSaveCode(save) {
+  const bytes = new TextEncoder().encode(JSON.stringify(save));
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return CODE_PREFIX + btoa(bin);
+}
+
+/** Datei-Inhalt oder Code einlesen. Wirft einen Fehler mit deutscher Meldung, wenn es kein Spielstand ist. */
+export function importSave(data, text) {
+  const t = String(text || '').trim();
+  let raw;
+  try {
+    if (t.startsWith(CODE_PREFIX)) {
+      const bin = atob(t.slice(CODE_PREFIX.length).replace(/\s+/g, ''));
+      raw = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0))));
+    } else {
+      raw = JSON.parse(t);
+      if (raw && raw.spielstand) raw = raw.spielstand;
+    }
+  } catch {
+    throw new Error('Das ist kein gültiger Spielstand (Datei oder Code beschädigt).');
+  }
+  if (!raw || typeof raw !== 'object' || !raw.version || !raw.stats || !raw.collection) throw new Error('Das ist kein Spielstand von PackDenDungeon.');
+  return parseSave(data, raw);
 }
 
 /**

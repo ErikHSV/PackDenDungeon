@@ -80,7 +80,7 @@ export class Run {
     });
 
     // bonusMastery: Mastery außerhalb der Überlebensformel (erste Shinys, Tome-Verbot), foilStaub: Schimmer aus Shinys
-    this.stats = { kills: 0, killWert: 0, bossAbschnitte: 0, muenzen: 0, bonusMastery: 0, foilStaub: 0, schimmer: {}, ersteShinys: [], packsGeoeffnet: {}, gezogen: {}, neueKarten: [], foils: 0, grenzgaenger: 0, tomesGenutzt: 0, entwicklungen: 0, killsNachArt: {}, foilMonster: 0, elitewellen: 0 };
+    this.stats = { kills: 0, killWert: 0, bossAbschnitte: 0, muenzen: 0, bonusMastery: 0, foilStaub: 0, schimmer: {}, ersteShinys: [], packsGeoeffnet: {}, gezogen: {}, neueKarten: [], foils: 0, grenzgaenger: 0, tomesGenutzt: 0, entwicklungen: 0, killsNachArt: {}, killsEinheit: {}, foilMonster: 0, elitewellen: 0 };
     this.over = false;
     this.result = null;
     this.endAge = 0;
@@ -1105,7 +1105,7 @@ export class Run {
       kills: this.stats.kills, killWert: this.stats.killWert, bossAbschnitte: this.stats.bossAbschnitte,
       reliktJagd: !!this.stats.reliktJagd, schatzRelikt: this.stats.schatzRelikt ?? null,
       muenzen: Math.max(0, this.coins), bonusMastery: this.stats.bonusMastery, foilStaub: this.stats.foilStaub, schimmer: this.stats.schimmer, ersteShinys: this.stats.ersteShinys,
-      killsNachArt: this.stats.killsNachArt, foilMonster: this.stats.foilMonster, elitewellen: this.stats.elitewellen,
+      killsNachArt: this.stats.killsNachArt, killsEinheit: this.stats.killsEinheit, foilMonster: this.stats.foilMonster, elitewellen: this.stats.elitewellen,
       packsGeoeffnet: this.stats.packsGeoeffnet, gezogen: this.stats.gezogen, neueKarten: this.stats.neueKarten,
       foils: this.stats.foils, grenzgaenger: this.stats.grenzgaenger, tomesGenutzt: this.stats.tomesGenutzt, entwicklungen: this.stats.entwicklungen,
       besteEinheit: best ? { id: best.id, name: best.def.name, schaden: Math.round(best.damage || 0), kills: best.kills, foil: best.foil } : null,

@@ -392,3 +392,11 @@ h1, h2, h3 { font-family: var(--pixel); margin: 0 0 12px; }
 .banner.gold { color: #FFD24A; text-shadow: 0 4px 0 #6b4a12, 0 0 24px #FFD24A88; }
 .chip.hunt { border-color: #FFD24A; color: #FFD24A; cursor: default; }
 .chip.hunt.done { border-color: #6b5a7a; color: #8a8296; }
+
+/* Einstellungen: Spielstand speichern/laden */
+.save-box { margin: 14px 0; padding: 12px 14px; border: 2px solid rgba(255,210,74,0.35); background: rgba(0,0,0,0.2); }
+.save-box h3 { margin: 0 0 6px; color: #FFD24A; }
+.save-box p { margin: 0 0 10px; font-size: 15px; }
+.save-row { display: flex; flex-wrap: wrap; gap: 8px; }
+#save-code-box { width: 100%; margin-top: 10px; font: 13px/1.3 monospace; background: #120d1e; color: #f4ebd9; border: 2px solid #4a4266; padding: 6px; box-sizing: border-box; word-break: break-all; }
+#load-code-go { margin-top: 8px; }
