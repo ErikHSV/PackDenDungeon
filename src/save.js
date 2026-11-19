@@ -4,7 +4,7 @@ const KEY = 'packdendungeon-save-v3';
 
 export function defaultSave(data) {
   return {
-    version: 9,
+    version: 10,
     // Genau drei Währungen (Abschnitt 10)
     coins: data?.balance.wirtschaft.startMuenzen ?? 3, // Münzen: nur für den Shop
     bonusCoins: 0,      // Bonus-Münzen aus Relikten und Effekten (werden zuerst ausgegeben)
@@ -68,6 +68,7 @@ function parseSave(data, raw) {
   if ((raw.version || 0) < 7) migrateV7(s, data);
   if ((raw.version || 0) < 8) migrateV8(s);
   if ((raw.version || 0) < 9) migrateV9(s, data);
+  if ((raw.version || 0) < 10) migrateV10(s, data);
   return s;
 }
 
@@ -153,6 +154,37 @@ function migrateV7(s, data) {
   }
   s.mastery = (s.mastery || 0) + refund;
   if (refund) s.migrationHinweis = `Skill-Tree umgebaut: ${refund} Mastery für entfernte Cursor- und Turm-Knoten erstattet.`;
+}
+
+/**
+ * v10: keine Mehrfachstufen mehr – mehrstufige Knoten sind jetzt Ketten aus Einzelknoten (Feld `alt` = frühere Stufen).
+ * Ganz bezahlte Abschnitte werden übernommen, angefangene als Mastery bzw. Schimmer erstattet.
+ */
+function splitLevels(tree, store, data, aktMul) {
+  const groups = {};
+  for (const n of tree.knoten) if (n.alt) (groups[n.alt.id] ||= []).push(n);
+  let refund = 0;
+  for (const [altId, list] of Object.entries(groups)) {
+    const L = store?.[altId] || 0;
+    for (const n of list) {
+      const { von, bis, basis, faktor } = n.alt;
+      if (L >= bis) store[n.id] = 1;
+      else {
+        if (store) delete store[n.id];
+        for (let l = von; l < Math.min(L, bis); l++) refund += Math.round(basis * Math.pow(faktor, l) * aktMul);
+      }
+    }
+  }
+  return refund;
+}
+function migrateV10(s, data) {
+  s.starmap ||= {}; s.foiltree ||= {};
+  const aktMul = data.balance.skilltree.aktKostenMul?.[s.act ?? 1] ?? 1;
+  const mp = splitLevels(data.starmap, s.starmap, data, aktMul);
+  const fs = splitLevels(data.foiltree, s.foiltree, data, 1);
+  s.mastery = (s.mastery || 0) + mp;
+  s.foilDust = (s.foilDust || 0) + fs;
+  if (mp || fs) s.migrationHinweis = [s.migrationHinweis, `Keine Mehrfachstufen mehr: ${mp ? `${mp} Mastery` : ''}${mp && fs ? ' und ' : ''}${fs ? `${fs} Schimmer` : ''} für angefangene Abschnitte erstattet.`].filter(Boolean).join(' ');
 }
 
 /** v9: Turm und Cursor wie im Wiki – Turmleben und Cursor-Schaden sind jetzt je ein mehrstufiger Knoten. Entfernte Stufen werden erstattet. */

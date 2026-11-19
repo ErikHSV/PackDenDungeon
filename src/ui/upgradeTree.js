@@ -45,7 +45,7 @@ export class UpgradeTree {
   get save() { return this.game.save; }
   get map() { return treeMap(this.kind, this.game.data); }
   get index() { return treeIndex(this.kind, this.game.data); }
-  get cam() { return this.cams[this.kind]; }
+  get cam() { return this.cams.skill; } // beide Bäume liegen auf einer gemeinsamen Fläche
   get foil() { return this.kind === 'foil'; }
   level(id) { return treeLevel(this.kind, this.save, id); }
 
@@ -59,11 +59,11 @@ export class UpgradeTree {
   open() {
     this.active = true;
     this.resize();
-    if (this.foil && !foilTreeUnlocked(this.save)) this.kind = 'skill';
+    this.kind = 'skill';
     if (!this.cam.centered) {
       this.cam.centered = true;
-      if (!this.foil) this.cam.zoom = 0.8; // hochkanter Baum: etwas kleiner, damit beide Seiten sichtbar sind
-      this.centerOn((!this.foil && this.data.starIndex[this.save.lastBought]) || this.index[this.map.start]);
+      this.cam.zoom = 0.8; // hochkanter Baum: etwas kleiner, damit beide Seiten sichtbar sind
+      this.centerOn(this.data.starIndex[this.save.lastBought] || this.data.starIndex[this.data.starmap.start]);
     }
     this.updateCurrency(false);
     this.updateNav();
@@ -78,21 +78,21 @@ export class UpgradeTree {
 
   close() { this.active = false; this.hint = null; show('#tree-info', false); cancelAnimationFrame(this.raf); }
 
-  /** Umschalten Skill-Tree ↔ Foil-Baum mit kurzem Regenbogen-Wisch (0,3 s). */
+  /** Regenbogen-Knopf: Kamera zum Schimmer-Baum (rechts neben dem Skill-Tree) und wieder zurück. */
   toggleKind() {
     if (!foilTreeUnlocked(this.save)) return;
-    this.kind = this.foil ? 'skill' : 'foil';
     this.save.ui.foilTreeSeen = true;
     this.game.persist();
+    const f = this.data.foilIndex[this.data.foiltree.start].position;
+    const nearFoil = Math.abs(this.cam.x - f.x) < this.W / this.cam.zoom * 0.6;
+    const target = nearFoil ? (this.data.starIndex[this.save.lastBought] || this.data.starIndex[this.data.starmap.start]).position : f;
+    this.cam.x = target.x; this.cam.y = target.y; this.clampCam();
     const w = $('#tree-wipe');
     w.classList.remove('go'); void w.offsetWidth; w.classList.add('go');
-    if (!this.cam.centered) { this.cam.centered = true; this.resize(); this.centerOn(this.index[this.map.start]); }
     this.hover = null; this.tapped = null; this.hint = null;
-    this.skipAnimations();
     show('#tree-info', false);
-    this.updateCurrency(false);
     this.updateNav();
-    play(this.foil ? 'foil' : 'click');
+    play(nearFoil ? 'click' : 'foil');
   }
 
   // ---------------------------------------------------------------------
@@ -102,7 +102,8 @@ export class UpgradeTree {
   centerOn(node) { this.cam.x = node.position.x; this.cam.y = node.position.y; this.clampCam(); }
 
   clampCam() {
-    const W = this.map.groesse.breite, H = this.map.groesse.hoehe;
+    const G = this.data.treeGroesse ?? this.data.starmap.groesse;
+    const W = foilTreeUnlocked(this.save) ? G.breite : this.data.starmap.groesse.breite, H = G.hoehe;
     const hw = this.W / 2 / this.cam.zoom, hh = this.H / 2 / this.cam.zoom;
     this.cam.x = W <= hw * 2 ? W / 2 : Math.max(hw, Math.min(W - hw, this.cam.x));
     this.cam.y = H <= hh * 2 ? H / 2 : Math.max(hh, Math.min(H - hh, this.cam.y));
@@ -145,7 +146,14 @@ export class UpgradeTree {
   nodeAt(sx, sy) {
     const w = this.toWorld(sx, sy);
     const r = NODE / 2 + 6;
-    return this.map.knoten.find((n) => this.visible(n) && Math.abs(n.position.x - w.x) <= r && Math.abs(n.position.y - w.y) <= r) ?? null;
+    const kinds = foilTreeUnlocked(this.save) ? ['skill', 'foil'] : ['skill'];
+    for (const kind of kinds) {
+      this.kind = kind;
+      const n = this.map.knoten.find((k) => this.visible(k) && Math.abs(k.position.x - w.x) <= r && Math.abs(k.position.y - w.y) <= r);
+      if (n) return n;
+    }
+    this.kind = 'skill';
+    return null;
   }
 
   // ---------------------------------------------------------------------
@@ -287,7 +295,7 @@ export class UpgradeTree {
 
   updateCurrency(animate = true) {
     if (!animate) { $('#tree-mp').textContent = this.save.mastery; $('#tree-fs').textContent = this.save.foilDust; }
-    $('.tree-cur').classList.toggle('foil-mode', this.foil);
+    $('.tree-cur').classList.remove('foil-mode');
     $('#tree-fs-wrap').classList.toggle('hidden', !foilTreeUnlocked(this.save));
   }
 
@@ -296,7 +304,7 @@ export class UpgradeTree {
     const btn = $('#tree-foil');
     const unlocked = foilTreeUnlocked(this.save);
     btn.classList.toggle('hidden', !unlocked);
-    btn.classList.toggle('on', this.foil);
+    btn.classList.remove('on');
     btn.classList.toggle('blink', unlocked && !this.save.ui.foilTreeSeen);
     $('#tree-up').classList.toggle('blink', this.prestigeCount() > (this.save.ui.prestigeSeen || 0));
   }
@@ -515,8 +523,16 @@ export class UpgradeTree {
 
   /** Foil-Baum: dunkles Feld mit langsam schimmernden Regenbogen-Schlieren (sehr dezent). */
   drawFoilBase(c, t) {
-    c.fillStyle = '#0d0912';
-    c.fillRect(0, 0, this.W, this.H);
+    // Bereich des Schimmer-Baums (Welt → Bildschirm), weich ausgeblendeter Regenbogen-Schleier
+    const fk = this.data.foiltree.knoten;
+    const pad = 160;
+    const a = this.toScreen(Math.min(...fk.map((n) => n.position.x)) - pad, Math.min(...fk.map((n) => n.position.y)) - pad);
+    const b = this.toScreen(Math.max(...fk.map((n) => n.position.x)) + pad, Math.max(...fk.map((n) => n.position.y)) + pad);
+    if (b.x < 0 || a.x > this.W || b.y < 0 || a.y > this.H) return;
+    c.save();
+    c.beginPath(); c.rect(a.x, a.y, b.x - a.x, b.y - a.y); c.clip();
+    c.fillStyle = 'rgba(13,9,18,0.85)';
+    c.fillRect(a.x, a.y, b.x - a.x, b.y - a.y);
     c.save();
     c.globalCompositeOperation = 'lighter';
     for (let i = 0; i < 5; i++) {
@@ -536,10 +552,17 @@ export class UpgradeTree {
     }
     c.restore();
     for (let i = 0; i < 60; i++) {
-      const a = 0.1 + 0.3 * Math.abs(Math.sin(t * (0.3 + hash(i, 9)) + i));
-      c.fillStyle = rainbow(hash(i, 4) * 360, 75, a);
-      c.fillRect(Math.round(hash(i, 5) * this.W), Math.round(hash(i, 6) * this.H), 2, 2);
+      const al = 0.1 + 0.3 * Math.abs(Math.sin(t * (0.3 + hash(i, 9)) + i));
+      c.fillStyle = rainbow(hash(i, 4) * 360, 75, al);
+      c.fillRect(Math.round(a.x + hash(i, 5) * (b.x - a.x)), Math.round(a.y + hash(i, 6) * (b.y - a.y)), 2, 2);
     }
+    // Rahmen und Titel
+    c.strokeStyle = rainbow(t * 40, 70, 0.5); c.lineWidth = 2;
+    c.strokeRect(a.x + 1, a.y + 1, b.x - a.x - 2, b.y - a.y - 2);
+    c.font = 'bold 28px "Jersey 10", "Pixelify Sans", monospace';
+    c.textAlign = 'left'; c.fillStyle = rainbow(t * 60, 80, 0.95);
+    c.fillText('SCHIMMER-BAUM (dauerhaft)', a.x + 16, a.y + 34);
+    c.restore();
   }
 
   draw(t, dt, now) {
@@ -547,7 +570,10 @@ export class UpgradeTree {
     c.setTransform(1, 0, 0, 1, 0, 0);
     c.imageSmoothingEnabled = false;
     this.mods = computeMods(this.data, this.save);
-    if (this.foil) this.drawFoilBase(c, t); else this.drawBase(c, t);
+    this.kind = 'skill';
+    this.drawBase(c, t);
+    const foilOn = foilTreeUnlocked(this.save);
+    if (foilOn) this.drawFoilBase(c, t);
 
     const z = this.cam.zoom;
     c.save();
@@ -555,6 +581,8 @@ export class UpgradeTree {
     c.scale(z, z);
     c.translate(-this.cam.x, -this.cam.y);
 
+    for (const kind of foilOn ? ['skill', 'foil'] : ['skill']) {
+    this.kind = kind;
     const nodes = this.map.knoten;
     const idx = this.index;
     const vis = Object.fromEntries(nodes.map((n) => [n.id, this.visible(n)]));
@@ -585,6 +613,8 @@ export class UpgradeTree {
     }
 
     for (const n of nodes) if (vis[n.id]) this.drawNode(n, t, now);
+    }
+    this.kind = 'skill';
 
     for (const p of this.particles) {
       p.age += dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.93; p.vy *= 0.93;
@@ -596,7 +626,7 @@ export class UpgradeTree {
     this.particles = this.particles.filter((p) => p.age < p.life);
     c.restore();
 
-    if (this.hint && now < this.hint.until && vis[this.hint.node.id] && !this.foil) {
+    if (this.hint && now < this.hint.until && this.visible(this.hint.node)) {
       const p = this.toScreen(this.hint.node.position.x, this.hint.node.position.y);
       const bob = Math.sin(t * 6) * 6;
       c.fillStyle = '#FFD24A';

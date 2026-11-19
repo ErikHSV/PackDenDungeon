@@ -53,8 +53,7 @@ export class Hub {
   open(opts = {}) {
     const { data, save } = this.game;
     if (!save.shop.offers.length) { rollOffers(data, save, this.game.mods()); this.game.persist(); }
-    const selCh = data.chapterIndex[save.selection.chapter];
-    if (!selCh || !chapterUnlocked(selCh, save, data)) { save.selection.chapter = 1; save.selection.prestige = 0; }
+    this.fixSelection();
     // Nach dem Run: erfüllte Quests automatisch abholen (Einkommen gilt sofort), Anzeige im Skill-Tree
     const claims = opts.autoClaim ? autoClaimQuests(data, save) : [];
     if (claims.length) this.game.persist();
@@ -108,6 +107,8 @@ export class Hub {
   onActChanged() {
     const { data, save } = this.game;
     rollOffers(data, save, this.game.mods(), Math.random, true);
+    // Neuer Akt: mit dem ersten Kapitel des Akts weitermachen
+    save.selection.chapter = this.currentActChapter(); save.selection.prestige = 0;
     this.game.persist();
     this.renderChapter();
     this.renderShop();
@@ -145,6 +146,29 @@ export class Hub {
   // -------------------------------------------------------------------
   // Kapitelwahl (▲/▼, römische Ziffer = Prestige-Stufe)
   // -------------------------------------------------------------------
+
+  /** Akt 1: keine Kapitelwahl – immer das erste noch nicht geschaffte Kapitel (sonst das letzte). */
+  currentActChapter() {
+    const { data, save } = this.game;
+    const ids = data.actIndex[save.act]?.kapitel ?? [];
+    return ids.find((id) => !(save.stats.bossKills[id] > 0)) ?? ids[ids.length - 1];
+  }
+
+  /** Ab Akt 2 ist ein bereits geschafftes Kapitel automatisch der Schimmer-Boss (Gesucht). */
+  isWanted(ch, sel) {
+    const { save } = this.game;
+    return save.act >= 2 && !!ch?.gesucht && !(sel.prestige > 0) && save.stats.bossKills[ch.id] > 0;
+  }
+
+  /** Auswahl gültig halten: in Akt 1 fest, ab Akt 2 frei (ungültig → erstes offenes Kapitel des Akts). */
+  fixSelection() {
+    const { data, save } = this.game;
+    const sel = save.selection;
+    const ch = data.chapterIndex[sel.chapter];
+    if (save.act <= 1) { sel.chapter = this.currentActChapter(); sel.prestige = 0; sel.modifier = null; }
+    else if (!ch || !chapterUnlocked(ch, save, data)) { sel.chapter = this.currentActChapter(); sel.prestige = 0; }
+    sel.gesucht = this.isWanted(data.chapterIndex[sel.chapter], sel);
+  }
 
   chapterEntries() {
     const { data, save } = this.game;
@@ -184,7 +208,12 @@ export class Hub {
   renderChapter() {
     const { data, save } = this.game;
     const sel = save.selection;
+    this.fixSelection();
     const ch = data.chapterIndex[sel.chapter];
+    // Akt 1: keine Kapitelwahl (Pfeile ausgeblendet)
+    const choose = save.act >= 2;
+    $('#ch-prev').classList.toggle('hidden', !choose);
+    $('#ch-next').classList.toggle('hidden', !choose);
     const list = this.chapterEntries();
     let i = list.findIndex((e) => e.chapter === sel.chapter && e.prestige === (sel.prestige || 0));
     if (i < 0) { sel.prestige = 0; i = list.findIndex((e) => e.chapter === sel.chapter && !e.prestige); }
@@ -195,13 +224,11 @@ export class Hub {
     $('#ch-name').textContent = `${ch.name}${sel.prestige ? ' ' + ROMAN[sel.prestige] : ''}`;
     $('#ch-name').title = ch.intro ?? '';
     const extra = [];
-    const canWanted = ch.gesucht && save.stats.bossKills[ch.id] > 0;
-    if (!canWanted) sel.gesucht = false;
-    if (canWanted) {
+    if (sel.gesucht) {
       const st = gesuchtSchimmer(ch, data, this.game.mods());
       const first = !(save.stats.gesuchtSiege?.[ch.boss] > 0);
       const G = data.balance.gesucht;
-      extra.push(`<button class="chip${sel.gesucht ? ' on' : ''}" id="sel-gesucht" title="Der Boss erscheint als Shiny-Boss: stärker, mit Zusatzangriff. Jeder Sieg: +${st} Schimmer.${first ? ` Erster Sieg zusätzlich +${G.erstsiegSchimmer} Schimmer und ${G.erstsiegMastery} Mastery.` : ''}">GESUCHT ✦ +${st} <img src="${this.game.bank.iconUrl('crystal_regen')}" alt="">${first ? ` · 1. SIEG +${G.erstsiegSchimmer}` : ''}</button>`);
+      extra.push(`<span class="chip on" title="Wiederholung eines geschafften Kapitels: Der Boss kommt als Schimmer-Boss zurück – stärker, mit Zusatzangriff. Jeder Sieg: +${st} Schimmer.${first ? ` Erster Sieg zusätzlich +${G.erstsiegSchimmer} Schimmer und ${G.erstsiegMastery} Mastery.` : ''}">SCHIMMER-BOSS ✦ +${st} <img src="${this.game.bank.iconUrl('crystal_regen')}" alt="">${first ? ` · 1. SIEG +${G.erstsiegSchimmer}` : ''}</span>`);
     }
     // Infotafel: Relikt-Jagd verfügbar bzw. erledigt (9.6.2)
     if (ch.reliktJagd) {
@@ -212,7 +239,6 @@ export class Hub {
     if (!modsAvail.some((m) => m.id === sel.modifier)) sel.modifier = null;
     if (modsAvail.length) extra.push(`<span class="chip"><select id="sel-mod" title="Kapitel-Modifikator"><option value="">kein Modifikator</option>${modsAvail.map((m) => `<option value="${m.id}"${sel.modifier === m.id ? ' selected' : ''} title="${escapeHtml(m.beschreibung)}">${escapeHtml(m.name)} (×${m.belohnung.masteryMul})</option>`).join('')}</select></span>`);
     $('#ch-extra').innerHTML = extra.join('');
-    $('#sel-gesucht')?.addEventListener('click', () => { sel.gesucht = !sel.gesucht; play('click'); this.game.persist(); this.renderChapter(); });
     $('#sel-mod')?.addEventListener('change', (e) => { sel.modifier = e.target.value || null; this.game.persist(); });
   }
 
@@ -405,6 +431,7 @@ export class Hub {
       if (!ok) return;
     }
     play('click');
+    this.fixSelection();
     const s = save.selection;
     this.game.startRun({ chapter: s.chapter, prestige: s.prestige || 0, gesucht: !!s.gesucht, modifierId: s.modifier || null });
   }

@@ -234,6 +234,7 @@ export function healUnit(run, u, amount) {
 export function damageTower(run, amount, attacker = null, heavy = false) {
   const t = run.tower;
   if (run.over) return;
+  if (attacker?.id) (run.stats.turmSchaden ||= {})[attacker.id] = ((run.stats.turmSchaden ||= {})[attacker.id] || 0) + amount; // Auswertung: wer trifft den Turm
   // Bollwerk-Schild fängt Schaden ab; zerbricht er, betäubt eine Schockwelle alle Gegner
   if (t.shield > 0) {
     const absorbed = Math.min(t.shield, amount);

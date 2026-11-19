@@ -69,6 +69,7 @@ export function computeMods(data, save, opts = {}) {
     const lvl = foilLevelOf(save, node.id);
     if (lvl && node.typ !== 'start') applyNodeEffect(mods, node, lvl);
   }
+  if (mods.freieRerolls > 0) mods.flags.neuWuerfeln = true; // Günstiger Reroll (Schimmer-Baum) schaltet REROLL ebenfalls frei
   // Relikte: zusätzliches Einkommen aus Relikten zählt als Bonus-Münzen
   const vorRelikten = mods.tagesEinkommen;
   for (const id of save.relics.equipped) {

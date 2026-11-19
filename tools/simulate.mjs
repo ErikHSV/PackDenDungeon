@@ -25,6 +25,7 @@ const data = loadData();
 const rng = mulberry32(SEED);
 const save = defaultSave(data);
 
+let day = 0;
 function botRun(chapterId, mods, bag) {
   const run = new Run({ data, save, chapterId, mods, bag, rng, headless: true, sessionMinutes: 10, events: () => {} });
   const cur = { x: run.tower.x, y: run.tower.y };
@@ -47,6 +48,7 @@ function botRun(chapterId, mods, bag) {
     run.setCursor(cur.x, cur.y, true);
     for (const tm of [...run.tomes]) run.useTome(tm);
     run.update(dt);
+    if (process.env.TRACE && day >= Number(process.env.TRACE) && Math.floor(run.time / 10) !== Math.floor((run.time - dt) / 10)) console.log(`   t=${run.time.toFixed(0)} Turm ${Math.round(run.tower.hp)}/${run.tower.maxHp} Gegner ${run.enemies.filter((e) => !e.dead).length} amTurm ${run.enemies.filter((e) => !e.dead && Math.hypot(e.x - run.tower.x, e.y - run.tower.y) < 90).length} Helden ${run.units.filter((u) => !u.dead).length} Kills ${run.stats.kills} Packs offen ${run.packs.filter((x) => x.landed && !x.opened).length} | Helden: ${run.units.filter((u) => !u.dead).map((u) => `${u.id.slice(0, 5)}→${u.lock && !u.lock.dead ? u.lock.id.slice(0, 5) + '@' + Math.round(Math.hypot(u.lock.x - u.x, u.lock.y - u.y)) : '-'}`).join(' ')}`);
     if (process.env.BOSSLOG && run.boss && !run.boss.dead && Math.floor(run.time * 2) !== Math.floor((run.time - dt) * 2)) console.log('   boss', run.time.toFixed(1), Math.round(run.boss.hp), '/', Math.round(run.boss.maxHp), 'helden', run.units.length, 'gegner', run.enemies.length);
   }
   return run;
@@ -93,7 +95,7 @@ const firstWin = {};
 let minutes = 0, firstDust = null;
 const dustBy = {};
 const HUB_MINUTES = 0.75; // geschätzte Zeit im Hub pro Tag (Shop, Baum)
-for (let day = 1; day <= DAYS; day++) {
+for (day = 1; day <= DAYS; day++) {
   const coinsBefore = walletTotal(save);
   shop();
   const bag = bagItems(data, save);
@@ -102,7 +104,7 @@ for (let day = 1; day <= DAYS; day++) {
   // Gewählt wird das früheste Kapitel, dessen Shiny-Boss noch nie besiegt wurde, und nur, wenn das nächste Kapitel schon geschafft ist.
   let ch = pickChapter();
   let gesucht = false;
-  if (day % 4 === 0) {
+  if (day % 4 === 0 && save.act >= 2) {
     const done = data.chapters.filter((c) => c.art === 'kapitel' && save.stats.bossKills[c.id] > 0).map((c) => c.id);
     const cand = done.find((id) => !(save.stats.gesuchtSiege?.[data.chapterIndex[id].boss] > 0) && done.includes(id + 1)) ?? (done.length >= 3 ? done[0] : null);
     if (cand) { ch = cand; gesucht = true; }
@@ -119,6 +121,7 @@ for (let day = 1; day <= DAYS; day++) {
   const nodes = Object.values(save.starmap).reduce((a, b) => a + b, 0);
   console.log(`${String(day).padStart(3)} ${(gesucht ? 'G' : '') + String(ch).padStart(gesucht ? 2 : 3)} ${r.zeit.toFixed(0).padStart(5)}s ${r.sieg ? ' ja ' : ' -  '} ${String(r.kills).padStart(5)} ${String(coinsBefore).padStart(6)} ${String(info.mastery).padStart(5)} ${String(info.foilStaub).padStart(5)} ${String(bag.length).padStart(5)} ${String(run.units.length).padStart(5)} ${String(nodes).padStart(6)} ${String(info.einkommen).padStart(5)}`);
   if (VERBOSE) console.log('   ', JSON.stringify(save.starmap), JSON.stringify(save.foiltree));
+  if (process.env.TURMLOG) console.log('    Turmschaden', JSON.stringify(Object.fromEntries(Object.entries(run.stats.turmSchaden || {}).map(([k, v]) => [k, Math.round(v)]))), 'Helden lebend', run.units.filter((u) => !u.dead).length);
 }
 console.log(`Schimmer: erster an Tag ${firstDust?.day ?? '–'} (~${firstDust?.min ?? '–'} min, ${firstDust?.quellen ?? ''}), insgesamt ${save.stats.foilStaubGesamt} nach ${Math.round(minutes)} min`, JSON.stringify(dustBy));
 console.log('Erste Siege (Kapitel → Tag):', JSON.stringify(firstWin), '· Akt', save.act, '· Foil-Baum', JSON.stringify(save.foiltree));

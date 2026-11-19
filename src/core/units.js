@@ -6,7 +6,17 @@ import { damageEnemy, applyOnHit, applyStatus, fx } from './combat.js';
 export const UNIT_R = 12; // Kollisionsradius einer Einheit (Weltpixel; Helden sind ca. 16–24 px hoch)
 
 // Fliegende Gegner: nur Luft-Treffer – außer sie greifen gerade den Turm an (dann sind sie in Reichweite aller Helden)
-const canHit = (u, e) => !e.dead && !e.verborgen && (!e.fliegt || u.def.trifftLuft || !e.moving);
+// Frontschild: blockt physische Einzeltreffer aus Richtung des Turms – von vorn ist so ein Gegner kein sinnvolles Ziel
+function shieldFacing(u, e) {
+  if (!e.frontSchild || u.def.werte.schadensTyp === 'magic' || !runRef) return false;
+  const T = runRef.tower;
+  const facing = Math.atan2(T.y - e.y, T.x - e.x), from = Math.atan2(u.y - e.y, u.x - e.x);
+  let d = Math.abs(facing - from); if (d > Math.PI) d = Math.PI * 2 - d;
+  return d < Math.PI / 2;
+}
+let runRef = null;
+// Ziel nur, wenn die Einheit es auch verletzen kann (Irrlicht: immun gegen physischen Schaden; Schild zugewandt)
+const canHit = (u, e) => !e.dead && !e.verborgen && !e.immun?.includes(u.def.werte.schadensTyp) && (!e.fliegt || u.def.trifftLuft || !e.moving) && !shieldFacing(u, e);
 
 function nearestEnemy(run, u, from, maxDist) {
   let best = null, bd = maxDist;
@@ -177,6 +187,7 @@ const ABILITIES = {
 // ---------------------------------------------------------------------------
 
 export function updateUnits(run, dt) {
+  runRef = run;
   const T = run.tower;
   for (const u of run.units) {
     if (u.dead) continue;
@@ -218,9 +229,9 @@ export function updateUnits(run, dt) {
     for (const [type, params] of Object.entries(u.def.faehigkeiten)) ABILITIES[type]?.(run, u, params, dt);
 
     // Festes Ziel: der nächstgelegene Gegner, und zwar bis er tot ist (keine Umorientierung).
-    // Nur wenn er für diese Einheit unerreichbar wird (getarnt, fliegt davon), sucht sie neu.
+    // Nur wenn er für diese Einheit unverwundbar wird (getarnt, immun, Schild zugewandt, fliegt davon), sucht sie neu.
     let target = u.lock;
-    if (!target || target.dead || target.verborgen || (target.fliegt && target.moving && !u.def.trifftLuft && !u.def.angriff?.art?.startsWith('geschoss') && dist(u, target) > 200)) {
+    if (!target || !canHit(u, target)) {
       target = u.lock = nearestEnemy(run, u, u, Infinity);
     }
     const range = unitRange(run, u);

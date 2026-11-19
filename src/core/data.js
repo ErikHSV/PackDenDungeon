@@ -26,6 +26,24 @@ export function prepareData(raw) {
   data.starIndex = byId(raw.starmap.knoten);
   data.branchIndex = byId(raw.starmap.aeste);
   data.foilIndex = byId(raw.foiltree.knoten);
+  // Schimmer-Baum liegt rechts neben dem Skill-Tree, sein Startknoten auf Höhe des Skill-Tree-Starts
+  {
+    const sStart = byId(raw.starmap.knoten)[raw.starmap.start]?.position;
+    const fStart = data.foilIndex[raw.foiltree.start]?.position;
+    if (sStart && fStart && !raw.foiltree.versatz) {
+      const fx = Math.min(...raw.foiltree.knoten.map((n) => n.position.x));
+      const dy = sStart.y - fStart.y;
+      const fy = raw.foiltree.knoten.map((n) => n.position.y + dy);
+      const top = Math.min(...fy) - 160, bottom = Math.max(...fy) + 160;
+      // direkt rechts neben den Skill-Knoten, die auf derselben Höhe liegen
+      const near = raw.starmap.knoten.filter((n) => n.position.y >= top && n.position.y <= bottom).map((n) => n.position.x);
+      const dx = Math.max(sStart.x + 400, ...near) + 260 - fx;
+      for (const n of raw.foiltree.knoten) { n.position = { x: n.position.x + dx, y: n.position.y + dy }; }
+      raw.foiltree.versatz = { x: dx, y: dy };
+      const maxX = Math.max(...raw.foiltree.knoten.map((n) => n.position.x)) + 200;
+      data.treeGroesse = { breite: Math.max(raw.starmap.groesse.breite, maxX), hoehe: raw.starmap.groesse.hoehe };
+    }
+  }
 
   // Karten = ziehbare Einheiten + Tomes (Beschwörungen sind keine Karten)
   data.cardIndex = {};

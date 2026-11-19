@@ -17,7 +17,7 @@
     "gebaeudeRing": 0.94
   },
   "turm": {
-    "leben": 150,
+    "leben": 200,
     "breite": 120,
     "hoehe": 160,
     "kontaktRadius": 34,
@@ -106,7 +106,7 @@
       ],
       "warnung": 2,
       "lebenMul": 1.8,
-      "schadenMul": 1,
+      "schadenMul": 0.7,
       "groesse": 48
     },
     "boss": {

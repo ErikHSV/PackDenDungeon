@@ -1,8 +1,8 @@
 {
-  "$kommentar": "Foil-Baum (dauerhaft, Schimmer = Folium im Original): genau die Optionen aus dem Original – Günstiger Reroll, Shop-Platz, Shop-Rabatte, Rabatt beim Würfeln, Doppel-/Dreier-Angebot, Mastery-Zinsen, Relikt-Platz, Relikt-Wiederherstellung.",
+  "$kommentar": "Foil-Baum (Schimmer = Folium im Original): Original-Optionen, jeder Knoten genau einmal kaufbar. Steht im Upgrade-Reiter rechts neben dem Skill-Tree (Positionen werden beim Laden verschoben).",
   "groesse": {
-    "breite": 1920,
-    "hoehe": 960
+    "breite": 884,
+    "hoehe": 892
   },
   "start": "f_start",
   "aeste": [
@@ -36,8 +36,8 @@
       "ast": "start",
       "akt": 1,
       "position": {
-        "x": 960,
-        "y": 672
+        "x": 500,
+        "y": 700
       },
       "verbindungen": [
         "f_gratiswurf",
@@ -54,21 +54,21 @@
     },
     {
       "id": "f_gratiswurf",
-      "name": "Günstiger Reroll",
-      "beschreibung": "+1 kostenloses Neu-Würfeln pro Tag je Stufe.",
+      "name": "Günstiger Reroll I",
+      "beschreibung": "Schaltet den REROLL-Knopf frei und gibt 1 kostenloses Neu-Würfeln pro Tag.",
       "typ": "klein",
       "ast": "shop",
       "akt": 1,
       "position": {
-        "x": 960,
-        "y": 576
+        "x": 500,
+        "y": 604
       },
       "verbindungen": [
         "f_start",
-        "f_theke",
-        "f_rerollrabatt"
+        "f_gratiswurf_2",
+        "f_theke"
       ],
-      "maxStufe": 3,
+      "maxStufe": 1,
       "basisKosten": 3,
       "kostenFaktor": 1.6,
       "effekt": {
@@ -77,7 +77,81 @@
         "rechenart": "addieren"
       },
       "symbol": "coin",
-      "abzeichen": "plus"
+      "abzeichen": "plus",
+      "alt": {
+        "id": "f_gratiswurf",
+        "von": 0,
+        "bis": 1,
+        "basis": 3,
+        "faktor": 1.6
+      }
+    },
+    {
+      "id": "f_gratiswurf_2",
+      "name": "Günstiger Reroll II",
+      "beschreibung": "+1 kostenloses Neu-Würfeln pro Tag.",
+      "typ": "klein",
+      "ast": "shop",
+      "akt": 1,
+      "position": {
+        "x": 500,
+        "y": 508
+      },
+      "verbindungen": [
+        "f_gratiswurf",
+        "f_gratiswurf_3",
+        "f_rerollrabatt"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 5,
+      "kostenFaktor": 1.6,
+      "effekt": {
+        "ziel": "freieRerolls",
+        "wert": 1,
+        "rechenart": "addieren"
+      },
+      "symbol": "coin",
+      "abzeichen": "plus",
+      "alt": {
+        "id": "f_gratiswurf",
+        "von": 1,
+        "bis": 2,
+        "basis": 3,
+        "faktor": 1.6
+      }
+    },
+    {
+      "id": "f_gratiswurf_3",
+      "name": "Günstiger Reroll III",
+      "beschreibung": "+1 kostenloses Neu-Würfeln pro Tag.",
+      "typ": "klein",
+      "ast": "shop",
+      "akt": 1,
+      "position": {
+        "x": 500,
+        "y": 412
+      },
+      "verbindungen": [
+        "f_gratiswurf_2",
+        "f_paar"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 8,
+      "kostenFaktor": 1.6,
+      "effekt": {
+        "ziel": "freieRerolls",
+        "wert": 1,
+        "rechenart": "addieren"
+      },
+      "symbol": "coin",
+      "abzeichen": "plus",
+      "alt": {
+        "id": "f_gratiswurf",
+        "von": 2,
+        "bis": 3,
+        "basis": 3,
+        "faktor": 1.6
+      }
     },
     {
       "id": "f_rerollrabatt",
@@ -87,69 +161,17 @@
       "ast": "shop",
       "akt": 1,
       "position": {
-        "x": 864,
-        "y": 480
+        "x": 404,
+        "y": 508
       },
       "verbindungen": [
-        "f_gratiswurf"
+        "f_gratiswurf_2"
       ],
       "maxStufe": 1,
       "basisKosten": 6,
       "kostenFaktor": 1.6,
       "effekt": {
         "ziel": "rerollRabatt",
-        "wert": 0.05,
-        "rechenart": "addieren"
-      },
-      "symbol": "coin",
-      "abzeichen": "star"
-    },
-    {
-      "id": "f_theke",
-      "name": "Shop-Platz",
-      "beschreibung": "+1 Angebot im Shop je Stufe.",
-      "typ": "klein",
-      "ast": "shop",
-      "akt": 1,
-      "position": {
-        "x": 960,
-        "y": 480
-      },
-      "verbindungen": [
-        "f_gratiswurf",
-        "f_rabatte",
-        "f_paar"
-      ],
-      "maxStufe": 2,
-      "basisKosten": 5,
-      "kostenFaktor": 1.6,
-      "effekt": {
-        "ziel": "shopPlaetze",
-        "wert": 1,
-        "rechenart": "addieren"
-      },
-      "symbol": "coin",
-      "abzeichen": "plus"
-    },
-    {
-      "id": "f_rabatte",
-      "name": "Shop-Rabatte",
-      "beschreibung": "+5 % Chance je Angebot und Stufe auf 30 % Rabatt.",
-      "typ": "klein",
-      "ast": "shop",
-      "akt": 1,
-      "position": {
-        "x": 1056,
-        "y": 480
-      },
-      "verbindungen": [
-        "f_theke"
-      ],
-      "maxStufe": 3,
-      "basisKosten": 4,
-      "kostenFaktor": 1.6,
-      "effekt": {
-        "ziel": "rabattChance",
         "wert": 0.05,
         "rechenart": "addieren"
       },
@@ -164,11 +186,11 @@
       "ast": "shop",
       "akt": 1,
       "position": {
-        "x": 960,
-        "y": 384
+        "x": 500,
+        "y": 316
       },
       "verbindungen": [
-        "f_theke",
+        "f_gratiswurf_3",
         "f_trio"
       ],
       "maxStufe": 1,
@@ -189,8 +211,8 @@
       "ast": "shop",
       "akt": 2,
       "position": {
-        "x": 960,
-        "y": 288
+        "x": 500,
+        "y": 220
       },
       "verbindungen": [
         "f_paar"
@@ -206,6 +228,170 @@
       "abzeichen": "plus"
     },
     {
+      "id": "f_theke",
+      "name": "Shop-Platz I",
+      "beschreibung": "+1 Angebot im Shop.",
+      "typ": "klein",
+      "ast": "shop",
+      "akt": 1,
+      "position": {
+        "x": 596,
+        "y": 604
+      },
+      "verbindungen": [
+        "f_gratiswurf",
+        "f_theke_2"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 5,
+      "kostenFaktor": 1.6,
+      "effekt": {
+        "ziel": "shopPlaetze",
+        "wert": 1,
+        "rechenart": "addieren"
+      },
+      "symbol": "coin",
+      "abzeichen": "plus",
+      "alt": {
+        "id": "f_theke",
+        "von": 0,
+        "bis": 1,
+        "basis": 5,
+        "faktor": 1.6
+      }
+    },
+    {
+      "id": "f_theke_2",
+      "name": "Shop-Platz II",
+      "beschreibung": "+1 Angebot im Shop.",
+      "typ": "klein",
+      "ast": "shop",
+      "akt": 1,
+      "position": {
+        "x": 692,
+        "y": 604
+      },
+      "verbindungen": [
+        "f_theke",
+        "f_rabatte"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 8,
+      "kostenFaktor": 1.6,
+      "effekt": {
+        "ziel": "shopPlaetze",
+        "wert": 1,
+        "rechenart": "addieren"
+      },
+      "symbol": "coin",
+      "abzeichen": "plus",
+      "alt": {
+        "id": "f_theke",
+        "von": 1,
+        "bis": 2,
+        "basis": 5,
+        "faktor": 1.6
+      }
+    },
+    {
+      "id": "f_rabatte",
+      "name": "Shop-Rabatte I",
+      "beschreibung": "+5 % Chance je Angebot auf 30 % Rabatt.",
+      "typ": "klein",
+      "ast": "shop",
+      "akt": 1,
+      "position": {
+        "x": 692,
+        "y": 508
+      },
+      "verbindungen": [
+        "f_theke_2",
+        "f_rabatte_2"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 4,
+      "kostenFaktor": 1.6,
+      "effekt": {
+        "ziel": "rabattChance",
+        "wert": 0.05,
+        "rechenart": "addieren"
+      },
+      "symbol": "coin",
+      "abzeichen": "star",
+      "alt": {
+        "id": "f_rabatte",
+        "von": 0,
+        "bis": 1,
+        "basis": 4,
+        "faktor": 1.6
+      }
+    },
+    {
+      "id": "f_rabatte_2",
+      "name": "Shop-Rabatte II",
+      "beschreibung": "+5 % Chance je Angebot auf 30 % Rabatt.",
+      "typ": "klein",
+      "ast": "shop",
+      "akt": 1,
+      "position": {
+        "x": 692,
+        "y": 412
+      },
+      "verbindungen": [
+        "f_rabatte",
+        "f_rabatte_3"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 6,
+      "kostenFaktor": 1.6,
+      "effekt": {
+        "ziel": "rabattChance",
+        "wert": 0.05,
+        "rechenart": "addieren"
+      },
+      "symbol": "coin",
+      "abzeichen": "star",
+      "alt": {
+        "id": "f_rabatte",
+        "von": 1,
+        "bis": 2,
+        "basis": 4,
+        "faktor": 1.6
+      }
+    },
+    {
+      "id": "f_rabatte_3",
+      "name": "Shop-Rabatte III",
+      "beschreibung": "+5 % Chance je Angebot auf 30 % Rabatt.",
+      "typ": "klein",
+      "ast": "shop",
+      "akt": 1,
+      "position": {
+        "x": 692,
+        "y": 316
+      },
+      "verbindungen": [
+        "f_rabatte_2"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 10,
+      "kostenFaktor": 1.6,
+      "effekt": {
+        "ziel": "rabattChance",
+        "wert": 0.05,
+        "rechenart": "addieren"
+      },
+      "symbol": "coin",
+      "abzeichen": "star",
+      "alt": {
+        "id": "f_rabatte",
+        "von": 2,
+        "bis": 3,
+        "basis": 4,
+        "faktor": 1.6
+      }
+    },
+    {
       "id": "f_zinsen",
       "name": "Mastery-Zinsen",
       "beschreibung": "Zu Beginn jedes Tages bringt deine gesparte Mastery 25 % Zinsen.",
@@ -213,8 +399,8 @@
       "ast": "mastery",
       "akt": 1,
       "position": {
-        "x": 1152,
-        "y": 672
+        "x": 596,
+        "y": 700
       },
       "verbindungen": [
         "f_start"
@@ -232,20 +418,20 @@
     },
     {
       "id": "f_reliktplatz",
-      "name": "Relikt-Platz",
-      "beschreibung": "+1 Platz für ein ausgerüstetes Relikt je Stufe.",
+      "name": "Relikt-Platz I",
+      "beschreibung": "+1 Platz für ein ausgerüstetes Relikt.",
       "typ": "klein",
       "ast": "relikt",
       "akt": 2,
       "position": {
-        "x": 768,
-        "y": 672
+        "x": 404,
+        "y": 700
       },
       "verbindungen": [
         "f_start",
-        "f_wiederherstellung"
+        "f_reliktplatz_2"
       ],
-      "maxStufe": 2,
+      "maxStufe": 1,
       "basisKosten": 6,
       "kostenFaktor": 1.6,
       "effekt": {
@@ -254,7 +440,47 @@
         "rechenart": "addieren"
       },
       "symbol": "gem",
-      "abzeichen": "plus"
+      "abzeichen": "plus",
+      "alt": {
+        "id": "f_reliktplatz",
+        "von": 0,
+        "bis": 1,
+        "basis": 6,
+        "faktor": 1.6
+      }
+    },
+    {
+      "id": "f_reliktplatz_2",
+      "name": "Relikt-Platz II",
+      "beschreibung": "+1 Platz für ein ausgerüstetes Relikt.",
+      "typ": "klein",
+      "ast": "relikt",
+      "akt": 2,
+      "position": {
+        "x": 308,
+        "y": 700
+      },
+      "verbindungen": [
+        "f_reliktplatz",
+        "f_wiederherstellung"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 10,
+      "kostenFaktor": 1.6,
+      "effekt": {
+        "ziel": "reliktPlaetze",
+        "wert": 1,
+        "rechenart": "addieren"
+      },
+      "symbol": "gem",
+      "abzeichen": "plus",
+      "alt": {
+        "id": "f_reliktplatz",
+        "von": 1,
+        "bis": 2,
+        "basis": 6,
+        "faktor": 1.6
+      }
     },
     {
       "id": "f_wiederherstellung",
@@ -264,11 +490,11 @@
       "ast": "relikt",
       "akt": 3,
       "position": {
-        "x": 576,
-        "y": 672
+        "x": 212,
+        "y": 700
       },
       "verbindungen": [
-        "f_reliktplatz"
+        "f_reliktplatz_2"
       ],
       "maxStufe": 1,
       "basisKosten": 10,
