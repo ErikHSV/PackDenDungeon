@@ -185,6 +185,19 @@ function stepToward(e, tx, ty, speed, dt, stopAt = 0) {
   return false;
 }
 
+/**
+ * Ziel eines Gegners: das nächstgelegene Ziel – die nächste Einheit oder der Turm, je nachdem, was näher ist.
+ * Das Ziel bleibt fest, bis es tot ist (keine Umorientierung). Meuchler (zumTurm) wählen immer den Turm.
+ */
+function enemyTarget(run, e, T, contactTower) {
+  const t = e.lockT;
+  if (t && (t === T || !t.dead)) return t;
+  if (e.def.eigenschaften?.zumTurm) return (e.lockT = T);
+  const u = nearestUnit(run, e, Infinity);
+  e.lockT = u && dist(u, e) < dist(T, e) - contactTower ? u : T;
+  return e.lockT;
+}
+
 export function updateEnemies(run, dt) {
   const T = run.tower;
   run.auraCarriers = run.enemies.filter((e) => !e.dead && e.def.eigenschaften?.aura);
@@ -223,15 +236,12 @@ export function updateEnemies(run, dt) {
     // Armbrustschützen: auf Abstand bleiben und schießen (Helden in Reichweite zuerst, sonst der Turm)
     const fk = e.def.eigenschaften?.fernkampf;
     if (fk) {
-      const anyUnit = run.units.some((u) => !u.dead);
-      const target = run.units.filter((u) => !u.dead && dist(u, e) <= fk.reichweite).sort((a, b) => dist(a, e) - dist(b, e))[0]
-        ?? (!anyUnit && dist(T, e) <= fk.reichweite + contactTower ? T : null);
-      if (!target && anyUnit) {
-        const u = nearestUnit(run, e, Infinity);
-        stepToward(e, u.x, u.y, speed, dt, fk.reichweite * 0.85);
-        continue;
-      }
-      if (target) {
+      // festes Ziel (nächste Einheit oder Turm); außer Reichweite: hinlaufen
+      const lock = enemyTarget(run, e, T, contactTower);
+      const range = fk.reichweite + (lock === T ? contactTower : 0);
+      const target = dist(lock, e) <= range ? lock : null;
+      if (!target) { stepToward(e, lock.x, lock.y, speed, dt, range * 0.85); continue; }
+      {
         e.moving = false;
         e.facing = target.x >= e.x ? 1 : -1;
         e.rangedTimer = (e.rangedTimer ?? fk.intervall * 0.5) - dt;
@@ -245,7 +255,7 @@ export function updateEnemies(run, dt) {
         continue;
       }
     }
-    // Zuerst die Einheiten (Wiki: Gegner binden sich an die Armee). Ausnahme: Gegner mit „zumTurm“ (Meuchler) laufen direkt zum Turm.
+    // Wer einer Einheit in den Weg läuft, kämpft mit ihr (Blocken). Ausnahme: Gegner mit „zumTurm“ (Meuchler).
     if (!e.def.eigenschaften?.zumTurm) {
       if (e.engaged && (e.engaged.dead || dist(e, e.engaged) > e.r + UNIT_R + 14)) e.engaged = null;
       if (!e.engaged) {
@@ -255,9 +265,9 @@ export function updateEnemies(run, dt) {
         }
       }
       if (e.engaged) { e.facing = e.engaged.x >= e.x ? 1 : -1; e.moving = false; attack(run, e, dt, e.engaged); continue; }
-      e.seekT = (e.seekT ?? 0) - dt;
-      if (e.seekT <= 0 || !e.seek || e.seek.dead) { e.seekT = Z.neuwahl; e.seek = nearestUnit(run, e, Z.radius); }
-      if (e.seek) { stepToward(e, e.seek.x, e.seek.y, speed, dt, e.r + UNIT_R + 4); continue; }
+      // Festes Ziel: nächste Einheit – oder der Turm, wenn der näher ist (Gegner aus der anderen Ecke laufen zum Turm)
+      const lock = enemyTarget(run, e, T, contactTower);
+      if (lock !== T) { stepToward(e, lock.x, lock.y, speed, dt, e.r + UNIT_R + 4); continue; }
     }
     const dx = T.x - e.x, dy = (T.y - e.y);
     const d = Math.hypot(dx, dy);

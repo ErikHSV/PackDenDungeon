@@ -13,11 +13,11 @@
       0.2,
       0.6
     ],
-    "spawnRand": 1.0,
+    "spawnRand": 1,
     "gebaeudeRing": 0.94
   },
   "turm": {
-    "leben": 100,
+    "leben": 150,
     "breite": 120,
     "hoehe": 160,
     "kontaktRadius": 34,
@@ -104,7 +104,7 @@
       ],
       "warnung": 2,
       "lebenMul": 1.8,
-      "schadenMul": 1.0,
+      "schadenMul": 1,
       "groesse": 48
     },
     "boss": {
@@ -128,9 +128,7 @@
       "schimmerChance": 0.25
     },
     "zielsuche": {
-      "$kommentar": "Gegner greifen zuerst die nächste Einheit an (Suchradius in px, Neuwahl in s); den Turm erst, wenn keine Einheit mehr lebt. Ausnahme: eigenschaften.zumTurm. Getarnte Gegner (eigenschaften.getarnt) sind für Helden erst innerhalb enttarnRadius um den Turm sichtbar.",
-      "radius": 2000,
-      "neuwahl": 0.4,
+      "$kommentar": "Zielwahl: Einheiten greifen den nächstgelegenen Gegner an und bleiben bei ihm, bis er tot ist. Gegner wählen das nächstgelegene Ziel – die nächste Einheit oder den Turm – und bleiben ebenfalls dabei; wer einer Einheit in den Weg läuft, kämpft mit ihr. Gegner mit eigenschaften.zumTurm laufen immer zum Turm. Getarnte Gegner (eigenschaften.getarnt) sind für Helden erst innerhalb enttarnRadius um den Turm sichtbar.",
       "enttarnRadius": 200
     }
   },
@@ -185,7 +183,7 @@
       "wachstum": 1.6,
       "freischaltKnoten": "w_wuerfeln"
     },
-    "rueckerstattung": 1.0,
+    "rueckerstattung": 1,
     "jackpot": {
       "$kommentar": "Jackpot (4): drei gleiche Pack-Angebote gleichzeitig (Tagesangebot oder Neu-Würfeln) → goldener Rahmen, bonusAnzahl Packs dieser Art gratis; mit Foil-Knoten „Jackpot-Relikt“ zu reliktChance zusätzlich ein Reliktpack. Höchstens einer pro Tag, nur wenn mindestens minTypen Angebotsarten möglich sind.",
       "bonusAnzahl": 1,
@@ -234,13 +232,13 @@
     "stufen": [
       {
         "stufe": 1,
-        "lebenMul": 2.0,
+        "lebenMul": 2,
         "schadenMul": 1.6,
         "belohnungMul": 1.6
       },
       {
         "stufe": 2,
-        "lebenMul": 4.0,
+        "lebenMul": 4,
         "schadenMul": 2.5,
         "belohnungMul": 2.5
       }

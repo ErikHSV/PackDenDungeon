@@ -176,37 +176,6 @@ const ABILITIES = {
 // KI und Update
 // ---------------------------------------------------------------------------
 
-function chooseTarget(run, u) {
-  const T = run.tower;
-  switch (u.def.ki) {
-    case 'bewachen': {
-      // Tanks verteidigen den Turm: nur Gegner nahe am Turm oder in eigener Reichweite
-      let best = null, bd = Infinity;
-      for (const e of run.enemies) {
-        if (!canHit(u, e)) continue;
-        const dt = dist(e, T), du = dist(e, u);
-        if (dt > 340 && du > u.range) continue;
-        if (du < bd) { bd = du; best = e; }
-      }
-      return best;
-    }
-    case 'folgen':
-      return nearestEnemy(run, u, u, 360);
-    default: {
-      // Verteidigen statt jagen: Gegner nahe am Turm zählen mehr, weit entfernte nur, wenn sie ohnehin nah am Helden sind
-      let best = null, bs = Infinity;
-      for (const e of run.enemies) {
-        if (!canHit(u, e)) continue;
-        const dt = dist(e, T), du = dist(e, u);
-        if (dt > 520 && du > u.range + 80) continue;
-        const score = du + dt * 0.8;
-        if (score < bs) { bs = score; best = e; }
-      }
-      return best;
-    }
-  }
-}
-
 export function updateUnits(run, dt) {
   const T = run.tower;
   for (const u of run.units) {
@@ -248,7 +217,12 @@ export function updateUnits(run, dt) {
 
     for (const [type, params] of Object.entries(u.def.faehigkeiten)) ABILITIES[type]?.(run, u, params, dt);
 
-    const target = chooseTarget(run, u);
+    // Festes Ziel: der nächstgelegene Gegner, und zwar bis er tot ist (keine Umorientierung).
+    // Nur wenn er für diese Einheit unerreichbar wird (getarnt, fliegt davon), sucht sie neu.
+    let target = u.lock;
+    if (!target || target.dead || target.verborgen || (target.fliegt && target.moving && !u.def.trifftLuft && !u.def.angriff?.art?.startsWith('geschoss') && dist(u, target) > 200)) {
+      target = u.lock = nearestEnemy(run, u, u, Infinity);
+    }
     const range = unitRange(run, u);
     const reach = range + (target ? target.r : 0) + UNIT_R * 0.5;
     if (target) {
@@ -281,7 +255,7 @@ export function updateUnits(run, dt) {
         if (ally) moveToward(run, u, ally.x - 40, ally.y + 20, dt, 50);
       }
     }
-    if (u.def.ki === 'bewachen' && dist(u, T) > 360) moveToward(run, u, T.x, T.y, dt, 200);
+    if (u.def.ki === 'bewachen' && !target && dist(u, T) > 360) moveToward(run, u, T.x, T.y, dt, 200);
   }
   // Abstand halten (keine Stapel)
   const list = run.units.filter((u) => !u.dead);
