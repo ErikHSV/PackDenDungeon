@@ -1,10 +1,12 @@
 // Dauerhafter Spielstand (localStorage). Laufende Runs werden nicht gespeichert.
 
+import { REMOVED_V12 } from './refundV12.js';
+
 const KEY = 'packdendungeon-save-v3';
 
 export function defaultSave(data) {
   return {
-    version: 11,
+    version: 12,
     // Genau drei Währungen (Abschnitt 10)
     coins: data?.balance.wirtschaft.startMuenzen ?? 3, // Münzen: nur für den Shop
     bonusCoins: 0,      // Bonus-Münzen aus Relikten und Effekten (werden zuerst ausgegeben)
@@ -70,6 +72,8 @@ function parseSave(data, raw) {
   if ((raw.version || 0) < 9) migrateV9(s, data);
   if ((raw.version || 0) < 10) migrateV10(s, data);
   if ((raw.version || 0) < 11) migrateV11(s, data);
+  if ((raw.version || 0) < 12) migrateV12(s, data);
+  s.version = base.version; // Migrationen nur einmal ausführen
   return s;
 }
 
@@ -165,6 +169,14 @@ function migrateV11(s, data) {
   for (const [id, cost] of Object.entries(REMOVED_V11)) if (s.starmap?.[id]) { refund += Math.round(cost * aktMul); delete s.starmap[id]; }
   s.mastery = (s.mastery || 0) + refund;
   if (refund) s.migrationHinweis = [s.migrationHinweis, `Turmleben gekürzt: ${refund} Mastery erstattet.`].filter(Boolean).join(' ');
+}
+
+function migrateV12(s, data) {
+  const aktMul = data.balance.skilltree.aktKostenMul?.[s.act ?? 1] ?? 1;
+  let refund = 0;
+  for (const [id, cost] of Object.entries(REMOVED_V12)) if (s.starmap?.[id]) { refund += Math.round(cost * aktMul); delete s.starmap[id]; }
+  s.mastery = (s.mastery || 0) + refund;
+  if (refund) s.migrationHinweis = [s.migrationHinweis, `Helden-Äste gekürzt (Fähigkeiten statt endloser Werte-Stufen): ${refund} Mastery erstattet.`].filter(Boolean).join(' ');
 }
 
 /**

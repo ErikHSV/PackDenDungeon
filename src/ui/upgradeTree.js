@@ -134,7 +134,7 @@ export class UpgradeTree {
 
   /** Grau angezeigt: gesperrt, aber neben einem sichtbaren Knoten. */
   preview(node) {
-    if (this.visible(node) || !nodePreviewable(this.kind, node, this.save)) return false;
+    if (this.visible(node) || !nodePreviewable(this.kind, node, this.save, this.data)) return false;
     return node.verbindungen.some((id) => { const m = this.index[id]; return m && this.visible(m); });
   }
 

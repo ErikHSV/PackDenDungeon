@@ -653,6 +653,16 @@ export const foilTreeUnlocked = (save) => (save.stats.foilStaubGesamt || 0) > 0 
 /** Karte, die ein Knoten voraussetzt (Einheiten- und Tome-Blöcke erscheinen erst mit der Karte). */
 export const nodeCard = (node) => node.voraussetzung?.karte ?? null;
 
+/**
+ * Ast einer Karte freigeschaltet: Karte gefunden und – falls sie in Packs vorkommt – mindestens eines dieser Packs
+ * regulär freigeschaltet. Karten ohne Pack (Grenzgänger, beschworene Einheiten) brauchen nur den Fund.
+ */
+export function cardBranchOpen(card, save, data) {
+  if (!((save.collection[card]?.normal || 0) + (save.collection[card]?.foil || 0) > 0)) return false;
+  const packs = (data?.packs ?? []).filter((p) => p.pool?.includes(card));
+  return !packs.length || packs.some((p) => packUnlocked(p, save));
+}
+
 export function nodeInAct(node, save) {
   if (node.nurAkt != null && node.nurAkt !== save.act) return false;
   return (node.akt ?? 1) <= save.act;
@@ -670,19 +680,19 @@ export function nodeVisible(kind, node, save, data) {
   // Gebäude-, Pack- und Shop-Knoten erst nach dem ersten bzw. zweiten Boss (11.7)
   if (node.abBoss && !(save.stats.bossKills[node.abBoss] > 0)) return false;
   const card = nodeCard(node);
-  if (card && !((save.collection[card]?.normal || 0) + (save.collection[card]?.foil || 0) > 0)) return false;
+  if (card && !cardBranchOpen(card, save, data)) return false;
   return TREE[kind].level(save, node.id) > 0 || nodeReachable(kind, node, save);
 }
 
 /**
  * Graue Vorschau: noch gesperrter Knoten, der an einen sichtbaren grenzt – zeigt, dass der Ast weitergeht.
- * Äste von noch nicht gefundenen Karten bleiben verborgen (kein Vorgriff auf neue Helden).
+ * Äste von Karten, die man noch nicht regulär aus Packs bekommt, bleiben verborgen (kein Vorgriff auf neue Helden).
  */
-export function nodePreviewable(kind, node, save) {
+export function nodePreviewable(kind, node, save, data) {
   if (kind === 'foil' && !foilTreeUnlocked(save)) return false;
   if (!nodeInAct(node, save) || node.typ === 'start') return false;
   const card = nodeCard(node);
-  return !card || (save.collection[card]?.normal || 0) + (save.collection[card]?.foil || 0) > 0;
+  return !card || cardBranchOpen(card, save, data);
 }
 
 /** Kosten der nächsten Stufe. Skill-Tree: ab Akt 2 mal balance.skilltree.aktKostenMul (neuer Baum, gleiche Startlogik). */
