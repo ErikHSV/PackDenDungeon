@@ -137,7 +137,11 @@ async function boot() {
     if (game.current !== 'start') return;
     startMusic('menu');
     play('click');
-    stage.fade(() => game.goto('hub'));
+    stage.fade(() => {
+      game.goto('hub');
+      // Hinweis nach einer Spielstand-Umstellung (z. B. erstattete Mastery)
+      if (game.save.migrationHinweis) { toast(game.save.migrationHinweis); delete game.save.migrationHinweis; game.persist(); }
+    });
   });
   game.showScreen('start');
   startScreen(game);

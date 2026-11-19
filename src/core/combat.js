@@ -108,7 +108,11 @@ export function damageEnemy(run, e, amount, type, opts = {}) {
   // Relikt Funkenlaute: Angriffe seltener (und besserer) Helden können elektrisieren
   const src = opts.source;
   if (run.mods.flags.funkenlaute && src?.kind === 'unit' && !opts.chain && (run.data.rarities[src.def.rarity]?.rang ?? 0) >= run.data.rarities.rare.rang && run.rng() < 0.12) run.chainLightning(e, 1, d * 0.6, 'funkenlaute');
-  if (e.hp <= 0) killEnemy(run, e, opts.source);
+  if (e.hp <= 0) {
+    killEnemy(run, e, opts.source);
+    // Pfeilregen (Glücksfechter): ein kritischer Kill lässt Pfeile um das Ziel regnen – nicht bei Pfeilen selbst
+    if (opts.crit && !opts.pfeil && src?.kind === 'unit' && src.def.faehigkeiten?.pfeilregen) run.arrowRain(e, src.def.werte.schaden * run.mods.heldenSchadenMul, src);
+  }
   return d;
 }
 

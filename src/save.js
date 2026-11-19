@@ -4,7 +4,7 @@ const KEY = 'packdendungeon-save-v3';
 
 export function defaultSave(data) {
   return {
-    version: 6,
+    version: 7,
     // Genau drei Währungen (Abschnitt 10)
     coins: data?.balance.wirtschaft.startMuenzen ?? 3, // Münzen: nur für den Shop
     bonusCoins: 0,      // Bonus-Münzen aus Relikten und Effekten (werden zuerst ausgegeben)
@@ -65,6 +65,7 @@ function parseSave(data, raw) {
   }
   if ((raw.version || 0) < 5) migrateV5(s, raw, data);
   if ((raw.version || 0) < 6) migrateV6(s);
+  if ((raw.version || 0) < 7) migrateV7(s, data);
   return s;
 }
 
@@ -131,6 +132,27 @@ function migrateV5(s, raw, data) {
 }
 
 /** v6: neuer Skill-Tree (11.7, Startphase) und kleinere Mastery-Zahlen – Baum zurücksetzen, Mastery umrechnen. */
+/**
+ * v7: Skill-Tree nach dem Original – weniger Cursor- und Turm-Knoten. Gekaufte Stufen entfernter Knoten
+ * werden als Mastery erstattet (Basis × Faktor^Stufe × Akt-Faktor).
+ */
+const REMOVED_V7 = {
+  c_tempo: [100, 1.45], c_packreisser: [100, 1.45], c_glut: [1500, 1.45], c_zwilling: [2500, 1.45], c_pfeilregen: [3500, 1.45],
+  t_schuetze: [100, 1.8], t_dornen: [80, 1.45], t_regen: [120, 1.45], t_blitz: [2000, 1.45], a2_cursor: [80, 1.45], a2_turm: [80, 1.45],
+  q_ueberleben: [0, 1],
+};
+function migrateV7(s, data) {
+  const aktMul = data.balance.skilltree.aktKostenMul?.[s.act ?? 1] ?? 1;
+  let refund = 0;
+  for (const [id, [basis, f]] of Object.entries(REMOVED_V7)) {
+    const lvl = s.starmap?.[id] || 0;
+    for (let l = 0; l < lvl; l++) refund += Math.round(basis * Math.pow(f, l) * aktMul);
+    if (s.starmap) delete s.starmap[id];
+  }
+  s.mastery = (s.mastery || 0) + refund;
+  if (refund) s.migrationHinweis = `Skill-Tree umgebaut: ${refund} Mastery für entfernte Cursor- und Turm-Knoten erstattet.`;
+}
+
 function migrateV6(s) {
   s.mastery = Math.round((s.mastery || 0) * 0.2) + 60;
   s.starmap = {};

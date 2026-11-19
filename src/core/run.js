@@ -888,7 +888,6 @@ export class Run {
         if (e.dead || !inside(c, body(e), e.r)) continue;
         hitSomething = true;
         damageEnemy(this, e, dmg, this.B.cursor.schadensTyp, { cursor: true, aoe: true, crit: crit || strong });
-        if (crit && e.dead && this.mods.flags.pfeilregen) this.arrowRain(e, cs.damage);
         if (strong && !e.dead) applyStatus(this, e, { typ: 'betaeubung', dauer: rhythm.betaeubung });
         if (frost && !e.dead && this.time >= (cur.frostReady || 0)) {
           cur.frostReady = this.time + frost.intervall;
@@ -1024,14 +1023,14 @@ export class Run {
     this.emit('sound', 'building');
   }
 
-  /** Cursor-Knoten „Pfeilregen“: ein kritischer Cursor-Kill lässt Pfeile um das Ziel regnen. */
-  arrowRain(at, dmg) {
+  /** Pfeilregen: ein kritischer Kill des Glücksfechters lässt Pfeile um das Ziel regnen. */
+  arrowRain(at, dmg, source = null) {
     const P = this.B.cursor.pfeilregen ?? { pfeile: 10, radius: 150, schadenMul: 1 };
     for (let i = 0; i < P.pfeile; i++) {
       const a = this.rng() * Math.PI * 2, r = Math.sqrt(this.rng()) * P.radius;
       const x = at.x + Math.cos(a) * r, y = at.y + Math.sin(a) * r * 0.6;
       fx(this, { type: 'arrow', x1: x - 60, y1: y - 260, x2: x, y2: y, life: 0.25 + i * 0.02 });
-      for (const e of this.enemies) if (!e.dead && Math.hypot(e.x - x, e.y - y) <= 40 + e.r) damageEnemy(this, e, dmg * P.schadenMul, 'physical', { aoe: true, silent: true });
+      for (const e of this.enemies) if (!e.dead && Math.hypot(e.x - x, e.y - y) <= 40 + e.r) damageEnemy(this, e, dmg * P.schadenMul, 'physical', { aoe: true, silent: true, pfeil: true, source });
     }
   }
 

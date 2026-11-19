@@ -608,13 +608,13 @@ Object.assign(HERO_ART, {
   },
   /** Schleuderin mit Zopf. */
   schleuderin(p, f) {
-    const a = body(p, f, { w: 8, cloth: '#5f8f6a', legs: '#4a3a2a', top: 16, robe: true, robeW: 11 });
-    p.ellipse(a.hx - 1, a.hy - 2, 4, 3, '#a0522d');
-    p.rect(a.hx - 5, a.hy - 1, 2, 7, '#a0522d');
-    p.px(a.hx - 5, a.hy + 6, '#e04848');
+    const a = body(p, f, { w: 8, cloth: '#7a3fb0', legs: '#3a2450', top: 16, robe: true, robeW: 11, belt: '#d9b45a' });
+    p.ellipse(a.hx - 1, a.hy - 2, 4, 3, '#4a2a6a');
+    p.rect(a.hx - 5, a.hy - 1, 2, 7, '#4a2a6a');
+    p.px(a.hx - 5, a.hy + 6, '#ff7ac8');
     const pull = f.pull ?? 0;
     const hand = { x: a.hand.x + 3, y: a.hand.y - 2 };
-    arm(p, a.shoulder, hand, '#5f8f6a');
+    arm(p, a.shoulder, hand, '#7a3fb0');
     p.line(hand.x, hand.y, hand.x + 2, hand.y - 3, '#6b4423');
     p.line(hand.x, hand.y, hand.x + 3, hand.y - 1, '#6b4423');
     const bx = hand.x - pull * 2;
