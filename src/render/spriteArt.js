@@ -738,14 +738,25 @@ Object.assign(HERO_ART, {
     p.rect(14, 7 + f.b, 1, 2, '#ffffff'); p.rect(17, 7 + f.b, 1, 2, '#ffffff');
     for (let i = 0; i < 4; i++) p.rect(8 + ((f.i * 7 + i * 5) % 16), 4 + i * 6, 3, 1, i % 2 ? '#2EE6D6' : '#E62E9A');
   },
-  /** Grenzgänger: Spiegelsplitter – kantige Kristallgestalt. */
+  /** Grenzgänger: Spiegelsplitter – kantige Kristallgestalt. Die ganze Figur wippt gemeinsam (keine Verzerrung). */
   spiegelsplitter(p, f) {
     const lunge = f.anim === 'attack' ? [0, -1, 2, 3, 1, 0][f.i] : 0;
-    p.tri(16 + lunge, 2 + f.b, 24 + lunge, 18, 8 + lunge, 18, '#E62E9A');
-    p.tri(8 + lunge, 18, 24 + lunge, 18, 16 + lunge, 30, '#a01e6a');
-    p.line(16 + lunge, 3 + f.b, 16 + lunge, 28, '#ffd0f0');
-    p.rect(14 + lunge, 10 + f.b, 2, 2, '#2EE6D6'); p.rect(18 + lunge, 10 + f.b, 2, 2, '#2EE6D6');
-    p.tri(24 + lunge, 12, 30 + lunge, 8, 28 + lunge, 16, '#ff7ac8');
+    const y = f.b; // ganze Figur gemeinsam verschieben
+    const x = lunge;
+    // Beine aus dunklem Kristall (stehen fest am Boden)
+    p.tri(11 + x, 30, 14 + x, 22 + y, 15 + x, 30, '#7a1650');
+    p.tri(17 + x, 30, 18 + x, 22 + y, 21 + x, 30, '#7a1650');
+    // Körper: Doppelspitze
+    p.tri(16 + x, 3 + y, 24 + x, 15 + y, 8 + x, 15 + y, '#E62E9A');
+    p.tri(8 + x, 15 + y, 24 + x, 15 + y, 16 + x, 25 + y, '#a01e6a');
+    p.line(16 + x, 4 + y, 16 + x, 24 + y, '#ffd0f0');
+    // Augen
+    p.rect(13 + x, 10 + y, 2, 2, '#2EE6D6'); p.rect(18 + x, 10 + y, 2, 2, '#2EE6D6');
+    // Splitter-Arm (Waffe)
+    p.tri(23 + x, 12 + y, 30 + x + lunge, 8 + y, 28 + x + lunge, 16 + y, '#ff7ac8');
+    // wanderndes Funkeln auf den Facetten statt Größenänderung
+    const sp = [[12, 8], [20, 13], [14, 18], [18, 6]][f.i % 4];
+    p.px(sp[0] + x, sp[1] + y, '#ffffff');
   },
   /** Grenzgänger: Leerläufer – Kapuze voller Sterne. */
   leerlaeufer(p, f) {
