@@ -161,7 +161,7 @@ export function renderRelics(game, selected = null) {
         <button class="btn btn-primary" id="relic-toggle">${eq.includes(sel.id) ? 'Ablegen' : 'Ausrüsten'}</button>
         <button class="btn btn-danger" id="relic-destroy">Zerstören</button>
       </div>
-      <p class="muted">Zerstören entfernt das Relikt. Zerstörte Relikte schalten Plätze frei: der erste Platz kostet 1, jeder weitere mehr (${relicsToNextSlot(data, save) == null ? 'alle Plätze frei' : `noch ${relicsToNextSlot(data, save)} bis zum nächsten Platz`}). Ab Akt 3 kann es über den Foil-Knoten „Relikt-Wiederherstellung“ zurückgeholt werden. Quellen: Quest- und Relikt-Knoten im Skill-Tree, Jackpots beim Neu-Würfeln (Foil-Knoten „Jackpot-Relikt“), Relikt-Jagd.</p>`
+      <p class="muted">Zerstören entfernt das Relikt. Zerstörte Relikte schalten Plätze frei: der erste Platz kostet 1, jeder weitere mehr (${relicsToNextSlot(data, save) == null ? 'alle Plätze frei' : `noch ${relicsToNextSlot(data, save)} bis zum nächsten Platz`}). Ab Akt 3 kann es über den Foil-Knoten „Relikt-Wiederherstellung“ zurückgeholt werden. Quellen: Quest- und Relikt-Knoten im Skill-Tree, Jackpots beim Neu-Würfeln (Skill-Tree-Knoten „Jackpot-Relikt“, Akt 2), Relikt-Jagd.</p>`
     : `<h2>Relikte</h2><p>${save.relics.owned.length} von ${data.relics.length} gefunden · ${eq.length}/${slots} Plätze belegt.</p>
        <p class="muted">Klicke ein Relikt an, um es auszurüsten oder abzulegen. Verfluchte Relikte (violett-roter Rand) sind stark, haben aber einen Nachteil.</p>`;
 

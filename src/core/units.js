@@ -20,7 +20,7 @@ function nearestEnemy(run, u, from, maxDist) {
 
 export function unitDamage(run, u) {
   const giant = run.buffs.riesen.t > 0 ? run.buffs.riesen.schadenMul : 1;
-  return u.def.werte.schaden * run.mods.heldenSchadenMul * giant * (u.riese ? 1.3 : 1); // Shiny ändert den Schaden nicht
+  return u.def.werte.schaden * run.mods.heldenSchadenMul * giant * (u.riese ? 1.3 : 1) * (u.foil ? run.foilBonus('schadenMul') : 1); // Shiny: +50 % Schaden
 }
 
 /** Reichweite inkl. Foil (+50 %) und Riesenwuchs. */

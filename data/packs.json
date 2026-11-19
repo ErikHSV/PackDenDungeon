@@ -150,8 +150,8 @@
     "farbe": "#FF5FC8",
     "beschreibung": "Pinkes Sonderpack: enthält gezielt seltene Karten, die dir noch fehlen.",
     "freischaltung": {
-      "typ": "foilknoten",
-      "knoten": "f_glanzpack"
+      "typ": "knoten",
+      "knoten": "p_glanzpack"
     },
     "widerstand": 30,
     "kartenProPack": 1,

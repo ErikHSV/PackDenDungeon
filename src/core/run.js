@@ -53,6 +53,7 @@ export class Run {
     this.uid = 1;
     this.cursor = { x: 0, y: 0, active: false, tick: 0, angle: 0, pulse: 0, busy: false };
     this.seenThisRun = new Set();
+    this.seenMonsters = new Set(); // neue Bestiarium-Einträge in diesem Run
     this.revivesUsed = 0;
 
     // Wellen
@@ -280,7 +281,9 @@ export class Run {
     if (def.rarity === 'grenzgaenger') this.emit('grenzgaenger', { card: c });
     if (!known && !this.seenThisRun.has(c.id)) {
       S.neueKarten.push(c.id);
-      S.bonusMastery += (this.B.belohnungen.masteryNeueKarte || 0) + (this.mods.masteryNeueKarte || 0); // neuer Sammlungseintrag
+      const mp = (this.B.belohnungen.masteryNeueKarte || 0) + (this.mods.masteryNeueKarte || 0); // neuer Sammlungseintrag
+      S.bonusMastery += mp;
+      if (mp) fx(this, { type: 'text', x: c.tx, y: c.ty - 70, text: `+${mp} Mastery · Sammlung`, color: '#7cc4ff', size: 20, life: 1.6 });
       this.emit('newCard', { id: c.id, foil: c.foil });
     } else if (firstShiny) this.emit('newCard', { id: c.id, foil: true, shiny: true });
     this.seenThisRun.add(c.id);
@@ -341,7 +344,7 @@ export class Run {
     this.emit('schimmer', { amount: n });
   }
 
-  /** Shiny-Bonus als Faktor; „Starker Glanz“ (Foil-Baum) verstärkt nur den Bonusanteil. */
+  /** Shiny-Bonus als Faktor (Bonusanteil × foilStaerkeMul). */
   foilBonus(key) {
     return 1 + (this.B.karten.foil[key] - 1) * this.mods.foilStaerkeMul;
   }
@@ -441,11 +444,11 @@ export class Run {
     this.emit('tomeUsed', { tome: t.def });
   }
 
-  /** Tome wirken. Shiny-Tome: +50 % Dauer und +50 % Fläche bzw. Häufigkeit (mehr Einschläge, mehr Beschworene). */
+  /** Tome wirken. Shiny-Tome: +50 % Wirkung, +50 % Dauer und +50 % Fläche bzw. Häufigkeit (mehr Einschläge, mehr Beschworene). */
   castTome(def, at, foil = false) {
     const e = def.effekt;
     const own = this.mods.tomes?.[def.id] ?? { wirkungMul: 1, dauerMul: 1 };
-    const mul = this.mods.tomeWirkungMul * own.wirkungMul;
+    const mul = this.mods.tomeWirkungMul * own.wirkungMul * (foil ? this.foilBonus('tomeWirkungMul') : 1); // Shiny-Tome: +50 % Wirkung
     const dur = this.mods.tomeDauerMul * mul * own.dauerMul * (foil ? this.foilBonus('tomeDauerMul') : 1);
     const area = foil ? this.foilBonus('tomeFlaecheMul') : 1;
     const often = foil ? this.foilBonus('tomeHaeufigkeitMul') : 1;

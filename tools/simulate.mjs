@@ -98,8 +98,16 @@ for (let day = 1; day <= DAYS; day++) {
   shop();
   const bag = bagItems(data, save);
   consumeBag(save);
-  const ch = pickChapter();
-  const mods = computeMods(data, save, {});
+  // Jeder 4. Tag: Gesucht (Shiny-Boss) eines bereits geschafften Kapitels – Hauptquelle für Schimmer wie im Original.
+  // Gewählt wird das früheste Kapitel, dessen Shiny-Boss noch nie besiegt wurde, und nur, wenn das nächste Kapitel schon geschafft ist.
+  let ch = pickChapter();
+  let gesucht = false;
+  if (day % 4 === 0) {
+    const done = data.chapters.filter((c) => c.art === 'kapitel' && save.stats.bossKills[c.id] > 0).map((c) => c.id);
+    const cand = done.find((id) => !(save.stats.gesuchtSiege?.[data.chapterIndex[id].boss] > 0) && done.includes(id + 1)) ?? (done.length >= 3 ? done[0] : null);
+    if (cand) { ch = cand; gesucht = true; }
+  }
+  const mods = computeMods(data, save, { gesucht });
   const run = botRun(ch, mods, bag);
   const r = run.result;
   const info = applyRunResult(r, data, save, mods, rng);
@@ -109,7 +117,7 @@ for (let day = 1; day <= DAYS; day++) {
   if (firstDust == null && save.stats.foilStaubGesamt > 0) firstDust = { day, min: Math.round(minutes), quellen: info.schimmerTeile.map((t) => t.quelle).join('+') };
   spendTrees();
   const nodes = Object.values(save.starmap).reduce((a, b) => a + b, 0);
-  console.log(`${String(day).padStart(3)} ${String(ch).padStart(3)} ${r.zeit.toFixed(0).padStart(5)}s ${r.sieg ? ' ja ' : ' -  '} ${String(r.kills).padStart(5)} ${String(coinsBefore).padStart(6)} ${String(info.mastery).padStart(5)} ${String(info.foilStaub).padStart(5)} ${String(bag.length).padStart(5)} ${String(run.units.length).padStart(5)} ${String(nodes).padStart(6)} ${String(info.einkommen).padStart(5)}`);
+  console.log(`${String(day).padStart(3)} ${(gesucht ? 'G' : '') + String(ch).padStart(gesucht ? 2 : 3)} ${r.zeit.toFixed(0).padStart(5)}s ${r.sieg ? ' ja ' : ' -  '} ${String(r.kills).padStart(5)} ${String(coinsBefore).padStart(6)} ${String(info.mastery).padStart(5)} ${String(info.foilStaub).padStart(5)} ${String(bag.length).padStart(5)} ${String(run.units.length).padStart(5)} ${String(nodes).padStart(6)} ${String(info.einkommen).padStart(5)}`);
   if (VERBOSE) console.log('   ', JSON.stringify(save.starmap), JSON.stringify(save.foiltree));
 }
 console.log(`Schimmer: erster an Tag ${firstDust?.day ?? '–'} (~${firstDust?.min ?? '–'} min, ${firstDust?.quellen ?? ''}), insgesamt ${save.stats.foilStaubGesamt} nach ${Math.round(minutes)} min`, JSON.stringify(dustBy));

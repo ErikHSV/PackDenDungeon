@@ -62,13 +62,15 @@
   "karten": {
     "foilChance": 0.007,
     "foil": {
-      "$kommentar": "Shiny-Held: doppeltes Leben, +50 % Reichweite/Fläche, sonst gleiche Werte. Shiny-Tome: +50 % Dauer und +50 % Fläche bzw. Häufigkeit. Der Foil-Knoten „Starker Glanz“ verstärkt den Bonusanteil.",
+      "$kommentar": "Shiny-Held: doppeltes Leben, +50 % Schaden, +50 % Reichweite/Fläche. Shiny-Tome: +50 % Wirkung, +50 % Dauer und +50 % Fläche bzw. Häufigkeit.",
       "lebenMul": 2,
       "reichweiteMul": 1.5,
       "flaecheMul": 1.5,
       "tomeDauerMul": 1.5,
       "tomeFlaecheMul": 1.5,
-      "tomeHaeufigkeitMul": 1.5
+      "tomeHaeufigkeitMul": 1.5,
+      "schadenMul": 1.5,
+      "tomeWirkungMul": 1.5
     },
     "grenzgaenger": {
       "$kommentar": "Geheime Seltenheit: Chance pro gezogener Karte, steigt mit der Spielzeit der aktuellen Sitzung leicht an.",
@@ -120,16 +122,16 @@
       "wutSchadenPlus": 0.1
     },
     "foilMonster": {
-      "$kommentar": "Shiny-Monster sind deutlich zäher als normale: fünffaches Leben, mehr Schaden und Rüstung, etwas größer, lassen sich kaum zurückstoßen. Dafür fünffache Mastery pro Kill. Schimmer: das erste Shiny jeder Monsterart +1 (einmalig), danach +1 mit schimmerChance (Bosse ausgenommen).",
+      "$kommentar": "Shiny-Monster sind deutlich zäher als normale: fünffaches Leben, mehr Schaden und Rüstung, etwas größer, lassen sich kaum zurückstoßen. Dafür fünffache Mastery pro Kill. Schimmer gibt es nur für das erste Shiny jeder Monsterart.",
       "chance": 0.0005,
       "lebenMul": 5,
       "schadenMul": 1.5,
       "ruestungPlus": 1,
-      "tempoMul": 1.0,
+      "tempoMul": 1,
       "groesseMul": 1.3,
       "rueckstossMul": 0.4,
       "belohnungMul": 5,
-      "schimmerChance": 0.25
+      "schimmerChance": 0
     },
     "zielsuche": {
       "$kommentar": "Zielwahl: Einheiten greifen den nächstgelegenen Gegner an und bleiben bei ihm, bis er tot ist. Gegner wählen das nächstgelegene Ziel – die nächste Einheit oder den Turm – und bleiben ebenfalls dabei; wer einer Einheit in den Weg läuft, kämpft mit ihr. Gegner mit eigenschaften.zumTurm laufen immer zum Turm. Getarnte Gegner (eigenschaften.getarnt) sind für Helden erst innerhalb enttarnRadius um den Turm sichtbar.",
@@ -137,19 +139,19 @@
     }
   },
   "belohnungen": {
-    "$kommentar": "Mastery im Run: Kills (Basis 0,2, Elite 1, Shiny ×3), geöffnete Packs (0,4), neue Sammlungseinträge (2), Boss-Abschnitte, Bosssieg, Überlebenszeit. Verhältnis wie in 5.9 (1 : 5 : 2 : 10), skaliert auf 11.7: ein erster Run bringt ca. 8–15 Mastery.",
+    "$kommentar": "Mastery im Run: Kills, geöffnete Packs, Bosse, Überlebenszeit – und Sammlungseinträge: neue Karte (Held/Tome) masteryNeueKarte, neue Monsterart masteryNeuesMonster, erstes Shiny erstesShiny.masteryKarte/masteryMonster.",
     "masteryProSekunde": 0.1,
     "masteryProKill": 0.2,
     "masteryProElitewelle": 2,
     "masteryProBoss": 30,
     "masteryProPack": 1,
-    "masteryNeueKarte": 2,
+    "masteryNeueKarte": 25,
     "erstesShiny": {
-      "$kommentar": "Einmalige Schimmer-Quellen (10.1) plus Mastery fürs Entdecken.",
-      "foilStaubKarte": 2,
-      "foilStaubMonster": 1,
-      "masteryKarte": 10,
-      "masteryMonster": 6
+      "$kommentar": "Wie im Original: Schimmer (Folium) gibt es für Foil-Bosse (Gesucht) und für das erste Shiny jeder Karte bzw. Monsterart. Dazu Mastery fürs Entdecken.",
+      "foilStaubKarte": 3,
+      "foilStaubMonster": 2,
+      "masteryKarte": 50,
+      "masteryMonster": 25
     },
     "reliktpackOhneRelikt": {
       "$kommentar": "Alle zufällig erhältlichen Relikte gefunden: das Pack gibt Foil-Staub.",
@@ -160,16 +162,17 @@
       "foilStaub": 2
     },
     "doppelteShinyKarte": {
-      "$kommentar": "Shiny-Karte, die man schon als Shiny besitzt: +1 Schimmer mit dieser Chance.",
-      "foilStaub": 1,
-      "chance": 0.25
+      "$kommentar": "Abgeschaltet: wiederholte Shinys geben im Original keinen Schimmer.",
+      "foilStaub": 0,
+      "chance": 0
     },
     "masteryEliteKill": 5,
     "schatzpackOhneRelikt": {
       "$kommentar": "Schatzpack, wenn alle zufälligen Relikte gefunden sind; Shiny-Schatzträger gibt zusätzlich shinyBonus.",
       "foilStaub": 3,
-      "shinyBonus": 3
-    }
+      "shinyBonus": 0
+    },
+    "masteryNeuesMonster": 10
   },
   "wirtschaft": {
     "$kommentar": "Münzen nur für den Shop: Tageseinkommen (zu Beginn jedes Tages gutgeschrieben) plus Bonus-Münzen (Relikte, Fähigkeiten). Erhöht vor allem durch Quest-Knoten.",
@@ -261,7 +264,7 @@
       "schaden": 22,
       "text": "Prisma-Salve!"
     },
-    "erstsiegSchimmer": 5
+    "erstsiegSchimmer": 8
   },
   "debug": {
     "$kommentar": "Debug-Werkzeuge (nur mit ?debug in der URL).",

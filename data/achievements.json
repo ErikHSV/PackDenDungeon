@@ -77,9 +77,6 @@
     "ziel": {
       "statistik": "foilsGezogen",
       "anzahl": 1
-    },
-    "belohnung": {
-      "foilStaub": 3
     }
   },
   {
@@ -90,9 +87,6 @@
     "ziel": {
       "statistik": "foilsGezogen",
       "anzahl": 10
-    },
-    "belohnung": {
-      "foilStaub": 5
     }
   },
   {
@@ -103,9 +97,6 @@
     "ziel": {
       "statistik": "foilMonsterBesiegt",
       "anzahl": 1
-    },
-    "belohnung": {
-      "foilStaub": 3
     }
   },
   {
@@ -195,9 +186,6 @@
     "ziel": {
       "statistik": "foilBossBesiegt",
       "anzahl": 1
-    },
-    "belohnung": {
-      "foilStaub": 5
     }
   },
   {
@@ -218,9 +206,6 @@
     "ziel": {
       "statistik": "foilArten",
       "anzahl": "alle"
-    },
-    "belohnung": {
-      "foilStaub": 10
     }
   },
   {
@@ -231,10 +216,7 @@
       "statistik": "foilMonsterArten",
       "anzahl": "alle"
     },
-    "kategorie": "Shiny",
-    "belohnung": {
-      "foilStaub": 10
-    }
+    "kategorie": "Shiny"
   },
   {
     "id": "e_bestiarium",

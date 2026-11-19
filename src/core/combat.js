@@ -123,17 +123,23 @@ export function killEnemy(run, e, killer = null) {
   run.stats.kills++;
   // Mastery-Wert des Kills (5.9): Basis 1, Elite 5, Shiny ×3, Boss zählt über masteryProBoss
   if (!e.isBoss) run.stats.killWert += (e.elite ? run.B.belohnungen.masteryEliteKill : 1) * (e.foil ? run.B.wellen.foilMonster.belohnungMul : 1) * (killer?.klon ? 2 : 1); // Spiegelbild: doppelte Mastery
+  // Neue Monsterart fürs Bestiarium: Mastery (Sammlung)
+  if (!e.isBoss && !run.seenMonsters?.has(e.id) && !((run.save.bestiary[e.id]?.normal || 0) + (run.save.bestiary[e.id]?.foil || 0) > 0)) {
+    run.seenMonsters?.add(e.id);
+    const mp = run.B.belohnungen.masteryNeuesMonster || 0;
+    if (mp) { run.stats.bonusMastery += mp; fx(run, { type: 'text', x: e.x, y: e.y - 50, text: `+${mp} Mastery · Neu im Bestiarium`, color: '#7cc4ff', size: 18, life: 1.6 }); }
+  }
   const k = (run.stats.killsNachArt[e.id] ||= { normal: 0, foil: 0 });
   k[e.foil ? 'foil' : 'normal']++;
   if (e.foil) {
-    // Shiny-Monster (10.1): das erste Shiny jeder Art gibt sicher +1 Schimmer (und Mastery), danach +1 mit 25 % Chance.
+    // Shiny-Monster: das erste Shiny jeder Art gibt Schimmer (und Mastery); weitere nur Mastery (×5 pro Kill).
     // Shiny-Bosse zahlen ihren Schimmer erst nach dem Sieg (Gesucht).
     run.stats.foilMonster++;
     fx(run, { type: 'sparkles', x: e.x, y: e.y - 20, life: 1 });
     if (!e.isBoss) {
       const E = run.B.belohnungen.erstesShiny;
       if (!(run.save.bestiary[e.id]?.foil > 0) && k.foil === 1) { run.stats.bonusMastery += E.masteryMonster; run.gainShimmer(E.foilStaubMonster, 'ersteShinyMonster', e.x, e.y - 20); }
-      else if (run.rng() < run.B.wellen.foilMonster.schimmerChance) run.gainShimmer(1, 'shinyMonster', e.x, e.y - 20);
+      else if (run.B.wellen.foilMonster.schimmerChance > 0 && run.rng() < run.B.wellen.foilMonster.schimmerChance) run.gainShimmer(1, 'shinyMonster', e.x, e.y - 20);
     }
   }
   if (killer && run.mods.heldenHeilungProKill && !killer.dead) killer.hp = Math.min(killer.maxHp, killer.hp + killer.maxHp * run.mods.heldenHeilungProKill);

@@ -516,7 +516,7 @@
       "akt": 1,
       "position": {
         "x": 1456,
-        "y": 2385
+        "y": 2343
       },
       "verbindungen": [
         "p_folie2",
@@ -6081,7 +6081,7 @@
       "akt": 1,
       "position": {
         "x": 1560,
-        "y": 2343
+        "y": 2301
       },
       "verbindungen": [
         "p_bonuskarte",
@@ -6136,7 +6136,7 @@
       "akt": 1,
       "position": {
         "x": 1664,
-        "y": 2301
+        "y": 2259
       },
       "verbindungen": [
         "p_aufplatzen",
@@ -6305,7 +6305,7 @@
       "akt": 1,
       "position": {
         "x": 1768,
-        "y": 2217
+        "y": 2175
       },
       "verbindungen": [
         "p_kiste_silber",
@@ -6358,10 +6358,11 @@
       "akt": 1,
       "position": {
         "x": 1872,
-        "y": 2175
+        "y": 2133
       },
       "verbindungen": [
         "p_karten",
+        "p_glanzpack",
         "p_packimpack"
       ],
       "maxStufe": 1,
@@ -6375,6 +6376,31 @@
       "abBoss": 2,
       "symbol": "pack",
       "abzeichen": "plus"
+    },
+    {
+      "id": "p_glanzpack",
+      "name": "Glanzpack",
+      "beschreibung": "Im Shop kann das pinke Glanzpack erscheinen: seltene Karten, die dir noch fehlen.",
+      "typ": "freischalt",
+      "ast": "packs",
+      "akt": 1,
+      "position": {
+        "x": 1976,
+        "y": 2175
+      },
+      "verbindungen": [
+        "p_packimpack2"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 3000,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "flag",
+        "flag": "glanzpack"
+      },
+      "abBoss": 2,
+      "symbol": "pack",
+      "abzeichen": "bolt"
     },
     {
       "id": "q_tomes10",
@@ -7283,6 +7309,7 @@
       "typ": "klein",
       "ast": "wirtschaft",
       "verbindungen": [
+        "w_jackpotrelikt",
         "w_wuerfeln"
       ],
       "maxStufe": 2,
@@ -7301,6 +7328,30 @@
       "abBoss": 2,
       "symbol": "coin",
       "abzeichen": "star"
+    },
+    {
+      "id": "w_jackpotrelikt",
+      "name": "Jackpot-Relikt",
+      "beschreibung": "Bei einem Jackpot gibt es zu 25 % zusätzlich ein Reliktpack.",
+      "typ": "klein",
+      "ast": "wirtschaft",
+      "akt": 2,
+      "position": {
+        "x": 1664,
+        "y": 1486
+      },
+      "verbindungen": [
+        "w_jackpot"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 300,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "flag",
+        "flag": "jackpotRelikt"
+      },
+      "symbol": "coin",
+      "abzeichen": "bolt"
     },
     {
       "id": "w_einkommen",
@@ -7472,7 +7523,7 @@
       "akt": 2,
       "position": {
         "x": 1976,
-        "y": 2175
+        "y": 2091
       },
       "verbindungen": [
         "p_packimpack2"

@@ -249,7 +249,7 @@ function nextUid(save) { save.shop.uid = (save.shop.uid || 0) + 1; return save.s
 
 /**
  * Jackpot (4): erscheinen drei gleiche Pack-Angebote gleichzeitig, leuchten ihre Kacheln golden und es gibt ein
- * Bonus-Pack gratis (mit „Glückssträhne“ mehr); mit dem Foil-Knoten „Jackpot-Relikt“ zu 25 % zusätzlich ein Reliktpack.
+ * Bonus-Pack gratis (mit „Glückssträhne“ mehr); mit dem Skill-Tree-Knoten „Jackpot-Relikt“ zu 25 % zusätzlich ein Reliktpack.
  * Höchstens ein Jackpot pro Tag; nur wenn mindestens zwei Angebotsarten im Shop möglich sind (sonst wäre zu Beginn,
  * wenn es nur Holzpacks gibt, jeder Tag ein Jackpot).
  */
@@ -398,7 +398,7 @@ export const SCHIMMER_QUELLEN = {
   reliktpack: 'Reliktpack', erfolge: 'Erfolge', schatzpack: 'Schatzpack', shinySchatz: 'Shiny-Schatzträger',
 };
 
-/** Schimmer pro Sieg gegen den Shiny-Boss eines Kapitels (Kapitel 1: 1, Kapitel 4: 4 …) plus Foil-Knoten „Gesucht-Belohnung“. */
+/** Schimmer pro Sieg gegen den Shiny-Boss eines Kapitels (Kapitel 1: 1, Kapitel 4: 4 … wie im Original). */
 export function gesuchtSchimmer(ch, data, mods) {
   return (ch?.gesuchtSchimmer ?? 1) + (mods?.gesuchtStaub || 0);
 }

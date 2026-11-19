@@ -4,7 +4,7 @@ const KEY = 'packdendungeon-save-v3';
 
 export function defaultSave(data) {
   return {
-    version: 7,
+    version: 8,
     // Genau drei Währungen (Abschnitt 10)
     coins: data?.balance.wirtschaft.startMuenzen ?? 3, // Münzen: nur für den Shop
     bonusCoins: 0,      // Bonus-Münzen aus Relikten und Effekten (werden zuerst ausgegeben)
@@ -66,6 +66,7 @@ function parseSave(data, raw) {
   if ((raw.version || 0) < 5) migrateV5(s, raw, data);
   if ((raw.version || 0) < 6) migrateV6(s);
   if ((raw.version || 0) < 7) migrateV7(s, data);
+  if ((raw.version || 0) < 8) migrateV8(s);
   return s;
 }
 
@@ -151,6 +152,19 @@ function migrateV7(s, data) {
   }
   s.mastery = (s.mastery || 0) + refund;
   if (refund) s.migrationHinweis = `Skill-Tree umgebaut: ${refund} Mastery für entfernte Cursor- und Turm-Knoten erstattet.`;
+}
+
+/** v8: Foil-Baum nach dem Original – entfernte Knoten werden als Schimmer erstattet. */
+const REMOVED_V8 = { f_jackpotrelikt: 8, f_glanzpack: 12, f_neubeginn: 8, f_glanzauge: 1, f_schimmerjagd: 2, f_starkerglanz: 6, f_gesucht: 6 };
+function migrateV8(s) {
+  let refund = 0;
+  for (const [id, basis] of Object.entries(REMOVED_V8)) {
+    const lvl = s.foiltree?.[id] || 0;
+    for (let l = 0; l < lvl; l++) refund += Math.round(basis * Math.pow(1.6, l));
+    if (s.foiltree) delete s.foiltree[id];
+  }
+  s.foilDust = (s.foilDust || 0) + refund;
+  if (refund) s.migrationHinweis = [s.migrationHinweis, `Foil-Baum umgebaut: ${refund} Schimmer für entfernte Knoten erstattet.`].filter(Boolean).join(' ');
 }
 
 function migrateV6(s) {
