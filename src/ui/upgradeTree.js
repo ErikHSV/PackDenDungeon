@@ -213,6 +213,35 @@ export class UpgradeTree {
     return true;
   }
 
+  /** Automatisch abgeholte Quests nacheinander zeigen: Knoten anfliegen, Aufploppen, Funken, Banner (Klick überspringt). */
+  playClaims(claims) {
+    clearTimeout(this.claimTimer);
+    const relics = [];
+    let i = 0;
+    const startMp = this.save.mastery - claims.reduce((s, c) => s + (c.node.belohnung?.mastery || 0), 0);
+    let shownMp = startMp;
+    $('#tree-mp').textContent = fmtNum(startMp);
+    const step = () => {
+      if (!this.active || i >= claims.length) {
+        countTo($('#tree-mp'), shownMp, this.save.mastery, 300);
+        if (relics.length) showUnlocks(relics.map((r) => ({ title: 'NEUES RELIKT!', name: `${r.name}: ${r.beschreibung}`, img: this.game.bank.iconUrl(r.symbol), w: 180, h: 180 })));
+        this.game.hub?.onUpgradeBought();
+        return;
+      }
+      const { node, res } = claims[i++];
+      this.centerOn(node);
+      play('questDone');
+      this.anim[node.id] = { pop: performance.now() };
+      this.burst(node, (k) => ['#FFD24A', '#fff6c0', '#5ED17A'][k % 3], 36);
+      const mp = node.belohnung?.mastery || 0;
+      if (mp) { countTo($('#tree-mp'), shownMp, shownMp + mp, 500); shownMp += mp; }
+      relics.push(...res.relics.filter(Boolean));
+      this.banner('QUEST ERFÜLLT!', `${node.name}: ${res.parts.join(', ') || 'neue Knoten freigeschaltet'}${claims.length > 1 ? ` (${i}/${claims.length})` : ''}`, 'quest');
+      this.claimTimer = setTimeout(step, this.save.settings.skipAnimations ? 400 : 1500);
+    };
+    this.claimTimer = setTimeout(step, 350);
+  }
+
   async openGate(node) {
     const { data, save } = this;
     const act = data.acts.find((a) => a.tor?.knoten === node.id);
@@ -236,9 +265,12 @@ export class UpgradeTree {
     ]);
   }
 
-  banner(title, text) {
+  banner(title, text, kind = '') {
     const b = $('#tree-banner');
-    b.innerHTML = `<h2>${escapeHtml(title)}</h2><p>${escapeHtml(text)}</p>`;
+    b.innerHTML = `${kind === 'quest' ? `<img class="tb-icon" src="${this.game.bank.iconUrl('quest')}" alt="">` : ''}<h2>${escapeHtml(title)}</h2><p>${escapeHtml(text)}</p>`;
+    b.classList.toggle('quest', kind === 'quest');
+    // Animation bei jedem Banner neu starten
+    b.classList.add('hidden'); void b.offsetWidth;
     b.classList.remove('hidden');
     clearTimeout(this.bannerTimer);
     this.bannerTimer = setTimeout(() => b.classList.add('hidden'), 2600);

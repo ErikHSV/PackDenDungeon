@@ -53,6 +53,7 @@ Einheiten-Fähigkeiten, die Knoten setzen können: `faehigkeiten.killHeilung { a
 
 ## Packs (`packs.json`)
 
+- `kartenGewichte { kartenId: gewicht }`: feste Chance je Karte (Standard: 3 Einheiten 60/30/9 + 1 Tome 1). Ohne `kartenGewichte` wird nach `seltenheitsGewichte` gezogen (Glanzpack).
 - `packImPack { pack, mod }`: beim Öffnen mit der Chance `mods[mod]` zusätzlich dieses Pack (Silber → Holz über „Pack im Pack“, Sternen/Kronen → Pack darunter über „Pack im Pack II“). Kronenpack: nach Boss 3, im Shop und aus dem Prägewerk.
 
 - `kartenProPack` ist 1 (eine Einheit pro Pack). `kartenGewichte` legt feste Ergebnisse fest (Holzpack 60/30/9/1) und ersetzt dann Pool und Seltenheits-Gewichte.
@@ -131,6 +132,7 @@ Gleiches Knotenformat, Positionen von Hand. Bezahlt mit Foil-Staub (`basisKosten
 
 - **Helden-Äste:** Knoten eines Einheiten-Astes tragen `heldAst: "<einheit>"` und `voraussetzung.karte`. Quest-Statistik `killsEinheit` mit `filter.einheit` zählt Kills einer Einheit (auch `skelettkrieger`). `werte.krit` einer Einheit erhöht ihre Krit-Chance (doppelter Schaden) zusätzlich zu `heldenKrit`.
 - **Weitere Knotenfelder:** `muenzKosten` (zusätzliche Münzen bei der ersten Stufe, z. B. Prägewerk), `torBosse` am Tor-Knoten (Kapitel, deren Bosse der Tor-Zähler 1/3 – 3/3 zählt), `effekt.ziel: "einheit"` darf auch Einheiten ohne Karte patchen (z. B. `skelettkrieger`).
+- **Klone (Spiegelgaukler):** `faehigkeiten.klone { anzahl, dauer, lebenAnteil, explosion? { radius, schadenMul } }` – beim Erscheinen aus einem Pack entstehen Spiegelbilder (Beschwörungen); ihre Kills zählen doppelt für die Mastery. `faehigkeiten.eliteKrit` erhöht die Krit-Chance gegen Elite-Monster und Bosse.
 - **Helden-Fähigkeiten aus dem Baum:** `faehigkeiten.wut { tempoMax }` (schneller bei wenig Leben), `todSkelett { chance, dauer }`, `killMuenze { chance }`, `killHeilung { anteil }`; Seuche (`beiTreffer` typ `seuche`) mit `verwundbar`, `lahm`, `springt`, `skelettChance`.
 
 ## Weitere Dateien

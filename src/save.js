@@ -33,7 +33,7 @@ export function defaultSave(data) {
     tutorial: { packHint: false, unitHint: false, tomeHint: false, starmapHint: false, firstRunDone: false },
     settings: {
       musicVolume: 0.5, sfxVolume: 0.8, screenShake: true, damageNumbers: true, fastPackOpening: false,
-      skipAnimations: false, effectAlpha: 0.6, language: 'de',
+      skipAnimations: false, effectAlpha: 0.6, language: 'de', tempo: 1,
     },
   };
 }

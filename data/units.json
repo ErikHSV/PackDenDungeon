@@ -408,6 +408,70 @@
     }
   },
   {
+    "id": "gluecksfechter",
+    "name": "Glücksfechter",
+    "rarity": "rare",
+    "rolle": "Duellant",
+    "rollenSymbol": "sword",
+    "ki": "angreifen",
+    "beschreibung": "Springt alle paar Sekunden mit einem Ausfallschritt auf einen Gegner. 10 % Krit-Chance.",
+    "farbe": "#3e9a5a",
+    "sprite": "gluecksfechter",
+    "werte": {
+      "leben": 100,
+      "schaden": 12,
+      "angriffsTempo": 1.1,
+      "reichweite": 45,
+      "lauftempo": 120,
+      "schadensTyp": "physical",
+      "krit": 0.1
+    },
+    "trifftLuft": false,
+    "angriff": {
+      "art": "nahkampf"
+    },
+    "faehigkeiten": {
+      "sprint": {
+        "intervall": 4,
+        "laenge": 200,
+        "schadenMul": 1.5,
+        "rueckstoss": 20,
+        "anzahl": 1
+      }
+    }
+  },
+  {
+    "id": "spiegelgaukler",
+    "name": "Spiegelgaukler",
+    "rarity": "epic",
+    "rolle": "Klone",
+    "rollenSymbol": "staff",
+    "ki": "abstand",
+    "beschreibung": "Erscheint mit einem Spiegelbild. Kills seiner Spiegelbilder zählen doppelt für die Mastery.",
+    "farbe": "#9a6ae0",
+    "sprite": "spiegelgaukler",
+    "werte": {
+      "leben": 70,
+      "schaden": 9,
+      "angriffsTempo": 0.9,
+      "reichweite": 240,
+      "lauftempo": 85,
+      "schadensTyp": "magic"
+    },
+    "trifftLuft": true,
+    "angriff": {
+      "art": "geschoss",
+      "geschossTempo": 650
+    },
+    "faehigkeiten": {
+      "klone": {
+        "anzahl": 1,
+        "dauer": 10,
+        "lebenAnteil": 0.5
+      }
+    }
+  },
+  {
     "id": "flackerling",
     "name": "Flackerling",
     "rarity": "grenzgaenger",

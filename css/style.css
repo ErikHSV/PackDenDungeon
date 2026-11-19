@@ -400,3 +400,25 @@ h1, h2, h3 { font-family: var(--pixel); margin: 0 0 12px; }
 .save-row { display: flex; flex-wrap: wrap; gap: 8px; }
 #save-code-box { width: 100%; margin-top: 10px; font: 13px/1.3 monospace; background: #120d1e; color: #f4ebd9; border: 2px solid #4a4266; padding: 6px; box-sizing: border-box; word-break: break-all; }
 #load-code-go { margin-top: 8px; }
+
+/* Tempo-Knöpfe im Kampf (1× / 1,5× / 2×) */
+.hud-speed { position: absolute; right: 68px; top: 15px; display: flex; gap: 4px; z-index: 4; }
+.hud-speed button { min-width: 50px; height: 40px; padding: 0 8px; font: 20px/1 'Jersey 10', 'Pixelify Sans', monospace; color: #f4ebd9; background: rgba(20,14,28,.55); border: 2px solid rgba(255,255,255,.25); cursor: pointer; opacity: .8; }
+.hud-speed button:hover { opacity: 1; }
+.hud-speed button.on { background: #FFD24A; color: #1a1226; border-color: #FFD24A; opacity: 1; }
+.hud-speed button.locked { opacity: .35; cursor: not-allowed; }
+
+/* Quest-Popup im Skill-Tree (automatisches Abholen nach dem Run) */
+.tree-banner.quest { animation: questpop .55s cubic-bezier(.2,1.6,.4,1); box-shadow: 0 0 0 4px #1A1020, 0 0 38px 8px rgba(255,210,74,.55); }
+.tree-banner.quest .tb-icon { width: 56px; height: 56px; image-rendering: pixelated; display: block; margin: -46px auto 4px; animation: questspin .9s ease-out; }
+.tree-banner.quest h2 { letter-spacing: 2px; animation: questglow 1.2s ease-in-out infinite alternate; }
+@keyframes questpop { 0% { transform: translate(-50%, -50%) scale(.2) rotate(-6deg); opacity: 0; } 70% { transform: translate(-50%, -50%) scale(1.08) rotate(1deg); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1) rotate(0); } }
+@keyframes questspin { from { transform: rotate(-200deg) scale(.3); } to { transform: rotate(0) scale(1); } }
+@keyframes questglow { from { text-shadow: 0 0 4px rgba(255,210,74,.4); } to { text-shadow: 0 0 14px rgba(255,210,74,.95); } }
+
+/* Shop-Info: feste Chancen je Karte */
+.pool-list { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+.pool-row { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 8px; }
+.pool-row img { width: 34px; height: 46px; image-rendering: pixelated; border: 2px solid var(--r); }
+.pool-row img.unknown { filter: brightness(0); }
+.pool-row b { color: #FFD24A; }

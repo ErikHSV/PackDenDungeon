@@ -16,13 +16,6 @@
       "schleuderin",
       "hagelschauer"
     ],
-    "seltenheitsGewichte": {
-      "common": 60,
-      "uncommon": 30,
-      "rare": 9,
-      "epic": 0.5,
-      "legendary": 0.5
-    },
     "kartenGewichte": {
       "stalljunge": 60,
       "kettenschwinger": 30,
@@ -58,24 +51,20 @@
     "widerstand": 25,
     "kartenProPack": 1,
     "pool": [
-      "kettenschwinger",
-      "schleuderin",
       "torwaechterin",
       "windlaeufer",
       "glutweberin",
-      "hagelschauer",
-      "knochenruf",
-      "blutrausch"
+      "knochenruf"
     ],
-    "seltenheitsGewichte": {
-      "uncommon": 55,
-      "rare": 33,
-      "epic": 11,
-      "legendary": 1
-    },
     "packImPack": {
       "pack": "holzpack",
       "mod": "packImPack"
+    },
+    "kartenGewichte": {
+      "torwaechterin": 60,
+      "windlaeufer": 30,
+      "glutweberin": 9,
+      "knochenruf": 1
     }
   },
   {
@@ -107,33 +96,27 @@
     "widerstand": 60,
     "kartenProPack": 1,
     "pool": [
-      "windlaeufer",
-      "glutweberin",
       "bannertraeger",
       "moorhexer",
       "wolkenhirtin",
-      "glockenmoench",
-      "knochenruf",
-      "blutrausch",
-      "seelenkrug",
-      "riesenwuchs",
-      "zeitbruch"
+      "blutrausch"
     ],
-    "seltenheitsGewichte": {
-      "rare": 55,
-      "epic": 35,
-      "legendary": 10
-    },
     "packImPack": {
       "pack": "silberpack",
       "mod": "packImPack2"
+    },
+    "kartenGewichte": {
+      "bannertraeger": 60,
+      "moorhexer": 30,
+      "wolkenhirtin": 9,
+      "blutrausch": 1
     }
   },
   {
     "id": "kronenpack",
     "name": "Kronenpack",
     "art": "pack",
-    "beschreibung": "Mit Goldprägung – fast nur epische und legendäre Karten.",
+    "beschreibung": "Mit Goldprägung – Glücksfechter, Spiegelgaukler und der Glockenmönch.",
     "farbe": "#c9971f",
     "freischaltung": {
       "typ": "boss",
@@ -142,22 +125,20 @@
     "widerstand": 80,
     "kartenProPack": 1,
     "pool": [
-      "bannertraeger",
-      "moorhexer",
-      "wolkenhirtin",
+      "gluecksfechter",
+      "spiegelgaukler",
       "glockenmoench",
-      "seelenkrug",
-      "riesenwuchs",
       "zeitbruch"
     ],
-    "seltenheitsGewichte": {
-      "rare": 30,
-      "epic": 60,
-      "legendary": 10
-    },
     "packImPack": {
       "pack": "sternenpack",
       "mod": "packImPack2"
+    },
+    "kartenGewichte": {
+      "gluecksfechter": 60,
+      "spiegelgaukler": 30,
+      "glockenmoench": 9,
+      "zeitbruch": 1
     }
   },
   {
@@ -182,12 +163,13 @@
   },
   {
     "id": "tomepack",
-    "name": "Tomepack",
+    "name": "Bücherpack",
     "art": "pack",
-    "beschreibung": "Enthält ausschließlich Zauberbücher.",
+    "beschreibung": "Ein Bündel Zauberbücher – nur Tomes.",
     "farbe": "#3ED6C4",
     "freischaltung": {
-      "typ": "geplant"
+      "typ": "boss",
+      "kapitel": 2
     },
     "widerstand": 30,
     "kartenProPack": 1,
@@ -199,10 +181,13 @@
       "riesenwuchs",
       "zeitbruch"
     ],
-    "seltenheitsGewichte": {
-      "rare": 55,
-      "epic": 35,
-      "legendary": 10
+    "kartenGewichte": {
+      "hagelschauer": 25,
+      "knochenruf": 25,
+      "blutrausch": 20,
+      "seelenkrug": 15,
+      "riesenwuchs": 10,
+      "zeitbruch": 5
     }
   },
   {

@@ -208,6 +208,7 @@ function rollSingleCard(data, save, rng) {
   const packs = data.packs.filter((p) => p.art === 'pack' && p.pool?.length && packUnlocked(p, save));
   if (!packs.length) return null;
   const pack = packs[Math.floor(rng() * packs.length)];
+  if (pack.kartenGewichte) return weightedPick(Object.entries(pack.kartenGewichte).filter(([id]) => data.cardIndex[id]), rng);
   const rars = Object.entries(pack.seltenheitsGewichte).filter(([r]) => pack.pool.some((id) => data.cardIndex[id]?.def.rarity === r));
   const r = weightedPick(rars, rng);
   const ids = pack.pool.filter((id) => data.cardIndex[id]?.def.rarity === r);
@@ -565,7 +566,12 @@ export function claimQuestNode(node, data, save, rng = Math.random) {
   save.lastBought = node.id;
   const b = node.belohnung || {};
   const out = { parts: [], relics: [] };
-  if (b.tagesEinkommen) out.parts.push(`+${b.tagesEinkommen} Tageseinkommen (dauerhaft)`);
+  if (b.tagesEinkommen) {
+    // Einkommen gilt schon für den laufenden Tag
+    save.coins += b.tagesEinkommen;
+    save.dayBudget = (save.dayBudget || 0) + b.tagesEinkommen;
+    out.parts.push(`+${b.tagesEinkommen} Tageseinkommen (gilt schon heute)`);
+  }
   for (const id of save.relics.equipped) {
     const r = data.relicIndex[id];
     if (r?.aktion.typ === 'questMuenzen') { save.coins += r.aktion.wert; out.parts.push(`+${r.aktion.wert} Münze (${r.name})`); }
@@ -592,6 +598,19 @@ export function describeReward(b = {}, relicName = null) {
   if (b.reliktpack) p.push(b.reliktpack > 1 ? `${b.reliktpack} Reliktpacks` : 'Reliktpack');
   if (b.relikt) p.push(`Relikt „${relicName ?? b.relikt}“`);
   return p.join(', ') || 'Neue Knoten';
+}
+
+/** Alle erfüllten, sichtbaren Quests abholen (nach dem Run beim Wechsel ins Menü). Rückgabe: [{ node, res }]. */
+export function autoClaimQuests(data, save, rng = Math.random) {
+  const out = [];
+  for (let guard = 0; guard < 100; guard++) {
+    const n = data.starmap.knoten.find((q) => q.typ === 'quest' && levelOf(save, q.id) === 0 && nodeVisible('skill', q, save, data) && questProgress(q, data, save).done);
+    if (!n) break;
+    const res = claimQuestNode(n, data, save, rng);
+    if (!res) break;
+    out.push({ node: n, res });
+  }
+  return out;
 }
 
 export function claimableQuests(data, save) {

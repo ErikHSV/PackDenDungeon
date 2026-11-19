@@ -91,7 +91,7 @@ export function damageEnemy(run, e, amount, type, opts = {}) {
   }
   let d = amount;
   // Helden-Krit (Skill-Tree „Heldenglück“): doppelter Schaden
-  const kritChance = opts.source?.kind === 'unit' ? run.mods.heldenKrit + (opts.source.def.werte.krit || 0) : 0;
+  const kritChance = opts.source?.kind === 'unit' ? run.mods.heldenKrit + (opts.source.def.werte.krit || 0) + (e.elite || e.isBoss ? opts.source.def.faehigkeiten?.eliteKrit || 0 : 0) : 0;
   if (kritChance > 0 && !opts.crit && run.rng() < kritChance) { d *= 2; opts = { ...opts, crit: true }; }
   // Banner-Aura eines Hauptmanns: Soldaten in der Nähe haben mehr Rüstung
   let armor = e.ruestung;
@@ -118,7 +118,7 @@ export function killEnemy(run, e, killer = null) {
   e.hp = 0;
   run.stats.kills++;
   // Mastery-Wert des Kills (5.9): Basis 1, Elite 5, Shiny ×3, Boss zählt über masteryProBoss
-  if (!e.isBoss) run.stats.killWert += (e.elite ? run.B.belohnungen.masteryEliteKill : 1) * (e.foil ? run.B.wellen.foilMonster.belohnungMul : 1);
+  if (!e.isBoss) run.stats.killWert += (e.elite ? run.B.belohnungen.masteryEliteKill : 1) * (e.foil ? run.B.wellen.foilMonster.belohnungMul : 1) * (killer?.klon ? 2 : 1); // Spiegelbild: doppelte Mastery
   const k = (run.stats.killsNachArt[e.id] ||= { normal: 0, foil: 0 });
   k[e.foil ? 'foil' : 'normal']++;
   if (e.foil) {

@@ -53,10 +53,11 @@
     "seltenZeitlupeFaktor": 0.25,
     "geschwindigkeiten": [
       1,
+      1.5,
       2
     ],
     "zweifachAbKapitel": 2,
-    "$kommentar_tempo": "2× ist freigeschaltet, sobald Kapitel zweifachAbKapitel freigeschaltet ist; Präsentationen und Einblendungen laufen immer in Echtzeit."
+    "$kommentar_tempo": "Tempo-Knöpfe im Kampf: 1× und 1,5× immer, 2× sobald Kapitel zweifachAbKapitel freigeschaltet ist (5.10). Die Wahl bleibt gespeichert. Präsentationen und Einblendungen laufen immer in Echtzeit."
   },
   "karten": {
     "foilChance": 0.007,

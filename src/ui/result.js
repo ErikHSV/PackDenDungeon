@@ -1,6 +1,6 @@
 // Ergebnis-Bildschirm (14.8) und Freischaltungs-Popups mit Konfetti.
 import { $, el, escapeHtml, show, countTo } from './dom.js';
-import { applyRunResult, claimableQuests, anyNodeAffordable, foilTreeUnlocked } from '../core/meta.js';
+import { applyRunResult, anyNodeAffordable, foilTreeUnlocked } from '../core/meta.js';
 import { play, startMusic } from '../audio.js';
 import { showUnlocks } from './reveal.js';
 
@@ -29,8 +29,7 @@ export function showResult(game, r, mods, opts) {
     </div>
     ${info.neueKarten.length ? `<div class="res-row"><b>Neue Karten:</b>${info.neueKarten.map((id) => `<img src="${bank.cardUrl(id)}" title="${escapeHtml(data.cardIndex[id].def.name)}">`).join('')}</div>` : ''}
     ${best ? `<div class="res-row"><b>Beste Einheit:</b><img src="${bank.unitUrl(best.id)}"> ${escapeHtml(best.name)}${best.foil ? ' ✦' : ''} – ${best.schaden} Schaden, ${best.kills} Kills</div>` : ''}
-    <div class="res-row">${claimableQuests(data, save) ? `<span style="color:#FFD24A">${claimableQuests(data, save)} Quest(s) im Skill-Tree erfüllt – abholen!</span>` : ''}
-      ${info.schatzRelikt ? `<span style="color:#FFD24A">Relikt-Jagd: ${escapeHtml(info.schatzRelikt.name)} ist jetzt im Reiter RELIKTE.</span>` : ''}
+    <div class="res-row">      ${info.schatzRelikt ? `<span style="color:#FFD24A">Relikt-Jagd: ${escapeHtml(info.schatzRelikt.name)} ist jetzt im Reiter RELIKTE.</span>` : ''}
       ${r.ersteShinys?.length ? `<span class="rainbow-text">Erste Shinys: ${r.ersteShinys.map((id) => escapeHtml(data.cardIndex[id].def.name)).join(', ')}</span>` : ''}
       ${info.erfolge.map((a) => `<span style="color:#FFD24A">★ Erfolg: ${escapeHtml(a.name)}</span>`).join('')}</div>
     <div class="row">
@@ -43,14 +42,13 @@ export function showResult(game, r, mods, opts) {
   box.onpointerdown = () => { skip = true; box.querySelectorAll('b[data-to]').forEach((b) => { b.textContent = b.dataset.to; }); };
 
   const close = () => show('#overlay-result', false);
-  $('#res-star').onclick = () => { close(); game.goto('hub', { tab: 'upgrade' }); };
+  $('#res-star').onclick = () => { close(); game.goto('hub', { tab: 'upgrade', autoClaim: true }); };
 
   // Freischaltungen nacheinander zeigen (14.6b)
   const items = [];
   if (info.kapitelFrei) items.push({ title: 'NEUES KAPITEL!', name: info.kapitelFrei.name, img: bank.url(bank.fieldTower(info.kapitelFrei.farbwelt?.turmlicht ?? '#7ab8ff')), w: 100, h: 200 });
   for (const p of info.packsFrei) items.push({ title: p.art === 'kiste' ? 'NEUE BOOSTER-KISTE!' : 'NEUES PACK!', name: p.name, img: bank.shopItemUrl(p.id), w: p.art === 'kiste' ? 200 : 180, h: p.art === 'kiste' ? 200 : 240 });
   if (!foilBefore && foilTreeUnlocked(save)) items.push({ title: 'FOIL-BAUM!', name: 'Dein erster Schimmer! Der Foil-Baum ist jetzt über den Regenbogen-Kristall im Reiter UPGRADE erreichbar.', img: bank.iconUrl('crystal_regen'), w: 160, h: 160 });
-  for (const q of info.questsFertig) items.push({ title: 'QUEST ERFÜLLT!', name: `${q.name} – hole die Belohnung im Skill-Tree ab.`, img: bank.iconUrl('quest'), w: 140, h: 140 });
   if (!info.relikt && info.reliktStaub) items.push({ title: 'ALLE RELIKTE GEFUNDEN!', name: `Stattdessen: +${info.reliktStaub} Schimmer`, img: bank.iconUrl('crystal_regen'), w: 160, h: 160 });
   if (info.relikt) items.push({ title: 'NEUES RELIKT!', name: `${info.relikt.name}: ${info.relikt.beschreibung}`, img: bank.iconUrl(info.relikt.symbol), w: 180, h: 180 });
   for (const a of info.erfolge) items.push({ title: 'ERFOLG!', name: `${a.name} – ${a.beschreibung}${a.belohnung?.foilStaub ? ` (+${a.belohnung.foilStaub} Schimmer)` : ''}`, img: bank.iconUrl('crown'), w: 160, h: 160 });

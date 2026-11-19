@@ -43,12 +43,13 @@ export class BattleController {
     this.presenting = [];
     this.bossIntro = 0;
     this.ending = false;
-    this.speedIndex = 0;
-    $('#btn-speed').textContent = 'Tempo: 1×';
     const fastFrom = this.game.data.chapters.find((c) => c.art === 'kapitel' && this.game.data.actIndex[c.akt].kapitel.indexOf(c.id) + 1 + (c.akt - 1) * 3 === (this.game.data.balance.run.zweifachAbKapitel ?? 2));
     this.fastUnlocked = !fastFrom || chapterUnlocked(fastFrom, save, this.game.data);
-    $('#btn-speed').disabled = !this.fastUnlocked;
-    $('#btn-speed').title = this.fastUnlocked ? '' : 'Tempo 2× wird mit Kapitel 2 freigeschaltet.';
+    // Gewähltes Tempo bleibt über Runs erhalten (2× erst ab Kapitel 2)
+    const sp = this.game.data.balance.run.geschwindigkeiten;
+    this.speedIndex = Math.max(0, sp.indexOf(save.settings.tempo ?? 1));
+    if (!this.speedAllowed(sp[this.speedIndex])) this.speedIndex = sp.indexOf(1.5) >= 0 && this.speedAllowed(1.5) ? sp.indexOf(1.5) : 0;
+    this.renderSpeed();
     this.renderer.eliteWarn = null;
     this.renderer.huntWarn = null;
     this.renderer.bossWarn = 0;
@@ -63,6 +64,25 @@ export class BattleController {
   }
 
   stop() { cancelAnimationFrame(this.raf); this.raf = null; }
+
+  speedAllowed(v) { return v < 2 || this.fastUnlocked; }
+
+  /** Tempo-Knöpfe 1× / 1,5× / 2× oben rechts. */
+  renderSpeed() {
+    const sp = this.game.data.balance.run.geschwindigkeiten;
+    const fmt = (v) => `${String(v).replace('.', ',')}×`;
+    $('#hud-speed').innerHTML = sp.map((v, i) => `<button data-speed="${i}" class="${i === this.speedIndex ? 'on' : ''}${this.speedAllowed(v) ? '' : ' locked'}" title="${this.speedAllowed(v) ? `Tempo ${fmt(v)}` : `Tempo ${fmt(v)} wird mit Kapitel 2 freigeschaltet.`}">${fmt(v)}</button>`).join('');
+  }
+
+  setSpeed(i) {
+    const sp = this.game.data.balance.run.geschwindigkeiten;
+    if (!this.speedAllowed(sp[i])) { play('error'); toast(`Tempo ${String(sp[i]).replace('.', ',')}× wird mit Kapitel 2 freigeschaltet.`, true); return; }
+    this.speedIndex = i;
+    this.game.save.settings.tempo = sp[i];
+    this.game.persist();
+    play('click');
+    this.renderSpeed();
+  }
 
   timeScale() {
     if (this.paused || this.presenting.length || !$('#overlay-unlock').classList.contains('hidden')) return 0;
@@ -375,11 +395,10 @@ export class BattleController {
     field.addEventListener('pointerup', (ev) => { if (ev.pointerType !== 'mouse') this.cursor.active = false; });
     field.addEventListener('pointerleave', () => { this.cursor.active = false; });
 
-    $('#btn-speed').addEventListener('click', () => {
-      if (!this.fastUnlocked) { play('error'); toast('Tempo 2× wird mit Kapitel 2 freigeschaltet.', true); return; }
-      const sp = this.game.data.balance.run.geschwindigkeiten;
-      this.speedIndex = (this.speedIndex + 1) % sp.length;
-      $('#btn-speed').textContent = `Tempo: ${sp[this.speedIndex]}×`;
+    $('#hud-speed').addEventListener('pointerdown', (ev) => {
+      ev.stopPropagation();
+      const b = ev.target.closest('button[data-speed]');
+      if (b) this.setSpeed(Number(b.dataset.speed));
     });
     $('#btn-pause').addEventListener('click', () => this.pause(true));
     $('#pause-resume').addEventListener('click', () => this.pause(false));

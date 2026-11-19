@@ -628,6 +628,40 @@ Object.assign(HERO_ART, {
     p.rect(13, 1 + b, 2, 4, '#e04848');
     p.rect(12, 9 + b, 1, 5, '#c08040');
   },
+  /** Glücksfechter: grüner Wams, Federhut, schlanker Degen im Ausfallschritt. */
+  gluecksfechter(p, f) {
+    const lunge = f.anim === 'attack' ? [0, -1, 3, 5, 2, 0][f.i] : 0;
+    const a = body(p, f, { x: 15 + Math.min(2, lunge), w: 9, cloth: '#2f7a4a', legs: '#3a2a22', top: 16, belt: '#d9b45a' });
+    p.rect(a.hx - 1, a.hy - 1, 4, 4, SKIN);
+    p.px(a.hx + 1, a.hy, EYE);
+    // breiter Hut mit roter Feder
+    p.rect(a.hx - 4, a.hy - 3, 9, 1, '#2a1e18');
+    p.rect(a.hx - 2, a.hy - 5, 5, 2, '#2a1e18');
+    p.line(a.hx + 2, a.hy - 5, a.hx - 3, a.hy - 9, '#e04848');
+    p.px(a.hx - 3, a.hy - 9, '#ff8a8a');
+    const hand = { x: a.hand.x + 2 + lunge, y: a.hand.y - 1 };
+    arm(p, a.shoulder, hand, '#2f7a4a');
+    p.rect(hand.x, hand.y - 1, 2, 2, '#d9b45a');
+    p.line(hand.x + 2, hand.y, hand.x + 11, hand.y - 3, '#e6eef6');
+  },
+  /** Spiegelgaukler: Narrenkostüm in Violett/Türkis, Spiegelscherbe in der Hand. */
+  spiegelgaukler(p, f) {
+    const a = body(p, f, { w: 9, cloth: '#6a3aa0', legs: '#2a8a8a', top: 16, belt: '#c9a6ff' });
+    p.rect(a.hx - 4 / 2, a.hy - 1, 4, 4, '#f0e6f6');
+    p.px(a.hx + 1, a.hy, '#3a1a5a');
+    // zweizipflige Narrenkappe
+    p.rect(a.hx - 3, a.hy - 3, 7, 2, '#6a3aa0');
+    p.line(a.hx - 3, a.hy - 3, a.hx - 6, a.hy - 6, '#2a8a8a', 2);
+    p.line(a.hx + 3, a.hy - 3, a.hx + 6, a.hy - 6, '#6a3aa0', 2);
+    p.px(a.hx - 6, a.hy - 7, '#FFD24A'); p.px(a.hx + 6, a.hy - 7, '#FFD24A');
+    // Rautenmuster
+    p.px(a.x - 2, a.top + 3, '#2a8a8a'); p.px(a.x + 1, a.top + 5, '#2a8a8a'); p.px(a.x - 1, a.top + 7, '#2a8a8a');
+    const hand = { x: a.hand.x + 2, y: a.hand.y - 2 };
+    arm(p, a.shoulder, hand, '#6a3aa0');
+    const glint = f.anim === 'attack' ? [0, 1, 2, 2, 1, 0][f.i] : f.i % 2;
+    p.tri(hand.x + 1, hand.y - 1, hand.x + 5, hand.y - 2, hand.x + 3, hand.y - 7, '#c9e6ff');
+    p.px(hand.x + 3, hand.y - 4 - glint, '#ffffff');
+  },
   /** Windläufer: Kapuze, flatternder türkiser Schal, zwei kurze Klingen. */
   windlaeufer(p, f) {
     const lunge = f.anim === 'attack' ? [0, -1, 3, 4, 2, 0][f.i] : 0;

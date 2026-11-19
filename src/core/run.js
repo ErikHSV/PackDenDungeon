@@ -287,7 +287,7 @@ export class Run {
   // Einheiten
   // =====================================================================
 
-  spawnUnit(id, x, y, { foil = false, life = null, riese = false } = {}) {
+  spawnUnit(id, x, y, { foil = false, life = null, riese = false, klon = false } = {}) {
     const base = this.data.unitIndex[id];
     const def = buildUnitDef(base, this.mods);
     const a = this.rng() * Math.PI * 2;
@@ -299,8 +299,18 @@ export class Run {
       homeDx: Math.cos(a) * 110, homeDy: Math.sin(a) * 70, animTime: this.rng() * 2, spawnDelay: 0.15,
     };
     if ((riese || (this.mods.flags.riesenhelm && base.rarity === 'epic')) && life == null) { u.riese = true; u.maxHp *= 1.6; }
+    if (klon) { u.klon = true; u.maxHp *= def.faehigkeiten.klone?.lebenAnteil ?? 0.5; }
     u.hp = u.maxHp;
     this.units.push(u);
+    // Spiegelgaukler: erscheint mit Spiegelbildern (Klone halten nur kurz)
+    const kl = def.faehigkeiten.klone;
+    if (kl && life == null && !klon) {
+      for (let i = 0; i < kl.anzahl; i++) {
+        const a = this.rng() * Math.PI * 2;
+        this.spawnUnit(id, x + Math.cos(a) * 36, y + Math.sin(a) * 22, { foil, life: kl.dauer, klon: true });
+      }
+      fx(this, { type: 'glitch', x, y, life: 0.3 });
+    }
     fx(this, { type: 'ring', x, y, r: 50, color: this.data.rarities[base.rarity].farbe, life: 0.45 });
     return u;
   }
@@ -383,6 +393,13 @@ export class Run {
         this.spawnUnit('skelettkrieger', u.x, u.y, { life: r.aktion.dauer });
         fx(this, { type: 'text', x: u.x, y: u.y - 70, text: 'Knochenecho!', color: '#e8e2f0', size: 18 });
       }
+    }
+    // Spiegelbilder explodieren beim Verschwinden (Knoten „Splitterspiegel“)
+    const kx = u.klon && u.def.faehigkeiten?.klone?.explosion;
+    if (kx) {
+      const dmg = u.def.werte.schaden * this.mods.heldenSchadenMul * kx.schadenMul;
+      fx(this, { type: 'burst', x: u.x, y: u.y, r: kx.radius, color: '#c9a6ff', life: 0.4 });
+      for (const e of this.enemies) if (!e.dead && dist(e, u) <= kx.radius) damageEnemy(this, e, dmg, 'magic', { aoe: true, source: u });
     }
     const ts = u.def.faehigkeiten?.todSkelett;
     if (ts && !u.summoned && !expired && this.rng() < (ts.chance ?? 1)) this.spawnUnit('skelettkrieger', u.x, u.y, { life: ts.dauer ?? 12 });

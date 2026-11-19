@@ -42,6 +42,13 @@
       "anzahl": 1,
       "grundPreis": 12,
       "gewicht": 8
+    },
+    {
+      "id": "a_tome",
+      "artikel": "tomepack",
+      "anzahl": 1,
+      "grundPreis": 5,
+      "gewicht": 8
     }
   ],
   "einzelkarten": {

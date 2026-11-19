@@ -7,7 +7,7 @@ import { UpgradeTree } from './upgradeTree.js';
 import { renderCollection, renderBestiary, renderRelics } from './screens.js';
 import {
   chapterUnlocked, describeOffer, buyOffer, rollOffers, rerollCost, canReroll, reroll, resetPurchases, walletTotal, shopSlots,
-  prestigeAvailable, modifiersAvailable, anyNodeAffordable, claimableQuests, bagItems, tabUnlocked, foilTreeUnlocked, gesuchtSchimmer,
+  prestigeAvailable, modifiersAvailable, anyNodeAffordable, claimableQuests, autoClaimQuests, bagItems, tabUnlocked, foilTreeUnlocked, gesuchtSchimmer,
 } from '../core/meta.js';
 import { hash } from '../render/pixel.js';
 import { play } from '../audio.js';
@@ -55,11 +55,15 @@ export class Hub {
     if (!save.shop.offers.length) { rollOffers(data, save, this.game.mods()); this.game.persist(); }
     const selCh = data.chapterIndex[save.selection.chapter];
     if (!selCh || !chapterUnlocked(selCh, save, data)) { save.selection.chapter = 1; save.selection.prestige = 0; }
+    // Nach dem Run: erfüllte Quests automatisch abholen (Einkommen gilt sofort), Anzeige im Skill-Tree
+    const claims = opts.autoClaim ? autoClaimQuests(data, save) : [];
+    if (claims.length) this.game.persist();
     this.active = true;
     this.renderChapter();
     this.renderShop();
-    this.showTab(opts.tab ?? this.tab);
-    setTimeout(() => { if (this.active) this.announceJackpot(); }, 700);
+    this.showTab(claims.length ? 'upgrade' : opts.tab ?? this.tab);
+    if (claims.length) this.tree.playClaims(claims);
+    setTimeout(() => { if (this.active) this.announceJackpot(); }, claims.length ? 700 + claims.length * 1500 : 700);
     this.t0 = performance.now();
     cancelAnimationFrame(this.raf);
     this.raf = requestAnimationFrame((t) => this.loop(t));
@@ -347,6 +351,15 @@ export class Hub {
         const sum = Object.values(p.seltenheitsGewichte).reduce((a, b) => a + b, 0);
         const odds = Object.entries(p.seltenheitsGewichte).map(([r, w]) => `<span style="color:${data.rarities[r].farbe}">${data.rarities[r].name} ${Math.round((w / sum) * 1000) / 10} %</span>`).join('');
         return `<div>${escapeHtml(p.beschreibung ?? '')}</div><div>${p.kartenProPack} Karten pro Pack · Widerstand ${p.widerstand}</div><div class="odds">${odds}</div>`;
+      }
+      // Feste Chancen je Karte (3 Einheiten + 1 Zauber, 60/30/9/1)
+      if (p.kartenGewichte) {
+        const sum = Object.values(p.kartenGewichte).reduce((a, b) => a + b, 0);
+        const rows = Object.entries(p.kartenGewichte).map(([id, w]) => {
+          const c = data.cardIndex[id]; const col = data.rarities[c.def.rarity].farbe;
+          return `<div class="pool-row"><img src="${bank.cardUrl(id)}" class="${has(id) ? '' : 'unknown'}" style="--r:${col}"><span style="color:${col}">${has(id) ? escapeHtml(c.def.name) : '???'}${c.art === 'tome' ? ' (Zauber)' : ''}</span><b>${Math.round((w / sum) * 1000) / 10} %</b></div>`;
+        }).join('');
+        return `<div>${p.kartenProPack} Karte pro Pack · Widerstand ${p.widerstand}</div><div class="pool-list">${rows}</div>`;
       }
       // Effektive Ziehchancen: fehlende Seltenheiten fallen auf die nächstniedrigere vorhandene zurück
       const present = [...new Set(p.pool.map((id) => data.cardIndex[id].def.rarity))];
