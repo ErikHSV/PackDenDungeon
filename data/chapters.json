@@ -63,9 +63,9 @@
       "modus": "ring"
     },
     "wellen": {
-      "lebenMul": 0.4,
+      "lebenMul": 0.55,
       "muenzenMul": 1.6,
-      "schadenMul": 0.55
+      "schadenMul": 0.6
     },
     "gegner": [
       {

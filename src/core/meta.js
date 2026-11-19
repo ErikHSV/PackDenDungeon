@@ -50,6 +50,7 @@ function applyNodeEffect(mods, node, lvl) {
   else if (e.ziel === 'gebaeudeBonus') { const b = (mods.gebaeudeBonus[e.gebaeude] ||= {}); b[e.feld] = (b[e.feld] || 0) + e.wert * lvl; }
   else if (e.ziel === 'einheit') { const list = (mods.einheiten[e.karte] ||= []); for (let i = 0; i < lvl; i++) list.push(...e.patches); }
   else if (e.ziel === 'tome') { const t = (mods.tomes[e.tome] ||= { wirkungMul: 1, dauerMul: 1 }); t[`${e.art}Mul`] += e.betrag * lvl; }
+  else if (e.pack) applyOp((mods.packBoni[e.pack] ||= {}), e.ziel, 'add', e.wert, lvl); // gilt nur für das Pack dieser Stufe
   else if ('wert' in e && typeof e.wert === 'number') applyOp(mods, e.ziel, e.rechenart === 'multiplizieren' ? 'mul' : 'add', e.wert, lvl);
 }
 
@@ -57,7 +58,7 @@ function applyNodeEffect(mods, node, lvl) {
  * @param {object} opts { modifierId, prestige, gesucht }
  */
 export function computeMods(data, save, opts = {}) {
-  const mods = { ...MOD_DEFAULTS, gebaeude: {}, gebaeudeBonus: {}, einheiten: {}, tomes: {}, flags: {}, seltenheitMul: {}, modifierMastery: 1, prestige: null, gesucht: false };
+  const mods = { ...MOD_DEFAULTS, gebaeude: {}, gebaeudeBonus: {}, einheiten: {}, tomes: {}, flags: {}, seltenheitMul: {}, packBoni: {}, modifierMastery: 1, prestige: null, gesucht: false };
   mods.tagesEinkommen = data.balance.wirtschaft.tagesEinkommen ?? 0;
   for (const node of data.starmap.knoten) {
     const lvl = Math.min(levelOf(save, node.id), node.maxStufe ?? 1); // alte Spielstände: Stufen über dem neuen Maximum zählen nicht

@@ -187,7 +187,9 @@ export class Run {
     fx(this, { type: 'flash', x: p.x, y: p.y - 30, r: 90, color: '#ffffff', life: 0.35 });
     this.emit('packOpened', { pack: p });
     // Bonuskarte: Chance auf eine zusätzliche Karte pro Pack
-    const count = def.kartenProPack + this.mods.kartenProPack + (this.rng() < (this.mods.bonusKarteChance || 0) ? 1 : 0);
+    // Pack-Boni aus dem Skill-Tree gelten nur für ihr eigenes Pack (packBoni), globale Boni (Relikte) für alle
+    const pb = this.mods.packBoni?.[def.id] ?? {};
+    const count = def.kartenProPack + this.mods.kartenProPack + (pb.kartenProPack || 0) + (this.rng() < (this.mods.bonusKarteChance || 0) + (pb.bonusKarteChance || 0) ? 1 : 0);
     const foilChance = (this.B.karten.foilChance + this.mods.foilChance) * this.mods.foilChanceMul * (1 + (p.extra?.foilBonus || 0));
     const grenzChance = grenzgaengerChance(this.data, this.sessionMinutes + this.time / 60, this.mods.grenzgaengerChance);
     // Glanzpack: gezielt seltene Karten, die noch fehlen (sonst beliebige seltene)

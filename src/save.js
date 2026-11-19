@@ -6,7 +6,7 @@ const KEY = 'packdendungeon-save-v3';
 
 export function defaultSave(data) {
   return {
-    version: 12,
+    version: 13,
     // Genau drei Währungen (Abschnitt 10)
     coins: data?.balance.wirtschaft.startMuenzen ?? 3, // Münzen: nur für den Shop
     bonusCoins: 0,      // Bonus-Münzen aus Relikten und Effekten (werden zuerst ausgegeben)
@@ -73,6 +73,7 @@ function parseSave(data, raw) {
   if ((raw.version || 0) < 10) migrateV10(s, data);
   if ((raw.version || 0) < 11) migrateV11(s, data);
   if ((raw.version || 0) < 12) migrateV12(s, data);
+  if ((raw.version || 0) < 13) migrateV13(s, data);
   s.version = base.version; // Migrationen nur einmal ausführen
   return s;
 }
@@ -177,6 +178,16 @@ function migrateV12(s, data) {
   for (const [id, cost] of Object.entries(REMOVED_V12)) if (s.starmap?.[id]) { refund += Math.round(cost * aktMul); delete s.starmap[id]; }
   s.mastery = (s.mastery || 0) + refund;
   if (refund) s.migrationHinweis = [s.migrationHinweis, `Helden-Äste gekürzt (Fähigkeiten statt endloser Werte-Stufen): ${refund} Mastery erstattet.`].filter(Boolean).join(' ');
+}
+
+/** v13: Bonus-Einheit gilt nur noch für das Pack ihrer Stufe (Holz I/II, Silber I/II, Sternen, Kronen) – III bis V erstattet. */
+const REMOVED_V13 = { p_bonuskarte_3: 210, p_bonuskarte_4: 305, p_bonuskarte_5: 442 };
+function migrateV13(s, data) {
+  const aktMul = data.balance.skilltree.aktKostenMul?.[s.act ?? 1] ?? 1;
+  let refund = 0;
+  for (const [id, cost] of Object.entries(REMOVED_V13)) if (s.starmap?.[id]) { refund += Math.round(cost * aktMul); delete s.starmap[id]; }
+  s.mastery = (s.mastery || 0) + refund;
+  if (refund) s.migrationHinweis = [s.migrationHinweis, `Bonus-Einheit gilt jetzt je Pack: ${refund} Mastery erstattet.`].filter(Boolean).join(' ');
 }
 
 /**
