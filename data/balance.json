@@ -120,11 +120,15 @@
       "wutSchadenPlus": 0.1
     },
     "foilMonster": {
-      "$kommentar": "Shiny-Monster: +100 % Leben, schneller, dreifache Mastery pro Kill. Schimmer: das erste Shiny jeder Monsterart +1 (einmalig), danach +1 mit schimmerChance (Bosse ausgenommen).",
+      "$kommentar": "Shiny-Monster sind deutlich zäher als normale: fünffaches Leben, mehr Schaden und Rüstung, etwas größer, lassen sich kaum zurückstoßen. Dafür fünffache Mastery pro Kill. Schimmer: das erste Shiny jeder Monsterart +1 (einmalig), danach +1 mit schimmerChance (Bosse ausgenommen).",
       "chance": 0.0005,
-      "lebenMul": 2,
-      "tempoMul": 1.25,
-      "belohnungMul": 3,
+      "lebenMul": 5,
+      "schadenMul": 1.5,
+      "ruestungPlus": 1,
+      "tempoMul": 1.0,
+      "groesseMul": 1.3,
+      "rueckstossMul": 0.4,
+      "belohnungMul": 5,
       "schimmerChance": 0.25
     },
     "zielsuche": {
@@ -246,8 +250,8 @@
   },
   "gesucht": {
     "$kommentar": "Geschafftes Kapitel gegen die Shiny-Version seines Bosses: stärker, mit Zusatzangriff. Schimmer pro Sieg steht im Kapitel (gesuchtSchimmer); der erste Sieg je Boss gibt zusätzlich erstsiegSchimmer und erstsiegMastery.",
-    "bossLebenMul": 2.5,
-    "bossSchadenMul": 1.5,
+    "bossLebenMul": 3,
+    "bossSchadenMul": 1.75,
     "erstsiegMastery": 300,
     "zusatzAngriff": {
       "intervall": 8,

@@ -523,13 +523,13 @@ export class Run {
     const hp = base.leben * ch.lebenMul * scale * this.mods.gegnerLebenMul * (elite ? E.lebenMul : 1) * (P?.lebenMul ?? 1)
       * (foil ? (base.boss ? G.bossLebenMul : FM.lebenMul) : 1);
     // Darstellungsgröße (Abschnitt 3): kleine Massenmonster, Elite doppelt, Bosse 64 px
-    const px = base.boss ? 64 : elite ? base.groesse * 2 : base.groesse;
+    const px = (base.boss ? 64 : elite ? base.groesse * 2 : base.groesse) * (foil && !base.boss ? FM.groesseMul ?? 1 : 1);
     const e = {
       uid: this.uid++, kind: 'enemy', id, def: base.boss ? JSON.parse(JSON.stringify(base)) : base, name: base.name,
       x: p.x, y: p.y, elite, fliegt: base.fliegt, frontSchild: !!base.eigenschaften?.frontSchild,
       r: Math.max(9, Math.round(px * 0.4)), px, hp, maxHp: hp, speed: base.tempo * (0.9 + this.rng() * 0.2) * (foil && !base.boss ? FM.tempoMul : 1),
-      ruestung: base.ruestung, magieResistenz: base.magieResistenz, immun: base.immun,
-      damage: base.schaden * ch.schadenMul * dmgScale * (elite ? E.schadenMul : 1) * (P?.schadenMul ?? 1) * this.mods.gegnerSchadenMul * (foil && base.boss ? G.bossSchadenMul : 1),
+      ruestung: base.ruestung + (foil && !base.boss ? FM.ruestungPlus ?? 0 : 0), magieResistenz: base.magieResistenz, immun: base.immun,
+      damage: base.schaden * ch.schadenMul * dmgScale * (elite ? E.schadenMul : 1) * (P?.schadenMul ?? 1) * this.mods.gegnerSchadenMul * (foil ? (base.boss ? G.bossSchadenMul : FM.schadenMul ?? 1) : 1),
       foil, atkTimer: 0.4, st: newStatus(), facing: 1, spawnAge: 0, animTime: this.rng() * 2,
       boss: base.boss ? { timers: {}, phase: 0, scream: null } : null,
     };

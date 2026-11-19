@@ -49,7 +49,7 @@ export function applyStatus(run, e, st, hit = 0, source = null) {
     }
     case 'rueckstoss': {
       if (e.fliegt) break;
-      const d = (st.distanz ?? 40) * (e.boss ? 0.15 : e.elite ? 0.5 : 1);
+      const d = (st.distanz ?? 40) * (e.boss ? 0.15 : e.elite ? 0.5 : 1) * (e.foil && !e.boss ? run.B.wellen.foilMonster.rueckstossMul ?? 1 : 1);
       const from = source ?? run.tower;
       const ang = Math.atan2(e.y - from.y, e.x - from.x);
       e.x += Math.cos(ang) * d;

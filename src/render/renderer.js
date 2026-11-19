@@ -369,7 +369,7 @@ export class Renderer {
   drawEnemy(run, e, t) {
     const c = this.ctx;
     const frames = this.bank.enemy(e.id, e.elite);
-    const size = frames.size; // Massenmonster klein, Elite ×2, Bosse 64 px
+    const size = Math.round(frames.size * (e.foil && !e.isBoss ? run.B.wellen.foilMonster.groesseMul ?? 1 : 1)); // Massenmonster klein, Elite ×2, Bosse 64 px, Shiny größer
     let img;
     // Bosse blitzen bei Dauertreffern nur kurz auf, statt komplett weiß zu bleiben
     if (e.hitFlash > 0.05 && (!e.isBoss || Math.floor(t * 10) % 4 === 0)) img = frames.hit[0];
