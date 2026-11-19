@@ -31,7 +31,11 @@
           "grundPreis": {
             "type": "number"
           },
-          "gewicht": {
+          "stufe": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "gewicht": {
             "type": "number"
           }
         }

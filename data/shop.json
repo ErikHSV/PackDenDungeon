@@ -6,49 +6,56 @@
       "artikel": "holzpack",
       "anzahl": 1,
       "grundPreis": 2,
-      "gewicht": 60
+      "gewicht": 60,
+      "stufe": 1
     },
     {
       "id": "a_holz_kiste",
       "artikel": "kiste_holz",
       "anzahl": 1,
       "grundPreis": 5,
-      "gewicht": 35
+      "gewicht": 35,
+      "stufe": 1
     },
     {
       "id": "a_silber",
       "artikel": "silberpack",
       "anzahl": 1,
       "grundPreis": 4,
-      "gewicht": 25
+      "gewicht": 25,
+      "stufe": 2
     },
     {
       "id": "a_silber_kiste",
       "artikel": "kiste_silber",
       "anzahl": 1,
       "grundPreis": 10,
-      "gewicht": 16
+      "gewicht": 16,
+      "stufe": 2
     },
     {
       "id": "a_sternen",
       "artikel": "sternenpack",
       "anzahl": 1,
       "grundPreis": 7,
-      "gewicht": 12
+      "gewicht": 12,
+      "stufe": 3
     },
     {
       "id": "a_kronen",
       "artikel": "kronenpack",
       "anzahl": 1,
       "grundPreis": 12,
-      "gewicht": 8
+      "gewicht": 8,
+      "stufe": 4
     },
     {
       "id": "a_tome",
       "artikel": "tomepack",
       "anzahl": 1,
       "grundPreis": 5,
-      "gewicht": 8
+      "gewicht": 8,
+      "stufe": 0
     }
   ],
   "einzelkarten": {

@@ -224,7 +224,13 @@
       "$kommentar": "Einzelkarten im Shop können shiny sein (Regenbogenrand). Chance = Karten-Shiny-Chance × Faktor.",
       "faktor": 1
     },
-    "spalten": 3
+    "spalten": 3,
+    "stufenGewichte": {
+      "$kommentar": "Angebote der aktuell höchsten freigeschalteten Pack-Stufe kommen häufiger (Gewicht × aktuell), eine Stufe darunter normal, ältere seltener; Stufe 0 (Bücherpack) unverändert. Jeden Tag mindestens ein Pack der aktuellen Stufe.",
+      "aktuell": 3,
+      "darunter": 1,
+      "aelter": 0.35
+    }
   },
   "relikte": {
     "plaetzeStart": 1,

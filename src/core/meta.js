@@ -219,6 +219,19 @@ function rollSingleCard(data, save, rng) {
 /** Karten-Shiny-Chance (Grundchance + Foil-Baum + Relikte). */
 export const cardFoilChance = (data, mods) => (data.balance.karten.foilChance + (mods?.foilChance || 0)) * (mods?.foilChanceMul ?? 1);
 
+/** Höchste freigeschaltete Pack-Stufe im Shop (1 = Holz, 2 = Silber, 3 = Sternen, 4 = Kronen). */
+function currentShopTier(data, save) {
+  return Math.max(1, ...data.shop.angebote.filter((o) => o.stufe && packUnlocked(data.packIndex[o.artikel], save)).map((o) => o.stufe));
+}
+
+/** Gewicht eines Angebots: aktuelle Stufe häufiger, ältere seltener. */
+function offerWeight(o, tier, data) {
+  const W = data.balance.shop.stufenGewichte ?? { aktuell: 1, darunter: 1, aelter: 1 };
+  if (!o.stufe) return o.gewicht;
+  const gap = tier - o.stufe;
+  return o.gewicht * (gap <= 0 ? W.aktuell : gap === 1 ? W.darunter : W.aelter);
+}
+
 function rollSlot(data, save, mods, rng, index, uid, fromReroll) {
   const S = data.balance.shop;
   const pool = data.shop.angebote.filter((o) => packUnlocked(data.packIndex[o.artikel], save));
@@ -227,7 +240,8 @@ function rollSlot(data, save, mods, rng, index, uid, fromReroll) {
   if (index > 0 && mods?.flags?.glanzpack && rng() < S.glanzpack.chance) {
     slot = { kind: 'glanz', id: data.shop.glanzpack.artikel };
   } else {
-    const total = pool.reduce((a, o) => a + o.gewicht, 0) + (E ? E.gewicht : 0);
+    const tier = currentShopTier(data, save);
+    const total = pool.reduce((a, o) => a + offerWeight(o, tier, data), 0) + (E ? E.gewicht : 0);
     const x = rng() * total;
     const karte = E && index > 0 && x >= total - E.gewicht ? rollSingleCard(data, save, rng) : null;
     if (karte) {
@@ -235,7 +249,7 @@ function rollSlot(data, save, mods, rng, index, uid, fromReroll) {
       // Foil-Knoten Doppel-/Dreier-Angebot: Helden als Paar oder Trio
       if (data.cardIndex[karte].art === 'einheit' && mods?.flags?.paarAngebot && rng() < S.paar.chance) slot.anzahl = mods.flags.trioAngebot && rng() < S.paar.trioChance ? 3 : 2;
       if (rng() < cardFoilChance(data, mods) * (S.shinyEinzelkarte?.faktor ?? 1)) slot.foil = true;
-    } else slot = { kind: 'angebot', id: weightedPick(pool.map((o) => [o.id, o.gewicht]), rng) };
+    } else slot = { kind: 'angebot', id: weightedPick(pool.map((o) => [o.id, offerWeight(o, tier, data)]), rng) };
     const rerollBonus = fromReroll ? ((save.shop.rerolls || 0) + (save.shop.freeUsed || 0)) * (mods?.rerollRabatt || 0) : 0;
     if (rng() < S.rabatt.chance + (mods?.rabattChance || 0) + rerollBonus) slot.rabatt = true;
   }
@@ -286,9 +300,12 @@ export function rollOffers(data, save, mods, rng = Math.random, keepSold = false
     if (keepSold && old[i] && (old[i].sold || !fromReroll)) out.push(old[i]);
     else out.push(rollSlot(data, save, mods, rng, i, nextUid(save), fromReroll));
   }
-  // Nie ohne Einstiegsangebot: Platz 0 ist ein Holzpack, wenn sonst keines da ist
-  if (!keepSold && !out.some((o) => o.kind === 'angebot' && o.id === 'a_holz')) out[0] = { kind: 'angebot', id: 'a_holz', uid: nextUid(save), neu: !(save.shop.seen || []).includes('angebot:a_holz') };
-  if (!(save.shop.seen || []).includes('angebot:a_holz')) (save.shop.seen ||= []).push('angebot:a_holz');
+  // Jeden Tag mindestens ein Pack der aktuellen Stufe (am Anfang: Holzpack) auf Platz 0
+  const tier = currentShopTier(data, save);
+  const cur = data.shop.angebote.find((o) => o.stufe === tier && data.packIndex[o.artikel]?.art === 'pack') ?? data.shop.angebote[0];
+  const hasCur = out.some((o) => o.kind === 'angebot' && data.shop.angebote.find((a) => a.id === o.id)?.stufe === tier);
+  if (!keepSold && !hasCur) out[0] = { kind: 'angebot', id: cur.id, uid: nextUid(save), neu: !(save.shop.seen || []).includes(`angebot:${cur.id}`) };
+  if (!(save.shop.seen || []).includes(`angebot:${cur.id}`)) (save.shop.seen ||= []).push(`angebot:${cur.id}`);
   save.shop.offers = out;
   return checkJackpot(data, save, mods, rng);
 }
