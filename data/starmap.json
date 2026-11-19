@@ -2,7 +2,7 @@
   "$kommentar": "Skill-Tree als Schaltplan (11, 14.2.5), hochkant: Stamm in der Mitte, Äste links/rechts. Knotentypen: start, klein/gross/schluessel (Upgrade), freischalt, relikt, quest (aufgabe + belohnung, kostenlos), tor (Akt-Wechsel). Positionen, Symbole und Abzeichen erzeugt tools/layout-starmap.mjs.",
   "groesse": {
     "breite": 2704,
-    "hoehe": 3158
+    "hoehe": 3242
   },
   "start": "start",
   "aeste": [
@@ -72,7 +72,7 @@
       "akt": 1,
       "position": {
         "x": 1352,
-        "y": 2864
+        "y": 2948
       },
       "verbindungen": [
         "t_mauern1",
@@ -99,7 +99,7 @@
       "akt": 1,
       "position": {
         "x": 1352,
-        "y": 2595
+        "y": 2679
       },
       "verbindungen": [
         "q_holz6",
@@ -134,7 +134,7 @@
       "akt": 1,
       "position": {
         "x": 1352,
-        "y": 2511
+        "y": 2595
       },
       "verbindungen": [
         "q_moorling50",
@@ -378,52 +378,25 @@
     },
     {
       "id": "t_mauern1",
-      "name": "Dicke Mauern I",
-      "beschreibung": "+25 % Turmleben.",
+      "name": "Turmleben",
+      "beschreibung": "+20 % Turmleben je Stufe.",
       "typ": "klein",
       "ast": "turm",
       "akt": 1,
       "position": {
         "x": 1248,
-        "y": 2822
+        "y": 2948
       },
       "verbindungen": [
         "c_klinge1",
-        "t_mauern2",
         "start"
       ],
-      "maxStufe": 1,
+      "maxStufe": 10,
       "basisKosten": 5,
-      "kostenFaktor": 1.45,
+      "kostenFaktor": 1.7,
       "effekt": {
         "ziel": "turmLebenMul",
-        "wert": 0.25,
-        "rechenart": "addieren"
-      },
-      "symbol": "bigheart",
-      "abzeichen": "heart"
-    },
-    {
-      "id": "t_mauern2",
-      "name": "Dicke Mauern II",
-      "beschreibung": "+25 % Turmleben.",
-      "typ": "klein",
-      "ast": "turm",
-      "akt": 1,
-      "position": {
-        "x": 1144,
-        "y": 2780
-      },
-      "verbindungen": [
-        "t_leben",
-        "t_mauern1"
-      ],
-      "maxStufe": 1,
-      "basisKosten": 30,
-      "kostenFaktor": 1.45,
-      "effekt": {
-        "ziel": "turmLebenMul",
-        "wert": 0.25,
+        "wert": 0.2,
         "rechenart": "addieren"
       },
       "symbol": "bigheart",
@@ -431,22 +404,22 @@
     },
     {
       "id": "c_klinge1",
-      "name": "Schärfere Klinge I",
-      "beschreibung": "+1 Cursor-Schaden.",
+      "name": "Cursor-Schaden",
+      "beschreibung": "+1 Cursor-Schaden je Stufe.",
       "typ": "klein",
       "ast": "cursor",
       "akt": 1,
       "position": {
         "x": 1144,
-        "y": 2864
+        "y": 2948
       },
       "verbindungen": [
         "c_flink1",
         "t_mauern1"
       ],
-      "maxStufe": 1,
+      "maxStufe": 10,
       "basisKosten": 10,
-      "kostenFaktor": 1.45,
+      "kostenFaktor": 1.6,
       "effekt": {
         "ziel": "cursorSchaden",
         "wert": 1,
@@ -457,55 +430,29 @@
     },
     {
       "id": "c_flink1",
-      "name": "Flinke Hand",
-      "beschreibung": "Der Cursor trifft 10 % schneller je Stufe.",
+      "name": "Cursor-Tempo",
+      "beschreibung": "Der Cursor trifft 8 % schneller je Stufe.",
       "typ": "klein",
       "ast": "cursor",
       "akt": 1,
       "position": {
         "x": 1040,
-        "y": 2864
+        "y": 2948
       },
       "verbindungen": [
-        "c_klinge2",
+        "c_radius",
         "c_klinge1"
       ],
-      "maxStufe": 3,
+      "maxStufe": 5,
       "basisKosten": 15,
-      "kostenFaktor": 1.45,
+      "kostenFaktor": 1.6,
       "effekt": {
         "ziel": "cursorTickMul",
-        "wert": -0.1,
+        "wert": -0.08,
         "rechenart": "addieren"
       },
       "symbol": "hand",
       "abzeichen": "clock"
-    },
-    {
-      "id": "c_klinge2",
-      "name": "Schärfere Klinge II",
-      "beschreibung": "+1 Cursor-Schaden.",
-      "typ": "klein",
-      "ast": "cursor",
-      "akt": 1,
-      "position": {
-        "x": 936,
-        "y": 2864
-      },
-      "verbindungen": [
-        "c_schaden",
-        "c_flink1"
-      ],
-      "maxStufe": 1,
-      "basisKosten": 25,
-      "kostenFaktor": 1.45,
-      "effekt": {
-        "ziel": "cursorSchaden",
-        "wert": 1,
-        "rechenart": "addieren"
-      },
-      "symbol": "claw",
-      "abzeichen": "sword"
     },
     {
       "id": "p_folie1",
@@ -515,8 +462,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 1456,
-        "y": 2343
+        "x": 1248,
+        "y": 2427
       },
       "verbindungen": [
         "p_folie2",
@@ -542,8 +489,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 1560,
-        "y": 2595
+        "x": 1144,
+        "y": 2679
       },
       "verbindungen": [
         "p_vollekiste",
@@ -568,8 +515,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 2595
+        "x": 1040,
+        "y": 2679
       },
       "verbindungen": [
         "p_brecheisen"
@@ -617,7 +564,7 @@
       "akt": 1,
       "position": {
         "x": 1456,
-        "y": 2864
+        "y": 2948
       },
       "symbol": "card:stalljunge",
       "abzeichen": "sword"
@@ -653,7 +600,7 @@
       "akt": 1,
       "position": {
         "x": 1560,
-        "y": 2864
+        "y": 2948
       },
       "symbol": "card:stalljunge",
       "abzeichen": "clock"
@@ -689,7 +636,7 @@
       "akt": 1,
       "position": {
         "x": 1664,
-        "y": 2864
+        "y": 2948
       },
       "symbol": "card:stalljunge",
       "abzeichen": "sword"
@@ -725,7 +672,7 @@
       "akt": 1,
       "position": {
         "x": 1768,
-        "y": 2864
+        "y": 2948
       },
       "symbol": "card:stalljunge",
       "abzeichen": "clock"
@@ -739,7 +686,7 @@
       "akt": 1,
       "position": {
         "x": 1872,
-        "y": 2864
+        "y": 2948
       },
       "verbindungen": [
         "u_stalljunge_training2",
@@ -798,7 +745,7 @@
       "akt": 1,
       "position": {
         "x": 1976,
-        "y": 2864
+        "y": 2948
       },
       "symbol": "card:stalljunge",
       "abzeichen": "heart"
@@ -812,7 +759,7 @@
       "akt": 1,
       "position": {
         "x": 2080,
-        "y": 2864
+        "y": 2948
       },
       "verbindungen": [
         "u_stalljunge_leben",
@@ -873,7 +820,7 @@
       "akt": 1,
       "position": {
         "x": 2184,
-        "y": 2864
+        "y": 2948
       },
       "abBoss": 1,
       "symbol": "card:stalljunge",
@@ -888,7 +835,7 @@
       "akt": 1,
       "position": {
         "x": 2288,
-        "y": 2864
+        "y": 2948
       },
       "verbindungen": [
         "u_stalljunge_heilung",
@@ -925,7 +872,7 @@
       "akt": 1,
       "position": {
         "x": 2392,
-        "y": 2864
+        "y": 2948
       },
       "verbindungen": [
         "u_stalljunge_praezision",
@@ -983,8 +930,8 @@
       "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
-        "x": 1456,
-        "y": 2730
+        "x": 1248,
+        "y": 2814
       },
       "symbol": "card:kettenschwinger",
       "abzeichen": "sword"
@@ -997,8 +944,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1560,
-        "y": 2730
+        "x": 1144,
+        "y": 2814
       },
       "verbindungen": [
         "u_kettenschwinger_kraft1",
@@ -1056,8 +1003,8 @@
       "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 2730
+        "x": 1040,
+        "y": 2814
       },
       "abBoss": 1,
       "symbol": "card:kettenschwinger",
@@ -1093,8 +1040,8 @@
       "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 2730
+        "x": 936,
+        "y": 2814
       },
       "abBoss": 1,
       "symbol": "card:kettenschwinger",
@@ -1108,8 +1055,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1872,
-        "y": 2730
+        "x": 832,
+        "y": 2814
       },
       "verbindungen": [
         "u_kettenschwinger_3",
@@ -1167,8 +1114,8 @@
       "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
-        "x": 1976,
-        "y": 2730
+        "x": 728,
+        "y": 2814
       },
       "abBoss": 1,
       "symbol": "card:kettenschwinger",
@@ -1206,8 +1153,8 @@
       "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
-        "x": 2080,
-        "y": 2730
+        "x": 624,
+        "y": 2814
       },
       "abBoss": 1,
       "symbol": "card:kettenschwinger",
@@ -1245,8 +1192,8 @@
       "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
-        "x": 2184,
-        "y": 2730
+        "x": 520,
+        "y": 2814
       },
       "abBoss": 1,
       "symbol": "card:kettenschwinger",
@@ -1285,8 +1232,8 @@
       "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
-        "x": 2288,
-        "y": 2730
+        "x": 416,
+        "y": 2814
       },
       "abBoss": 1,
       "symbol": "card:kettenschwinger",
@@ -1322,8 +1269,8 @@
       "heldAst": "schleuderin",
       "akt": 1,
       "position": {
-        "x": 1248,
-        "y": 2646
+        "x": 1456,
+        "y": 2814
       },
       "symbol": "card:schleuderin",
       "abzeichen": "sword"
@@ -1336,8 +1283,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1144,
-        "y": 2646
+        "x": 1560,
+        "y": 2814
       },
       "verbindungen": [
         "u_schleuderin_kraft1",
@@ -1395,8 +1342,8 @@
       "heldAst": "schleuderin",
       "akt": 1,
       "position": {
-        "x": 1040,
-        "y": 2646
+        "x": 1664,
+        "y": 2814
       },
       "abBoss": 1,
       "symbol": "card:schleuderin",
@@ -1432,8 +1379,8 @@
       "heldAst": "schleuderin",
       "akt": 1,
       "position": {
-        "x": 936,
-        "y": 2646
+        "x": 1768,
+        "y": 2814
       },
       "abBoss": 1,
       "symbol": "card:schleuderin",
@@ -1469,8 +1416,8 @@
       "heldAst": "schleuderin",
       "akt": 1,
       "position": {
-        "x": 832,
-        "y": 2646
+        "x": 1872,
+        "y": 2814
       },
       "abBoss": 1,
       "symbol": "card:schleuderin",
@@ -1506,8 +1453,8 @@
       "heldAst": "schleuderin",
       "akt": 1,
       "position": {
-        "x": 728,
-        "y": 2646
+        "x": 1976,
+        "y": 2814
       },
       "abBoss": 1,
       "symbol": "card:schleuderin",
@@ -1521,8 +1468,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 624,
-        "y": 2646
+        "x": 2080,
+        "y": 2814
       },
       "verbindungen": [
         "u_schleuderin_leben",
@@ -1558,8 +1505,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 520,
-        "y": 2646
+        "x": 2184,
+        "y": 2814
       },
       "verbindungen": [
         "u_schleuderin_praezision",
@@ -5186,7 +5133,7 @@
       "akt": 1,
       "position": {
         "x": 2496,
-        "y": 2864
+        "y": 2948
       },
       "verbindungen": [
         "u_stalljunge_meister"
@@ -5226,8 +5173,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2392,
-        "y": 2730
+        "x": 312,
+        "y": 2814
       },
       "verbindungen": [
         "u_kettenschwinger_6"
@@ -5267,8 +5214,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 416,
-        "y": 2646
+        "x": 2288,
+        "y": 2814
       },
       "verbindungen": [
         "u_schleuderin_meister"
@@ -5943,45 +5890,19 @@
       "abzeichen": "sword"
     },
     {
-      "id": "c_schaden",
-      "name": "Schärfere Klinge III+",
-      "beschreibung": "+1 Cursor-Schaden je Stufe.",
-      "typ": "klein",
-      "ast": "cursor",
-      "akt": 1,
-      "position": {
-        "x": 832,
-        "y": 2864
-      },
-      "verbindungen": [
-        "c_radius",
-        "c_klinge2"
-      ],
-      "maxStufe": 8,
-      "basisKosten": 60,
-      "kostenFaktor": 1.45,
-      "effekt": {
-        "ziel": "cursorSchaden",
-        "wert": 1,
-        "rechenart": "addieren"
-      },
-      "symbol": "claw",
-      "abzeichen": "sword"
-    },
-    {
       "id": "c_radius",
-      "name": "Weiter Griff",
+      "name": "Cursor-Radius",
       "beschreibung": "+8 % Radius des Cursors je Stufe.",
       "typ": "klein",
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 728,
-        "y": 2864
+        "x": 936,
+        "y": 2948
       },
       "verbindungen": [
         "c_krit",
-        "c_schaden"
+        "c_flink1"
       ],
       "maxStufe": 5,
       "basisKosten": 80,
@@ -5997,14 +5918,14 @@
     },
     {
       "id": "c_krit",
-      "name": "Glückshieb",
-      "beschreibung": "+3 % Chance auf kritische Cursor-Treffer je Stufe.",
+      "name": "Cursor-Krit",
+      "beschreibung": "+3 % Chance auf kritische Cursor-Treffer (doppelter Schaden) je Stufe.",
       "typ": "klein",
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 624,
-        "y": 2864
+        "x": 832,
+        "y": 2948
       },
       "verbindungen": [
         "r_funkennadel",
@@ -6021,31 +5942,6 @@
       "abBoss": 1,
       "symbol": "claw",
       "abzeichen": "sword"
-    },
-    {
-      "id": "t_leben",
-      "name": "Dicke Mauern III+",
-      "beschreibung": "+15 % Turmleben je Stufe.",
-      "typ": "klein",
-      "ast": "turm",
-      "akt": 1,
-      "position": {
-        "x": 1040,
-        "y": 2780
-      },
-      "verbindungen": [
-        "t_mauern2"
-      ],
-      "maxStufe": 8,
-      "basisKosten": 60,
-      "kostenFaktor": 1.45,
-      "effekt": {
-        "ziel": "turmLebenMul",
-        "wert": 0.15,
-        "rechenart": "addieren"
-      },
-      "symbol": "bigheart",
-      "abzeichen": "heart"
     },
     {
       "id": "t_bollwerk",
@@ -6080,8 +5976,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 1560,
-        "y": 2301
+        "x": 1144,
+        "y": 2385
       },
       "verbindungen": [
         "p_bonuskarte",
@@ -6108,8 +6004,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 2511
+        "x": 1040,
+        "y": 2595
       },
       "verbindungen": [
         "q_shiny5",
@@ -6135,8 +6031,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 2259
+        "x": 1040,
+        "y": 2343
       },
       "verbindungen": [
         "p_aufplatzen",
@@ -6175,8 +6071,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 2427
+        "x": 936,
+        "y": 2511
       },
       "abBoss": 1,
       "symbol": "pack",
@@ -6201,8 +6097,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 1872,
-        "y": 2427
+        "x": 832,
+        "y": 2511
       },
       "abBoss": 1,
       "symbol": "pack",
@@ -6216,8 +6112,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 2511
+        "x": 936,
+        "y": 2595
       },
       "verbindungen": [
         "p_bonuskarte"
@@ -6279,8 +6175,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 2343
+        "x": 936,
+        "y": 2427
       },
       "verbindungen": [
         "p_widerstand"
@@ -6304,8 +6200,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 2175
+        "x": 936,
+        "y": 2259
       },
       "verbindungen": [
         "p_kiste_silber",
@@ -6342,8 +6238,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 1872,
-        "y": 2259
+        "x": 832,
+        "y": 2343
       },
       "abBoss": 1,
       "symbol": "pack",
@@ -6357,8 +6253,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 1872,
-        "y": 2133
+        "x": 832,
+        "y": 2217
       },
       "verbindungen": [
         "p_karten",
@@ -6385,8 +6281,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 1976,
-        "y": 2175
+        "x": 728,
+        "y": 2259
       },
       "verbindungen": [
         "p_packimpack2"
@@ -6944,7 +6840,7 @@
     {
       "id": "b_taverne",
       "name": "Taverne bauen",
-      "beschreibung": "Die Taverne steht am Arenarand und wirft regelmäßig Packs aufs Feld.",
+      "beschreibung": "Die Taverne steht am Turm und wirft alle 40 s ein Holzpack aufs Feld.",
       "typ": "freischalt",
       "ast": "gebaeude",
       "verbindungen": [
@@ -6963,24 +6859,52 @@
       },
       "akt": 1,
       "position": {
-        "x": 1248,
-        "y": 2343
+        "x": 1456,
+        "y": 2385
       },
       "symbol": "house",
       "abzeichen": "plus"
     },
     {
-      "id": "b_taverne_aus",
-      "name": "Taverne: Flinker Wirt",
-      "beschreibung": "Kürzerer Takt (20 → 18 → 16 → 14 s) und Chance auf Doppel-Aktivierung (10 / 20 / 30 %).",
+      "id": "b_taverne_eff",
+      "name": "Taverne: Effizienz",
+      "beschreibung": "+10 % Chance je Stufe, dass die Taverne doppelt aktiviert (zwei Holzpacks).",
       "typ": "gross",
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 1144,
-        "y": 2511
+        "x": 1664,
+        "y": 2595
       },
       "verbindungen": [
+        "b_taverne_aus"
+      ],
+      "maxStufe": 3,
+      "basisKosten": 500,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "gebaeudeBonus",
+        "gebaeude": "taverne",
+        "feld": "doppelChance",
+        "wert": 0.1
+      },
+      "abBoss": 1,
+      "symbol": "house",
+      "abzeichen": "bolt"
+    },
+    {
+      "id": "b_taverne_aus",
+      "name": "Taverne: Flinker Wirt",
+      "beschreibung": "Jede Stufe −4 s (40 → 36 → 32 → 28 s).",
+      "typ": "gross",
+      "ast": "gebaeude",
+      "akt": 1,
+      "position": {
+        "x": 1560,
+        "y": 2595
+      },
+      "verbindungen": [
+        "b_taverne_eff",
         "b_taverne"
       ],
       "maxStufe": 3,
@@ -6999,12 +6923,13 @@
     {
       "id": "b_kaserne",
       "name": "Kaserne bauen",
-      "beschreibung": "Die Kaserne steht am Arenarand und wirft regelmäßig Packs aufs Feld.",
+      "beschreibung": "Die Kaserne steht am Turm und wirft alle 50 s ein Silberpack aufs Feld.",
       "typ": "freischalt",
       "ast": "gebaeude",
       "verbindungen": [
         "b_kaserne_aus",
         "b_sternwarte",
+        "b_bibliothek",
         "b_taverne"
       ],
       "maxStufe": 1,
@@ -7018,23 +6943,76 @@
       },
       "akt": 1,
       "position": {
-        "x": 1144,
-        "y": 2301
+        "x": 1560,
+        "y": 2343
       },
       "abBoss": 1,
       "symbol": "house",
       "abzeichen": "plus"
     },
     {
+      "id": "b_bibliothek",
+      "name": "Bibliothek bauen",
+      "beschreibung": "Die Bibliothek steht am Turm und wirft alle 120 s ein Bücherpack aufs Feld.",
+      "typ": "freischalt",
+      "ast": "gebaeude",
+      "akt": 2,
+      "position": {
+        "x": 1664,
+        "y": 2175
+      },
+      "verbindungen": [
+        "b_bibliothek_aus",
+        "b_kaserne"
+      ],
+      "maxStufe": 1,
+      "basisKosten": 300,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "gebaeude",
+        "gebaeude": "bibliothek",
+        "wert": 1,
+        "rechenart": "addieren"
+      },
+      "symbol": "house",
+      "abzeichen": "plus"
+    },
+    {
+      "id": "b_bibliothek_aus",
+      "name": "Bibliothek: Lesesaal",
+      "beschreibung": "Jede Stufe −15 s (120 → 105 → 90 s).",
+      "typ": "gross",
+      "ast": "gebaeude",
+      "akt": 2,
+      "position": {
+        "x": 1768,
+        "y": 2175
+      },
+      "verbindungen": [
+        "b_bibliothek"
+      ],
+      "maxStufe": 2,
+      "basisKosten": 400,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "gebaeude",
+        "gebaeude": "bibliothek",
+        "wert": 1,
+        "rechenart": "addieren"
+      },
+      "symbol": "house",
+      "abzeichen": "clock"
+    },
+    {
       "id": "b_kaserne_aus",
       "name": "Kaserne: Drill",
-      "beschreibung": "Jede Stufe −3 s (25 → 22 → 19 → 16 s).",
+      "beschreibung": "Jede Stufe −6 s (50 → 44 → 38 → 32 s).",
       "typ": "gross",
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 1040,
-        "y": 2427
+        "x": 1664,
+        "y": 2511
       },
       "verbindungen": [
         "b_kaserne_eff",
@@ -7061,8 +7039,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 936,
-        "y": 2427
+        "x": 1768,
+        "y": 2511
       },
       "verbindungen": [
         "b_kaserne_aus"
@@ -7083,7 +7061,7 @@
     {
       "id": "b_sternwarte",
       "name": "Sternwarte bauen",
-      "beschreibung": "Die Sternwarte steht am Arenarand und wirft regelmäßig Packs aufs Feld.",
+      "beschreibung": "Die Sternwarte steht am Turm und wirft alle 60 s ein Sternenpack aufs Feld.",
       "typ": "freischalt",
       "ast": "gebaeude",
       "verbindungen": [
@@ -7103,8 +7081,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 1040,
-        "y": 2259
+        "x": 1664,
+        "y": 2343
       },
       "abBoss": 2,
       "symbol": "house",
@@ -7113,13 +7091,13 @@
     {
       "id": "b_sternwarte_aus",
       "name": "Sternwarte: Fernrohr",
-      "beschreibung": "Jede Stufe −3 s (30 → 27 → 24 s).",
+      "beschreibung": "Jede Stufe −6 s (60 → 54 → 48 s).",
       "typ": "gross",
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 936,
-        "y": 2343
+        "x": 1768,
+        "y": 2427
       },
       "verbindungen": [
         "b_sternwarte_eff",
@@ -7146,8 +7124,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 832,
-        "y": 2343
+        "x": 1872,
+        "y": 2427
       },
       "verbindungen": [
         "b_sternwarte_aus"
@@ -7168,13 +7146,13 @@
     {
       "id": "b_praegewerk",
       "name": "Prägewerk bauen",
-      "beschreibung": "Das Prägewerk verwandelt alle 40 s ein liegendes, ungeöffnetes Pack in ein Kronenpack.",
+      "beschreibung": "Das Prägewerk steht am Turm und verwandelt alle 60 s ein liegendes, ungeöffnetes Pack in ein Kronenpack.",
       "typ": "freischalt",
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 936,
-        "y": 2259
+        "x": 1768,
+        "y": 2343
       },
       "verbindungen": [
         "b_praegewerk_aus",
@@ -7197,13 +7175,13 @@
     {
       "id": "b_praegewerk_aus",
       "name": "Prägewerk: Schnellpresse",
-      "beschreibung": "Jede Stufe −5 s (40 → 35 → 30 s).",
+      "beschreibung": "Jede Stufe −10 s (60 → 50 → 40 s).",
       "typ": "gross",
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 832,
-        "y": 2259
+        "x": 1872,
+        "y": 2343
       },
       "verbindungen": [
         "b_praegewerk"
@@ -7522,8 +7500,8 @@
       "ast": "packs",
       "akt": 2,
       "position": {
-        "x": 1976,
-        "y": 2091
+        "x": 728,
+        "y": 2175
       },
       "verbindungen": [
         "p_packimpack2"
@@ -7547,8 +7525,8 @@
       "ast": "relikt",
       "akt": 2,
       "position": {
-        "x": 520,
-        "y": 2864
+        "x": 728,
+        "y": 2948
       },
       "verbindungen": [
         "c_krit"
@@ -7595,8 +7573,8 @@
       "ast": "relikt",
       "akt": 2,
       "position": {
-        "x": 936,
-        "y": 2175
+        "x": 1768,
+        "y": 2259
       },
       "verbindungen": [
         "b_sternwarte"

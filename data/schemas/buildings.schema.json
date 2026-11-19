@@ -47,6 +47,9 @@
         "properties": {
           "winkel": {
             "type": "number"
+          },
+          "abstand": {
+            "type": "number"
           }
         }
       },

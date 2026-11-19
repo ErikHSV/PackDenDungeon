@@ -99,7 +99,6 @@ export class Renderer {
     c.drawImage(arenaFloor(run.chapter, run.A), 0, 0);
     if (run.blizzard > 0) { c.fillStyle = 'rgba(230,245,255,0.12)'; c.fillRect(0, 0, 1920, 1080); }
 
-    for (const b of run.buildings) this.drawBuilding(b);
     const alpha = this.game.save.settings.effectAlpha;
     for (const z of run.zones) this.drawZone(z, t, alpha);
     for (const tg of run.telegraphs) this.drawTelegraph(tg, t);
@@ -107,6 +106,7 @@ export class Renderer {
     // Tiefensortierung nach Fußpunkt
     const items = [];
     items.push([run.tower.y + 20, () => this.drawTower(run)]);
+    for (const b of run.buildings) items.push([b.y, () => this.drawBuilding(b)]);
     for (const p of run.packs) items.push([p.landed ? p.y : p.ty, () => this.drawPack(p, t, ui)]);
     for (const tm of run.tomes) items.push([tm.y, () => this.drawTome(tm, t, ui)]);
     for (const u of run.units) items.push([u.y, () => this.drawUnit(run, u, t)]);

@@ -4,7 +4,7 @@ const KEY = 'packdendungeon-save-v3';
 
 export function defaultSave(data) {
   return {
-    version: 8,
+    version: 9,
     // Genau drei Währungen (Abschnitt 10)
     coins: data?.balance.wirtschaft.startMuenzen ?? 3, // Münzen: nur für den Shop
     bonusCoins: 0,      // Bonus-Münzen aus Relikten und Effekten (werden zuerst ausgegeben)
@@ -67,6 +67,7 @@ function parseSave(data, raw) {
   if ((raw.version || 0) < 6) migrateV6(s);
   if ((raw.version || 0) < 7) migrateV7(s, data);
   if ((raw.version || 0) < 8) migrateV8(s);
+  if ((raw.version || 0) < 9) migrateV9(s, data);
   return s;
 }
 
@@ -152,6 +153,20 @@ function migrateV7(s, data) {
   }
   s.mastery = (s.mastery || 0) + refund;
   if (refund) s.migrationHinweis = `Skill-Tree umgebaut: ${refund} Mastery für entfernte Cursor- und Turm-Knoten erstattet.`;
+}
+
+/** v9: Turm und Cursor wie im Wiki – Turmleben und Cursor-Schaden sind jetzt je ein mehrstufiger Knoten. Entfernte Stufen werden erstattet. */
+const REMOVED_V9 = { t_mauern2: [30, 1.45], t_leben: [60, 1.45], c_klinge2: [25, 1.45], c_schaden: [60, 1.45] };
+function migrateV9(s, data) {
+  const aktMul = data.balance.skilltree.aktKostenMul?.[s.act ?? 1] ?? 1;
+  let refund = 0;
+  for (const [id, [basis, f]] of Object.entries(REMOVED_V9)) {
+    const lvl = s.starmap?.[id] || 0;
+    for (let l = 0; l < lvl; l++) refund += Math.round(basis * Math.pow(f, l) * aktMul);
+    if (s.starmap) delete s.starmap[id];
+  }
+  s.mastery = (s.mastery || 0) + refund;
+  if (refund) s.migrationHinweis = [s.migrationHinweis, `Turm- und Cursor-Knoten zusammengelegt: ${refund} Mastery erstattet.`].filter(Boolean).join(' ');
 }
 
 /** v8: Foil-Baum nach dem Original – entfernte Knoten werden als Schimmer erstattet. */

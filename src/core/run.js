@@ -70,7 +70,10 @@ export class Run {
     // Gebäude aus der Sternenkarte
     this.buildings = Object.entries(mods.gebaeude).filter(([, lvl]) => lvl > 0).map(([id, lvl]) => {
       const def = data.buildingIndex[id];
-      const p = this.edgePoint(def.position.winkel, this.A.gebaeudeRing);
+      const w = (def.position.winkel * Math.PI) / 180;
+      const p = def.position.abstand != null
+        ? { x: this.tower.x + Math.cos(w) * def.position.abstand, y: this.tower.y + 12 + Math.sin(w) * def.position.abstand * 0.55 } // direkt am Turm
+        : this.edgePoint(def.position.winkel, this.A.gebaeudeRing);
       const stufe = def.stufen[Math.min(def.stufen.length - 1, lvl - 1)];
       const interval = stufe.intervall * (mods.gebaeudeIntervallMul ?? 1);
       const bonus = mods.gebaeudeBonus?.[id] || {};

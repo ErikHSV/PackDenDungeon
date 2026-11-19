@@ -917,6 +917,14 @@ export const BUILDING_ART = {
     p.px(5, 3, '#fff6a0'); p.px(19, 9, '#fff6a0'); p.px(3, 12, '#fff6a0');
     p.rect(10, 16, 4, 6, '#2a1e3a');
   },
+  bibliothek(p) {
+    p.rect(4, 9, 16, 13, '#5a4a6e');
+    p.tri(2, 10, 22, 10, 12, 2, '#2a7a72');
+    p.rect(6, 12, 3, 6, '#c9a6ff'); p.rect(10, 12, 2, 6, '#3ED6C4'); p.rect(13, 12, 3, 6, '#ffd24a'); p.rect(17, 12, 2, 6, '#e04848');
+    p.rect(6, 18, 13, 1, '#3a2a4a');
+    p.rect(10, 19, 4, 3, '#2a1e3a');
+    p.px(12, 5, '#fff6a0');
+  },
   praegewerk(p) {
     p.rect(3, 11, 18, 11, '#5d5348');
     p.rect(3, 11, 18, 2, '#7a6e60');
