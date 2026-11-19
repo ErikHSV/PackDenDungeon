@@ -86,10 +86,10 @@
     "strom": {
       "$kommentar": "Spawn-Abstand: Öffnung (bis oeffnungBis) konstant, Aufbau linear bis aufbauIntervall, Druck linear bis minIntervall (bei Bosszeit − vorBossSekunden). Danach Rate × vorBossRate, im Bosskampf × bossRate.",
       "oeffnungBis": 15,
-      "oeffnungIntervall": 1.5,
+      "oeffnungIntervall": 3.0,
       "aufbauBis": 45,
-      "aufbauIntervall": 0.6,
-      "minIntervall": 0.3,
+      "aufbauIntervall": 1.2,
+      "minIntervall": 0.6,
       "vorBossSekunden": 30,
       "vorBossRate": 0.5,
       "bossRate": 0.3
@@ -101,8 +101,8 @@
       "ersteBei": 45,
       "alleSekunden": 45,
       "gruppe": [
-        3,
-        5
+        2,
+        3
       ],
       "warnung": 2,
       "lebenMul": 1.8,
@@ -123,7 +123,7 @@
     },
     "foilMonster": {
       "$kommentar": "Shiny-Monster sind deutlich zäher als normale: fünffaches Leben, mehr Schaden und Rüstung, etwas größer, lassen sich kaum zurückstoßen. Dafür fünffache Mastery pro Kill. Schimmer gibt es nur für das erste Shiny jeder Monsterart.",
-      "chance": 0.0005,
+      "chance": 0.001,
       "lebenMul": 5,
       "schadenMul": 1.5,
       "ruestungPlus": 1,
@@ -136,12 +136,17 @@
     "zielsuche": {
       "$kommentar": "Zielwahl: Einheiten greifen den nächstgelegenen Gegner an und bleiben bei ihm, bis er tot ist. Gegner wählen das nächstgelegene Ziel – die nächste Einheit oder den Turm – und bleiben ebenfalls dabei; wer einer Einheit in den Weg läuft, kämpft mit ihr. Gegner mit eigenschaften.zumTurm laufen immer zum Turm. Getarnte Gegner (eigenschaften.getarnt) sind für Helden erst innerhalb enttarnRadius um den Turm sichtbar.",
       "enttarnRadius": 200
+    },
+    "staerke": {
+      "$kommentar": "Weniger, aber stärkere Gegner: halber Spawn-Strom (Intervalle oben verdoppelt), dafür Leben und Schaden aller Nicht-Boss-Monster mal diese Faktoren.",
+      "lebenMul": 2,
+      "schadenMul": 1.8
     }
   },
   "belohnungen": {
     "$kommentar": "Mastery im Run: Kills, geöffnete Packs, Bosse, Überlebenszeit – und Sammlungseinträge: neue Karte (Held/Tome) masteryNeueKarte, neue Monsterart masteryNeuesMonster, erstes Shiny erstesShiny.masteryKarte/masteryMonster.",
     "masteryProSekunde": 0.1,
-    "masteryProKill": 0.2,
+    "masteryProKill": 0.4,
     "masteryProElitewelle": 2,
     "masteryProBoss": 30,
     "masteryProPack": 1,

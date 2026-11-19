@@ -4,7 +4,7 @@ const KEY = 'packdendungeon-save-v3';
 
 export function defaultSave(data) {
   return {
-    version: 10,
+    version: 11,
     // Genau drei Währungen (Abschnitt 10)
     coins: data?.balance.wirtschaft.startMuenzen ?? 3, // Münzen: nur für den Shop
     bonusCoins: 0,      // Bonus-Münzen aus Relikten und Effekten (werden zuerst ausgegeben)
@@ -69,6 +69,7 @@ function parseSave(data, raw) {
   if ((raw.version || 0) < 8) migrateV8(s);
   if ((raw.version || 0) < 9) migrateV9(s, data);
   if ((raw.version || 0) < 10) migrateV10(s, data);
+  if ((raw.version || 0) < 11) migrateV11(s, data);
   return s;
 }
 
@@ -154,6 +155,16 @@ function migrateV7(s, data) {
   }
   s.mastery = (s.mastery || 0) + refund;
   if (refund) s.migrationHinweis = `Skill-Tree umgebaut: ${refund} Mastery für entfernte Cursor- und Turm-Knoten erstattet.`;
+}
+
+/** v11: Turmleben nur noch zwei Knoten (wie im Original wenig Turm-Upgrades) – III bis V werden erstattet. */
+const REMOVED_V11 = { t_mauern1_3: 66, t_mauern1_4: 192, t_mauern1_5: 1147 };
+function migrateV11(s, data) {
+  const aktMul = data.balance.skilltree.aktKostenMul?.[s.act ?? 1] ?? 1;
+  let refund = 0;
+  for (const [id, cost] of Object.entries(REMOVED_V11)) if (s.starmap?.[id]) { refund += Math.round(cost * aktMul); delete s.starmap[id]; }
+  s.mastery = (s.mastery || 0) + refund;
+  if (refund) s.migrationHinweis = [s.migrationHinweis, `Turmleben gekürzt: ${refund} Mastery erstattet.`].filter(Boolean).join(' ');
 }
 
 /**

@@ -2,7 +2,7 @@
   "$kommentar": "Skill-Tree als Schaltplan (11, 14.2.5), hochkant: Stamm in der Mitte, Äste links/rechts. Knotentypen: start, klein/gross/schluessel (Upgrade), freischalt, relikt, quest (aufgabe + belohnung, kostenlos), tor (Akt-Wechsel). Positionen, Symbole und Abzeichen erzeugt tools/layout-starmap.mjs.",
   "groesse": {
     "breite": 5824,
-    "hoehe": 5258
+    "hoehe": 5292
   },
   "start": "start",
   "aeste": [
@@ -72,11 +72,12 @@
       "akt": 1,
       "position": {
         "x": 2912,
-        "y": 4964
+        "y": 4998
       },
       "verbindungen": [
         "t_mauern1",
         "q_holz2",
+        "c_klinge1",
         "u_stalljunge_kraft1",
         "u_kettenschwinger_kraft1",
         "u_schleuderin_kraft1"
@@ -99,7 +100,7 @@
       "akt": 1,
       "position": {
         "x": 2912,
-        "y": 4443
+        "y": 4343
       },
       "verbindungen": [
         "q_holz6",
@@ -134,7 +135,7 @@
       "akt": 1,
       "position": {
         "x": 2912,
-        "y": 4107
+        "y": 4225
       },
       "verbindungen": [
         "q_moorling50",
@@ -163,13 +164,13 @@
     {
       "id": "q_moorling50",
       "name": "Moorputzer",
-      "beschreibung": "Besiege 50 Moorlinge.",
+      "beschreibung": "Besiege 25 Moorlinge.",
       "typ": "quest",
       "ast": "stamm",
       "akt": 1,
       "position": {
         "x": 2912,
-        "y": 3805
+        "y": 3704
       },
       "verbindungen": [
         "q_trommler",
@@ -186,7 +187,7 @@
         "filter": {
           "gegner": "moorling"
         },
-        "anzahl": 50
+        "anzahl": 25
       },
       "belohnung": {
         "tagesEinkommen": 1
@@ -203,7 +204,7 @@
       "akt": 1,
       "position": {
         "x": 2912,
-        "y": 3721
+        "y": 3620
       },
       "verbindungen": [
         "q_kills300",
@@ -238,13 +239,13 @@
     {
       "id": "q_kills300",
       "name": "Monsterjäger",
-      "beschreibung": "Besiege 300 Monster.",
+      "beschreibung": "Besiege 150 Monster.",
       "typ": "quest",
       "ast": "stamm",
       "akt": 1,
       "position": {
         "x": 2912,
-        "y": 2007
+        "y": 1940
       },
       "verbindungen": [
         "q_aebtissin",
@@ -262,7 +263,7 @@
       },
       "aufgabe": {
         "statistik": "kills",
-        "anzahl": 300
+        "anzahl": 150
       },
       "belohnung": {
         "tagesEinkommen": 1
@@ -279,7 +280,7 @@
       "akt": 1,
       "position": {
         "x": 2912,
-        "y": 1486
+        "y": 1420
       },
       "verbindungen": [
         "q_schmied",
@@ -317,7 +318,7 @@
       "akt": 1,
       "position": {
         "x": 2912,
-        "y": 714
+        "y": 647
       },
       "verbindungen": [
         "tor_1",
@@ -355,7 +356,7 @@
       "akt": 1,
       "position": {
         "x": 2912,
-        "y": 277
+        "y": 244
       },
       "verbindungen": [
         "q_schmied"
@@ -379,13 +380,13 @@
     {
       "id": "t_mauern1",
       "name": "Turmleben I",
-      "beschreibung": "+20 % Turmleben.",
+      "beschreibung": "+30 % Turmleben.",
       "typ": "klein",
       "ast": "turm",
       "akt": 1,
       "position": {
         "x": 2808,
-        "y": 4796
+        "y": 4998
       },
       "verbindungen": [
         "start",
@@ -396,7 +397,7 @@
       "kostenFaktor": 1.45,
       "effekt": {
         "ziel": "turmLebenMul",
-        "wert": 0.2,
+        "wert": 0.3,
         "rechenart": "addieren"
       },
       "alt": {
@@ -404,7 +405,7 @@
         "von": 0,
         "bis": 1,
         "basis": 5,
-        "faktor": 1.7
+        "faktor": 6
       },
       "symbol": "bigheart",
       "abzeichen": "heart"
@@ -412,131 +413,31 @@
     {
       "id": "t_mauern1_2",
       "name": "Turmleben II",
-      "beschreibung": "+40 % Turmleben.",
+      "beschreibung": "+30 % Turmleben.",
       "typ": "klein",
       "ast": "turm",
       "akt": 1,
       "position": {
         "x": 2704,
-        "y": 4796
+        "y": 4998
       },
       "verbindungen": [
-        "t_mauern1",
-        "t_mauern1_3"
+        "t_mauern1"
       ],
       "maxStufe": 1,
-      "basisKosten": 23,
+      "basisKosten": 30,
       "kostenFaktor": 1.45,
       "effekt": {
         "ziel": "turmLebenMul",
-        "wert": 0.4,
+        "wert": 0.3,
         "rechenart": "addieren"
       },
       "alt": {
         "id": "t_mauern1",
         "von": 1,
-        "bis": 3,
+        "bis": 2,
         "basis": 5,
-        "faktor": 1.7
-      },
-      "symbol": "bigheart",
-      "abzeichen": "heart"
-    },
-    {
-      "id": "t_mauern1_3",
-      "name": "Turmleben III",
-      "beschreibung": "+40 % Turmleben.",
-      "typ": "klein",
-      "ast": "turm",
-      "akt": 1,
-      "position": {
-        "x": 2600,
-        "y": 4796
-      },
-      "verbindungen": [
-        "t_mauern1_2",
-        "t_mauern1_4"
-      ],
-      "maxStufe": 1,
-      "basisKosten": 66,
-      "kostenFaktor": 1.45,
-      "effekt": {
-        "ziel": "turmLebenMul",
-        "wert": 0.4,
-        "rechenart": "addieren"
-      },
-      "alt": {
-        "id": "t_mauern1",
-        "von": 3,
-        "bis": 5,
-        "basis": 5,
-        "faktor": 1.7
-      },
-      "symbol": "bigheart",
-      "abzeichen": "heart"
-    },
-    {
-      "id": "t_mauern1_4",
-      "name": "Turmleben IV",
-      "beschreibung": "+40 % Turmleben.",
-      "typ": "klein",
-      "ast": "turm",
-      "akt": 1,
-      "position": {
-        "x": 2496,
-        "y": 4796
-      },
-      "verbindungen": [
-        "t_mauern1_3",
-        "t_mauern1_5"
-      ],
-      "maxStufe": 1,
-      "basisKosten": 192,
-      "kostenFaktor": 1.45,
-      "effekt": {
-        "ziel": "turmLebenMul",
-        "wert": 0.4,
-        "rechenart": "addieren"
-      },
-      "alt": {
-        "id": "t_mauern1",
-        "von": 5,
-        "bis": 7,
-        "basis": 5,
-        "faktor": 1.7
-      },
-      "symbol": "bigheart",
-      "abzeichen": "heart"
-    },
-    {
-      "id": "t_mauern1_5",
-      "name": "Turmleben V",
-      "beschreibung": "+60 % Turmleben.",
-      "typ": "klein",
-      "ast": "turm",
-      "akt": 1,
-      "position": {
-        "x": 2392,
-        "y": 4796
-      },
-      "verbindungen": [
-        "t_mauern1_4",
-        "c_klinge1_5"
-      ],
-      "maxStufe": 1,
-      "basisKosten": 1147,
-      "kostenFaktor": 1.45,
-      "effekt": {
-        "ziel": "turmLebenMul",
-        "wert": 0.6,
-        "rechenart": "addieren"
-      },
-      "alt": {
-        "id": "t_mauern1",
-        "von": 7,
-        "bis": 10,
-        "basis": 5,
-        "faktor": 1.7
+        "faktor": 6
       },
       "symbol": "bigheart",
       "abzeichen": "heart"
@@ -549,10 +450,11 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 1872,
-        "y": 4964
+        "x": 3016,
+        "y": 4872
       },
       "verbindungen": [
+        "start",
         "c_klinge1_2"
       ],
       "maxStufe": 1,
@@ -581,8 +483,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 1976,
-        "y": 4964
+        "x": 3120,
+        "y": 4872
       },
       "verbindungen": [
         "c_klinge1",
@@ -614,8 +516,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 2080,
-        "y": 4964
+        "x": 3224,
+        "y": 4872
       },
       "verbindungen": [
         "c_klinge1_2",
@@ -647,8 +549,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 2184,
-        "y": 4964
+        "x": 3328,
+        "y": 4872
       },
       "verbindungen": [
         "c_klinge1_3",
@@ -680,13 +582,12 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 2288,
-        "y": 4796
+        "x": 3432,
+        "y": 4872
       },
       "verbindungen": [
         "c_klinge1_4",
-        "c_flink1_5",
-        "t_mauern1_5"
+        "c_flink1_5"
       ],
       "maxStufe": 1,
       "basisKosten": 1385,
@@ -714,8 +615,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 4880
+        "x": 3952,
+        "y": 4998
       },
       "verbindungen": [
         "c_flink1_2"
@@ -746,8 +647,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 1872,
-        "y": 4880
+        "x": 3848,
+        "y": 4998
       },
       "verbindungen": [
         "c_flink1",
@@ -779,8 +680,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 1976,
-        "y": 4880
+        "x": 3744,
+        "y": 4998
       },
       "verbindungen": [
         "c_flink1_2",
@@ -812,8 +713,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 2080,
-        "y": 4880
+        "x": 3640,
+        "y": 4998
       },
       "verbindungen": [
         "c_flink1_3",
@@ -845,8 +746,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 2184,
-        "y": 4754
+        "x": 3536,
+        "y": 4872
       },
       "verbindungen": [
         "c_flink1_4",
@@ -879,8 +780,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3016,
-        "y": 4191
+        "x": 2808,
+        "y": 4091
       },
       "verbindungen": [
         "p_folie2",
@@ -906,8 +807,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3120,
-        "y": 4443
+        "x": 2704,
+        "y": 4343
       },
       "verbindungen": [
         "p_folie1",
@@ -939,8 +840,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3224,
-        "y": 4443
+        "x": 2600,
+        "y": 4343
       },
       "verbindungen": [
         "p_brecheisen",
@@ -972,8 +873,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3536,
-        "y": 4443
+        "x": 2288,
+        "y": 4343
       },
       "verbindungen": [
         "p_vollekiste_2"
@@ -1005,8 +906,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3432,
-        "y": 4443
+        "x": 2392,
+        "y": 4343
       },
       "verbindungen": [
         "p_vollekiste",
@@ -1039,8 +940,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3328,
-        "y": 4443
+        "x": 2496,
+        "y": 4343
       },
       "verbindungen": [
         "p_vollekiste_2",
@@ -1095,8 +996,8 @@
       "heldAst": "stalljunge",
       "akt": 1,
       "position": {
-        "x": 3016,
-        "y": 4922
+        "x": 2808,
+        "y": 4822
       },
       "symbol": "card:stalljunge",
       "abzeichen": "sword"
@@ -1131,8 +1032,8 @@
       "heldAst": "stalljunge",
       "akt": 1,
       "position": {
-        "x": 3120,
-        "y": 4922
+        "x": 2704,
+        "y": 4822
       },
       "symbol": "card:stalljunge",
       "abzeichen": "clock"
@@ -1167,8 +1068,8 @@
       "heldAst": "stalljunge",
       "akt": 1,
       "position": {
-        "x": 3224,
-        "y": 4922
+        "x": 2600,
+        "y": 4822
       },
       "symbol": "card:stalljunge",
       "abzeichen": "sword"
@@ -1203,8 +1104,8 @@
       "heldAst": "stalljunge",
       "akt": 1,
       "position": {
-        "x": 3328,
-        "y": 4922
+        "x": 2496,
+        "y": 4822
       },
       "symbol": "card:stalljunge",
       "abzeichen": "clock"
@@ -1217,8 +1118,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3432,
-        "y": 4922
+        "x": 2392,
+        "y": 4822
       },
       "verbindungen": [
         "u_stalljunge_training2",
@@ -1276,8 +1177,8 @@
       "heldAst": "stalljunge",
       "akt": 1,
       "position": {
-        "x": 3536,
-        "y": 4922
+        "x": 2288,
+        "y": 4822
       },
       "alt": {
         "id": "u_stalljunge_leben",
@@ -1319,8 +1220,8 @@
       "heldAst": "stalljunge",
       "akt": 1,
       "position": {
-        "x": 3640,
-        "y": 4922
+        "x": 2184,
+        "y": 4822
       },
       "alt": {
         "id": "u_stalljunge_leben",
@@ -1362,8 +1263,8 @@
       "heldAst": "stalljunge",
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 4922
+        "x": 2080,
+        "y": 4822
       },
       "alt": {
         "id": "u_stalljunge_leben",
@@ -1405,8 +1306,8 @@
       "heldAst": "stalljunge",
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 4922
+        "x": 1976,
+        "y": 4822
       },
       "alt": {
         "id": "u_stalljunge_leben",
@@ -1448,8 +1349,8 @@
       "heldAst": "stalljunge",
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 4922
+        "x": 1872,
+        "y": 4822
       },
       "alt": {
         "id": "u_stalljunge_leben",
@@ -1469,8 +1370,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4472,
-        "y": 4964
+        "x": 1352,
+        "y": 4864
       },
       "verbindungen": [
         "u_stalljunge_tempo_2"
@@ -1511,8 +1412,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4368,
-        "y": 4964
+        "x": 1456,
+        "y": 4864
       },
       "verbindungen": [
         "u_stalljunge_tempo",
@@ -1554,8 +1455,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4264,
-        "y": 4964
+        "x": 1560,
+        "y": 4864
       },
       "verbindungen": [
         "u_stalljunge_tempo_2",
@@ -1597,8 +1498,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4160,
-        "y": 4964
+        "x": 1664,
+        "y": 4864
       },
       "verbindungen": [
         "u_stalljunge_tempo_3",
@@ -1640,8 +1541,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 4922
+        "x": 1768,
+        "y": 4822
       },
       "verbindungen": [
         "u_stalljunge_tempo_4",
@@ -1709,8 +1610,8 @@
       "heldAst": "stalljunge",
       "akt": 1,
       "position": {
-        "x": 4160,
-        "y": 4880
+        "x": 1664,
+        "y": 4780
       },
       "abBoss": 1,
       "symbol": "card:stalljunge",
@@ -1724,8 +1625,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4264,
-        "y": 4880
+        "x": 1560,
+        "y": 4780
       },
       "verbindungen": [
         "u_stalljunge_heilung",
@@ -1768,8 +1669,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4368,
-        "y": 4880
+        "x": 1456,
+        "y": 4780
       },
       "verbindungen": [
         "u_stalljunge_praezision",
@@ -1812,8 +1713,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4472,
-        "y": 4880
+        "x": 1352,
+        "y": 4780
       },
       "verbindungen": [
         "u_stalljunge_praezision_2",
@@ -1856,8 +1757,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4576,
-        "y": 4880
+        "x": 1248,
+        "y": 4780
       },
       "verbindungen": [
         "u_stalljunge_praezision_3",
@@ -1900,8 +1801,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4680,
-        "y": 4880
+        "x": 1144,
+        "y": 4780
       },
       "verbindungen": [
         "u_stalljunge_praezision_4",
@@ -1959,8 +1860,8 @@
       "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
-        "x": 3016,
-        "y": 4662
+        "x": 2808,
+        "y": 4561
       },
       "symbol": "card:kettenschwinger",
       "abzeichen": "sword"
@@ -1973,8 +1874,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3120,
-        "y": 4662
+        "x": 2704,
+        "y": 4561
       },
       "verbindungen": [
         "u_kettenschwinger_kraft1",
@@ -2032,8 +1933,8 @@
       "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
-        "x": 3224,
-        "y": 4662
+        "x": 2600,
+        "y": 4561
       },
       "abBoss": 1,
       "alt": {
@@ -2076,8 +1977,8 @@
       "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
-        "x": 3328,
-        "y": 4662
+        "x": 2496,
+        "y": 4561
       },
       "abBoss": 1,
       "alt": {
@@ -2120,8 +2021,8 @@
       "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
-        "x": 3432,
-        "y": 4662
+        "x": 2392,
+        "y": 4561
       },
       "abBoss": 1,
       "alt": {
@@ -2164,8 +2065,8 @@
       "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
-        "x": 3536,
-        "y": 4662
+        "x": 2288,
+        "y": 4561
       },
       "abBoss": 1,
       "alt": {
@@ -2208,8 +2109,8 @@
       "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
-        "x": 3640,
-        "y": 4662
+        "x": 2184,
+        "y": 4561
       },
       "abBoss": 1,
       "alt": {
@@ -2251,8 +2152,8 @@
       "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
-        "x": 4160,
-        "y": 4746
+        "x": 1664,
+        "y": 4645
       },
       "abBoss": 1,
       "alt": {
@@ -2295,8 +2196,8 @@
       "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 4746
+        "x": 1768,
+        "y": 4645
       },
       "abBoss": 1,
       "alt": {
@@ -2339,8 +2240,8 @@
       "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 4746
+        "x": 1872,
+        "y": 4645
       },
       "abBoss": 1,
       "alt": {
@@ -2383,8 +2284,8 @@
       "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 4746
+        "x": 1976,
+        "y": 4645
       },
       "abBoss": 1,
       "alt": {
@@ -2428,8 +2329,8 @@
       "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 4662
+        "x": 2080,
+        "y": 4561
       },
       "abBoss": 1,
       "alt": {
@@ -2450,8 +2351,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4264,
-        "y": 4662
+        "x": 1560,
+        "y": 4561
       },
       "verbindungen": [
         "u_kettenschwinger_leben_2"
@@ -2493,8 +2394,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4160,
-        "y": 4662
+        "x": 1664,
+        "y": 4561
       },
       "verbindungen": [
         "u_kettenschwinger_leben",
@@ -2537,8 +2438,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 4662
+        "x": 1768,
+        "y": 4561
       },
       "verbindungen": [
         "u_kettenschwinger_leben_2",
@@ -2581,8 +2482,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 4662
+        "x": 1872,
+        "y": 4561
       },
       "verbindungen": [
         "u_kettenschwinger_leben_3",
@@ -2625,8 +2526,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 4620
+        "x": 1976,
+        "y": 4519
       },
       "verbindungen": [
         "u_kettenschwinger_leben_4",
@@ -2692,8 +2593,8 @@
       "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 4578
+        "x": 1872,
+        "y": 4477
       },
       "abBoss": 1,
       "symbol": "card:kettenschwinger",
@@ -2731,8 +2632,8 @@
       "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 4578
+        "x": 1768,
+        "y": 4477
       },
       "abBoss": 1,
       "symbol": "card:kettenschwinger",
@@ -2770,8 +2671,8 @@
       "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
-        "x": 4160,
-        "y": 4578
+        "x": 1664,
+        "y": 4477
       },
       "abBoss": 1,
       "symbol": "card:kettenschwinger",
@@ -2810,8 +2711,8 @@
       "heldAst": "kettenschwinger",
       "akt": 1,
       "position": {
-        "x": 4264,
-        "y": 4578
+        "x": 1560,
+        "y": 4477
       },
       "abBoss": 1,
       "symbol": "card:kettenschwinger",
@@ -2847,8 +2748,8 @@
       "heldAst": "schleuderin",
       "akt": 1,
       "position": {
-        "x": 2808,
-        "y": 4368
+        "x": 3016,
+        "y": 4486
       },
       "symbol": "card:schleuderin",
       "abzeichen": "sword"
@@ -2861,8 +2762,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2704,
-        "y": 4368
+        "x": 3120,
+        "y": 4486
       },
       "verbindungen": [
         "u_schleuderin_kraft1",
@@ -2920,8 +2821,8 @@
       "heldAst": "schleuderin",
       "akt": 1,
       "position": {
-        "x": 2600,
-        "y": 4368
+        "x": 3224,
+        "y": 4486
       },
       "abBoss": 1,
       "symbol": "card:schleuderin",
@@ -2957,8 +2858,8 @@
       "heldAst": "schleuderin",
       "akt": 1,
       "position": {
-        "x": 2496,
-        "y": 4368
+        "x": 3328,
+        "y": 4486
       },
       "abBoss": 1,
       "alt": {
@@ -3001,8 +2902,8 @@
       "heldAst": "schleuderin",
       "akt": 1,
       "position": {
-        "x": 2392,
-        "y": 4368
+        "x": 3432,
+        "y": 4486
       },
       "abBoss": 1,
       "alt": {
@@ -3045,8 +2946,8 @@
       "heldAst": "schleuderin",
       "akt": 1,
       "position": {
-        "x": 2288,
-        "y": 4368
+        "x": 3536,
+        "y": 4486
       },
       "abBoss": 1,
       "alt": {
@@ -3089,8 +2990,8 @@
       "heldAst": "schleuderin",
       "akt": 1,
       "position": {
-        "x": 2184,
-        "y": 4368
+        "x": 3640,
+        "y": 4486
       },
       "abBoss": 1,
       "alt": {
@@ -3133,8 +3034,8 @@
       "heldAst": "schleuderin",
       "akt": 1,
       "position": {
-        "x": 2080,
-        "y": 4368
+        "x": 3744,
+        "y": 4486
       },
       "abBoss": 1,
       "alt": {
@@ -3176,8 +3077,8 @@
       "heldAst": "schleuderin",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 4494
+        "x": 4056,
+        "y": 4612
       },
       "abBoss": 1,
       "alt": {
@@ -3220,8 +3121,8 @@
       "heldAst": "schleuderin",
       "akt": 1,
       "position": {
-        "x": 1872,
-        "y": 4494
+        "x": 3952,
+        "y": 4612
       },
       "abBoss": 1,
       "alt": {
@@ -3265,8 +3166,8 @@
       "heldAst": "schleuderin",
       "akt": 1,
       "position": {
-        "x": 1976,
-        "y": 4368
+        "x": 3848,
+        "y": 4486
       },
       "abBoss": 1,
       "alt": {
@@ -3308,8 +3209,8 @@
       "heldAst": "schleuderin",
       "akt": 1,
       "position": {
-        "x": 1456,
-        "y": 4410
+        "x": 4368,
+        "y": 4528
       },
       "abBoss": 1,
       "alt": {
@@ -3352,8 +3253,8 @@
       "heldAst": "schleuderin",
       "akt": 1,
       "position": {
-        "x": 1560,
-        "y": 4410
+        "x": 4264,
+        "y": 4528
       },
       "abBoss": 1,
       "alt": {
@@ -3396,8 +3297,8 @@
       "heldAst": "schleuderin",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 4410
+        "x": 4160,
+        "y": 4528
       },
       "abBoss": 1,
       "alt": {
@@ -3440,8 +3341,8 @@
       "heldAst": "schleuderin",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 4410
+        "x": 4056,
+        "y": 4528
       },
       "abBoss": 1,
       "alt": {
@@ -3485,8 +3386,8 @@
       "heldAst": "schleuderin",
       "akt": 1,
       "position": {
-        "x": 1872,
-        "y": 4326
+        "x": 3952,
+        "y": 4444
       },
       "abBoss": 1,
       "alt": {
@@ -3507,8 +3408,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1456,
-        "y": 4326
+        "x": 4368,
+        "y": 4444
       },
       "verbindungen": [
         "u_schleuderin_praezision_2"
@@ -3550,8 +3451,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1560,
-        "y": 4326
+        "x": 4264,
+        "y": 4444
       },
       "verbindungen": [
         "u_schleuderin_praezision",
@@ -3594,8 +3495,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 4326
+        "x": 4160,
+        "y": 4444
       },
       "verbindungen": [
         "u_schleuderin_praezision_2",
@@ -3638,8 +3539,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 4284
+        "x": 4056,
+        "y": 4402
       },
       "verbindungen": [
         "u_schleuderin_praezision_3",
@@ -3683,8 +3584,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 4242
+        "x": 4160,
+        "y": 4360
       },
       "verbindungen": [
         "u_schleuderin_praezision_4",
@@ -3747,8 +3648,8 @@
       "heldAst": "torwaechterin",
       "akt": 1,
       "position": {
-        "x": 2808,
-        "y": 2528
+        "x": 3016,
+        "y": 2596
       },
       "abBoss": 1,
       "alt": {
@@ -3791,8 +3692,8 @@
       "heldAst": "torwaechterin",
       "akt": 1,
       "position": {
-        "x": 2704,
-        "y": 2528
+        "x": 3120,
+        "y": 2596
       },
       "abBoss": 1,
       "alt": {
@@ -3835,8 +3736,8 @@
       "heldAst": "torwaechterin",
       "akt": 1,
       "position": {
-        "x": 2600,
-        "y": 2528
+        "x": 3224,
+        "y": 2596
       },
       "abBoss": 1,
       "alt": {
@@ -3879,8 +3780,8 @@
       "heldAst": "torwaechterin",
       "akt": 1,
       "position": {
-        "x": 2496,
-        "y": 2528
+        "x": 3328,
+        "y": 2596
       },
       "abBoss": 1,
       "alt": {
@@ -3901,8 +3802,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1976,
-        "y": 2612
+        "x": 3848,
+        "y": 2680
       },
       "verbindungen": [
         "u_torwaechterin_kraft_2"
@@ -3944,8 +3845,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2080,
-        "y": 2612
+        "x": 3744,
+        "y": 2680
       },
       "verbindungen": [
         "u_torwaechterin_kraft",
@@ -3988,8 +3889,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2184,
-        "y": 2612
+        "x": 3640,
+        "y": 2680
       },
       "verbindungen": [
         "u_torwaechterin_kraft_2",
@@ -4032,8 +3933,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2288,
-        "y": 2612
+        "x": 3536,
+        "y": 2680
       },
       "verbindungen": [
         "u_torwaechterin_kraft_3",
@@ -4076,8 +3977,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2392,
-        "y": 2528
+        "x": 3432,
+        "y": 2596
       },
       "verbindungen": [
         "u_torwaechterin_kraft_4",
@@ -4142,8 +4043,8 @@
       "heldAst": "torwaechterin",
       "akt": 1,
       "position": {
-        "x": 1872,
-        "y": 2444
+        "x": 3952,
+        "y": 2512
       },
       "abBoss": 1,
       "alt": {
@@ -4186,8 +4087,8 @@
       "heldAst": "torwaechterin",
       "akt": 1,
       "position": {
-        "x": 1976,
-        "y": 2444
+        "x": 3848,
+        "y": 2512
       },
       "abBoss": 1,
       "alt": {
@@ -4230,8 +4131,8 @@
       "heldAst": "torwaechterin",
       "akt": 1,
       "position": {
-        "x": 2080,
-        "y": 2444
+        "x": 3744,
+        "y": 2512
       },
       "abBoss": 1,
       "alt": {
@@ -4274,8 +4175,8 @@
       "heldAst": "torwaechterin",
       "akt": 1,
       "position": {
-        "x": 2184,
-        "y": 2444
+        "x": 3640,
+        "y": 2512
       },
       "abBoss": 1,
       "alt": {
@@ -4319,8 +4220,8 @@
       "heldAst": "torwaechterin",
       "akt": 1,
       "position": {
-        "x": 2288,
-        "y": 2486
+        "x": 3536,
+        "y": 2554
       },
       "abBoss": 1,
       "alt": {
@@ -4341,8 +4242,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2184,
-        "y": 2528
+        "x": 3640,
+        "y": 2596
       },
       "verbindungen": [
         "u_torwaechterin_2_5",
@@ -4403,8 +4304,8 @@
       "heldAst": "torwaechterin",
       "akt": 1,
       "position": {
-        "x": 2080,
-        "y": 2528
+        "x": 3744,
+        "y": 2596
       },
       "abBoss": 1,
       "symbol": "card:torwaechterin",
@@ -4440,8 +4341,8 @@
       "heldAst": "torwaechterin",
       "akt": 1,
       "position": {
-        "x": 1976,
-        "y": 2528
+        "x": 3848,
+        "y": 2596
       },
       "abBoss": 1,
       "symbol": "card:torwaechterin",
@@ -4482,8 +4383,8 @@
       "heldAst": "torwaechterin",
       "akt": 1,
       "position": {
-        "x": 1872,
-        "y": 2528
+        "x": 3952,
+        "y": 2596
       },
       "abBoss": 1,
       "symbol": "card:torwaechterin",
@@ -4497,8 +4398,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 2528
+        "x": 4056,
+        "y": 2596
       },
       "verbindungen": [
         "u_torwaechterin_4",
@@ -4562,7 +4463,7 @@
       "akt": 1,
       "position": {
         "x": 3016,
-        "y": 2284
+        "y": 2335
       },
       "abBoss": 1,
       "alt": {
@@ -4606,7 +4507,7 @@
       "akt": 1,
       "position": {
         "x": 3120,
-        "y": 2284
+        "y": 2335
       },
       "abBoss": 1,
       "alt": {
@@ -4650,7 +4551,7 @@
       "akt": 1,
       "position": {
         "x": 3224,
-        "y": 2284
+        "y": 2335
       },
       "abBoss": 1,
       "alt": {
@@ -4694,7 +4595,7 @@
       "akt": 1,
       "position": {
         "x": 3328,
-        "y": 2284
+        "y": 2335
       },
       "abBoss": 1,
       "alt": {
@@ -4738,7 +4639,7 @@
       "akt": 1,
       "position": {
         "x": 3432,
-        "y": 2284
+        "y": 2335
       },
       "abBoss": 1,
       "alt": {
@@ -4781,7 +4682,7 @@
       "akt": 1,
       "position": {
         "x": 3952,
-        "y": 2242
+        "y": 2293
       },
       "abBoss": 1,
       "alt": {
@@ -4825,7 +4726,7 @@
       "akt": 1,
       "position": {
         "x": 3848,
-        "y": 2242
+        "y": 2293
       },
       "abBoss": 1,
       "alt": {
@@ -4869,7 +4770,7 @@
       "akt": 1,
       "position": {
         "x": 3744,
-        "y": 2242
+        "y": 2293
       },
       "abBoss": 1,
       "alt": {
@@ -4913,7 +4814,7 @@
       "akt": 1,
       "position": {
         "x": 3640,
-        "y": 2242
+        "y": 2293
       },
       "abBoss": 1,
       "alt": {
@@ -4958,7 +4859,7 @@
       "akt": 1,
       "position": {
         "x": 3536,
-        "y": 2284
+        "y": 2335
       },
       "abBoss": 1,
       "alt": {
@@ -4980,7 +4881,7 @@
       "akt": 1,
       "position": {
         "x": 3640,
-        "y": 2326
+        "y": 2377
       },
       "verbindungen": [
         "u_windlaeufer_2_5",
@@ -5039,7 +4940,7 @@
       "akt": 1,
       "position": {
         "x": 3744,
-        "y": 2326
+        "y": 2377
       },
       "abBoss": 1,
       "alt": {
@@ -5083,7 +4984,7 @@
       "akt": 1,
       "position": {
         "x": 3848,
-        "y": 2326
+        "y": 2377
       },
       "abBoss": 1,
       "alt": {
@@ -5127,7 +5028,7 @@
       "akt": 1,
       "position": {
         "x": 3952,
-        "y": 2326
+        "y": 2377
       },
       "abBoss": 1,
       "alt": {
@@ -5171,7 +5072,7 @@
       "akt": 1,
       "position": {
         "x": 4056,
-        "y": 2326
+        "y": 2377
       },
       "abBoss": 1,
       "alt": {
@@ -5215,7 +5116,7 @@
       "akt": 1,
       "position": {
         "x": 4160,
-        "y": 2326
+        "y": 2377
       },
       "abBoss": 1,
       "alt": {
@@ -5259,7 +5160,7 @@
       "akt": 1,
       "position": {
         "x": 4264,
-        "y": 2326
+        "y": 2377
       },
       "abBoss": 1,
       "symbol": "card:windlaeufer",
@@ -5299,7 +5200,7 @@
       "akt": 1,
       "position": {
         "x": 4368,
-        "y": 2326
+        "y": 2377
       },
       "abBoss": 1,
       "symbol": "card:windlaeufer",
@@ -5314,7 +5215,7 @@
       "akt": 1,
       "position": {
         "x": 4472,
-        "y": 2326
+        "y": 2377
       },
       "verbindungen": [
         "u_windlaeufer_4",
@@ -5358,7 +5259,7 @@
       "akt": 1,
       "position": {
         "x": 4576,
-        "y": 2326
+        "y": 2377
       },
       "verbindungen": [
         "u_windlaeufer_praezision",
@@ -5402,7 +5303,7 @@
       "akt": 1,
       "position": {
         "x": 4680,
-        "y": 2326
+        "y": 2377
       },
       "verbindungen": [
         "u_windlaeufer_praezision_2",
@@ -5446,7 +5347,7 @@
       "akt": 1,
       "position": {
         "x": 4784,
-        "y": 2326
+        "y": 2377
       },
       "verbindungen": [
         "u_windlaeufer_praezision_3",
@@ -5490,7 +5391,7 @@
       "akt": 1,
       "position": {
         "x": 4888,
-        "y": 2326
+        "y": 2377
       },
       "verbindungen": [
         "u_windlaeufer_praezision_4",
@@ -5554,7 +5455,7 @@
       "akt": 1,
       "position": {
         "x": 2808,
-        "y": 2226
+        "y": 2142
       },
       "abBoss": 1,
       "alt": {
@@ -5598,7 +5499,7 @@
       "akt": 1,
       "position": {
         "x": 2704,
-        "y": 2226
+        "y": 2142
       },
       "abBoss": 1,
       "alt": {
@@ -5642,7 +5543,7 @@
       "akt": 1,
       "position": {
         "x": 2600,
-        "y": 2226
+        "y": 2142
       },
       "abBoss": 1,
       "alt": {
@@ -5685,7 +5586,7 @@
       "akt": 1,
       "position": {
         "x": 2080,
-        "y": 2142
+        "y": 2058
       },
       "abBoss": 1,
       "alt": {
@@ -5729,7 +5630,7 @@
       "akt": 1,
       "position": {
         "x": 2184,
-        "y": 2142
+        "y": 2058
       },
       "abBoss": 1,
       "alt": {
@@ -5773,7 +5674,7 @@
       "akt": 1,
       "position": {
         "x": 2288,
-        "y": 2142
+        "y": 2058
       },
       "abBoss": 1,
       "alt": {
@@ -5817,7 +5718,7 @@
       "akt": 1,
       "position": {
         "x": 2392,
-        "y": 2142
+        "y": 2058
       },
       "abBoss": 1,
       "alt": {
@@ -5862,7 +5763,7 @@
       "akt": 1,
       "position": {
         "x": 2496,
-        "y": 2226
+        "y": 2142
       },
       "abBoss": 1,
       "alt": {
@@ -5884,7 +5785,7 @@
       "akt": 1,
       "position": {
         "x": 2392,
-        "y": 2268
+        "y": 2184
       },
       "verbindungen": [
         "u_glutweberin_2_5",
@@ -5921,7 +5822,7 @@
       "akt": 1,
       "position": {
         "x": 2288,
-        "y": 2268
+        "y": 2184
       },
       "verbindungen": [
         "q_u_glutweberin",
@@ -5965,7 +5866,7 @@
       "akt": 1,
       "position": {
         "x": 2184,
-        "y": 2268
+        "y": 2184
       },
       "verbindungen": [
         "u_glutweberin_tempo",
@@ -6009,7 +5910,7 @@
       "akt": 1,
       "position": {
         "x": 2080,
-        "y": 2268
+        "y": 2184
       },
       "verbindungen": [
         "u_glutweberin_tempo_2",
@@ -6053,7 +5954,7 @@
       "akt": 1,
       "position": {
         "x": 1976,
-        "y": 2268
+        "y": 2184
       },
       "verbindungen": [
         "u_glutweberin_tempo_3",
@@ -6097,7 +5998,7 @@
       "akt": 1,
       "position": {
         "x": 1872,
-        "y": 2268
+        "y": 2184
       },
       "verbindungen": [
         "u_glutweberin_tempo_4",
@@ -6141,7 +6042,7 @@
       "akt": 1,
       "position": {
         "x": 1352,
-        "y": 2310
+        "y": 2226
       },
       "verbindungen": [
         "u_glutweberin_leben_2"
@@ -6184,7 +6085,7 @@
       "akt": 1,
       "position": {
         "x": 1456,
-        "y": 2310
+        "y": 2226
       },
       "verbindungen": [
         "u_glutweberin_leben",
@@ -6228,7 +6129,7 @@
       "akt": 1,
       "position": {
         "x": 1560,
-        "y": 2310
+        "y": 2226
       },
       "verbindungen": [
         "u_glutweberin_leben_2",
@@ -6272,7 +6173,7 @@
       "akt": 1,
       "position": {
         "x": 1664,
-        "y": 2310
+        "y": 2226
       },
       "verbindungen": [
         "u_glutweberin_leben_3",
@@ -6316,7 +6217,7 @@
       "akt": 1,
       "position": {
         "x": 1768,
-        "y": 2268
+        "y": 2184
       },
       "verbindungen": [
         "u_glutweberin_leben_4",
@@ -6387,7 +6288,7 @@
       "akt": 1,
       "position": {
         "x": 1664,
-        "y": 2226
+        "y": 2142
       },
       "abBoss": 1,
       "symbol": "card:glutweberin",
@@ -6424,7 +6325,7 @@
       "akt": 1,
       "position": {
         "x": 1560,
-        "y": 2226
+        "y": 2142
       },
       "abBoss": 1,
       "symbol": "card:glutweberin",
@@ -6439,7 +6340,7 @@
       "akt": 1,
       "position": {
         "x": 1456,
-        "y": 2226
+        "y": 2142
       },
       "verbindungen": [
         "u_glutweberin_4",
@@ -6502,8 +6403,8 @@
       "heldAst": "bannertraeger",
       "akt": 1,
       "position": {
-        "x": 2808,
-        "y": 1360
+        "x": 3016,
+        "y": 1294
       },
       "abBoss": 2,
       "alt": {
@@ -6546,8 +6447,8 @@
       "heldAst": "bannertraeger",
       "akt": 1,
       "position": {
-        "x": 2704,
-        "y": 1360
+        "x": 3120,
+        "y": 1294
       },
       "abBoss": 2,
       "alt": {
@@ -6590,8 +6491,8 @@
       "heldAst": "bannertraeger",
       "akt": 1,
       "position": {
-        "x": 2600,
-        "y": 1360
+        "x": 3224,
+        "y": 1294
       },
       "abBoss": 2,
       "alt": {
@@ -6633,8 +6534,8 @@
       "heldAst": "bannertraeger",
       "akt": 1,
       "position": {
-        "x": 2288,
-        "y": 1234
+        "x": 3536,
+        "y": 1168
       },
       "abBoss": 2,
       "alt": {
@@ -6677,8 +6578,8 @@
       "heldAst": "bannertraeger",
       "akt": 1,
       "position": {
-        "x": 2392,
-        "y": 1234
+        "x": 3432,
+        "y": 1168
       },
       "abBoss": 2,
       "alt": {
@@ -6722,8 +6623,8 @@
       "heldAst": "bannertraeger",
       "akt": 1,
       "position": {
-        "x": 2496,
-        "y": 1360
+        "x": 3328,
+        "y": 1294
       },
       "abBoss": 2,
       "alt": {
@@ -6744,8 +6645,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2392,
-        "y": 1402
+        "x": 3432,
+        "y": 1336
       },
       "verbindungen": [
         "u_bannertraeger_2_3",
@@ -6803,8 +6704,8 @@
       "heldAst": "bannertraeger",
       "akt": 1,
       "position": {
-        "x": 2288,
-        "y": 1402
+        "x": 3536,
+        "y": 1336
       },
       "abBoss": 2,
       "alt": {
@@ -6847,8 +6748,8 @@
       "heldAst": "bannertraeger",
       "akt": 1,
       "position": {
-        "x": 2184,
-        "y": 1402
+        "x": 3640,
+        "y": 1336
       },
       "abBoss": 2,
       "alt": {
@@ -6891,8 +6792,8 @@
       "heldAst": "bannertraeger",
       "akt": 1,
       "position": {
-        "x": 2080,
-        "y": 1402
+        "x": 3744,
+        "y": 1336
       },
       "abBoss": 2,
       "alt": {
@@ -6935,8 +6836,8 @@
       "heldAst": "bannertraeger",
       "akt": 1,
       "position": {
-        "x": 1976,
-        "y": 1402
+        "x": 3848,
+        "y": 1336
       },
       "abBoss": 2,
       "alt": {
@@ -6979,8 +6880,8 @@
       "heldAst": "bannertraeger",
       "akt": 1,
       "position": {
-        "x": 1872,
-        "y": 1402
+        "x": 3952,
+        "y": 1336
       },
       "abBoss": 2,
       "alt": {
@@ -7001,8 +6902,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1560,
-        "y": 1486
+        "x": 4264,
+        "y": 1420
       },
       "verbindungen": [
         "u_bannertraeger_dauer_2"
@@ -7044,8 +6945,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 1486
+        "x": 4160,
+        "y": 1420
       },
       "verbindungen": [
         "u_bannertraeger_dauer",
@@ -7088,8 +6989,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 1402
+        "x": 4056,
+        "y": 1336
       },
       "verbindungen": [
         "u_bannertraeger_dauer_2",
@@ -7154,8 +7055,8 @@
       "heldAst": "bannertraeger",
       "akt": 1,
       "position": {
-        "x": 1248,
-        "y": 1402
+        "x": 4576,
+        "y": 1336
       },
       "abBoss": 2,
       "alt": {
@@ -7198,8 +7099,8 @@
       "heldAst": "bannertraeger",
       "akt": 1,
       "position": {
-        "x": 1352,
-        "y": 1402
+        "x": 4472,
+        "y": 1336
       },
       "abBoss": 2,
       "alt": {
@@ -7242,8 +7143,8 @@
       "heldAst": "bannertraeger",
       "akt": 1,
       "position": {
-        "x": 1456,
-        "y": 1402
+        "x": 4368,
+        "y": 1336
       },
       "abBoss": 2,
       "alt": {
@@ -7286,8 +7187,8 @@
       "heldAst": "bannertraeger",
       "akt": 1,
       "position": {
-        "x": 1560,
-        "y": 1402
+        "x": 4264,
+        "y": 1336
       },
       "abBoss": 2,
       "alt": {
@@ -7331,8 +7232,8 @@
       "heldAst": "bannertraeger",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 1360
+        "x": 4160,
+        "y": 1294
       },
       "abBoss": 2,
       "alt": {
@@ -7353,8 +7254,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1560,
-        "y": 1318
+        "x": 4264,
+        "y": 1252
       },
       "verbindungen": [
         "u_bannertraeger_4_5",
@@ -7412,8 +7313,8 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 3016,
-        "y": 1075
+        "x": 2808,
+        "y": 1109
       },
       "abBoss": 2,
       "alt": {
@@ -7456,8 +7357,8 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 3120,
-        "y": 1075
+        "x": 2704,
+        "y": 1109
       },
       "abBoss": 2,
       "alt": {
@@ -7500,8 +7401,8 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 3224,
-        "y": 1075
+        "x": 2600,
+        "y": 1109
       },
       "abBoss": 2,
       "alt": {
@@ -7544,8 +7445,8 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 3328,
-        "y": 1075
+        "x": 2496,
+        "y": 1109
       },
       "abBoss": 2,
       "alt": {
@@ -7588,8 +7489,8 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 3432,
-        "y": 1075
+        "x": 2392,
+        "y": 1109
       },
       "abBoss": 2,
       "alt": {
@@ -7631,8 +7532,8 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 1033
+        "x": 2080,
+        "y": 1067
       },
       "abBoss": 2,
       "alt": {
@@ -7675,8 +7576,8 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 3640,
-        "y": 1033
+        "x": 2184,
+        "y": 1067
       },
       "abBoss": 2,
       "alt": {
@@ -7720,8 +7621,8 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 3536,
-        "y": 1075
+        "x": 2288,
+        "y": 1109
       },
       "abBoss": 2,
       "alt": {
@@ -7742,8 +7643,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3640,
-        "y": 1117
+        "x": 2184,
+        "y": 1151
       },
       "verbindungen": [
         "u_moorhexer_2_3",
@@ -7801,8 +7702,8 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 1117
+        "x": 2080,
+        "y": 1151
       },
       "abBoss": 2,
       "symbol": "card:moorhexer",
@@ -7838,8 +7739,8 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 1117
+        "x": 1976,
+        "y": 1151
       },
       "abBoss": 2,
       "symbol": "card:moorhexer",
@@ -7875,8 +7776,8 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 1117
+        "x": 1872,
+        "y": 1151
       },
       "abBoss": 2,
       "alt": {
@@ -7919,8 +7820,8 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 1117
+        "x": 1768,
+        "y": 1151
       },
       "abBoss": 2,
       "alt": {
@@ -7963,8 +7864,8 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 4160,
-        "y": 1117
+        "x": 1664,
+        "y": 1151
       },
       "abBoss": 2,
       "alt": {
@@ -8007,8 +7908,8 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 4264,
-        "y": 1117
+        "x": 1560,
+        "y": 1151
       },
       "abBoss": 2,
       "alt": {
@@ -8051,8 +7952,8 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 4368,
-        "y": 1117
+        "x": 1456,
+        "y": 1151
       },
       "abBoss": 2,
       "alt": {
@@ -8095,8 +7996,8 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 4472,
-        "y": 1117
+        "x": 1352,
+        "y": 1151
       },
       "abBoss": 2,
       "symbol": "card:moorhexer",
@@ -8132,8 +8033,8 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 4576,
-        "y": 1117
+        "x": 1248,
+        "y": 1151
       },
       "abBoss": 2,
       "alt": {
@@ -8176,8 +8077,8 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 4680,
-        "y": 1117
+        "x": 1144,
+        "y": 1151
       },
       "abBoss": 2,
       "alt": {
@@ -8220,8 +8121,8 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 4784,
-        "y": 1117
+        "x": 1040,
+        "y": 1151
       },
       "abBoss": 2,
       "alt": {
@@ -8264,8 +8165,8 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 4888,
-        "y": 1117
+        "x": 936,
+        "y": 1151
       },
       "abBoss": 2,
       "alt": {
@@ -8308,8 +8209,8 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 4992,
-        "y": 1117
+        "x": 832,
+        "y": 1151
       },
       "abBoss": 2,
       "alt": {
@@ -8352,8 +8253,8 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 5096,
-        "y": 1117
+        "x": 728,
+        "y": 1151
       },
       "abBoss": 2,
       "symbol": "card:moorhexer",
@@ -8389,8 +8290,8 @@
       "heldAst": "wolkenhirtin",
       "akt": 1,
       "position": {
-        "x": 2808,
-        "y": 974
+        "x": 3016,
+        "y": 907
       },
       "abBoss": 2,
       "alt": {
@@ -8433,8 +8334,8 @@
       "heldAst": "wolkenhirtin",
       "akt": 1,
       "position": {
-        "x": 2704,
-        "y": 974
+        "x": 3120,
+        "y": 907
       },
       "abBoss": 2,
       "alt": {
@@ -8477,8 +8378,8 @@
       "heldAst": "wolkenhirtin",
       "akt": 1,
       "position": {
-        "x": 2600,
-        "y": 974
+        "x": 3224,
+        "y": 907
       },
       "abBoss": 2,
       "alt": {
@@ -8520,8 +8421,8 @@
       "heldAst": "wolkenhirtin",
       "akt": 1,
       "position": {
-        "x": 2288,
-        "y": 848
+        "x": 3536,
+        "y": 781
       },
       "abBoss": 2,
       "alt": {
@@ -8564,8 +8465,8 @@
       "heldAst": "wolkenhirtin",
       "akt": 1,
       "position": {
-        "x": 2392,
-        "y": 848
+        "x": 3432,
+        "y": 781
       },
       "abBoss": 2,
       "alt": {
@@ -8609,8 +8510,8 @@
       "heldAst": "wolkenhirtin",
       "akt": 1,
       "position": {
-        "x": 2496,
-        "y": 974
+        "x": 3328,
+        "y": 907
       },
       "abBoss": 2,
       "alt": {
@@ -8631,8 +8532,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2392,
-        "y": 1016
+        "x": 3432,
+        "y": 949
       },
       "verbindungen": [
         "u_wolkenhirtin_2_3",
@@ -8690,8 +8591,8 @@
       "heldAst": "wolkenhirtin",
       "akt": 1,
       "position": {
-        "x": 2288,
-        "y": 1016
+        "x": 3536,
+        "y": 949
       },
       "abBoss": 2,
       "alt": {
@@ -8734,8 +8635,8 @@
       "heldAst": "wolkenhirtin",
       "akt": 1,
       "position": {
-        "x": 2184,
-        "y": 1016
+        "x": 3640,
+        "y": 949
       },
       "abBoss": 2,
       "alt": {
@@ -8778,8 +8679,8 @@
       "heldAst": "wolkenhirtin",
       "akt": 1,
       "position": {
-        "x": 2080,
-        "y": 1016
+        "x": 3744,
+        "y": 949
       },
       "abBoss": 2,
       "alt": {
@@ -8800,8 +8701,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1560,
-        "y": 1100
+        "x": 4264,
+        "y": 1033
       },
       "verbindungen": [
         "u_wolkenhirtin_sturm_2"
@@ -8843,8 +8744,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 1100
+        "x": 4160,
+        "y": 1033
       },
       "verbindungen": [
         "u_wolkenhirtin_sturm",
@@ -8887,8 +8788,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 1100
+        "x": 4056,
+        "y": 1033
       },
       "verbindungen": [
         "u_wolkenhirtin_sturm_2",
@@ -8931,8 +8832,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1872,
-        "y": 1100
+        "x": 3952,
+        "y": 1033
       },
       "verbindungen": [
         "u_wolkenhirtin_sturm_3",
@@ -8975,8 +8876,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1976,
-        "y": 1016
+        "x": 3848,
+        "y": 949
       },
       "verbindungen": [
         "u_wolkenhirtin_sturm_4",
@@ -9041,8 +8942,8 @@
       "heldAst": "wolkenhirtin",
       "akt": 1,
       "position": {
-        "x": 1456,
-        "y": 1016
+        "x": 4368,
+        "y": 949
       },
       "abBoss": 2,
       "alt": {
@@ -9085,8 +8986,8 @@
       "heldAst": "wolkenhirtin",
       "akt": 1,
       "position": {
-        "x": 1560,
-        "y": 1016
+        "x": 4264,
+        "y": 949
       },
       "abBoss": 2,
       "alt": {
@@ -9129,8 +9030,8 @@
       "heldAst": "wolkenhirtin",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 1016
+        "x": 4160,
+        "y": 949
       },
       "abBoss": 2,
       "alt": {
@@ -9173,8 +9074,8 @@
       "heldAst": "wolkenhirtin",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 1016
+        "x": 4056,
+        "y": 949
       },
       "abBoss": 2,
       "alt": {
@@ -9218,8 +9119,8 @@
       "heldAst": "wolkenhirtin",
       "akt": 1,
       "position": {
-        "x": 1872,
-        "y": 974
+        "x": 3952,
+        "y": 907
       },
       "abBoss": 2,
       "alt": {
@@ -9240,8 +9141,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 932
+        "x": 4056,
+        "y": 865
       },
       "verbindungen": [
         "u_wolkenhirtin_4_5",
@@ -9304,8 +9205,8 @@
       "heldAst": "glockenmoench",
       "akt": 1,
       "position": {
-        "x": 3016,
-        "y": 772
+        "x": 2808,
+        "y": 806
       },
       "abBoss": 2,
       "alt": {
@@ -9348,8 +9249,8 @@
       "heldAst": "glockenmoench",
       "akt": 1,
       "position": {
-        "x": 3120,
-        "y": 772
+        "x": 2704,
+        "y": 806
       },
       "abBoss": 2,
       "alt": {
@@ -9392,8 +9293,8 @@
       "heldAst": "glockenmoench",
       "akt": 1,
       "position": {
-        "x": 3224,
-        "y": 772
+        "x": 2600,
+        "y": 806
       },
       "abBoss": 2,
       "alt": {
@@ -9435,8 +9336,8 @@
       "heldAst": "glockenmoench",
       "akt": 1,
       "position": {
-        "x": 3536,
-        "y": 646
+        "x": 2288,
+        "y": 680
       },
       "abBoss": 2,
       "alt": {
@@ -9479,8 +9380,8 @@
       "heldAst": "glockenmoench",
       "akt": 1,
       "position": {
-        "x": 3432,
-        "y": 646
+        "x": 2392,
+        "y": 680
       },
       "abBoss": 2,
       "alt": {
@@ -9524,8 +9425,8 @@
       "heldAst": "glockenmoench",
       "akt": 1,
       "position": {
-        "x": 3328,
-        "y": 772
+        "x": 2496,
+        "y": 806
       },
       "abBoss": 2,
       "alt": {
@@ -9546,8 +9447,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3432,
-        "y": 814
+        "x": 2392,
+        "y": 848
       },
       "verbindungen": [
         "u_glockenmoench_2_3",
@@ -9605,8 +9506,8 @@
       "heldAst": "glockenmoench",
       "akt": 1,
       "position": {
-        "x": 3536,
-        "y": 814
+        "x": 2288,
+        "y": 848
       },
       "abBoss": 2,
       "alt": {
@@ -9649,8 +9550,8 @@
       "heldAst": "glockenmoench",
       "akt": 1,
       "position": {
-        "x": 3640,
-        "y": 814
+        "x": 2184,
+        "y": 848
       },
       "abBoss": 2,
       "alt": {
@@ -9693,8 +9594,8 @@
       "heldAst": "glockenmoench",
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 814
+        "x": 2080,
+        "y": 848
       },
       "abBoss": 2,
       "alt": {
@@ -9715,8 +9616,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4264,
-        "y": 898
+        "x": 1560,
+        "y": 932
       },
       "verbindungen": [
         "u_glockenmoench_kraft_2"
@@ -9758,8 +9659,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4160,
-        "y": 898
+        "x": 1664,
+        "y": 932
       },
       "verbindungen": [
         "u_glockenmoench_kraft",
@@ -9802,8 +9703,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 898
+        "x": 1768,
+        "y": 932
       },
       "verbindungen": [
         "u_glockenmoench_kraft_2",
@@ -9846,8 +9747,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 898
+        "x": 1872,
+        "y": 932
       },
       "verbindungen": [
         "u_glockenmoench_kraft_3",
@@ -9890,8 +9791,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 814
+        "x": 1976,
+        "y": 848
       },
       "verbindungen": [
         "u_glockenmoench_kraft_4",
@@ -9956,8 +9857,8 @@
       "heldAst": "glockenmoench",
       "akt": 1,
       "position": {
-        "x": 4368,
-        "y": 814
+        "x": 1456,
+        "y": 848
       },
       "abBoss": 2,
       "alt": {
@@ -10000,8 +9901,8 @@
       "heldAst": "glockenmoench",
       "akt": 1,
       "position": {
-        "x": 4264,
-        "y": 814
+        "x": 1560,
+        "y": 848
       },
       "abBoss": 2,
       "alt": {
@@ -10044,8 +9945,8 @@
       "heldAst": "glockenmoench",
       "akt": 1,
       "position": {
-        "x": 4160,
-        "y": 814
+        "x": 1664,
+        "y": 848
       },
       "abBoss": 2,
       "alt": {
@@ -10088,8 +9989,8 @@
       "heldAst": "glockenmoench",
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 814
+        "x": 1768,
+        "y": 848
       },
       "abBoss": 2,
       "alt": {
@@ -10133,8 +10034,8 @@
       "heldAst": "glockenmoench",
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 772
+        "x": 1872,
+        "y": 806
       },
       "abBoss": 2,
       "alt": {
@@ -10155,8 +10056,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 730
+        "x": 1768,
+        "y": 764
       },
       "verbindungen": [
         "u_glockenmoench_4_5",
@@ -10198,7 +10099,7 @@
       "akt": 1,
       "position": {
         "x": 2808,
-        "y": 495
+        "y": 462
       },
       "verbindungen": [
         "q_schmied",
@@ -10242,7 +10143,7 @@
       "akt": 1,
       "position": {
         "x": 2704,
-        "y": 495
+        "y": 462
       },
       "verbindungen": [
         "u_gluecksfechter_kraft",
@@ -10286,7 +10187,7 @@
       "akt": 1,
       "position": {
         "x": 2600,
-        "y": 495
+        "y": 462
       },
       "verbindungen": [
         "u_gluecksfechter_kraft_2",
@@ -10330,7 +10231,7 @@
       "akt": 1,
       "position": {
         "x": 2496,
-        "y": 495
+        "y": 462
       },
       "verbindungen": [
         "u_gluecksfechter_kraft_3",
@@ -10374,7 +10275,7 @@
       "akt": 1,
       "position": {
         "x": 2392,
-        "y": 495
+        "y": 462
       },
       "verbindungen": [
         "u_gluecksfechter_kraft_4",
@@ -10418,7 +10319,7 @@
       "akt": 1,
       "position": {
         "x": 2080,
-        "y": 411
+        "y": 378
       },
       "verbindungen": [
         "u_gluecksfechter_ausfall_2"
@@ -10461,7 +10362,7 @@
       "akt": 1,
       "position": {
         "x": 2184,
-        "y": 411
+        "y": 378
       },
       "verbindungen": [
         "u_gluecksfechter_ausfall",
@@ -10505,7 +10406,7 @@
       "akt": 1,
       "position": {
         "x": 2288,
-        "y": 495
+        "y": 462
       },
       "verbindungen": [
         "u_gluecksfechter_ausfall_2",
@@ -10550,7 +10451,7 @@
       "akt": 1,
       "position": {
         "x": 2184,
-        "y": 537
+        "y": 504
       },
       "verbindungen": [
         "u_gluecksfechter_ausfall_3",
@@ -10587,7 +10488,7 @@
       "akt": 1,
       "position": {
         "x": 2080,
-        "y": 537
+        "y": 504
       },
       "verbindungen": [
         "q_u_gluecksfechter",
@@ -10626,7 +10527,7 @@
       "akt": 1,
       "position": {
         "x": 1976,
-        "y": 537
+        "y": 504
       },
       "verbindungen": [
         "u_gluecksfechter_glueck",
@@ -10670,7 +10571,7 @@
       "akt": 1,
       "position": {
         "x": 1872,
-        "y": 537
+        "y": 504
       },
       "verbindungen": [
         "u_gluecksfechter_elite",
@@ -10714,7 +10615,7 @@
       "akt": 1,
       "position": {
         "x": 1768,
-        "y": 537
+        "y": 504
       },
       "verbindungen": [
         "u_gluecksfechter_elite_2",
@@ -10751,7 +10652,7 @@
       "akt": 1,
       "position": {
         "x": 1664,
-        "y": 537
+        "y": 504
       },
       "verbindungen": [
         "u_gluecksfechter_pfeilregen",
@@ -10795,7 +10696,7 @@
       "akt": 1,
       "position": {
         "x": 1560,
-        "y": 537
+        "y": 504
       },
       "verbindungen": [
         "u_gluecksfechter_praezision",
@@ -10839,7 +10740,7 @@
       "akt": 1,
       "position": {
         "x": 1456,
-        "y": 537
+        "y": 504
       },
       "verbindungen": [
         "u_gluecksfechter_praezision_2",
@@ -10883,7 +10784,7 @@
       "akt": 1,
       "position": {
         "x": 1352,
-        "y": 537
+        "y": 504
       },
       "verbindungen": [
         "u_gluecksfechter_praezision_3",
@@ -10927,7 +10828,7 @@
       "akt": 1,
       "position": {
         "x": 832,
-        "y": 579
+        "y": 546
       },
       "verbindungen": [
         "u_gluecksfechter_leben_2"
@@ -10970,7 +10871,7 @@
       "akt": 1,
       "position": {
         "x": 936,
-        "y": 579
+        "y": 546
       },
       "verbindungen": [
         "u_gluecksfechter_leben",
@@ -11014,7 +10915,7 @@
       "akt": 1,
       "position": {
         "x": 1040,
-        "y": 579
+        "y": 546
       },
       "verbindungen": [
         "u_gluecksfechter_leben_2",
@@ -11058,7 +10959,7 @@
       "akt": 1,
       "position": {
         "x": 1144,
-        "y": 579
+        "y": 546
       },
       "verbindungen": [
         "u_gluecksfechter_leben_3",
@@ -11102,7 +11003,7 @@
       "akt": 1,
       "position": {
         "x": 1248,
-        "y": 537
+        "y": 504
       },
       "verbindungen": [
         "u_gluecksfechter_leben_4",
@@ -11147,7 +11048,7 @@
       "akt": 1,
       "position": {
         "x": 1144,
-        "y": 495
+        "y": 462
       },
       "verbindungen": [
         "u_gluecksfechter_leben_5",
@@ -12126,8 +12027,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3016,
-        "y": 1764
+        "x": 2808,
+        "y": 1798
       },
       "verbindungen": [
         "q_kills300",
@@ -12170,8 +12071,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3120,
-        "y": 1764
+        "x": 2704,
+        "y": 1798
       },
       "verbindungen": [
         "u_flackerling_1",
@@ -12214,8 +12115,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3224,
-        "y": 1764
+        "x": 2600,
+        "y": 1798
       },
       "verbindungen": [
         "u_flackerling_1_2",
@@ -12258,8 +12159,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 1638
+        "x": 2080,
+        "y": 1672
       },
       "verbindungen": [
         "u_flackerling_2_2"
@@ -12301,8 +12202,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3640,
-        "y": 1638
+        "x": 2184,
+        "y": 1672
       },
       "verbindungen": [
         "u_flackerling_2",
@@ -12345,8 +12246,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3536,
-        "y": 1638
+        "x": 2288,
+        "y": 1672
       },
       "verbindungen": [
         "u_flackerling_2_2",
@@ -12389,8 +12290,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3432,
-        "y": 1638
+        "x": 2392,
+        "y": 1672
       },
       "verbindungen": [
         "u_flackerling_2_3",
@@ -12433,8 +12334,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3328,
-        "y": 1764
+        "x": 2496,
+        "y": 1798
       },
       "verbindungen": [
         "u_flackerling_2_4",
@@ -12473,13 +12374,13 @@
     {
       "id": "q_u_flackerling",
       "name": "Zwischen den Welten",
-      "beschreibung": "Besiege 150 Monster mit dem Flackerling.",
+      "beschreibung": "Besiege 75 Monster mit dem Flackerling.",
       "typ": "quest",
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3432,
-        "y": 1806
+        "x": 2392,
+        "y": 1840
       },
       "verbindungen": [
         "u_flackerling_2_5",
@@ -12496,7 +12397,7 @@
         "filter": {
           "einheit": "flackerling"
         },
-        "anzahl": 150
+        "anzahl": 75
       },
       "belohnung": {
         "mastery": 3000
@@ -12515,8 +12416,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3536,
-        "y": 1806
+        "x": 2288,
+        "y": 1840
       },
       "verbindungen": [
         "q_u_flackerling",
@@ -12559,8 +12460,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3640,
-        "y": 1806
+        "x": 2184,
+        "y": 1840
       },
       "verbindungen": [
         "u_flackerling_3",
@@ -12603,8 +12504,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 1806
+        "x": 2080,
+        "y": 1840
       },
       "verbindungen": [
         "u_flackerling_3_2",
@@ -12647,8 +12548,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 1890
+        "x": 1768,
+        "y": 1924
       },
       "verbindungen": [
         "u_flackerling_4_2"
@@ -12690,8 +12591,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 1890
+        "x": 1872,
+        "y": 1924
       },
       "verbindungen": [
         "u_flackerling_4",
@@ -12734,8 +12635,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 1806
+        "x": 1976,
+        "y": 1840
       },
       "verbindungen": [
         "u_flackerling_4_2",
@@ -12779,8 +12680,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4368,
-        "y": 1806
+        "x": 1456,
+        "y": 1840
       },
       "verbindungen": [
         "u_flackerling_5_2"
@@ -12822,8 +12723,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4264,
-        "y": 1806
+        "x": 1560,
+        "y": 1840
       },
       "verbindungen": [
         "u_flackerling_5",
@@ -12866,8 +12767,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4160,
-        "y": 1806
+        "x": 1664,
+        "y": 1840
       },
       "verbindungen": [
         "u_flackerling_5_2",
@@ -12910,8 +12811,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 1806
+        "x": 1768,
+        "y": 1840
       },
       "verbindungen": [
         "u_flackerling_5_3",
@@ -12954,8 +12855,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 1764
+        "x": 1872,
+        "y": 1798
       },
       "verbindungen": [
         "u_flackerling_5_4",
@@ -12999,8 +12900,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2808,
-        "y": 1747
+        "x": 3016,
+        "y": 1680
       },
       "verbindungen": [
         "q_kills300",
@@ -13043,8 +12944,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2704,
-        "y": 1747
+        "x": 3120,
+        "y": 1680
       },
       "verbindungen": [
         "u_spiegelsplitter_1",
@@ -13087,8 +12988,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2600,
-        "y": 1747
+        "x": 3224,
+        "y": 1680
       },
       "verbindungen": [
         "u_spiegelsplitter_1_2",
@@ -13131,8 +13032,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2080,
-        "y": 1621
+        "x": 3744,
+        "y": 1554
       },
       "verbindungen": [
         "u_spiegelsplitter_2_2"
@@ -13174,8 +13075,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2184,
-        "y": 1621
+        "x": 3640,
+        "y": 1554
       },
       "verbindungen": [
         "u_spiegelsplitter_2",
@@ -13218,8 +13119,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2288,
-        "y": 1621
+        "x": 3536,
+        "y": 1554
       },
       "verbindungen": [
         "u_spiegelsplitter_2_2",
@@ -13262,8 +13163,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2392,
-        "y": 1621
+        "x": 3432,
+        "y": 1554
       },
       "verbindungen": [
         "u_spiegelsplitter_2_3",
@@ -13306,8 +13207,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2496,
-        "y": 1747
+        "x": 3328,
+        "y": 1680
       },
       "verbindungen": [
         "u_spiegelsplitter_2_4",
@@ -13346,13 +13247,13 @@
     {
       "id": "q_u_spiegelsplitter",
       "name": "Scherbenlauf",
-      "beschreibung": "Besiege 150 Monster mit dem Spiegelsplitter.",
+      "beschreibung": "Besiege 75 Monster mit dem Spiegelsplitter.",
       "typ": "quest",
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2392,
-        "y": 1789
+        "x": 3432,
+        "y": 1722
       },
       "verbindungen": [
         "u_spiegelsplitter_2_5",
@@ -13369,7 +13270,7 @@
         "filter": {
           "einheit": "spiegelsplitter"
         },
-        "anzahl": 150
+        "anzahl": 75
       },
       "belohnung": {
         "mastery": 3000
@@ -13388,8 +13289,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2288,
-        "y": 1789
+        "x": 3536,
+        "y": 1722
       },
       "verbindungen": [
         "q_u_spiegelsplitter",
@@ -13432,8 +13333,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2184,
-        "y": 1789
+        "x": 3640,
+        "y": 1722
       },
       "verbindungen": [
         "u_spiegelsplitter_3",
@@ -13476,8 +13377,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2080,
-        "y": 1789
+        "x": 3744,
+        "y": 1722
       },
       "verbindungen": [
         "u_spiegelsplitter_3_2",
@@ -13520,8 +13421,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1560,
-        "y": 1873
+        "x": 4264,
+        "y": 1806
       },
       "verbindungen": [
         "u_spiegelsplitter_4_2"
@@ -13563,8 +13464,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 1873
+        "x": 4160,
+        "y": 1806
       },
       "verbindungen": [
         "u_spiegelsplitter_4",
@@ -13607,8 +13508,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 1873
+        "x": 4056,
+        "y": 1806
       },
       "verbindungen": [
         "u_spiegelsplitter_4_2",
@@ -13651,8 +13552,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1872,
-        "y": 1873
+        "x": 3952,
+        "y": 1806
       },
       "verbindungen": [
         "u_spiegelsplitter_4_3",
@@ -13695,8 +13596,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1976,
-        "y": 1789
+        "x": 3848,
+        "y": 1722
       },
       "verbindungen": [
         "u_spiegelsplitter_4_4",
@@ -13740,8 +13641,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1456,
-        "y": 1789
+        "x": 4368,
+        "y": 1722
       },
       "verbindungen": [
         "u_spiegelsplitter_5_2"
@@ -13783,8 +13684,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1560,
-        "y": 1789
+        "x": 4264,
+        "y": 1722
       },
       "verbindungen": [
         "u_spiegelsplitter_5",
@@ -13827,8 +13728,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 1789
+        "x": 4160,
+        "y": 1722
       },
       "verbindungen": [
         "u_spiegelsplitter_5_2",
@@ -13871,8 +13772,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 1789
+        "x": 4056,
+        "y": 1722
       },
       "verbindungen": [
         "u_spiegelsplitter_5_3",
@@ -13915,8 +13816,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1872,
-        "y": 1747
+        "x": 3952,
+        "y": 1680
       },
       "verbindungen": [
         "u_spiegelsplitter_5_4",
@@ -13960,8 +13861,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3016,
-        "y": 1377
+        "x": 2808,
+        "y": 1411
       },
       "verbindungen": [
         "q_kills300",
@@ -14004,8 +13905,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3120,
-        "y": 1377
+        "x": 2704,
+        "y": 1411
       },
       "verbindungen": [
         "u_leerlaeufer_1",
@@ -14048,8 +13949,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3224,
-        "y": 1377
+        "x": 2600,
+        "y": 1411
       },
       "verbindungen": [
         "u_leerlaeufer_1_2",
@@ -14092,8 +13993,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 1251
+        "x": 2080,
+        "y": 1285
       },
       "verbindungen": [
         "u_leerlaeufer_2_2"
@@ -14135,8 +14036,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3640,
-        "y": 1251
+        "x": 2184,
+        "y": 1285
       },
       "verbindungen": [
         "u_leerlaeufer_2",
@@ -14179,8 +14080,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3536,
-        "y": 1251
+        "x": 2288,
+        "y": 1285
       },
       "verbindungen": [
         "u_leerlaeufer_2_2",
@@ -14223,8 +14124,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3432,
-        "y": 1251
+        "x": 2392,
+        "y": 1285
       },
       "verbindungen": [
         "u_leerlaeufer_2_3",
@@ -14267,8 +14168,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3328,
-        "y": 1377
+        "x": 2496,
+        "y": 1411
       },
       "verbindungen": [
         "u_leerlaeufer_2_4",
@@ -14307,13 +14208,13 @@
     {
       "id": "q_u_leerlaeufer",
       "name": "Ins Leere",
-      "beschreibung": "Besiege 150 Monster mit dem Leerläufer.",
+      "beschreibung": "Besiege 75 Monster mit dem Leerläufer.",
       "typ": "quest",
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3432,
-        "y": 1419
+        "x": 2392,
+        "y": 1453
       },
       "verbindungen": [
         "u_leerlaeufer_2_5",
@@ -14330,7 +14231,7 @@
         "filter": {
           "einheit": "leerlaeufer"
         },
-        "anzahl": 150
+        "anzahl": 75
       },
       "belohnung": {
         "mastery": 3000
@@ -14349,8 +14250,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3536,
-        "y": 1419
+        "x": 2288,
+        "y": 1453
       },
       "verbindungen": [
         "q_u_leerlaeufer",
@@ -14393,8 +14294,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3640,
-        "y": 1419
+        "x": 2184,
+        "y": 1453
       },
       "verbindungen": [
         "u_leerlaeufer_3",
@@ -14437,8 +14338,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 1419
+        "x": 2080,
+        "y": 1453
       },
       "verbindungen": [
         "u_leerlaeufer_3_2",
@@ -14481,8 +14382,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 1503
+        "x": 1768,
+        "y": 1537
       },
       "verbindungen": [
         "u_leerlaeufer_4_2"
@@ -14524,8 +14425,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 1503
+        "x": 1872,
+        "y": 1537
       },
       "verbindungen": [
         "u_leerlaeufer_4",
@@ -14568,8 +14469,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 1419
+        "x": 1976,
+        "y": 1453
       },
       "verbindungen": [
         "u_leerlaeufer_4_2",
@@ -14613,8 +14514,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4368,
-        "y": 1419
+        "x": 1456,
+        "y": 1453
       },
       "verbindungen": [
         "u_leerlaeufer_5_2"
@@ -14656,8 +14557,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4264,
-        "y": 1419
+        "x": 1560,
+        "y": 1453
       },
       "verbindungen": [
         "u_leerlaeufer_5",
@@ -14700,8 +14601,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4160,
-        "y": 1419
+        "x": 1664,
+        "y": 1453
       },
       "verbindungen": [
         "u_leerlaeufer_5_2",
@@ -14744,8 +14645,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 1419
+        "x": 1768,
+        "y": 1453
       },
       "verbindungen": [
         "u_leerlaeufer_5_3",
@@ -14788,8 +14689,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 1377
+        "x": 1872,
+        "y": 1411
       },
       "verbindungen": [
         "u_leerlaeufer_5_4",
@@ -14856,7 +14757,7 @@
       "akt": 1,
       "position": {
         "x": 3016,
-        "y": 2066
+        "y": 2117
       },
       "abBoss": 1,
       "alt": {
@@ -14900,7 +14801,7 @@
       "akt": 1,
       "position": {
         "x": 3120,
-        "y": 2066
+        "y": 2117
       },
       "abBoss": 1,
       "alt": {
@@ -14944,7 +14845,7 @@
       "akt": 1,
       "position": {
         "x": 3224,
-        "y": 2066
+        "y": 2117
       },
       "abBoss": 1,
       "alt": {
@@ -14988,7 +14889,7 @@
       "akt": 1,
       "position": {
         "x": 3328,
-        "y": 2066
+        "y": 2117
       },
       "abBoss": 1,
       "alt": {
@@ -15032,7 +14933,7 @@
       "akt": 1,
       "position": {
         "x": 3432,
-        "y": 2066
+        "y": 2117
       },
       "abBoss": 1,
       "alt": {
@@ -15075,7 +14976,7 @@
       "akt": 1,
       "position": {
         "x": 3952,
-        "y": 2024
+        "y": 2075
       },
       "abBoss": 1,
       "alt": {
@@ -15119,7 +15020,7 @@
       "akt": 1,
       "position": {
         "x": 3848,
-        "y": 2024
+        "y": 2075
       },
       "abBoss": 1,
       "alt": {
@@ -15163,7 +15064,7 @@
       "akt": 1,
       "position": {
         "x": 3744,
-        "y": 2024
+        "y": 2075
       },
       "abBoss": 1,
       "alt": {
@@ -15207,7 +15108,7 @@
       "akt": 1,
       "position": {
         "x": 3640,
-        "y": 2024
+        "y": 2075
       },
       "abBoss": 1,
       "alt": {
@@ -15252,7 +15153,7 @@
       "akt": 1,
       "position": {
         "x": 3536,
-        "y": 2066
+        "y": 2117
       },
       "abBoss": 1,
       "alt": {
@@ -15268,13 +15169,13 @@
     {
       "id": "q_u_skelettkrieger",
       "name": "Knochenarmee",
-      "beschreibung": "Besiege 100 Monster mit Skelettkriegern.",
+      "beschreibung": "Besiege 50 Monster mit Skelettkriegern.",
       "typ": "quest",
       "ast": "einheiten",
       "akt": 1,
       "position": {
         "x": 3640,
-        "y": 2108
+        "y": 2159
       },
       "verbindungen": [
         "sk_eile_5",
@@ -15291,7 +15192,7 @@
         "filter": {
           "einheit": "skelettkrieger"
         },
-        "anzahl": 100
+        "anzahl": 50
       },
       "belohnung": {
         "mastery": 500
@@ -15311,7 +15212,7 @@
       "akt": 1,
       "position": {
         "x": 3744,
-        "y": 2108
+        "y": 2159
       },
       "verbindungen": [
         "q_u_skelettkrieger",
@@ -15355,7 +15256,7 @@
       "akt": 1,
       "position": {
         "x": 3848,
-        "y": 2108
+        "y": 2159
       },
       "verbindungen": [
         "sk_panzer",
@@ -15399,7 +15300,7 @@
       "akt": 1,
       "position": {
         "x": 3952,
-        "y": 2108
+        "y": 2159
       },
       "verbindungen": [
         "sk_panzer_2",
@@ -15443,7 +15344,7 @@
       "akt": 1,
       "position": {
         "x": 4056,
-        "y": 2108
+        "y": 2159
       },
       "verbindungen": [
         "sk_panzer_3",
@@ -15487,7 +15388,7 @@
       "akt": 1,
       "position": {
         "x": 4160,
-        "y": 2108
+        "y": 2159
       },
       "verbindungen": [
         "sk_panzer_4",
@@ -15531,7 +15432,7 @@
       "akt": 1,
       "position": {
         "x": 4264,
-        "y": 2108
+        "y": 2159
       },
       "verbindungen": [
         "sk_panzer_5",
@@ -15567,8 +15468,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 2528
+        "x": 4160,
+        "y": 2596
       },
       "verbindungen": [
         "u_torwaechterin_meister",
@@ -15605,8 +15506,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1560,
-        "y": 2528
+        "x": 4264,
+        "y": 2596
       },
       "verbindungen": [
         "e_block",
@@ -15644,7 +15545,7 @@
       "akt": 1,
       "position": {
         "x": 1040,
-        "y": 495
+        "y": 462
       },
       "verbindungen": [
         "u_gluecksfechter_meister",
@@ -15674,8 +15575,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4784,
-        "y": 4880
+        "x": 1040,
+        "y": 4780
       },
       "verbindungen": [
         "u_stalljunge_meister",
@@ -15723,8 +15624,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4888,
-        "y": 4880
+        "x": 936,
+        "y": 4780
       },
       "verbindungen": [
         "u_stalljunge_veteran",
@@ -15772,8 +15673,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4992,
-        "y": 4880
+        "x": 832,
+        "y": 4780
       },
       "verbindungen": [
         "u_stalljunge_veteran_2",
@@ -15821,8 +15722,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 5096,
-        "y": 4880
+        "x": 728,
+        "y": 4780
       },
       "verbindungen": [
         "u_stalljunge_veteran_3",
@@ -15870,8 +15771,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 5200,
-        "y": 4880
+        "x": 624,
+        "y": 4780
       },
       "verbindungen": [
         "u_stalljunge_veteran_4"
@@ -15918,8 +15819,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4368,
-        "y": 4578
+        "x": 1456,
+        "y": 4477
       },
       "verbindungen": [
         "u_kettenschwinger_6",
@@ -15967,8 +15868,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4472,
-        "y": 4578
+        "x": 1352,
+        "y": 4477
       },
       "verbindungen": [
         "u_kettenschwinger_veteran",
@@ -16016,8 +15917,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4576,
-        "y": 4578
+        "x": 1248,
+        "y": 4477
       },
       "verbindungen": [
         "u_kettenschwinger_veteran_2",
@@ -16065,8 +15966,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4680,
-        "y": 4578
+        "x": 1144,
+        "y": 4477
       },
       "verbindungen": [
         "u_kettenschwinger_veteran_3",
@@ -16114,8 +16015,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4784,
-        "y": 4578
+        "x": 1040,
+        "y": 4477
       },
       "verbindungen": [
         "u_kettenschwinger_veteran_4"
@@ -16162,8 +16063,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1560,
-        "y": 4242
+        "x": 4264,
+        "y": 4360
       },
       "verbindungen": [
         "u_schleuderin_meister",
@@ -16211,8 +16112,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1456,
-        "y": 4242
+        "x": 4368,
+        "y": 4360
       },
       "verbindungen": [
         "u_schleuderin_veteran",
@@ -16260,8 +16161,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1352,
-        "y": 4242
+        "x": 4472,
+        "y": 4360
       },
       "verbindungen": [
         "u_schleuderin_veteran_2",
@@ -16309,8 +16210,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1248,
-        "y": 4242
+        "x": 4576,
+        "y": 4360
       },
       "verbindungen": [
         "u_schleuderin_veteran_3",
@@ -16358,8 +16259,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1144,
-        "y": 4242
+        "x": 4680,
+        "y": 4360
       },
       "verbindungen": [
         "u_schleuderin_veteran_4"
@@ -16406,8 +16307,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1040,
-        "y": 2528
+        "x": 4784,
+        "y": 2596
       },
       "verbindungen": [
         "u_torwaechterin_veteran_2"
@@ -16454,8 +16355,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1144,
-        "y": 2528
+        "x": 4680,
+        "y": 2596
       },
       "verbindungen": [
         "u_torwaechterin_veteran",
@@ -16503,8 +16404,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1248,
-        "y": 2528
+        "x": 4576,
+        "y": 2596
       },
       "verbindungen": [
         "u_torwaechterin_veteran_2",
@@ -16552,8 +16453,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1352,
-        "y": 2528
+        "x": 4472,
+        "y": 2596
       },
       "verbindungen": [
         "u_torwaechterin_veteran_3",
@@ -16601,8 +16502,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1456,
-        "y": 2528
+        "x": 4368,
+        "y": 2596
       },
       "verbindungen": [
         "u_torwaechterin_veteran_4",
@@ -16651,7 +16552,7 @@
       "akt": 1,
       "position": {
         "x": 4992,
-        "y": 2326
+        "y": 2377
       },
       "verbindungen": [
         "u_windlaeufer_6",
@@ -16700,7 +16601,7 @@
       "akt": 1,
       "position": {
         "x": 5096,
-        "y": 2326
+        "y": 2377
       },
       "verbindungen": [
         "u_windlaeufer_veteran",
@@ -16749,7 +16650,7 @@
       "akt": 1,
       "position": {
         "x": 5200,
-        "y": 2326
+        "y": 2377
       },
       "verbindungen": [
         "u_windlaeufer_veteran_2",
@@ -16798,7 +16699,7 @@
       "akt": 1,
       "position": {
         "x": 5304,
-        "y": 2326
+        "y": 2377
       },
       "verbindungen": [
         "u_windlaeufer_veteran_3",
@@ -16847,7 +16748,7 @@
       "akt": 1,
       "position": {
         "x": 5408,
-        "y": 2326
+        "y": 2377
       },
       "verbindungen": [
         "u_windlaeufer_veteran_4"
@@ -16895,7 +16796,7 @@
       "akt": 1,
       "position": {
         "x": 1352,
-        "y": 2226
+        "y": 2142
       },
       "verbindungen": [
         "u_glutweberin_meister",
@@ -16944,7 +16845,7 @@
       "akt": 1,
       "position": {
         "x": 1248,
-        "y": 2226
+        "y": 2142
       },
       "verbindungen": [
         "u_glutweberin_veteran",
@@ -16993,7 +16894,7 @@
       "akt": 1,
       "position": {
         "x": 1144,
-        "y": 2226
+        "y": 2142
       },
       "verbindungen": [
         "u_glutweberin_veteran_2",
@@ -17042,7 +16943,7 @@
       "akt": 1,
       "position": {
         "x": 1040,
-        "y": 2226
+        "y": 2142
       },
       "verbindungen": [
         "u_glutweberin_veteran_3",
@@ -17091,7 +16992,7 @@
       "akt": 1,
       "position": {
         "x": 936,
-        "y": 2226
+        "y": 2142
       },
       "verbindungen": [
         "u_glutweberin_veteran_4"
@@ -17138,8 +17039,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1456,
-        "y": 1318
+        "x": 4368,
+        "y": 1252
       },
       "verbindungen": [
         "u_bannertraeger_meister",
@@ -17187,8 +17088,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1352,
-        "y": 1318
+        "x": 4472,
+        "y": 1252
       },
       "verbindungen": [
         "u_bannertraeger_veteran",
@@ -17236,8 +17137,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1248,
-        "y": 1318
+        "x": 4576,
+        "y": 1252
       },
       "verbindungen": [
         "u_bannertraeger_veteran_2",
@@ -17285,8 +17186,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1144,
-        "y": 1318
+        "x": 4680,
+        "y": 1252
       },
       "verbindungen": [
         "u_bannertraeger_veteran_3",
@@ -17334,8 +17235,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1040,
-        "y": 1318
+        "x": 4784,
+        "y": 1252
       },
       "verbindungen": [
         "u_bannertraeger_veteran_4"
@@ -17382,8 +17283,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 5200,
-        "y": 1117
+        "x": 624,
+        "y": 1151
       },
       "verbindungen": [
         "u_moorhexer_8",
@@ -17431,8 +17332,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 5304,
-        "y": 1117
+        "x": 520,
+        "y": 1151
       },
       "verbindungen": [
         "u_moorhexer_veteran",
@@ -17480,8 +17381,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 5408,
-        "y": 1117
+        "x": 416,
+        "y": 1151
       },
       "verbindungen": [
         "u_moorhexer_veteran_2",
@@ -17529,8 +17430,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 5512,
-        "y": 1117
+        "x": 312,
+        "y": 1151
       },
       "verbindungen": [
         "u_moorhexer_veteran_3",
@@ -17578,8 +17479,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 5616,
-        "y": 1117
+        "x": 208,
+        "y": 1151
       },
       "verbindungen": [
         "u_moorhexer_veteran_4"
@@ -17626,8 +17527,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 932
+        "x": 4160,
+        "y": 865
       },
       "verbindungen": [
         "u_wolkenhirtin_meister",
@@ -17675,8 +17576,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1560,
-        "y": 932
+        "x": 4264,
+        "y": 865
       },
       "verbindungen": [
         "u_wolkenhirtin_veteran",
@@ -17724,8 +17625,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1456,
-        "y": 932
+        "x": 4368,
+        "y": 865
       },
       "verbindungen": [
         "u_wolkenhirtin_veteran_2",
@@ -17773,8 +17674,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1352,
-        "y": 932
+        "x": 4472,
+        "y": 865
       },
       "verbindungen": [
         "u_wolkenhirtin_veteran_3",
@@ -17822,8 +17723,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1248,
-        "y": 932
+        "x": 4576,
+        "y": 865
       },
       "verbindungen": [
         "u_wolkenhirtin_veteran_4"
@@ -17870,8 +17771,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4160,
-        "y": 730
+        "x": 1664,
+        "y": 764
       },
       "verbindungen": [
         "u_glockenmoench_meister",
@@ -17919,8 +17820,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4264,
-        "y": 730
+        "x": 1560,
+        "y": 764
       },
       "verbindungen": [
         "u_glockenmoench_veteran",
@@ -17968,8 +17869,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4368,
-        "y": 730
+        "x": 1456,
+        "y": 764
       },
       "verbindungen": [
         "u_glockenmoench_veteran_2",
@@ -18017,8 +17918,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4472,
-        "y": 730
+        "x": 1352,
+        "y": 764
       },
       "verbindungen": [
         "u_glockenmoench_veteran_3",
@@ -18066,8 +17967,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4576,
-        "y": 730
+        "x": 1248,
+        "y": 764
       },
       "verbindungen": [
         "u_glockenmoench_veteran_4"
@@ -18115,7 +18016,7 @@
       "akt": 1,
       "position": {
         "x": 936,
-        "y": 495
+        "y": 462
       },
       "verbindungen": [
         "e_krit",
@@ -18164,7 +18065,7 @@
       "akt": 1,
       "position": {
         "x": 832,
-        "y": 495
+        "y": 462
       },
       "verbindungen": [
         "u_gluecksfechter_veteran",
@@ -18213,7 +18114,7 @@
       "akt": 1,
       "position": {
         "x": 728,
-        "y": 495
+        "y": 462
       },
       "verbindungen": [
         "u_gluecksfechter_veteran_2",
@@ -18262,7 +18163,7 @@
       "akt": 1,
       "position": {
         "x": 624,
-        "y": 495
+        "y": 462
       },
       "verbindungen": [
         "u_gluecksfechter_veteran_3",
@@ -18311,7 +18212,7 @@
       "akt": 1,
       "position": {
         "x": 520,
-        "y": 495
+        "y": 462
       },
       "verbindungen": [
         "u_gluecksfechter_veteran_4"
@@ -18602,8 +18503,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4472,
-        "y": 1722
+        "x": 1352,
+        "y": 1756
       },
       "verbindungen": [
         "u_flackerling_veteran_2"
@@ -18650,8 +18551,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4368,
-        "y": 1722
+        "x": 1456,
+        "y": 1756
       },
       "verbindungen": [
         "u_flackerling_veteran",
@@ -18699,8 +18600,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4264,
-        "y": 1722
+        "x": 1560,
+        "y": 1756
       },
       "verbindungen": [
         "u_flackerling_veteran_2",
@@ -18748,8 +18649,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4160,
-        "y": 1722
+        "x": 1664,
+        "y": 1756
       },
       "verbindungen": [
         "u_flackerling_veteran_3",
@@ -18797,8 +18698,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 1722
+        "x": 1768,
+        "y": 1756
       },
       "verbindungen": [
         "u_flackerling_veteran_4",
@@ -18846,8 +18747,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1352,
-        "y": 1705
+        "x": 4472,
+        "y": 1638
       },
       "verbindungen": [
         "u_spiegelsplitter_veteran_2"
@@ -18894,8 +18795,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1456,
-        "y": 1705
+        "x": 4368,
+        "y": 1638
       },
       "verbindungen": [
         "u_spiegelsplitter_veteran",
@@ -18943,8 +18844,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1560,
-        "y": 1705
+        "x": 4264,
+        "y": 1638
       },
       "verbindungen": [
         "u_spiegelsplitter_veteran_2",
@@ -18992,8 +18893,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 1705
+        "x": 4160,
+        "y": 1638
       },
       "verbindungen": [
         "u_spiegelsplitter_veteran_3",
@@ -19041,8 +18942,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 1705
+        "x": 4056,
+        "y": 1638
       },
       "verbindungen": [
         "u_spiegelsplitter_veteran_4",
@@ -19090,8 +18991,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4472,
-        "y": 1335
+        "x": 1352,
+        "y": 1369
       },
       "verbindungen": [
         "u_leerlaeufer_veteran_2"
@@ -19138,8 +19039,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4368,
-        "y": 1335
+        "x": 1456,
+        "y": 1369
       },
       "verbindungen": [
         "u_leerlaeufer_veteran",
@@ -19187,8 +19088,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4264,
-        "y": 1335
+        "x": 1560,
+        "y": 1369
       },
       "verbindungen": [
         "u_leerlaeufer_veteran_2",
@@ -19236,8 +19137,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4160,
-        "y": 1335
+        "x": 1664,
+        "y": 1369
       },
       "verbindungen": [
         "u_leerlaeufer_veteran_3",
@@ -19285,8 +19186,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 1335
+        "x": 1768,
+        "y": 1369
       },
       "verbindungen": [
         "u_leerlaeufer_veteran_4",
@@ -19335,7 +19236,7 @@
       "akt": 1,
       "position": {
         "x": 4368,
-        "y": 2108
+        "y": 2159
       },
       "verbindungen": [
         "sk_meister",
@@ -19384,7 +19285,7 @@
       "akt": 1,
       "position": {
         "x": 4472,
-        "y": 2108
+        "y": 2159
       },
       "verbindungen": [
         "u_skelettkrieger_veteran",
@@ -19433,7 +19334,7 @@
       "akt": 1,
       "position": {
         "x": 4576,
-        "y": 2108
+        "y": 2159
       },
       "verbindungen": [
         "u_skelettkrieger_veteran_2",
@@ -19482,7 +19383,7 @@
       "akt": 1,
       "position": {
         "x": 4680,
-        "y": 2108
+        "y": 2159
       },
       "verbindungen": [
         "u_skelettkrieger_veteran_3",
@@ -19531,7 +19432,7 @@
       "akt": 1,
       "position": {
         "x": 4784,
-        "y": 2108
+        "y": 2159
       },
       "verbindungen": [
         "u_skelettkrieger_veteran_4"
@@ -19578,8 +19479,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2808,
-        "y": 3427
+        "x": 3016,
+        "y": 3494
       },
       "verbindungen": [
         "q_trommler",
@@ -19612,8 +19513,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2704,
-        "y": 3427
+        "x": 3120,
+        "y": 3494
       },
       "verbindungen": [
         "e_kampf",
@@ -19646,8 +19547,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2600,
-        "y": 3427
+        "x": 3224,
+        "y": 3494
       },
       "verbindungen": [
         "e_kampf_2",
@@ -19680,8 +19581,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2496,
-        "y": 3427
+        "x": 3328,
+        "y": 3494
       },
       "verbindungen": [
         "e_kampf_3",
@@ -19714,8 +19615,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2392,
-        "y": 3427
+        "x": 3432,
+        "y": 3494
       },
       "verbindungen": [
         "e_kampf_4",
@@ -19748,8 +19649,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1872,
-        "y": 3553
+        "x": 3952,
+        "y": 3620
       },
       "verbindungen": [
         "e_leben_2"
@@ -19781,8 +19682,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1976,
-        "y": 3553
+        "x": 3848,
+        "y": 3620
       },
       "verbindungen": [
         "e_leben",
@@ -19815,8 +19716,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2080,
-        "y": 3553
+        "x": 3744,
+        "y": 3620
       },
       "verbindungen": [
         "e_leben_2",
@@ -19849,8 +19750,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2184,
-        "y": 3553
+        "x": 3640,
+        "y": 3620
       },
       "verbindungen": [
         "e_leben_3",
@@ -19883,8 +19784,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2288,
-        "y": 3427
+        "x": 3536,
+        "y": 3494
       },
       "verbindungen": [
         "e_leben_4",
@@ -19918,8 +19819,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 3469
+        "x": 4056,
+        "y": 3536
       },
       "verbindungen": [
         "e_tempo_2"
@@ -19951,8 +19852,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1872,
-        "y": 3469
+        "x": 3952,
+        "y": 3536
       },
       "verbindungen": [
         "e_tempo",
@@ -19985,8 +19886,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1976,
-        "y": 3469
+        "x": 3848,
+        "y": 3536
       },
       "verbindungen": [
         "e_tempo_2",
@@ -20019,8 +19920,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2080,
-        "y": 3469
+        "x": 3744,
+        "y": 3536
       },
       "verbindungen": [
         "e_tempo_3",
@@ -20053,8 +19954,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2184,
-        "y": 3385
+        "x": 3640,
+        "y": 3452
       },
       "verbindungen": [
         "e_tempo_4",
@@ -20089,8 +19990,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2080,
-        "y": 3385
+        "x": 3744,
+        "y": 3452
       },
       "verbindungen": [
         "r_knochenecho",
@@ -20116,8 +20017,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 4796
+        "x": 4056,
+        "y": 4914
       },
       "verbindungen": [
         "c_radius_2"
@@ -20149,8 +20050,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 4796
+        "x": 3952,
+        "y": 4914
       },
       "verbindungen": [
         "c_radius",
@@ -20183,8 +20084,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 1872,
-        "y": 4796
+        "x": 3848,
+        "y": 4914
       },
       "verbindungen": [
         "c_radius_2",
@@ -20217,8 +20118,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 1976,
-        "y": 4796
+        "x": 3744,
+        "y": 4914
       },
       "verbindungen": [
         "c_radius_3",
@@ -20251,8 +20152,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 2080,
-        "y": 4712
+        "x": 3640,
+        "y": 4830
       },
       "verbindungen": [
         "c_radius_4",
@@ -20286,8 +20187,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 1560,
-        "y": 4712
+        "x": 4160,
+        "y": 4830
       },
       "verbindungen": [
         "c_krit_2"
@@ -20319,8 +20220,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 4712
+        "x": 4056,
+        "y": 4830
       },
       "verbindungen": [
         "c_krit",
@@ -20353,8 +20254,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 4712
+        "x": 3952,
+        "y": 4830
       },
       "verbindungen": [
         "c_krit_2",
@@ -20387,8 +20288,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 1872,
-        "y": 4712
+        "x": 3848,
+        "y": 4830
       },
       "verbindungen": [
         "c_krit_3",
@@ -20421,8 +20322,8 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 1976,
-        "y": 4670
+        "x": 3744,
+        "y": 4788
       },
       "verbindungen": [
         "c_krit_4",
@@ -20456,8 +20357,8 @@
       "ast": "turm",
       "akt": 1,
       "position": {
-        "x": 2808,
-        "y": 714
+        "x": 3016,
+        "y": 647
       },
       "verbindungen": [
         "q_schmied"
@@ -20481,8 +20382,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3120,
-        "y": 4149
+        "x": 2704,
+        "y": 4049
       },
       "verbindungen": [
         "p_bonuskarte",
@@ -20509,8 +20410,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3224,
-        "y": 4359
+        "x": 2600,
+        "y": 4259
       },
       "verbindungen": [
         "p_folie2",
@@ -20543,8 +20444,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3328,
-        "y": 4359
+        "x": 2496,
+        "y": 4259
       },
       "verbindungen": [
         "p_bonuskarte",
@@ -20577,8 +20478,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3432,
-        "y": 4359
+        "x": 2392,
+        "y": 4259
       },
       "verbindungen": [
         "p_bonuskarte_2",
@@ -20611,8 +20512,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3536,
-        "y": 4359
+        "x": 2288,
+        "y": 4259
       },
       "verbindungen": [
         "p_bonuskarte_3",
@@ -20645,8 +20546,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3640,
-        "y": 4359
+        "x": 2184,
+        "y": 4259
       },
       "verbindungen": [
         "p_bonuskarte_4",
@@ -20679,8 +20580,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3224,
-        "y": 4107
+        "x": 2600,
+        "y": 4007
       },
       "verbindungen": [
         "p_folie2",
@@ -20713,8 +20614,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3328,
-        "y": 4107
+        "x": 2496,
+        "y": 4007
       },
       "verbindungen": [
         "p_widerstand",
@@ -20747,8 +20648,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3432,
-        "y": 4107
+        "x": 2392,
+        "y": 4007
       },
       "verbindungen": [
         "p_widerstand_2",
@@ -20781,8 +20682,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3536,
-        "y": 4107
+        "x": 2288,
+        "y": 4007
       },
       "verbindungen": [
         "p_widerstand_3",
@@ -20815,8 +20716,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3640,
-        "y": 4107
+        "x": 2184,
+        "y": 4007
       },
       "verbindungen": [
         "p_widerstand_4",
@@ -20862,8 +20763,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 4275
+        "x": 2080,
+        "y": 4175
       },
       "abBoss": 1,
       "symbol": "pack",
@@ -20889,8 +20790,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 4275
+        "x": 1976,
+        "y": 4175
       },
       "abBoss": 1,
       "alt": {
@@ -20923,8 +20824,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 4275
+        "x": 1872,
+        "y": 4175
       },
       "abBoss": 1,
       "alt": {
@@ -20957,8 +20858,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 4275
+        "x": 1768,
+        "y": 4175
       },
       "abBoss": 1,
       "alt": {
@@ -20991,8 +20892,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 4160,
-        "y": 4275
+        "x": 1664,
+        "y": 4175
       },
       "abBoss": 1,
       "alt": {
@@ -21024,8 +20925,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 4264,
-        "y": 4275
+        "x": 1560,
+        "y": 4175
       },
       "abBoss": 1,
       "alt": {
@@ -21046,8 +20947,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 4359
+        "x": 2080,
+        "y": 4259
       },
       "verbindungen": [
         "p_bonuskarte_5"
@@ -21076,8 +20977,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 2808,
-        "y": 2007
+        "x": 3016,
+        "y": 1940
       },
       "verbindungen": [
         "q_kills300"
@@ -21109,8 +21010,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 4191
+        "x": 2080,
+        "y": 4091
       },
       "verbindungen": [
         "p_widerstand_5"
@@ -21134,8 +21035,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 4023
+        "x": 2080,
+        "y": 3923
       },
       "verbindungen": [
         "p_kiste_silber",
@@ -21172,8 +21073,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 4107
+        "x": 1976,
+        "y": 4007
       },
       "abBoss": 1,
       "symbol": "pack",
@@ -21187,8 +21088,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 3981
+        "x": 1976,
+        "y": 3881
       },
       "verbindungen": [
         "p_karten",
@@ -21215,8 +21116,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 4023
+        "x": 1872,
+        "y": 3923
       },
       "verbindungen": [
         "p_packimpack2"
@@ -21240,8 +21141,8 @@
       "ast": "tomes",
       "akt": 1,
       "position": {
-        "x": 3016,
-        "y": 3091
+        "x": 2808,
+        "y": 2990
       },
       "verbindungen": [
         "to_wirkung",
@@ -21283,8 +21184,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3120,
-        "y": 3091
+        "x": 2704,
+        "y": 2990
       },
       "abBoss": 1,
       "alt": {
@@ -21317,8 +21218,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3224,
-        "y": 3091
+        "x": 2600,
+        "y": 2990
       },
       "abBoss": 1,
       "alt": {
@@ -21351,8 +21252,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3328,
-        "y": 3091
+        "x": 2496,
+        "y": 2990
       },
       "abBoss": 1,
       "alt": {
@@ -21385,8 +21286,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3432,
-        "y": 3091
+        "x": 2392,
+        "y": 2990
       },
       "abBoss": 1,
       "alt": {
@@ -21426,8 +21327,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3536,
-        "y": 3091
+        "x": 2288,
+        "y": 2990
       },
       "abBoss": 1,
       "alt": {
@@ -21459,8 +21360,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 3721
+        "x": 1768,
+        "y": 3620
       },
       "abBoss": 1,
       "alt": {
@@ -21493,8 +21394,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 3721
+        "x": 1872,
+        "y": 3620
       },
       "abBoss": 1,
       "alt": {
@@ -21527,8 +21428,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 3721
+        "x": 1976,
+        "y": 3620
       },
       "abBoss": 1,
       "alt": {
@@ -21561,8 +21462,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 3721
+        "x": 2080,
+        "y": 3620
       },
       "abBoss": 1,
       "alt": {
@@ -21596,8 +21497,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3640,
-        "y": 3679
+        "x": 2184,
+        "y": 3578
       },
       "abBoss": 1,
       "alt": {
@@ -21629,8 +21530,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 3637
+        "x": 2080,
+        "y": 3536
       },
       "abBoss": 1,
       "symbol": "book",
@@ -21655,8 +21556,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 3553
+        "x": 1768,
+        "y": 3452
       },
       "abBoss": 1,
       "alt": {
@@ -21689,8 +21590,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 3553
+        "x": 1872,
+        "y": 3452
       },
       "abBoss": 1,
       "alt": {
@@ -21723,8 +21624,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 3553
+        "x": 1976,
+        "y": 3452
       },
       "abBoss": 1,
       "alt": {
@@ -21757,8 +21658,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 3553
+        "x": 2080,
+        "y": 3452
       },
       "abBoss": 1,
       "alt": {
@@ -21791,8 +21692,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3640,
-        "y": 3553
+        "x": 2184,
+        "y": 3452
       },
       "abBoss": 1,
       "alt": {
@@ -21828,8 +21729,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 3469
+        "x": 1768,
+        "y": 3368
       },
       "abBoss": 1,
       "alt": {
@@ -21866,8 +21767,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 3469
+        "x": 1872,
+        "y": 3368
       },
       "abBoss": 1,
       "alt": {
@@ -21904,8 +21805,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 3469
+        "x": 1976,
+        "y": 3368
       },
       "abBoss": 1,
       "alt": {
@@ -21942,8 +21843,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 3469
+        "x": 2080,
+        "y": 3368
       },
       "abBoss": 1,
       "alt": {
@@ -21981,8 +21882,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3640,
-        "y": 3427
+        "x": 2184,
+        "y": 3326
       },
       "abBoss": 1,
       "alt": {
@@ -22018,8 +21919,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 4160,
-        "y": 3385
+        "x": 1664,
+        "y": 3284
       },
       "abBoss": 1,
       "alt": {
@@ -22056,8 +21957,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 3385
+        "x": 1768,
+        "y": 3284
       },
       "abBoss": 1,
       "alt": {
@@ -22094,8 +21995,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 3385
+        "x": 1872,
+        "y": 3284
       },
       "abBoss": 1,
       "alt": {
@@ -22132,8 +22033,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 3385
+        "x": 1976,
+        "y": 3284
       },
       "abBoss": 1,
       "alt": {
@@ -22170,8 +22071,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 3385
+        "x": 2080,
+        "y": 3284
       },
       "abBoss": 1,
       "alt": {
@@ -22207,8 +22108,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 3301
+        "x": 1768,
+        "y": 3200
       },
       "abBoss": 1,
       "alt": {
@@ -22245,8 +22146,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 3301
+        "x": 1872,
+        "y": 3200
       },
       "abBoss": 1,
       "alt": {
@@ -22283,8 +22184,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 3301
+        "x": 1976,
+        "y": 3200
       },
       "abBoss": 1,
       "alt": {
@@ -22321,8 +22222,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 3301
+        "x": 2080,
+        "y": 3200
       },
       "abBoss": 1,
       "alt": {
@@ -22360,8 +22261,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3640,
-        "y": 3217
+        "x": 2184,
+        "y": 3116
       },
       "abBoss": 1,
       "alt": {
@@ -22397,8 +22298,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 4160,
-        "y": 3217
+        "x": 1664,
+        "y": 3116
       },
       "abBoss": 1,
       "alt": {
@@ -22435,8 +22336,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 3217
+        "x": 1768,
+        "y": 3116
       },
       "abBoss": 1,
       "alt": {
@@ -22473,8 +22374,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 3217
+        "x": 1872,
+        "y": 3116
       },
       "abBoss": 1,
       "alt": {
@@ -22511,8 +22412,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 3217
+        "x": 1976,
+        "y": 3116
       },
       "abBoss": 1,
       "alt": {
@@ -22550,8 +22451,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 3175
+        "x": 2080,
+        "y": 3074
       },
       "abBoss": 1,
       "alt": {
@@ -22587,8 +22488,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 3049
+        "x": 1768,
+        "y": 2948
       },
       "abBoss": 1,
       "alt": {
@@ -22625,8 +22526,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 3049
+        "x": 1872,
+        "y": 2948
       },
       "abBoss": 1,
       "alt": {
@@ -22663,8 +22564,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 3049
+        "x": 1976,
+        "y": 2948
       },
       "abBoss": 1,
       "alt": {
@@ -22701,8 +22602,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 3049
+        "x": 2080,
+        "y": 2948
       },
       "abBoss": 1,
       "alt": {
@@ -22740,8 +22641,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3640,
-        "y": 3007
+        "x": 2184,
+        "y": 2906
       },
       "abBoss": 1,
       "alt": {
@@ -22777,8 +22678,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 4160,
-        "y": 2965
+        "x": 1664,
+        "y": 2864
       },
       "abBoss": 1,
       "alt": {
@@ -22815,8 +22716,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 2965
+        "x": 1768,
+        "y": 2864
       },
       "abBoss": 1,
       "alt": {
@@ -22853,8 +22754,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 2965
+        "x": 1872,
+        "y": 2864
       },
       "abBoss": 1,
       "alt": {
@@ -22891,8 +22792,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 2965
+        "x": 1976,
+        "y": 2864
       },
       "abBoss": 1,
       "alt": {
@@ -22929,8 +22830,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 2965
+        "x": 2080,
+        "y": 2864
       },
       "abBoss": 1,
       "alt": {
@@ -22966,8 +22867,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 2881
+        "x": 1768,
+        "y": 2780
       },
       "abBoss": 1,
       "alt": {
@@ -23004,8 +22905,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 2881
+        "x": 1872,
+        "y": 2780
       },
       "abBoss": 1,
       "alt": {
@@ -23042,8 +22943,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 2881
+        "x": 1976,
+        "y": 2780
       },
       "abBoss": 1,
       "alt": {
@@ -23080,8 +22981,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 2881
+        "x": 2080,
+        "y": 2780
       },
       "abBoss": 1,
       "alt": {
@@ -23119,8 +23020,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3640,
-        "y": 2839
+        "x": 2184,
+        "y": 2738
       },
       "abBoss": 1,
       "alt": {
@@ -23156,8 +23057,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 4160,
-        "y": 2797
+        "x": 1664,
+        "y": 2696
       },
       "abBoss": 1,
       "alt": {
@@ -23194,8 +23095,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 2797
+        "x": 1768,
+        "y": 2696
       },
       "abBoss": 1,
       "alt": {
@@ -23232,8 +23133,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 2797
+        "x": 1872,
+        "y": 2696
       },
       "abBoss": 1,
       "alt": {
@@ -23270,8 +23171,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 2797
+        "x": 1976,
+        "y": 2696
       },
       "abBoss": 1,
       "alt": {
@@ -23308,8 +23209,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 2797
+        "x": 2080,
+        "y": 2696
       },
       "abBoss": 1,
       "alt": {
@@ -23345,8 +23246,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 2713
+        "x": 1768,
+        "y": 2612
       },
       "abBoss": 1,
       "alt": {
@@ -23383,8 +23284,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 2713
+        "x": 1872,
+        "y": 2612
       },
       "abBoss": 1,
       "alt": {
@@ -23421,8 +23322,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 2713
+        "x": 1976,
+        "y": 2612
       },
       "abBoss": 1,
       "alt": {
@@ -23459,8 +23360,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 2713
+        "x": 2080,
+        "y": 2612
       },
       "abBoss": 1,
       "alt": {
@@ -23498,8 +23399,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3640,
-        "y": 2671
+        "x": 2184,
+        "y": 2570
       },
       "abBoss": 1,
       "alt": {
@@ -23535,8 +23436,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 4160,
-        "y": 2629
+        "x": 1664,
+        "y": 2528
       },
       "abBoss": 1,
       "alt": {
@@ -23573,8 +23474,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 2629
+        "x": 1768,
+        "y": 2528
       },
       "abBoss": 1,
       "alt": {
@@ -23611,8 +23512,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 2629
+        "x": 1872,
+        "y": 2528
       },
       "abBoss": 1,
       "alt": {
@@ -23649,8 +23550,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 2629
+        "x": 1976,
+        "y": 2528
       },
       "abBoss": 1,
       "alt": {
@@ -23687,8 +23588,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 2629
+        "x": 2080,
+        "y": 2528
       },
       "abBoss": 1,
       "alt": {
@@ -23724,8 +23625,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 2545
+        "x": 1768,
+        "y": 2444
       },
       "abBoss": 1,
       "alt": {
@@ -23762,8 +23663,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 2545
+        "x": 1872,
+        "y": 2444
       },
       "abBoss": 1,
       "alt": {
@@ -23800,8 +23701,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 2545
+        "x": 1976,
+        "y": 2444
       },
       "abBoss": 1,
       "alt": {
@@ -23838,8 +23739,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 2545
+        "x": 2080,
+        "y": 2444
       },
       "abBoss": 1,
       "alt": {
@@ -23877,8 +23778,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3640,
-        "y": 2503
+        "x": 2184,
+        "y": 2402
       },
       "abBoss": 1,
       "alt": {
@@ -23914,8 +23815,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 4160,
-        "y": 2461
+        "x": 1664,
+        "y": 2360
       },
       "abBoss": 1,
       "alt": {
@@ -23952,8 +23853,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 4056,
-        "y": 2461
+        "x": 1768,
+        "y": 2360
       },
       "abBoss": 1,
       "alt": {
@@ -23990,8 +23891,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3952,
-        "y": 2461
+        "x": 1872,
+        "y": 2360
       },
       "abBoss": 1,
       "alt": {
@@ -24028,8 +23929,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 2461
+        "x": 1976,
+        "y": 2360
       },
       "abBoss": 1,
       "alt": {
@@ -24066,8 +23967,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3744,
-        "y": 2461
+        "x": 2080,
+        "y": 2360
       },
       "abBoss": 1,
       "alt": {
@@ -24101,8 +24002,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 3848,
-        "y": 3133
+        "x": 1976,
+        "y": 3032
       },
       "abBoss": 1,
       "symbol": "card:knochenruf",
@@ -24130,8 +24031,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 2808,
-        "y": 3897
+        "x": 3016,
+        "y": 4015
       },
       "symbol": "house",
       "abzeichen": "plus"
@@ -24144,8 +24045,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 2392,
-        "y": 4107
+        "x": 3432,
+        "y": 4225
       },
       "verbindungen": [
         "b_taverne_aus_3",
@@ -24179,8 +24080,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 2288,
-        "y": 4107
+        "x": 3536,
+        "y": 4225
       },
       "verbindungen": [
         "b_taverne_eff",
@@ -24214,8 +24115,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 2184,
-        "y": 4107
+        "x": 3640,
+        "y": 4225
       },
       "verbindungen": [
         "b_taverne_eff_2"
@@ -24248,8 +24149,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 2704,
-        "y": 4107
+        "x": 3120,
+        "y": 4225
       },
       "verbindungen": [
         "b_taverne",
@@ -24283,8 +24184,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 2600,
-        "y": 4107
+        "x": 3224,
+        "y": 4225
       },
       "verbindungen": [
         "b_taverne_aus",
@@ -24318,8 +24219,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 2496,
-        "y": 4107
+        "x": 3328,
+        "y": 4225
       },
       "verbindungen": [
         "b_taverne_aus_2",
@@ -24368,8 +24269,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 2704,
-        "y": 3855
+        "x": 3120,
+        "y": 3973
       },
       "abBoss": 1,
       "symbol": "house",
@@ -24383,8 +24284,8 @@
       "ast": "gebaeude",
       "akt": 2,
       "position": {
-        "x": 2600,
-        "y": 3687
+        "x": 3224,
+        "y": 3805
       },
       "verbindungen": [
         "b_bibliothek_aus",
@@ -24410,8 +24311,8 @@
       "ast": "gebaeude",
       "akt": 2,
       "position": {
-        "x": 2496,
-        "y": 3687
+        "x": 3328,
+        "y": 3805
       },
       "verbindungen": [
         "b_bibliothek",
@@ -24444,8 +24345,8 @@
       "ast": "gebaeude",
       "akt": 2,
       "position": {
-        "x": 2392,
-        "y": 3687
+        "x": 3432,
+        "y": 3805
       },
       "verbindungen": [
         "b_bibliothek_aus"
@@ -24477,8 +24378,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 2600,
-        "y": 4023
+        "x": 3224,
+        "y": 4141
       },
       "verbindungen": [
         "b_kaserne",
@@ -24512,8 +24413,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 2496,
-        "y": 4023
+        "x": 3328,
+        "y": 4141
       },
       "verbindungen": [
         "b_kaserne_aus",
@@ -24547,8 +24448,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 2392,
-        "y": 4023
+        "x": 3432,
+        "y": 4141
       },
       "verbindungen": [
         "b_kaserne_aus_2",
@@ -24582,8 +24483,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 2288,
-        "y": 4023
+        "x": 3536,
+        "y": 4141
       },
       "verbindungen": [
         "b_kaserne_aus_3"
@@ -24624,8 +24525,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 2600,
-        "y": 3855
+        "x": 3224,
+        "y": 3973
       },
       "abBoss": 2,
       "symbol": "house",
@@ -24639,8 +24540,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 2496,
-        "y": 3939
+        "x": 3328,
+        "y": 4057
       },
       "verbindungen": [
         "b_sternwarte",
@@ -24674,8 +24575,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 2392,
-        "y": 3939
+        "x": 3432,
+        "y": 4057
       },
       "verbindungen": [
         "b_sternwarte_aus",
@@ -24709,8 +24610,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 2288,
-        "y": 3939
+        "x": 3536,
+        "y": 4057
       },
       "verbindungen": [
         "b_sternwarte_aus_2"
@@ -24736,8 +24637,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 2496,
-        "y": 3855
+        "x": 3328,
+        "y": 3973
       },
       "verbindungen": [
         "b_praegewerk_aus",
@@ -24765,8 +24666,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 2392,
-        "y": 3855
+        "x": 3432,
+        "y": 3973
       },
       "verbindungen": [
         "b_praegewerk",
@@ -24800,8 +24701,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 2288,
-        "y": 3855
+        "x": 3536,
+        "y": 3973
       },
       "verbindungen": [
         "b_praegewerk_aus"
@@ -24834,8 +24735,8 @@
       "ast": "wirtschaft",
       "akt": 1,
       "position": {
-        "x": 2808,
-        "y": 2956
+        "x": 3016,
+        "y": 3024
       },
       "verbindungen": [
         "w_platz",
@@ -24862,8 +24763,8 @@
       "ast": "wirtschaft",
       "akt": 1,
       "position": {
-        "x": 2704,
-        "y": 3040
+        "x": 3120,
+        "y": 3108
       },
       "verbindungen": [
         "w_einkommen",
@@ -24889,8 +24790,8 @@
       "ast": "wirtschaft",
       "akt": 1,
       "position": {
-        "x": 2704,
-        "y": 2830
+        "x": 3120,
+        "y": 2898
       },
       "verbindungen": [
         "w_wuerfeln",
@@ -24923,8 +24824,8 @@
       "ast": "wirtschaft",
       "akt": 1,
       "position": {
-        "x": 2600,
-        "y": 2830
+        "x": 3224,
+        "y": 2898
       },
       "verbindungen": [
         "w_rabatt",
@@ -24957,8 +24858,8 @@
       "ast": "wirtschaft",
       "akt": 1,
       "position": {
-        "x": 2496,
-        "y": 2830
+        "x": 3328,
+        "y": 2898
       },
       "verbindungen": [
         "w_rabatt_2"
@@ -25002,8 +24903,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 2704,
-        "y": 2746
+        "x": 3120,
+        "y": 2814
       },
       "abBoss": 2,
       "alt": {
@@ -25036,8 +24937,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 2600,
-        "y": 2746
+        "x": 3224,
+        "y": 2814
       },
       "abBoss": 2,
       "alt": {
@@ -25058,8 +24959,8 @@
       "ast": "wirtschaft",
       "akt": 2,
       "position": {
-        "x": 2496,
-        "y": 2746
+        "x": 3328,
+        "y": 2814
       },
       "verbindungen": [
         "w_jackpot_2"
@@ -25082,8 +24983,8 @@
       "ast": "wirtschaft",
       "akt": 1,
       "position": {
-        "x": 2600,
-        "y": 3040
+        "x": 3224,
+        "y": 3108
       },
       "verbindungen": [
         "w_platz",
@@ -25116,8 +25017,8 @@
       "ast": "wirtschaft",
       "akt": 1,
       "position": {
-        "x": 2496,
-        "y": 3040
+        "x": 3328,
+        "y": 3108
       },
       "verbindungen": [
         "w_einkommen",
@@ -25150,8 +25051,8 @@
       "ast": "wirtschaft",
       "akt": 1,
       "position": {
-        "x": 2392,
-        "y": 3040
+        "x": 3432,
+        "y": 3108
       },
       "verbindungen": [
         "w_einkommen_2",
@@ -25196,8 +25097,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 2080,
-        "y": 3166
+        "x": 3744,
+        "y": 3234
       },
       "abBoss": 1,
       "alt": {
@@ -25230,8 +25131,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 2184,
-        "y": 3166
+        "x": 3640,
+        "y": 3234
       },
       "abBoss": 1,
       "alt": {
@@ -25265,8 +25166,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 2288,
-        "y": 3124
+        "x": 3536,
+        "y": 3192
       },
       "abBoss": 1,
       "alt": {
@@ -25298,8 +25199,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 1976,
-        "y": 3082
+        "x": 3848,
+        "y": 3150
       },
       "abBoss": 2,
       "alt": {
@@ -25332,8 +25233,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 2080,
-        "y": 3082
+        "x": 3744,
+        "y": 3150
       },
       "abBoss": 2,
       "alt": {
@@ -25366,8 +25267,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 2184,
-        "y": 3082
+        "x": 3640,
+        "y": 3150
       },
       "abBoss": 2,
       "alt": {
@@ -25399,8 +25300,8 @@
       },
       "akt": 2,
       "position": {
-        "x": 1872,
-        "y": 2914
+        "x": 3952,
+        "y": 2982
       },
       "alt": {
         "id": "a2_einkommen",
@@ -25432,8 +25333,8 @@
       },
       "akt": 2,
       "position": {
-        "x": 1976,
-        "y": 2914
+        "x": 3848,
+        "y": 2982
       },
       "alt": {
         "id": "a2_einkommen",
@@ -25465,8 +25366,8 @@
       },
       "akt": 2,
       "position": {
-        "x": 2080,
-        "y": 2914
+        "x": 3744,
+        "y": 2982
       },
       "alt": {
         "id": "a2_einkommen",
@@ -25498,8 +25399,8 @@
       },
       "akt": 2,
       "position": {
-        "x": 2184,
-        "y": 2914
+        "x": 3640,
+        "y": 2982
       },
       "alt": {
         "id": "a2_einkommen",
@@ -25532,8 +25433,8 @@
       },
       "akt": 2,
       "position": {
-        "x": 2288,
-        "y": 2956
+        "x": 3536,
+        "y": 3024
       },
       "alt": {
         "id": "a2_einkommen",
@@ -25548,13 +25449,13 @@
     {
       "id": "q_a2_relikt",
       "name": "Schatzsucher",
-      "beschreibung": "Besiege 1.000 Monster.",
+      "beschreibung": "Besiege 500 Monster.",
       "typ": "quest",
       "ast": "wirtschaft",
       "akt": 2,
       "position": {
-        "x": 2184,
-        "y": 2998
+        "x": 3640,
+        "y": 3066
       },
       "verbindungen": [
         "a2_einkommen_5"
@@ -25567,7 +25468,7 @@
       },
       "aufgabe": {
         "statistik": "kills",
-        "anzahl": 1000
+        "anzahl": 500
       },
       "belohnung": {
         "relikt": "hammerrhythmus"
@@ -25593,8 +25494,8 @@
       },
       "akt": 2,
       "position": {
-        "x": 1664,
-        "y": 3301
+        "x": 4160,
+        "y": 3368
       },
       "alt": {
         "id": "a2_helden",
@@ -25626,8 +25527,8 @@
       },
       "akt": 2,
       "position": {
-        "x": 1768,
-        "y": 3301
+        "x": 4056,
+        "y": 3368
       },
       "alt": {
         "id": "a2_helden",
@@ -25659,8 +25560,8 @@
       },
       "akt": 2,
       "position": {
-        "x": 1872,
-        "y": 3301
+        "x": 3952,
+        "y": 3368
       },
       "alt": {
         "id": "a2_helden",
@@ -25692,8 +25593,8 @@
       },
       "akt": 2,
       "position": {
-        "x": 1976,
-        "y": 3301
+        "x": 3848,
+        "y": 3368
       },
       "alt": {
         "id": "a2_helden",
@@ -25725,8 +25626,8 @@
       },
       "akt": 2,
       "position": {
-        "x": 2080,
-        "y": 3301
+        "x": 3744,
+        "y": 3368
       },
       "alt": {
         "id": "a2_helden",
@@ -25746,8 +25647,8 @@
       "ast": "packs",
       "akt": 2,
       "position": {
-        "x": 3952,
-        "y": 3939
+        "x": 1872,
+        "y": 3839
       },
       "verbindungen": [
         "p_packimpack2"
@@ -25771,8 +25672,8 @@
       "ast": "relikt",
       "akt": 2,
       "position": {
-        "x": 1872,
-        "y": 4628
+        "x": 3848,
+        "y": 4746
       },
       "verbindungen": [
         "c_krit_5"
@@ -25795,8 +25696,8 @@
       "ast": "relikt",
       "akt": 2,
       "position": {
-        "x": 1976,
-        "y": 3385
+        "x": 3848,
+        "y": 3452
       },
       "verbindungen": [
         "e_meister"
@@ -25819,8 +25720,8 @@
       "ast": "relikt",
       "akt": 2,
       "position": {
-        "x": 2496,
-        "y": 3771
+        "x": 3328,
+        "y": 3889
       },
       "verbindungen": [
         "b_sternwarte"
@@ -25893,7 +25794,7 @@
     {
       "id": "q_a2_garde",
       "name": "Eisenbrecher",
-      "beschreibung": "Besiege 200 Gardisten.",
+      "beschreibung": "Besiege 100 Gardisten.",
       "typ": "quest",
       "ast": "stamm",
       "akt": 2,
@@ -25916,7 +25817,7 @@
         "filter": {
           "gegner": "gardist"
         },
-        "anzahl": 200
+        "anzahl": 100
       },
       "belohnung": {
         "reliktpack": 1
@@ -25926,7 +25827,7 @@
     {
       "id": "q_a2_tagebuch",
       "name": "Chronist",
-      "beschreibung": "Besiege 3.000 Monster.",
+      "beschreibung": "Besiege 1.500 Monster.",
       "typ": "quest",
       "ast": "stamm",
       "akt": 2,
@@ -25945,7 +25846,7 @@
       },
       "aufgabe": {
         "statistik": "kills",
-        "anzahl": 3000
+        "anzahl": 1500
       },
       "belohnung": {
         "relikt": "wegtagebuch"

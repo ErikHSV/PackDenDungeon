@@ -5,7 +5,7 @@
 // Knotentypen: Upgrade, Freischaltung, Relikt, Quest (kostenlos, wird durch Spielen erfüllt), Tor (Akt-Wechsel).
 import { $, escapeHtml, show, stage, confirmDialog, countTo } from './dom.js';
 import {
-  treeMap, treeIndex, treeLevel, nodeVisible, nodeCost, nodeBlocker, buyNode, describeNodeEffect, computeMods,
+  treeMap, treeIndex, treeLevel, nodeVisible, nodePreviewable, nodeCost, nodeBlocker, buyNode, describeNodeEffect, computeMods,
   questProgress, questChapters, claimQuestNode, describeReward, changeAct, foilTreeUnlocked, prestigeAvailable, chapterUnlocked,
 } from '../core/meta.js';
 import { hash } from '../render/pixel.js';
@@ -132,7 +132,14 @@ export class UpgradeTree {
 
   visible(node) { return nodeVisible(this.kind, node, this.save, this.data); }
 
+  /** Grau angezeigt: gesperrt, aber neben einem sichtbaren Knoten. */
+  preview(node) {
+    if (this.visible(node) || !nodePreviewable(this.kind, node, this.save)) return false;
+    return node.verbindungen.some((id) => { const m = this.index[id]; return m && this.visible(m); });
+  }
+
   state(node) {
+    if (this.preview(node)) return 'locked';
     const lvl = this.level(node.id);
     if (node.typ === 'start') return 'max';
     if (node.typ === 'quest') return lvl > 0 ? 'max' : questProgress(node, this.data, this.save).done ? 'claimable' : 'quest';
@@ -149,7 +156,7 @@ export class UpgradeTree {
     const kinds = foilTreeUnlocked(this.save) ? ['skill', 'foil'] : ['skill'];
     for (const kind of kinds) {
       this.kind = kind;
-      const n = this.map.knoten.find((k) => this.visible(k) && Math.abs(k.position.x - w.x) <= r && Math.abs(k.position.y - w.y) <= r);
+      const n = this.map.knoten.find((k) => Math.abs(k.position.x - w.x) <= r && Math.abs(k.position.y - w.y) <= r && (this.visible(k) || this.preview(k)));
       if (n) return n;
     }
     this.kind = 'skill';
@@ -170,6 +177,7 @@ export class UpgradeTree {
 
   /** Klick auf einen Knoten: kaufen, Quest abholen oder Tor öffnen. */
   activate(node) {
+    if (this.preview(node)) { play('error'); this.showInfo(node); return false; }
     if (node.typ === 'quest') return this.claim(node);
     if (node.typ === 'tor') { this.openGate(node); return false; }
     return this.tryBuy(node);
@@ -327,6 +335,16 @@ export class UpgradeTree {
     const col = this.foil ? '#ff9ad8' : node.typ === 'quest' ? '#e8dcc0' : data.branchIndex[node.ast]?.farbe ?? '#fff';
     const branch = this.foil ? data.foiltree.aeste.find((a) => a.id === node.ast)?.name : data.branchIndex[node.ast]?.name;
     let html = `<h3 style="color:${col}">${escapeHtml(node.name)}</h3><div class="typ">${TYPE_NAME[node.typ] ?? ''}${branch ? ` · ${escapeHtml(branch)}` : ''}</div>`;
+    if (st === 'locked') {
+      const boss = node.abBoss && !(save.stats.bossKills[node.abBoss] > 0);
+      const bossName = boss ? data.enemies.find((e) => e.id === data.chapterIndex[node.abBoss]?.boss)?.name : null;
+      html += `<div>${escapeHtml(node.typ === 'quest' ? node.beschreibung : node.beschreibung)}</div>
+        <div class="cost no">Gesperrt – ${boss ? `erst nach dem Sieg über ${escapeHtml(bossName ?? `den Boss von Kapitel ${node.abBoss}`)}` : 'zuerst den angrenzenden Knoten kaufen'}.</div>`;
+      box.innerHTML = html;
+      box.style.borderColor = '#5a5468';
+      show('#tree-info', true);
+      return;
+    }
     if (node.typ === 'quest') {
       const p = questProgress(node, data, save);
       const chs = questChapters(node, data);
@@ -612,7 +630,7 @@ export class UpgradeTree {
       }
     }
 
-    for (const n of nodes) if (vis[n.id]) this.drawNode(n, t, now);
+    for (const n of nodes) if (vis[n.id] || this.preview(n)) this.drawNode(n, t, now);
     }
     this.kind = 'skill';
 
@@ -639,6 +657,25 @@ export class UpgradeTree {
         c.fillText(this.hint.text, p.x, p.y - 78 + bob);
       }
     }
+  }
+
+  /** Gesperrter Nachbar-Knoten: graues Kästchen mit blassem, entsättigtem Symbol. */
+  drawLocked(n) {
+    const c = this.ctx;
+    const size = n.typ === 'schluessel' || n.typ === 'tor' ? 56 : NODE, h = size / 2;
+    const { x, y } = n.position;
+    c.fillStyle = '#1c1a22';
+    c.fillRect(x - h, y - h, size, size);
+    c.lineWidth = 3; c.strokeStyle = '#4a4656';
+    c.strokeRect(x - h + 1.5, y - h + 1.5, size - 3, size - 3);
+    const img = this.symbolImage(n);
+    if (img) {
+      const s = Math.round(size * 0.72);
+      c.save(); c.globalAlpha = 0.35; c.filter = 'grayscale(1) brightness(0.8)';
+      c.drawImage(img, Math.round(x - s / 2), Math.round(y - s / 2), s, s);
+      c.restore();
+    }
+    c.drawImage(this.game.bank.icon('lock'), x + h - 16, y + h - 16, 18, 18);
   }
 
   /** Rechtwinklige Leitung: hochkanter Skill-Tree waagerecht – senkrecht – waagerecht, sonst senkrecht – waagerecht – senkrecht. */
@@ -701,6 +738,7 @@ export class UpgradeTree {
   drawNode(n, t, now) {
     const c = this.ctx;
     const st = this.state(n);
+    if (st === 'locked') return this.drawLocked(n);
     const lvl = this.level(n.id);
     let size = n.typ === 'start' ? 64 : n.typ === 'schluessel' || n.typ === 'tor' ? 56 : NODE;
     const a = this.anim[n.id];

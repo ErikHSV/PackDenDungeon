@@ -657,6 +657,17 @@ export function nodeVisible(kind, node, save, data) {
   return TREE[kind].level(save, node.id) > 0 || nodeReachable(kind, node, save);
 }
 
+/**
+ * Graue Vorschau: noch gesperrter Knoten, der an einen sichtbaren grenzt – zeigt, dass der Ast weitergeht.
+ * Äste von noch nicht gefundenen Karten bleiben verborgen (kein Vorgriff auf neue Helden).
+ */
+export function nodePreviewable(kind, node, save) {
+  if (kind === 'foil' && !foilTreeUnlocked(save)) return false;
+  if (!nodeInAct(node, save) || node.typ === 'start') return false;
+  const card = nodeCard(node);
+  return !card || (save.collection[card]?.normal || 0) + (save.collection[card]?.foil || 0) > 0;
+}
+
 /** Kosten der nächsten Stufe. Skill-Tree: ab Akt 2 mal balance.skilltree.aktKostenMul (neuer Baum, gleiche Startlogik). */
 export function nodeCost(kind, node, level, data, save = null) {
   const f = node.kostenFaktor ?? TREE[kind].faktor(data);

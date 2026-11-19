@@ -249,7 +249,7 @@ export function updateEnemies(run, dt) {
           e.rangedTimer = fk.intervall;
           e.attackAnim = 0.15;
           fx(run, { type: 'arrow', x1: e.x, y1: e.y - 14, x2: target.x, y2: target.y - 10, life: 0.18 });
-          const dmg = fk.schaden * run.chapter.wellen.schadenMul * (1 + run.B.wellen.schadenProSekunde * run.time) * (e.elite ? run.B.wellen.elite.schadenMul : 1);
+          const dmg = fk.schaden * run.chapter.wellen.schadenMul * (run.B.wellen.staerke?.schadenMul ?? 1) * (1 + run.B.wellen.schadenProSekunde * run.time) * (e.elite ? run.B.wellen.elite.schadenMul : 1);
           if (target === T) damageTower(run, dmg, e); else damageUnit(run, target, dmg, null);
         }
         continue;

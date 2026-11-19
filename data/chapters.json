@@ -128,9 +128,9 @@
       ]
     },
     "wellen": {
-      "lebenMul": 0.8,
+      "lebenMul": 0.7,
       "muenzenMul": 2.4,
-      "schadenMul": 0.8
+      "schadenMul": 0.7
     },
     "gegner": [
       {
