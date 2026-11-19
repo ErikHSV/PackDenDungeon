@@ -96,7 +96,7 @@ export function damageEnemy(run, e, amount, type, opts = {}) {
   // Banner-Aura eines Hauptmanns: Soldaten in der Nähe haben mehr Rüstung
   let armor = e.ruestung;
   if (run.auraCarriers?.length && !e.def.eigenschaften?.aura) for (const h of run.auraCarriers) if (!h.dead && dist(h, e) <= h.def.eigenschaften.aura.radius) { armor += h.def.eigenschaften.aura.ruestung; break; }
-  if (type === 'physical') d = Math.max(d * 0.2, d - armor);
+  if (type === 'physical') d = Math.max(d * 0.2, d - armor) * (1 - (e.def.physResistenz || 0)); // z. B. Irrlicht: halber physischer Schaden
   else if (type === 'magic') d *= 1 - e.magieResistenz;
   if (e.st.vuln.t > 0) d *= 1 + e.st.vuln.a;
   if (e.boss && opts.source) d *= run.mods.bossSchadenMul;

@@ -134,21 +134,20 @@
   {
     "id": "irrlicht",
     "name": "Irrlicht",
-    "beschreibung": "Immun gegen physischen Schaden – nur Magie und Runenkreis wirken.",
+    "beschreibung": "Halb durchscheinend: nimmt nur halben physischen Schaden – Magie und Runenkreis wirken voll.",
     "leben": 22,
     "tempo": 65,
     "ruestung": 0,
     "magieResistenz": 0,
     "fliegt": false,
-    "immun": [
-      "physical"
-    ],
+    "immun": [],
     "schaden": 4,
     "angriffsIntervall": 1,
     "groesse": 24,
     "farbe": "#9fe8ff",
     "sprite": "irrlicht",
-    "eigenschaften": {}
+    "eigenschaften": {},
+    "physResistenz": 0.5
   },
   {
     "id": "grabraeuber",

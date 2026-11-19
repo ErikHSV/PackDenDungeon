@@ -18,6 +18,25 @@ let runRef = null;
 // Ziel nur, wenn die Einheit es auch verletzen kann (Irrlicht: immun gegen physischen Schaden; Schild zugewandt)
 const canHit = (u, e) => !e.dead && !e.verborgen && !e.immun?.includes(u.def.werte.schadensTyp) && (!e.fliegt || u.def.trifftLuft || !e.moving) && !shieldFacing(u, e);
 
+/** Wachbereich um den Turm: Gegner darin – oder Gegner, die diese Einheit selbst angreifen. */
+function guardRadius(run, u) {
+  const Z = run.B.wellen.zielsuche ?? {};
+  return u.def.ki === 'bewachen' ? Z.wachRadiusWaechter ?? 320 : Z.wachRadius ?? 450;
+}
+function inGuard(run, u, e, extra = 0) {
+  return e.engaged === u || e.lockT === u || dist(e, run.tower) <= guardRadius(run, u) + extra;
+}
+/** Nächster verwundbarer Gegner im Wachbereich (Helden verteidigen den Turm statt über die Karte zu jagen). */
+function nearestGuarded(run, u) {
+  let best = null, bd = Infinity;
+  for (const e of run.enemies) {
+    if (!canHit(u, e) || !inGuard(run, u, e)) continue;
+    const d = dist(u, e);
+    if (d < bd) { bd = d; best = e; }
+  }
+  return best;
+}
+
 function nearestEnemy(run, u, from, maxDist) {
   let best = null, bd = maxDist;
   for (const e of run.enemies) {
@@ -231,8 +250,9 @@ export function updateUnits(run, dt) {
     // Festes Ziel: der nächstgelegene Gegner, und zwar bis er tot ist (keine Umorientierung).
     // Nur wenn er für diese Einheit unverwundbar wird (getarnt, immun, Schild zugewandt, fliegt davon), sucht sie neu.
     let target = u.lock;
-    if (!target || !canHit(u, target)) {
-      target = u.lock = nearestEnemy(run, u, u, Infinity);
+    // Festes Ziel bleibt, bis es tot ist – außer es wird unverwundbar oder läuft weit aus dem Wachbereich
+    if (!target || !canHit(u, target) || !inGuard(run, u, target, 120)) {
+      target = u.lock = nearestGuarded(run, u);
     }
     const range = unitRange(run, u);
     const reach = range + (target ? target.r : 0) + UNIT_R * 0.5;
@@ -259,12 +279,12 @@ export function updateUnits(run, dt) {
         if (ch) for (const o of run.units) if (o !== u && !o.dead && dist(o, u) <= ch.radius) { o.cheer = ch.dauer; o.cheerBonus = ch.tempoBonus; }
       }
     } else {
-      // keine Ziele: Ausgangsposition halten / in Turmnähe bleiben
-      if (u.def.ki === 'bewachen') moveToward(run, u, T.x + u.homeDx, T.y + u.homeDy, dt, 10);
-      else if (u.def.ki === 'folgen') {
+      // keine Ziele: zurück an den eigenen Platz am Turm
+      if (u.def.ki === 'folgen') {
         const ally = run.units.find((o) => o !== u && !o.dead && o.def.ki !== 'folgen');
         if (ally) moveToward(run, u, ally.x - 40, ally.y + 20, dt, 50);
-      }
+        else moveToward(run, u, T.x + u.homeDx, T.y + u.homeDy, dt, 10);
+      } else moveToward(run, u, T.x + u.homeDx, T.y + u.homeDy, dt, 10);
     }
     if (u.def.ki === 'bewachen' && !target && dist(u, T) > 360) moveToward(run, u, T.x, T.y, dt, 200);
   }

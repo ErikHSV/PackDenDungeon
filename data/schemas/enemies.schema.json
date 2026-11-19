@@ -50,6 +50,11 @@
       "fliegt": {
         "type": "boolean"
       },
+      "physResistenz": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      },
       "immun": {
         "type": "array",
         "items": {

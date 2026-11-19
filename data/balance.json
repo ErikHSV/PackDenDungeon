@@ -134,8 +134,10 @@
       "schimmerChance": 0
     },
     "zielsuche": {
-      "$kommentar": "Zielwahl: Einheiten greifen den nächstgelegenen Gegner an und bleiben bei ihm, bis er tot ist. Gegner wählen das nächstgelegene Ziel – die nächste Einheit oder den Turm – und bleiben ebenfalls dabei; wer einer Einheit in den Weg läuft, kämpft mit ihr. Gegner mit eigenschaften.zumTurm laufen immer zum Turm. Getarnte Gegner (eigenschaften.getarnt) sind für Helden erst innerhalb enttarnRadius um den Turm sichtbar.",
-      "enttarnRadius": 200
+      "$kommentar": "Zielwahl: Helden verteidigen einen Wachbereich um den Turm (wachRadius, Wächter wachRadiusWaechter): darin greifen sie den nächstgelegenen Gegner an und bleiben bei ihm, bis er tot ist; außerhalb jagen sie nicht (Ausnahme: Gegner, die sie selbst angreifen). Ohne Ziel kehren sie an ihren Platz am Turm zurück. Gegner wählen das nächstgelegene Ziel – die nächste Einheit oder den Turm – und bleiben dabei; wer einer Einheit in den Weg läuft, kämpft mit ihr. eigenschaften.zumTurm: immer zum Turm. eigenschaften.getarnt: für Helden erst innerhalb enttarnRadius um den Turm sichtbar.",
+      "enttarnRadius": 200,
+      "wachRadius": 450,
+      "wachRadiusWaechter": 320
     },
     "staerke": {
       "$kommentar": "Weniger, aber stärkere Gegner: halber Spawn-Strom (Intervalle oben verdoppelt), dafür Leben und Schaden aller Nicht-Boss-Monster mal diese Faktoren.",

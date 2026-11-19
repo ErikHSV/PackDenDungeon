@@ -90,12 +90,12 @@
   {
     "id": "schleuderin",
     "name": "Schleuderin",
-    "rarity": "uncommon",
+    "rarity": "epic",
     "rolle": "Fernkampf",
     "rollenSymbol": "bow",
     "ki": "abstand",
     "beschreibung": "Schießt Steine, trifft auch Luftziele – aber sehr zerbrechlich.",
-    "farbe": "#9a5ad0",
+    "farbe": "#c79a5b",
     "sprite": "schleuderin",
     "werte": {
       "leben": 40,
