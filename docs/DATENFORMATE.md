@@ -53,6 +53,7 @@ Einheiten-Fähigkeiten, die Knoten setzen können: `faehigkeiten.killHeilung { a
 
 ## Packs (`packs.json`)
 
+- `art: kiste`: `inhalt { pack, anzahl }` und `widerstand` – landet als Kiste, nach dem Aufbrechen springen die Packs heraus (Modifikatoren `kisteTrefferWeniger`, `kisteBonusPack`).
 - `kartenGewichte { kartenId: gewicht }`: feste Chance je Karte (Standard: 3 Einheiten 60/30/9 + 1 Tome 1). Ohne `kartenGewichte` wird nach `seltenheitsGewichte` gezogen (Glanzpack).
 - `packImPack { pack, mod }`: beim Öffnen mit der Chance `mods[mod]` zusätzlich dieses Pack (Silber → Holz über „Pack im Pack“, Sternen/Kronen → Pack darunter über „Pack im Pack II“). Kronenpack: nach Boss 3, im Shop und aus dem Prägewerk.
 

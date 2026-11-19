@@ -122,11 +122,8 @@ export class Run {
   launchPack(packId, from = this.tower, delay = 0, extra = null) {
     const def = this.data.packIndex[packId];
     if (!def) return;
-    if (def.art === 'kiste') {
-      for (let i = 0; i < def.inhalt.anzahl; i++) this.launchPack(def.inhalt.pack, from, delay + i * 0.12, extra);
-      return;
-    }
-    if (def.art !== 'pack') return;
+    // Kisten landen als eigenes Objekt und müssen erst aufgebrochen werden (dann springen die Packs heraus)
+    if (def.art !== 'pack' && def.art !== 'kiste') return;
     const target = this.randomRingPoint();
     const hp = this.packHp(def);
     this.packs.push({
@@ -138,7 +135,8 @@ export class Run {
   /** Widerstand eines Packs: Grundwert × Skill-Tree-Faktor, minus „Treffer weniger“ (Dünne Folie I/II), mindestens 1 Treffer. */
   packHp(def) {
     const hit = this.cursorStats().damage;
-    return Math.max(hit, def.widerstand * this.mods.packWiderstandMul - (this.mods.packTrefferWeniger || 0) * hit);
+    const weniger = (this.mods.packTrefferWeniger || 0) + (def.art === 'kiste' ? this.mods.kisteTrefferWeniger || 0 : 0);
+    return Math.max(hit, (def.widerstand ?? 10) * this.mods.packWiderstandMul - weniger * hit);
   }
 
   /** Einzelne, bereits aufgedeckte Karte (aus dem Shop) fliegt aufs Feld. */
@@ -177,6 +175,7 @@ export class Run {
 
   /** Pack platzt auf: Karten werden gezogen und fliegen zu ihrem Landepunkt. */
   openPack(p) {
+    if (p.def.art === 'kiste') return this.openBox(p);
     p.opened = true;
     const def = p.def;
     const S = this.stats;
@@ -222,6 +221,21 @@ export class Run {
       if (r.aktion.typ === 'giftwolke') this.zones.push({ type: 'gift', x: p.x, y: p.y, r: r.aktion.radius, t: r.aktion.dauer, max: r.aktion.dauer, dps: r.aktion.schadenProSekunde });
     }
     if (this.headless) for (const c of this.cards) c.t = c.dur;
+  }
+
+  /** Kiste aufgebrochen: die enthaltenen Packs springen heraus und landen rundherum (Skill-Tree „Volle Kiste“: Chance auf eines mehr). */
+  openBox(p) {
+    p.opened = true;
+    const def = p.def;
+    this.stats.packsGeoeffnet[def.id] = (this.stats.packsGeoeffnet[def.id] || 0) + 1;
+    let n = def.inhalt.anzahl;
+    if (this.rng() < (this.mods.kisteBonusPack || 0)) n++;
+    fx(this, { type: 'splinter', x: p.x, y: p.y - 20, color: def.farbe, life: 0.5 });
+    fx(this, { type: 'flash', x: p.x, y: p.y - 20, r: 80, color: '#ffe6a0', life: 0.3 });
+    if (n > def.inhalt.anzahl) fx(this, { type: 'text', x: p.x, y: p.y - 70, text: '+1 Pack!', color: '#FFD24A', size: 20 });
+    for (let i = 0; i < n; i++) this.launchPack(def.inhalt.pack, p, i * 0.1, p.extra);
+    this.emit('boxOpened', { pack: p });
+    this.emit('sound', 'packLand');
   }
 
   updateCards(dt) {
@@ -1000,7 +1014,7 @@ export class Run {
 
   transformPack(b) {
     const target = b.def.umwandeln;
-    const list = this.packs.filter((p) => p.landed && !p.opened && !p.schatz && p.packId !== target);
+    const list = this.packs.filter((p) => p.landed && !p.opened && !p.schatz && p.def.art === 'pack' && p.packId !== target);
     if (!list.length) { b.timer = 1; return; } // nichts da: gleich wieder versuchen
     const p = list[Math.floor(this.rng() * list.length)];
     const def = this.data.packIndex[target];

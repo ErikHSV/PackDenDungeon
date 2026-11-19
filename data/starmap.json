@@ -2,7 +2,7 @@
   "$kommentar": "Skill-Tree als Schaltplan (11, 14.2.5), hochkant: Stamm in der Mitte, Äste links/rechts. Knotentypen: start, klein/gross/schluessel (Upgrade), freischalt, relikt, quest (aufgabe + belohnung, kostenlos), tor (Akt-Wechsel). Positionen, Symbole und Abzeichen erzeugt tools/layout-starmap.mjs.",
   "groesse": {
     "breite": 2496,
-    "hoehe": 3343
+    "hoehe": 3377
   },
   "start": "start",
   "aeste": [
@@ -72,7 +72,7 @@
       "akt": 1,
       "position": {
         "x": 1248,
-        "y": 3049
+        "y": 3083
       },
       "verbindungen": [
         "t_mauern1",
@@ -99,7 +99,7 @@
       "akt": 1,
       "position": {
         "x": 1248,
-        "y": 2663
+        "y": 2697
       },
       "verbindungen": [
         "q_holz6",
@@ -134,7 +134,7 @@
       "akt": 1,
       "position": {
         "x": 1248,
-        "y": 2579
+        "y": 2613
       },
       "verbindungen": [
         "q_moorling50",
@@ -168,7 +168,7 @@
       "akt": 1,
       "position": {
         "x": 1248,
-        "y": 2495
+        "y": 2529
       },
       "verbindungen": [
         "q_trommler",
@@ -202,7 +202,7 @@
       "akt": 1,
       "position": {
         "x": 1248,
-        "y": 2411
+        "y": 2445
       },
       "verbindungen": [
         "q_kills300",
@@ -243,7 +243,7 @@
       "akt": 1,
       "position": {
         "x": 1248,
-        "y": 1419
+        "y": 1403
       },
       "verbindungen": [
         "q_aebtissin",
@@ -280,7 +280,7 @@
       "akt": 1,
       "position": {
         "x": 1248,
-        "y": 815
+        "y": 798
       },
       "verbindungen": [
         "q_schmied",
@@ -318,7 +318,7 @@
       "akt": 1,
       "position": {
         "x": 1248,
-        "y": 546
+        "y": 529
       },
       "verbindungen": [
         "tor_1",
@@ -356,7 +356,7 @@
       "akt": 1,
       "position": {
         "x": 1248,
-        "y": 277
+        "y": 261
       },
       "verbindungen": [
         "q_schmied"
@@ -386,7 +386,7 @@
       "akt": 1,
       "position": {
         "x": 1144,
-        "y": 2923
+        "y": 2957
       },
       "verbindungen": [
         "c_klinge1",
@@ -413,7 +413,7 @@
       "akt": 1,
       "position": {
         "x": 1040,
-        "y": 2839
+        "y": 2873
       },
       "verbindungen": [
         "t_leben",
@@ -440,7 +440,7 @@
       "akt": 1,
       "position": {
         "x": 1040,
-        "y": 3007
+        "y": 3041
       },
       "verbindungen": [
         "c_flink1",
@@ -466,7 +466,7 @@
       "akt": 1,
       "position": {
         "x": 936,
-        "y": 3007
+        "y": 3041
       },
       "verbindungen": [
         "c_klinge2",
@@ -492,7 +492,7 @@
       "akt": 1,
       "position": {
         "x": 832,
-        "y": 3007
+        "y": 3041
       },
       "verbindungen": [
         "c_schaden",
@@ -518,10 +518,11 @@
       "akt": 1,
       "position": {
         "x": 1144,
-        "y": 2495
+        "y": 2487
       },
       "verbindungen": [
         "p_folie2",
+        "p_brecheisen",
         "q_holz2"
       ],
       "maxStufe": 1,
@@ -532,6 +533,58 @@
         "wert": 1,
         "rechenart": "addieren"
       },
+      "symbol": "pack",
+      "abzeichen": "bolt"
+    },
+    {
+      "id": "p_brecheisen",
+      "name": "Brecheisen",
+      "beschreibung": "Kisten brauchen 2 Cursor-Treffer weniger je Stufe.",
+      "typ": "klein",
+      "ast": "packs",
+      "akt": 1,
+      "position": {
+        "x": 1040,
+        "y": 2697
+      },
+      "verbindungen": [
+        "p_vollekiste",
+        "p_folie1"
+      ],
+      "maxStufe": 2,
+      "basisKosten": 20,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "kisteTrefferWeniger",
+        "wert": 2,
+        "rechenart": "addieren"
+      },
+      "symbol": "pack",
+      "abzeichen": "bolt"
+    },
+    {
+      "id": "p_vollekiste",
+      "name": "Volle Kiste",
+      "beschreibung": "+20 % Chance je Stufe, dass aus einer Kiste ein Pack mehr springt.",
+      "typ": "klein",
+      "ast": "packs",
+      "akt": 1,
+      "position": {
+        "x": 936,
+        "y": 2697
+      },
+      "verbindungen": [
+        "p_brecheisen"
+      ],
+      "maxStufe": 3,
+      "basisKosten": 300,
+      "kostenFaktor": 1.45,
+      "effekt": {
+        "ziel": "kisteBonusPack",
+        "wert": 0.2,
+        "rechenart": "addieren"
+      },
+      "abBoss": 1,
       "symbol": "pack",
       "abzeichen": "bolt"
     },
@@ -566,7 +619,7 @@
       "akt": 1,
       "position": {
         "x": 1352,
-        "y": 3049
+        "y": 3083
       },
       "symbol": "card:stalljunge",
       "abzeichen": "sword"
@@ -602,7 +655,7 @@
       "akt": 1,
       "position": {
         "x": 1456,
-        "y": 3049
+        "y": 3083
       },
       "symbol": "card:stalljunge",
       "abzeichen": "clock"
@@ -638,7 +691,7 @@
       "akt": 1,
       "position": {
         "x": 1560,
-        "y": 3049
+        "y": 3083
       },
       "symbol": "card:stalljunge",
       "abzeichen": "sword"
@@ -674,7 +727,7 @@
       "akt": 1,
       "position": {
         "x": 1664,
-        "y": 3049
+        "y": 3083
       },
       "symbol": "card:stalljunge",
       "abzeichen": "clock"
@@ -688,7 +741,7 @@
       "akt": 1,
       "position": {
         "x": 1768,
-        "y": 3049
+        "y": 3083
       },
       "verbindungen": [
         "u_stalljunge_training2",
@@ -747,7 +800,7 @@
       "akt": 1,
       "position": {
         "x": 1872,
-        "y": 3049
+        "y": 3083
       },
       "symbol": "card:stalljunge",
       "abzeichen": "heart"
@@ -761,7 +814,7 @@
       "akt": 1,
       "position": {
         "x": 1976,
-        "y": 3049
+        "y": 3083
       },
       "verbindungen": [
         "u_stalljunge_leben",
@@ -822,7 +875,7 @@
       "akt": 1,
       "position": {
         "x": 2080,
-        "y": 3049
+        "y": 3083
       },
       "abBoss": 1,
       "symbol": "card:stalljunge",
@@ -837,7 +890,7 @@
       "akt": 1,
       "position": {
         "x": 2184,
-        "y": 3049
+        "y": 3083
       },
       "verbindungen": [
         "u_stalljunge_heilung",
@@ -874,7 +927,7 @@
       "akt": 1,
       "position": {
         "x": 2288,
-        "y": 3049
+        "y": 3083
       },
       "verbindungen": [
         "u_stalljunge_praezision"
@@ -932,7 +985,7 @@
       "akt": 1,
       "position": {
         "x": 1352,
-        "y": 2915
+        "y": 2949
       },
       "symbol": "card:kettenschwinger",
       "abzeichen": "sword"
@@ -946,7 +999,7 @@
       "akt": 1,
       "position": {
         "x": 1456,
-        "y": 2915
+        "y": 2949
       },
       "verbindungen": [
         "u_kettenschwinger_kraft1",
@@ -1005,7 +1058,7 @@
       "akt": 1,
       "position": {
         "x": 1560,
-        "y": 2915
+        "y": 2949
       },
       "abBoss": 1,
       "symbol": "card:kettenschwinger",
@@ -1042,7 +1095,7 @@
       "akt": 1,
       "position": {
         "x": 1664,
-        "y": 2915
+        "y": 2949
       },
       "abBoss": 1,
       "symbol": "card:kettenschwinger",
@@ -1057,7 +1110,7 @@
       "akt": 1,
       "position": {
         "x": 1768,
-        "y": 2915
+        "y": 2949
       },
       "verbindungen": [
         "u_kettenschwinger_3",
@@ -1116,7 +1169,7 @@
       "akt": 1,
       "position": {
         "x": 1872,
-        "y": 2915
+        "y": 2949
       },
       "abBoss": 1,
       "symbol": "card:kettenschwinger",
@@ -1155,7 +1208,7 @@
       "akt": 1,
       "position": {
         "x": 1976,
-        "y": 2915
+        "y": 2949
       },
       "abBoss": 1,
       "symbol": "card:kettenschwinger",
@@ -1194,7 +1247,7 @@
       "akt": 1,
       "position": {
         "x": 2080,
-        "y": 2915
+        "y": 2949
       },
       "abBoss": 1,
       "symbol": "card:kettenschwinger",
@@ -1233,7 +1286,7 @@
       "akt": 1,
       "position": {
         "x": 2184,
-        "y": 2915
+        "y": 2949
       },
       "abBoss": 1,
       "symbol": "card:kettenschwinger",
@@ -1270,7 +1323,7 @@
       "akt": 1,
       "position": {
         "x": 1352,
-        "y": 2780
+        "y": 2814
       },
       "symbol": "card:schleuderin",
       "abzeichen": "sword"
@@ -1284,7 +1337,7 @@
       "akt": 1,
       "position": {
         "x": 1456,
-        "y": 2780
+        "y": 2814
       },
       "verbindungen": [
         "u_schleuderin_kraft1",
@@ -1343,7 +1396,7 @@
       "akt": 1,
       "position": {
         "x": 1560,
-        "y": 2780
+        "y": 2814
       },
       "abBoss": 1,
       "symbol": "card:schleuderin",
@@ -1380,7 +1433,7 @@
       "akt": 1,
       "position": {
         "x": 1664,
-        "y": 2780
+        "y": 2814
       },
       "abBoss": 1,
       "symbol": "card:schleuderin",
@@ -1417,7 +1470,7 @@
       "akt": 1,
       "position": {
         "x": 1768,
-        "y": 2780
+        "y": 2814
       },
       "abBoss": 1,
       "symbol": "card:schleuderin",
@@ -1454,7 +1507,7 @@
       "akt": 1,
       "position": {
         "x": 1872,
-        "y": 2780
+        "y": 2814
       },
       "abBoss": 1,
       "symbol": "card:schleuderin",
@@ -1469,7 +1522,7 @@
       "akt": 1,
       "position": {
         "x": 1976,
-        "y": 2780
+        "y": 2814
       },
       "verbindungen": [
         "u_schleuderin_leben",
@@ -1506,7 +1559,7 @@
       "akt": 1,
       "position": {
         "x": 2080,
-        "y": 2780
+        "y": 2814
       },
       "verbindungen": [
         "u_schleuderin_praezision"
@@ -1569,7 +1622,7 @@
       "akt": 1,
       "position": {
         "x": 1352,
-        "y": 1688
+        "y": 1722
       },
       "abBoss": 1,
       "symbol": "card:torwaechterin",
@@ -1584,7 +1637,7 @@
       "akt": 1,
       "position": {
         "x": 1456,
-        "y": 1688
+        "y": 1722
       },
       "verbindungen": [
         "u_torwaechterin_1",
@@ -1643,7 +1696,7 @@
       "akt": 1,
       "position": {
         "x": 1560,
-        "y": 1688
+        "y": 1722
       },
       "abBoss": 1,
       "symbol": "card:torwaechterin",
@@ -1658,7 +1711,7 @@
       "akt": 1,
       "position": {
         "x": 1664,
-        "y": 1688
+        "y": 1722
       },
       "verbindungen": [
         "u_torwaechterin_2",
@@ -1720,7 +1773,7 @@
       "akt": 1,
       "position": {
         "x": 1768,
-        "y": 1688
+        "y": 1722
       },
       "abBoss": 1,
       "symbol": "card:torwaechterin",
@@ -1757,7 +1810,7 @@
       "akt": 1,
       "position": {
         "x": 1872,
-        "y": 1688
+        "y": 1722
       },
       "abBoss": 1,
       "symbol": "card:torwaechterin",
@@ -1799,7 +1852,7 @@
       "akt": 1,
       "position": {
         "x": 1976,
-        "y": 1688
+        "y": 1722
       },
       "abBoss": 1,
       "symbol": "card:torwaechterin",
@@ -1814,7 +1867,7 @@
       "akt": 1,
       "position": {
         "x": 2080,
-        "y": 1688
+        "y": 1722
       },
       "verbindungen": [
         "u_torwaechterin_4"
@@ -1876,8 +1929,8 @@
       "heldAst": "windlaeufer",
       "akt": 1,
       "position": {
-        "x": 1144,
-        "y": 1587
+        "x": 1352,
+        "y": 1588
       },
       "abBoss": 1,
       "symbol": "card:windlaeufer",
@@ -1913,8 +1966,8 @@
       "heldAst": "windlaeufer",
       "akt": 1,
       "position": {
-        "x": 1040,
-        "y": 1587
+        "x": 1456,
+        "y": 1588
       },
       "abBoss": 1,
       "symbol": "card:windlaeufer",
@@ -1928,8 +1981,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 936,
-        "y": 1587
+        "x": 1560,
+        "y": 1588
       },
       "verbindungen": [
         "u_windlaeufer_2",
@@ -1987,8 +2040,8 @@
       "heldAst": "windlaeufer",
       "akt": 1,
       "position": {
-        "x": 832,
-        "y": 1587
+        "x": 1664,
+        "y": 1588
       },
       "abBoss": 1,
       "symbol": "card:windlaeufer",
@@ -2024,8 +2077,8 @@
       "heldAst": "windlaeufer",
       "akt": 1,
       "position": {
-        "x": 728,
-        "y": 1587
+        "x": 1768,
+        "y": 1588
       },
       "abBoss": 1,
       "symbol": "card:windlaeufer",
@@ -2064,8 +2117,8 @@
       "heldAst": "windlaeufer",
       "akt": 1,
       "position": {
-        "x": 624,
-        "y": 1587
+        "x": 1872,
+        "y": 1588
       },
       "abBoss": 1,
       "symbol": "card:windlaeufer",
@@ -2079,8 +2132,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 520,
-        "y": 1587
+        "x": 1976,
+        "y": 1588
       },
       "verbindungen": [
         "u_windlaeufer_4",
@@ -2116,8 +2169,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 416,
-        "y": 1587
+        "x": 2080,
+        "y": 1588
       },
       "verbindungen": [
         "u_windlaeufer_praezision"
@@ -2179,8 +2232,8 @@
       "heldAst": "glutweberin",
       "akt": 1,
       "position": {
-        "x": 1352,
-        "y": 1554
+        "x": 1144,
+        "y": 1537
       },
       "abBoss": 1,
       "symbol": "card:glutweberin",
@@ -2216,8 +2269,8 @@
       "heldAst": "glutweberin",
       "akt": 1,
       "position": {
-        "x": 1456,
-        "y": 1554
+        "x": 1040,
+        "y": 1537
       },
       "abBoss": 1,
       "symbol": "card:glutweberin",
@@ -2231,8 +2284,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1560,
-        "y": 1554
+        "x": 936,
+        "y": 1537
       },
       "verbindungen": [
         "u_glutweberin_2",
@@ -2268,8 +2321,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 1554
+        "x": 832,
+        "y": 1537
       },
       "verbindungen": [
         "q_u_glutweberin",
@@ -2305,8 +2358,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 1554
+        "x": 728,
+        "y": 1537
       },
       "verbindungen": [
         "u_glutweberin_tempo",
@@ -2368,8 +2421,8 @@
       "heldAst": "glutweberin",
       "akt": 1,
       "position": {
-        "x": 1872,
-        "y": 1554
+        "x": 624,
+        "y": 1537
       },
       "abBoss": 1,
       "symbol": "card:glutweberin",
@@ -2405,8 +2458,8 @@
       "heldAst": "glutweberin",
       "akt": 1,
       "position": {
-        "x": 1976,
-        "y": 1554
+        "x": 520,
+        "y": 1537
       },
       "abBoss": 1,
       "symbol": "card:glutweberin",
@@ -2420,8 +2473,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2080,
-        "y": 1554
+        "x": 416,
+        "y": 1537
       },
       "verbindungen": [
         "u_glutweberin_4"
@@ -2483,8 +2536,8 @@
       "heldAst": "bannertraeger",
       "akt": 1,
       "position": {
-        "x": 1352,
-        "y": 815
+        "x": 1144,
+        "y": 798
       },
       "abBoss": 2,
       "symbol": "card:bannertraeger",
@@ -2520,8 +2573,8 @@
       "heldAst": "bannertraeger",
       "akt": 1,
       "position": {
-        "x": 1456,
-        "y": 815
+        "x": 1040,
+        "y": 798
       },
       "abBoss": 2,
       "symbol": "card:bannertraeger",
@@ -2535,8 +2588,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1560,
-        "y": 815
+        "x": 936,
+        "y": 798
       },
       "verbindungen": [
         "u_bannertraeger_2",
@@ -2594,8 +2647,8 @@
       "heldAst": "bannertraeger",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 815
+        "x": 832,
+        "y": 798
       },
       "abBoss": 2,
       "symbol": "card:bannertraeger",
@@ -2609,8 +2662,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 815
+        "x": 728,
+        "y": 798
       },
       "verbindungen": [
         "u_bannertraeger_3",
@@ -2668,8 +2721,8 @@
       "heldAst": "bannertraeger",
       "akt": 1,
       "position": {
-        "x": 1872,
-        "y": 815
+        "x": 624,
+        "y": 798
       },
       "abBoss": 2,
       "symbol": "card:bannertraeger",
@@ -2683,8 +2736,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1976,
-        "y": 815
+        "x": 520,
+        "y": 798
       },
       "verbindungen": [
         "u_bannertraeger_4"
@@ -2741,7 +2794,7 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 1144,
+        "x": 1352,
         "y": 697
       },
       "abBoss": 2,
@@ -2778,7 +2831,7 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 1040,
+        "x": 1456,
         "y": 697
       },
       "abBoss": 2,
@@ -2793,7 +2846,7 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 936,
+        "x": 1560,
         "y": 697
       },
       "verbindungen": [
@@ -2852,7 +2905,7 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 832,
+        "x": 1664,
         "y": 697
       },
       "abBoss": 2,
@@ -2889,7 +2942,7 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 728,
+        "x": 1768,
         "y": 697
       },
       "abBoss": 2,
@@ -2926,7 +2979,7 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 624,
+        "x": 1872,
         "y": 697
       },
       "abBoss": 2,
@@ -2963,7 +3016,7 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 520,
+        "x": 1976,
         "y": 697
       },
       "abBoss": 2,
@@ -3000,7 +3053,7 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 416,
+        "x": 2080,
         "y": 697
       },
       "abBoss": 2,
@@ -3036,7 +3089,7 @@
       "heldAst": "moorhexer",
       "akt": 1,
       "position": {
-        "x": 312,
+        "x": 2184,
         "y": 697
       },
       "abBoss": 2,
@@ -3073,8 +3126,8 @@
       "heldAst": "wolkenhirtin",
       "akt": 1,
       "position": {
-        "x": 1352,
-        "y": 680
+        "x": 1144,
+        "y": 664
       },
       "abBoss": 2,
       "symbol": "card:wolkenhirtin",
@@ -3110,8 +3163,8 @@
       "heldAst": "wolkenhirtin",
       "akt": 1,
       "position": {
-        "x": 1456,
-        "y": 680
+        "x": 1040,
+        "y": 664
       },
       "abBoss": 2,
       "symbol": "card:wolkenhirtin",
@@ -3125,8 +3178,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1560,
-        "y": 680
+        "x": 936,
+        "y": 664
       },
       "verbindungen": [
         "u_wolkenhirtin_2",
@@ -3184,8 +3237,8 @@
       "heldAst": "wolkenhirtin",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 680
+        "x": 832,
+        "y": 664
       },
       "abBoss": 2,
       "symbol": "card:wolkenhirtin",
@@ -3199,8 +3252,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 680
+        "x": 728,
+        "y": 664
       },
       "verbindungen": [
         "u_wolkenhirtin_3",
@@ -3258,8 +3311,8 @@
       "heldAst": "wolkenhirtin",
       "akt": 1,
       "position": {
-        "x": 1872,
-        "y": 680
+        "x": 624,
+        "y": 664
       },
       "abBoss": 2,
       "symbol": "card:wolkenhirtin",
@@ -3273,8 +3326,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1976,
-        "y": 680
+        "x": 520,
+        "y": 664
       },
       "verbindungen": [
         "u_wolkenhirtin_4"
@@ -3336,7 +3389,7 @@
       "heldAst": "glockenmoench",
       "akt": 1,
       "position": {
-        "x": 1144,
+        "x": 1352,
         "y": 563
       },
       "abBoss": 2,
@@ -3373,7 +3426,7 @@
       "heldAst": "glockenmoench",
       "akt": 1,
       "position": {
-        "x": 1040,
+        "x": 1456,
         "y": 563
       },
       "abBoss": 2,
@@ -3388,7 +3441,7 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 936,
+        "x": 1560,
         "y": 563
       },
       "verbindungen": [
@@ -3447,7 +3500,7 @@
       "heldAst": "glockenmoench",
       "akt": 1,
       "position": {
-        "x": 832,
+        "x": 1664,
         "y": 563
       },
       "abBoss": 2,
@@ -3462,7 +3515,7 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 728,
+        "x": 1768,
         "y": 563
       },
       "verbindungen": [
@@ -3521,7 +3574,7 @@
       "heldAst": "glockenmoench",
       "akt": 1,
       "position": {
-        "x": 624,
+        "x": 1872,
         "y": 563
       },
       "abBoss": 2,
@@ -3536,7 +3589,7 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 520,
+        "x": 1976,
         "y": 563
       },
       "verbindungen": [
@@ -3577,8 +3630,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1144,
-        "y": 428
+        "x": 1352,
+        "y": 429
       },
       "verbindungen": [
         "q_schmied",
@@ -3614,8 +3667,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1040,
-        "y": 428
+        "x": 1456,
+        "y": 429
       },
       "verbindungen": [
         "u_gluecksfechter_kraft",
@@ -3651,8 +3704,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 936,
-        "y": 428
+        "x": 1560,
+        "y": 429
       },
       "verbindungen": [
         "u_gluecksfechter_ausfall",
@@ -3688,8 +3741,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 832,
-        "y": 428
+        "x": 1664,
+        "y": 429
       },
       "verbindungen": [
         "q_u_gluecksfechter",
@@ -3727,8 +3780,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 728,
-        "y": 428
+        "x": 1768,
+        "y": 429
       },
       "verbindungen": [
         "u_gluecksfechter_glueck",
@@ -3764,8 +3817,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 624,
-        "y": 428
+        "x": 1872,
+        "y": 429
       },
       "verbindungen": [
         "u_gluecksfechter_elite",
@@ -3801,8 +3854,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 520,
-        "y": 428
+        "x": 1976,
+        "y": 429
       },
       "verbindungen": [
         "u_gluecksfechter_praezision",
@@ -3838,8 +3891,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 416,
-        "y": 428
+        "x": 2080,
+        "y": 429
       },
       "verbindungen": [
         "u_gluecksfechter_leben"
@@ -3874,8 +3927,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1352,
-        "y": 411
+        "x": 1144,
+        "y": 395
       },
       "verbindungen": [
         "q_schmied",
@@ -3911,8 +3964,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1456,
-        "y": 411
+        "x": 1040,
+        "y": 395
       },
       "verbindungen": [
         "u_spiegelgaukler_kraft",
@@ -3948,8 +4001,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1560,
-        "y": 411
+        "x": 936,
+        "y": 395
       },
       "verbindungen": [
         "u_spiegelgaukler_tempo",
@@ -3985,8 +4038,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 411
+        "x": 832,
+        "y": 395
       },
       "verbindungen": [
         "q_u_spiegelgaukler",
@@ -4022,8 +4075,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 411
+        "x": 728,
+        "y": 395
       },
       "verbindungen": [
         "u_spiegelgaukler_klon",
@@ -4059,8 +4112,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1872,
-        "y": 411
+        "x": 624,
+        "y": 395
       },
       "verbindungen": [
         "u_spiegelgaukler_dauer",
@@ -4099,8 +4152,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1976,
-        "y": 411
+        "x": 520,
+        "y": 395
       },
       "verbindungen": [
         "u_spiegelgaukler_splitter",
@@ -4136,8 +4189,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 2080,
-        "y": 411
+        "x": 416,
+        "y": 395
       },
       "verbindungen": [
         "u_spiegelgaukler_leben"
@@ -4172,8 +4225,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1144,
-        "y": 1100
+        "x": 1352,
+        "y": 1101
       },
       "verbindungen": [
         "q_kills300",
@@ -4209,8 +4262,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1040,
-        "y": 1100
+        "x": 1456,
+        "y": 1101
       },
       "verbindungen": [
         "u_flackerling_1",
@@ -4246,8 +4299,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 936,
-        "y": 1100
+        "x": 1560,
+        "y": 1101
       },
       "verbindungen": [
         "u_flackerling_2",
@@ -4283,8 +4336,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 832,
-        "y": 1100
+        "x": 1664,
+        "y": 1101
       },
       "verbindungen": [
         "q_u_flackerling",
@@ -4320,8 +4373,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 728,
-        "y": 1100
+        "x": 1768,
+        "y": 1101
       },
       "verbindungen": [
         "u_flackerling_3",
@@ -4357,8 +4410,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 624,
-        "y": 1100
+        "x": 1872,
+        "y": 1101
       },
       "verbindungen": [
         "u_flackerling_4"
@@ -4393,7 +4446,7 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1144,
+        "x": 1352,
         "y": 966
       },
       "verbindungen": [
@@ -4430,7 +4483,7 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1040,
+        "x": 1456,
         "y": 966
       },
       "verbindungen": [
@@ -4467,7 +4520,7 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 936,
+        "x": 1560,
         "y": 966
       },
       "verbindungen": [
@@ -4504,7 +4557,7 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 832,
+        "x": 1664,
         "y": 966
       },
       "verbindungen": [
@@ -4541,7 +4594,7 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 728,
+        "x": 1768,
         "y": 966
       },
       "verbindungen": [
@@ -4578,7 +4631,7 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 624,
+        "x": 1872,
         "y": 966
       },
       "verbindungen": [
@@ -4614,8 +4667,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1144,
-        "y": 831
+        "x": 1352,
+        "y": 832
       },
       "verbindungen": [
         "q_kills300",
@@ -4651,8 +4704,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 1040,
-        "y": 831
+        "x": 1456,
+        "y": 832
       },
       "verbindungen": [
         "u_leerlaeufer_1",
@@ -4688,8 +4741,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 936,
-        "y": 831
+        "x": 1560,
+        "y": 832
       },
       "verbindungen": [
         "u_leerlaeufer_2",
@@ -4725,8 +4778,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 832,
-        "y": 831
+        "x": 1664,
+        "y": 832
       },
       "verbindungen": [
         "q_u_leerlaeufer",
@@ -4762,8 +4815,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 728,
-        "y": 831
+        "x": 1768,
+        "y": 832
       },
       "verbindungen": [
         "u_leerlaeufer_3",
@@ -4799,8 +4852,8 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 624,
-        "y": 831
+        "x": 1872,
+        "y": 832
       },
       "verbindungen": [
         "u_leerlaeufer_4"
@@ -4857,7 +4910,7 @@
       "heldAst": "skelettkrieger",
       "akt": 1,
       "position": {
-        "x": 1144,
+        "x": 1352,
         "y": 1453
       },
       "abBoss": 1,
@@ -4894,7 +4947,7 @@
       "heldAst": "skelettkrieger",
       "akt": 1,
       "position": {
-        "x": 1040,
+        "x": 1456,
         "y": 1453
       },
       "abBoss": 1,
@@ -4909,7 +4962,7 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 936,
+        "x": 1560,
         "y": 1453
       },
       "verbindungen": [
@@ -4946,7 +4999,7 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 832,
+        "x": 1664,
         "y": 1453
       },
       "verbindungen": [
@@ -4983,7 +5036,7 @@
       "ast": "einheiten",
       "akt": 1,
       "position": {
-        "x": 728,
+        "x": 1768,
         "y": 1453
       },
       "verbindungen": [
@@ -5020,7 +5073,7 @@
       "akt": 1,
       "position": {
         "x": 1144,
-        "y": 2150
+        "y": 2100
       },
       "verbindungen": [
         "q_trommler",
@@ -5047,7 +5100,7 @@
       "akt": 1,
       "position": {
         "x": 1040,
-        "y": 2150
+        "y": 2100
       },
       "verbindungen": [
         "e_tempo",
@@ -5074,7 +5127,7 @@
       "akt": 1,
       "position": {
         "x": 936,
-        "y": 2150
+        "y": 2100
       },
       "verbindungen": [
         "e_block",
@@ -5102,7 +5155,7 @@
       "akt": 1,
       "position": {
         "x": 832,
-        "y": 2192
+        "y": 2142
       },
       "verbindungen": [
         "e_meister",
@@ -5129,7 +5182,7 @@
       "akt": 1,
       "position": {
         "x": 728,
-        "y": 2192
+        "y": 2142
       },
       "verbindungen": [
         "e_krit",
@@ -5156,7 +5209,7 @@
       "akt": 1,
       "position": {
         "x": 624,
-        "y": 2192
+        "y": 2142
       },
       "verbindungen": [
         "e_meister"
@@ -5182,7 +5235,7 @@
       "akt": 1,
       "position": {
         "x": 728,
-        "y": 3007
+        "y": 3041
       },
       "verbindungen": [
         "c_krit",
@@ -5207,7 +5260,7 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 1144,
+        "x": 1352,
         "y": 1277
       },
       "verbindungen": [
@@ -5235,7 +5288,7 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 1040,
+        "x": 1456,
         "y": 1235
       },
       "verbindungen": [
@@ -5261,7 +5314,7 @@
       "ast": "cursor",
       "akt": 1,
       "position": {
-        "x": 1040,
+        "x": 1456,
         "y": 1319
       },
       "verbindungen": [
@@ -5289,7 +5342,7 @@
       "akt": 1,
       "position": {
         "x": 624,
-        "y": 3007
+        "y": 3041
       },
       "verbindungen": [
         "c_glut",
@@ -5328,7 +5381,7 @@
       "akt": 1,
       "position": {
         "x": 520,
-        "y": 3049
+        "y": 3083
       },
       "abBoss": 2,
       "symbol": "hand",
@@ -5353,7 +5406,7 @@
       },
       "akt": 1,
       "position": {
-        "x": 936,
+        "x": 1560,
         "y": 1319
       },
       "abBoss": 2,
@@ -5369,7 +5422,7 @@
       "akt": 1,
       "position": {
         "x": 520,
-        "y": 2965
+        "y": 2999
       },
       "verbindungen": [
         "c_krit"
@@ -5394,7 +5447,7 @@
       "akt": 1,
       "position": {
         "x": 936,
-        "y": 2881
+        "y": 2915
       },
       "verbindungen": [
         "t_dornen",
@@ -5432,7 +5485,7 @@
       "akt": 1,
       "position": {
         "x": 936,
-        "y": 2797
+        "y": 2831
       },
       "abBoss": 1,
       "symbol": "tower",
@@ -5447,7 +5500,7 @@
       "akt": 1,
       "position": {
         "x": 832,
-        "y": 2881
+        "y": 2915
       },
       "verbindungen": [
         "t_regen",
@@ -5486,7 +5539,7 @@
       "akt": 1,
       "position": {
         "x": 728,
-        "y": 2881
+        "y": 2915
       },
       "abBoss": 1,
       "symbol": "tower",
@@ -5501,7 +5554,7 @@
       "akt": 1,
       "position": {
         "x": 624,
-        "y": 2881
+        "y": 2915
       },
       "verbindungen": [
         "t_regen"
@@ -5545,7 +5598,7 @@
       "akt": 1,
       "position": {
         "x": 832,
-        "y": 2797
+        "y": 2831
       },
       "abBoss": 2,
       "symbol": "tower",
@@ -5559,8 +5612,8 @@
       "ast": "turm",
       "akt": 1,
       "position": {
-        "x": 1352,
-        "y": 546
+        "x": 1144,
+        "y": 529
       },
       "verbindungen": [
         "q_schmied"
@@ -5585,7 +5638,7 @@
       "akt": 1,
       "position": {
         "x": 1040,
-        "y": 2495
+        "y": 2445
       },
       "verbindungen": [
         "p_bonuskarte",
@@ -5613,7 +5666,7 @@
       "akt": 1,
       "position": {
         "x": 936,
-        "y": 2663
+        "y": 2613
       },
       "verbindungen": [
         "q_shiny5",
@@ -5640,7 +5693,7 @@
       "akt": 1,
       "position": {
         "x": 936,
-        "y": 2453
+        "y": 2403
       },
       "verbindungen": [
         "p_aufplatzen",
@@ -5680,7 +5733,7 @@
       "akt": 1,
       "position": {
         "x": 832,
-        "y": 2579
+        "y": 2529
       },
       "abBoss": 1,
       "symbol": "pack",
@@ -5706,7 +5759,7 @@
       "akt": 1,
       "position": {
         "x": 728,
-        "y": 2579
+        "y": 2529
       },
       "abBoss": 1,
       "symbol": "pack",
@@ -5721,7 +5774,7 @@
       "akt": 1,
       "position": {
         "x": 832,
-        "y": 2663
+        "y": 2613
       },
       "verbindungen": [
         "p_bonuskarte"
@@ -5750,8 +5803,8 @@
       "ast": "packs",
       "akt": 1,
       "position": {
-        "x": 1352,
-        "y": 1419
+        "x": 1144,
+        "y": 1403
       },
       "verbindungen": [
         "q_kills300"
@@ -5784,7 +5837,7 @@
       "akt": 1,
       "position": {
         "x": 832,
-        "y": 2495
+        "y": 2445
       },
       "verbindungen": [
         "p_widerstand"
@@ -5809,7 +5862,7 @@
       "akt": 1,
       "position": {
         "x": 832,
-        "y": 2369
+        "y": 2319
       },
       "verbindungen": [
         "p_kiste_silber",
@@ -5847,7 +5900,7 @@
       "akt": 1,
       "position": {
         "x": 728,
-        "y": 2411
+        "y": 2361
       },
       "abBoss": 1,
       "symbol": "pack",
@@ -5862,7 +5915,7 @@
       "akt": 1,
       "position": {
         "x": 728,
-        "y": 2327
+        "y": 2277
       },
       "verbindungen": [
         "p_karten",
@@ -5889,7 +5942,7 @@
       "akt": 1,
       "position": {
         "x": 1352,
-        "y": 2117
+        "y": 2151
       },
       "verbindungen": [
         "to_wirkung",
@@ -5939,7 +5992,7 @@
       "akt": 1,
       "position": {
         "x": 1456,
-        "y": 2117
+        "y": 2151
       },
       "abBoss": 1,
       "symbol": "book",
@@ -5966,7 +6019,7 @@
       "akt": 1,
       "position": {
         "x": 1560,
-        "y": 2411
+        "y": 2445
       },
       "abBoss": 1,
       "symbol": "book",
@@ -5992,7 +6045,7 @@
       "akt": 1,
       "position": {
         "x": 1664,
-        "y": 2411
+        "y": 2445
       },
       "abBoss": 1,
       "symbol": "book",
@@ -6018,7 +6071,7 @@
       "akt": 1,
       "position": {
         "x": 1560,
-        "y": 2327
+        "y": 2361
       },
       "abBoss": 1,
       "symbol": "book",
@@ -6049,7 +6102,7 @@
       "akt": 1,
       "position": {
         "x": 1560,
-        "y": 2243
+        "y": 2277
       },
       "abBoss": 1,
       "symbol": "card:hagelschauer",
@@ -6079,7 +6132,7 @@
       "akt": 1,
       "position": {
         "x": 1664,
-        "y": 2243
+        "y": 2277
       },
       "abBoss": 1,
       "symbol": "card:hagelschauer",
@@ -6110,7 +6163,7 @@
       "akt": 1,
       "position": {
         "x": 1560,
-        "y": 2159
+        "y": 2193
       },
       "abBoss": 1,
       "symbol": "card:knochenruf",
@@ -6141,7 +6194,7 @@
       "akt": 1,
       "position": {
         "x": 1664,
-        "y": 2159
+        "y": 2193
       },
       "abBoss": 1,
       "symbol": "card:knochenruf",
@@ -6172,7 +6225,7 @@
       "akt": 1,
       "position": {
         "x": 1560,
-        "y": 2075
+        "y": 2109
       },
       "abBoss": 1,
       "symbol": "card:blutrausch",
@@ -6202,7 +6255,7 @@
       "akt": 1,
       "position": {
         "x": 1664,
-        "y": 2075
+        "y": 2109
       },
       "abBoss": 1,
       "symbol": "card:blutrausch",
@@ -6233,7 +6286,7 @@
       "akt": 1,
       "position": {
         "x": 1560,
-        "y": 1991
+        "y": 2025
       },
       "abBoss": 1,
       "symbol": "card:seelenkrug",
@@ -6263,7 +6316,7 @@
       "akt": 1,
       "position": {
         "x": 1664,
-        "y": 1991
+        "y": 2025
       },
       "abBoss": 1,
       "symbol": "card:seelenkrug",
@@ -6294,7 +6347,7 @@
       "akt": 1,
       "position": {
         "x": 1560,
-        "y": 1907
+        "y": 1941
       },
       "abBoss": 1,
       "symbol": "card:riesenwuchs",
@@ -6324,7 +6377,7 @@
       "akt": 1,
       "position": {
         "x": 1664,
-        "y": 1907
+        "y": 1941
       },
       "abBoss": 1,
       "symbol": "card:riesenwuchs",
@@ -6355,7 +6408,7 @@
       "akt": 1,
       "position": {
         "x": 1560,
-        "y": 1823
+        "y": 1857
       },
       "abBoss": 1,
       "symbol": "card:zeitbruch",
@@ -6385,7 +6438,7 @@
       "akt": 1,
       "position": {
         "x": 1664,
-        "y": 1823
+        "y": 1857
       },
       "abBoss": 1,
       "symbol": "card:zeitbruch",
@@ -6413,7 +6466,7 @@
       "akt": 1,
       "position": {
         "x": 1768,
-        "y": 2159
+        "y": 2193
       },
       "abBoss": 1,
       "symbol": "card:knochenruf",
@@ -6441,8 +6494,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 1352,
-        "y": 1117
+        "x": 1144,
+        "y": 1101
       },
       "abBoss": 1,
       "symbol": "house",
@@ -6456,8 +6509,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 1456,
-        "y": 1285
+        "x": 1040,
+        "y": 1269
       },
       "verbindungen": [
         "b_taverne"
@@ -6497,8 +6550,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 1456,
-        "y": 1075
+        "x": 1040,
+        "y": 1059
       },
       "abBoss": 1,
       "symbol": "house",
@@ -6512,8 +6565,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 1560,
-        "y": 1201
+        "x": 936,
+        "y": 1185
       },
       "verbindungen": [
         "b_kaserne_eff",
@@ -6540,8 +6593,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 1201
+        "x": 832,
+        "y": 1185
       },
       "verbindungen": [
         "b_kaserne_aus"
@@ -6582,8 +6635,8 @@
       },
       "akt": 1,
       "position": {
-        "x": 1560,
-        "y": 1033
+        "x": 936,
+        "y": 1017
       },
       "abBoss": 2,
       "symbol": "house",
@@ -6597,8 +6650,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 1117
+        "x": 832,
+        "y": 1101
       },
       "verbindungen": [
         "b_sternwarte_eff",
@@ -6625,8 +6678,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 1117
+        "x": 728,
+        "y": 1101
       },
       "verbindungen": [
         "b_sternwarte_aus"
@@ -6652,8 +6705,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 1664,
-        "y": 1033
+        "x": 832,
+        "y": 1017
       },
       "verbindungen": [
         "b_praegewerk_aus",
@@ -6681,8 +6734,8 @@
       "ast": "gebaeude",
       "akt": 1,
       "position": {
-        "x": 1768,
-        "y": 1033
+        "x": 728,
+        "y": 1017
       },
       "verbindungen": [
         "b_praegewerk"
@@ -6709,7 +6762,7 @@
       "akt": 1,
       "position": {
         "x": 1144,
-        "y": 1848
+        "y": 1798
       },
       "verbindungen": [
         "w_platz",
@@ -6737,7 +6790,7 @@
       "akt": 1,
       "position": {
         "x": 1040,
-        "y": 1932
+        "y": 1882
       },
       "verbindungen": [
         "w_einkommen",
@@ -6764,7 +6817,7 @@
       "akt": 1,
       "position": {
         "x": 1040,
-        "y": 1806
+        "y": 1756
       },
       "verbindungen": [
         "w_wuerfeln"
@@ -6801,7 +6854,7 @@
       "akt": 1,
       "position": {
         "x": 1040,
-        "y": 1722
+        "y": 1672
       },
       "abBoss": 2,
       "symbol": "coin",
@@ -6816,7 +6869,7 @@
       "akt": 1,
       "position": {
         "x": 936,
-        "y": 1932
+        "y": 1882
       },
       "verbindungen": [
         "w_sammler",
@@ -6856,7 +6909,7 @@
       "akt": 1,
       "position": {
         "x": 832,
-        "y": 1974
+        "y": 1924
       },
       "abBoss": 1,
       "symbol": "coin",
@@ -6882,7 +6935,7 @@
       "akt": 1,
       "position": {
         "x": 728,
-        "y": 1974
+        "y": 1924
       },
       "abBoss": 2,
       "symbol": "coin",
@@ -6909,7 +6962,7 @@
       "akt": 2,
       "position": {
         "x": 832,
-        "y": 1890
+        "y": 1840
       },
       "symbol": "coin",
       "abzeichen": "plus"
@@ -6923,7 +6976,7 @@
       "akt": 2,
       "position": {
         "x": 728,
-        "y": 1890
+        "y": 1840
       },
       "verbindungen": [
         "a2_einkommen"
@@ -6963,7 +7016,7 @@
       "akt": 2,
       "position": {
         "x": 416,
-        "y": 3049
+        "y": 3083
       },
       "symbol": "claw",
       "abzeichen": "sword"
@@ -6989,7 +7042,7 @@
       "akt": 2,
       "position": {
         "x": 728,
-        "y": 2797
+        "y": 2831
       },
       "symbol": "bigheart",
       "abzeichen": "heart"
@@ -7014,7 +7067,7 @@
       "akt": 2,
       "position": {
         "x": 832,
-        "y": 2108
+        "y": 2058
       },
       "symbol": "sword",
       "abzeichen": "sword"
@@ -7028,7 +7081,7 @@
       "akt": 2,
       "position": {
         "x": 624,
-        "y": 2327
+        "y": 2277
       },
       "verbindungen": [
         "p_packimpack2"
@@ -7052,7 +7105,7 @@
       "ast": "relikt",
       "akt": 2,
       "position": {
-        "x": 832,
+        "x": 1664,
         "y": 1319
       },
       "verbindungen": [
@@ -7077,7 +7130,7 @@
       "akt": 2,
       "position": {
         "x": 624,
-        "y": 2797
+        "y": 2831
       },
       "verbindungen": [
         "a2_turm"
@@ -7100,8 +7153,8 @@
       "ast": "relikt",
       "akt": 2,
       "position": {
-        "x": 1664,
-        "y": 949
+        "x": 832,
+        "y": 933
       },
       "verbindungen": [
         "b_sternwarte"
@@ -7124,7 +7177,7 @@
       "ast": "relikt",
       "akt": 2,
       "position": {
-        "x": 1040,
+        "x": 1456,
         "y": 210
       },
       "verbindungen": [
@@ -7148,7 +7201,7 @@
       "ast": "stamm",
       "akt": 2,
       "position": {
-        "x": 1144,
+        "x": 1352,
         "y": 252
       },
       "verbindungen": [
@@ -7179,7 +7232,7 @@
       "ast": "stamm",
       "akt": 2,
       "position": {
-        "x": 1040,
+        "x": 1456,
         "y": 294
       },
       "verbindungen": [
@@ -7212,7 +7265,7 @@
       "ast": "stamm",
       "akt": 2,
       "position": {
-        "x": 936,
+        "x": 1560,
         "y": 294
       },
       "verbindungen": [

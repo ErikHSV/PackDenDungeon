@@ -20,7 +20,7 @@ export const MOD_DEFAULTS = {
   packWiderstandMul: 1, packTrefferWeniger: 0, foilChance: 0, foilChanceMul: 1, kartenProPack: 0, bonusKarteChance: 0, packImPack: 0, grenzgaengerChance: 0,
   // Shiny / Foil-Baum
   foilStaerkeMul: 1, foilMonsterChance: 0, reliktPlaetze: 0, zinsen: 0, aktStartMastery: 0, gesuchtStaub: 0,
-  heldenKrit: 0, heldenBlock: 0, packImPack2: 0, rerollRabatt: 0,
+  heldenKrit: 0, heldenBlock: 0, packImPack2: 0, rerollRabatt: 0, kisteTrefferWeniger: 0, kisteBonusPack: 0,
   // Helden
   heldenSchadenMul: 1, heldenLebenMul: 1, heldenTempoMul: 1, heldenLaufMul: 1, turmVerfallProSekunde: 0, bossSchadenMul: 1, heldenVerfallProSekunde: 0, heldenHeilungProKill: 0,
   // Turm und Gebäude

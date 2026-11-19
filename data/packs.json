@@ -27,7 +27,7 @@
     "id": "kiste_holz",
     "name": "Kiste mit 3 Holzpacks",
     "art": "kiste",
-    "beschreibung": "Drei Holzpacks auf einmal.",
+    "beschreibung": "Landet als Kiste auf dem Feld. Aufbrechen – dann springen drei Holzpacks heraus.",
     "farbe": "#6b4423",
     "freischaltung": {
       "typ": "knoten",
@@ -36,7 +36,8 @@
     "inhalt": {
       "pack": "holzpack",
       "anzahl": 3
-    }
+    },
+    "widerstand": 12
   },
   {
     "id": "silberpack",
@@ -71,7 +72,7 @@
     "id": "kiste_silber",
     "name": "Kiste mit 3 Silberpacks",
     "art": "kiste",
-    "beschreibung": "Drei Silberpacks auf einmal.",
+    "beschreibung": "Landet als Kiste auf dem Feld. Aufbrechen – dann springen drei Silberpacks heraus.",
     "farbe": "#8a96a4",
     "freischaltung": {
       "typ": "knoten",
@@ -81,7 +82,8 @@
     "inhalt": {
       "pack": "silberpack",
       "anzahl": 3
-    }
+    },
+    "widerstand": 30
   },
   {
     "id": "sternenpack",

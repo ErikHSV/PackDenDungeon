@@ -262,7 +262,8 @@ export class Renderer {
     const c = this.ctx;
     if (p.t < 0) return;
     const img = this.bank.shopItem(p.packId);
-    const w = 30, h = 40;
+    const box = p.def.art === 'kiste';
+    const w = box ? 40 : 30, h = box ? 40 : 40;
     c.fillStyle = 'rgba(0,0,0,0.35)';
     c.beginPath(); c.ellipse(p.landed ? p.x : p.tx, (p.landed ? p.y : p.ty) + 2, 16, 5, 0, 0, Math.PI * 2); c.fill();
     c.save();
