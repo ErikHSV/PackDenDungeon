@@ -211,7 +211,17 @@ export class Renderer {
       c.globalAlpha = 1;
       return;
     }
+    // Durchsichtig, solange Gegner, Helden oder Packs hinter dem Turm stehen (sonst wären sie verdeckt)
+    const behind = (o, h) => o.y < tw.y + 20 && o.x > x - 8 && o.x < x + img.width + 8 && o.y > y - 10 && o.y - h < y + img.height;
+    const hidden = run.enemies.some((e) => !e.dead && behind(e, e.px ?? 24)) || run.units.some((u) => !u.dead && behind(u, 40)) || run.packs.some((pk) => !pk.opened && pk.landed && behind(pk, 60));
+    const now = performance.now();
+    const dt = Math.min(0.1, (now - (this.towerFadeT ?? now)) / 1000);
+    this.towerFadeT = now;
+    this.towerAlpha = this.towerAlpha ?? 1;
+    this.towerAlpha += ((hidden ? 0.38 : 1) - this.towerAlpha) * Math.min(1, dt * 10);
+    c.globalAlpha = this.towerAlpha;
     c.drawImage(img, Math.round(x), Math.round(y));
+    c.globalAlpha = 1;
     // Bollwerk: Schild um den Turm, solange er hält
     if (tw.shield > 0) {
       const a = 0.25 + 0.15 * Math.sin(run.time * 4);
