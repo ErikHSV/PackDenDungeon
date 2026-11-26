@@ -11,38 +11,61 @@
     "tor": {
       "name": "Das Alte Tor",
       "knoten": "tor_1",
-      "beschreibung": "Der Tor-Knoten am Ende des Akt-Asts im Skill-Tree öffnet Akt 2.",
-      "warnung": "Akt 2 beginnen? Der Skill-Tree wird zurückgesetzt. Erhalten bleiben: Foil-Baum, Foil-Staub, Sammlung, Bestiarium, Relikte."
+      "beschreibung": "Der Tor-Knoten am Ende des Stamms öffnet Akt 2.",
+      "warnung": "Akt 2 beginnen? Skill-Tree und Mastery werden zurückgesetzt und du beginnst wieder bei Kapitel 1 – dafür hat Akt 2 ein Kapitel mehr. Erhalten bleiben: Foil-Baum, Schimmer, Sammlung, Bestiarium, Relikte."
     }
   },
   {
     "id": 2,
     "name": "Akt 2 – Die Eiserne Marsch",
     "kapitel": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "sonder": [],
+    "beschreibung": "Zurück zu Kapitel 1 mit neuem Baum – und ein Kapitel mehr: die Eiserne Garde. In jedem Kapitel gibt es Relikt-Jagden.",
+    "tor": {
+      "name": "Das Eiserne Tor",
+      "knoten": "tor_2",
+      "beschreibung": "Öffnet Akt 3 nach dem Sieg über den Kastellan.",
+      "warnung": "Akt 3 beginnen? Skill-Tree und Mastery werden zurückgesetzt und du beginnst wieder bei Kapitel 1 – dafür hat Akt 3 ein Kapitel mehr. Erhalten bleiben: Foil-Baum, Schimmer, Sammlung, Bestiarium, Relikte."
+    }
+  },
+  {
+    "id": 3,
+    "name": "Akt 3 – Festung am Pass",
+    "kapitel": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "sonder": [],
+    "beschreibung": "Fünf Kapitel bis zur Bannerherrin.",
+    "tor": {
+      "name": "Das Passtor",
+      "knoten": "tor_3",
+      "beschreibung": "Öffnet Akt 4 nach dem Sieg über die Bannerherrin.",
+      "warnung": "Akt 4 beginnen? Skill-Tree und Mastery werden zurückgesetzt und du beginnst wieder bei Kapitel 1 – dafür hat Akt 4 ein Kapitel mehr. Erhalten bleiben: Foil-Baum, Schimmer, Sammlung, Bestiarium, Relikte."
+    }
+  },
+  {
+    "id": 4,
+    "name": "Akt 4 – Thron und Riss",
+    "kapitel": [
+      1,
+      2,
+      3,
       4,
       5,
       6
     ],
-    "status": "teilweise",
-    "geplant": [
-      "Tor-Knoten am Ende von Akt 2 und Übergang zu Akt 3"
-    ],
-    "sonder": [],
-    "beschreibung": "Die Eiserne Garde: gepanzerte Soldaten in Formationen. Jedes Kapitel hat eine Relikt-Jagd."
-  },
-  {
-    "id": 3,
-    "name": "Akt 3 – Die Elementar-Risse",
-    "kapitel": [
+    "sonder": [
       9
     ],
-    "status": "teilweise",
-    "geplant": [
-      "Riss der Natur",
-      "Riss des Todes",
-      "Riss des Chaos",
-      "Finale mit Endboss, danach Rückkehr zum Tor"
-    ],
-    "sonder": []
+    "beschreibung": "Sechs Kapitel bis zum Feldherrn; danach öffnet sich der Riss des Frosts."
   }
 ]

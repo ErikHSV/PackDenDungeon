@@ -6,7 +6,7 @@ const KEY = 'packdendungeon-save-v3';
 
 export function defaultSave(data) {
   return {
-    version: 14,
+    version: 15,
     // Genau drei Währungen (Abschnitt 10)
     coins: data?.balance.wirtschaft.startMuenzen ?? 3, // Münzen: nur für den Shop
     bonusCoins: 0,      // Bonus-Münzen aus Relikten und Effekten (werden zuerst ausgegeben)
@@ -29,7 +29,7 @@ export function defaultSave(data) {
     stats: {
       runs: 0, kills: 0, killsGegner: {}, zeitGesamt: 0, laengsterRun: 0, tomesGenutzt: 0, entwicklungen: 0,
       foilsGezogen: 0, foilMonsterBesiegt: 0, grenzgaengerGezogen: 0, packsGeoeffnet: {}, packsGesamt: 0,
-      muenzenAusgegeben: 0, bossKills: {}, bosseBesiegt: {}, besteZeit: {}, prestige: {}, prestigeGeschafft: 0,
+      muenzenAusgegeben: 0, bossKills: {}, aktBossKills: {}, bosseBesiegt: {}, besteZeit: {}, prestige: {}, prestigeGeschafft: 0,
       foilBossBesiegt: 0, torGeoeffnet: 0, foilStaubGesamt: 0, gesuchtSiege: {},
     },
     tutorial: { packHint: false, unitHint: false, tomeHint: false, starmapHint: false, firstRunDone: false },
@@ -75,6 +75,7 @@ function parseSave(data, raw) {
   if ((raw.version || 0) < 12) migrateV12(s, data);
   if ((raw.version || 0) < 13) migrateV13(s, data);
   if ((raw.version || 0) < 14) migrateV14(s, data);
+  if ((raw.version || 0) < 15) migrateV15(s, data);
   s.version = base.version; // Migrationen nur einmal ausführen
   return s;
 }
@@ -197,6 +198,17 @@ function migrateV14(s, data) {
   for (const [id, cost] of Object.entries(REMOVED_V14)) if (s.starmap?.[id]) { refund += Math.round(cost * aktMul); delete s.starmap[id]; }
   s.mastery = (s.mastery || 0) + refund;
   if (refund) s.migrationHinweis = [s.migrationHinweis, `Skill-Tree neu: gleiche Upgrades gebündelt, Helden mit neuen Fähigkeiten und Quests – ${refund} Mastery erstattet.`].filter(Boolean).join(' ');
+}
+
+/**
+ * v15: Jeder Akt beginnt wieder bei Kapitel 1 und hat ein Kapitel mehr (Akt 1: 1–3, Akt 2: 1–4, …).
+ * Fortschritt je Akt: Siege über Kapitel des aktuellen Akts aus den bisherigen Bosssiegen übernehmen (nichts geht verloren).
+ */
+function migrateV15(s, data) {
+  const list = data.actIndex[s.act ?? 1]?.kapitel ?? [];
+  s.stats.aktBossKills ||= {};
+  for (const id of list) if (s.stats.bossKills?.[id] > 0) s.stats.aktBossKills[id] = s.stats.bossKills[id];
+  if ((s.act ?? 1) >= 2) s.migrationHinweis = [s.migrationHinweis, `Neue Akt-Struktur: Jeder Akt beginnt wieder bei Kapitel 1 und hat ein Kapitel mehr. Dein Akt ${s.act} umfasst die Kapitel 1–${list.length}.`].filter(Boolean).join(' ');
 }
 
 /**

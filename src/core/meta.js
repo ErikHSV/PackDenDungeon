@@ -105,11 +105,16 @@ export function computeMods(data, save, opts = {}) {
 // Freischaltungen, Akte, Prestige
 // ===========================================================================
 
+/** Boss eines Kapitels im aktuellen Akt besiegt? (Jeder Akt beginnt wieder bei Kapitel 1.) */
+export const actCleared = (save, chId) => (save.stats.aktBossKills?.[chId] || 0) > 0;
+/** Kapitelliste des aktuellen Akts. */
+export const actChapters = (save, data) => data.actIndex[save.act]?.kapitel ?? data.actIndex[1].kapitel;
+
 export function packUnlocked(pack, save) {
   const f = pack.freischaltung;
   if (f.typ === 'start') return true;
-  if (f.typ === 'boss') return (save.stats.bossKills[f.kapitel] || 0) > 0;
-  if (f.typ === 'knoten') return levelOf(save, f.knoten) > 0 && (!f.kapitel || (save.stats.bossKills[f.kapitel] || 0) > 0);
+  if (f.typ === 'boss') return actCleared(save, f.kapitel); // Packs schalten sich in jedem Akt neu über den Boss frei
+  if (f.typ === 'knoten') return levelOf(save, f.knoten) > 0 && (!f.kapitel || actCleared(save, f.kapitel));
   if (f.typ === 'foilknoten') return foilLevelOf(save, f.knoten) > 0;
   return false;
 }
@@ -123,17 +128,17 @@ export function huntDef(ch, save, data) {
 
 export function chapterUnlocked(ch, save, data) {
   if (ch.art === 'reliktjagd') return save.act >= 2 && (save.stats.bossKills[ch.freischaltung?.boss ?? 1] || 0) > 0; // Relikte erst nach dem ersten Akt-Wechsel
-  if (ch.art === 'riss') return save.act >= 2 && (save.stats.bossKills[ch.freischaltung?.boss ?? 6] || 0) > 0; // Riss nach dem Ende von Akt 2
-  if (ch.akt > save.act) return false;
-  const act = data.actIndex[ch.akt];
-  const list = act.kapitel;
+  if (ch.art === 'riss') return save.act >= (ch.akt ?? 4) && actCleared(save, ch.freischaltung?.boss ?? 6); // Riss nach dem letzten Kapitel von Akt 4
+  // Jeder Akt beginnt wieder bei Kapitel 1 und hat ein Kapitel mehr als der vorige
+  const list = actChapters(save, data);
   const i = list.indexOf(ch.id);
-  if (i <= 0) return ch.akt === 1 || save.act >= ch.akt;
-  return (save.stats.bossKills[list[i - 1]] || 0) > 0;
+  if (i < 0) return false;
+  return i === 0 || actCleared(save, list[i - 1]);
 }
 
 export function highestChapter(save, data) {
-  return Math.max(1, ...data.chapters.filter((c) => c.art === 'kapitel' && chapterUnlocked(c, save, data)).map((c) => (c.akt - 1) * 3 + (data.actIndex[c.akt].kapitel.indexOf(c.id) + 1)));
+  const list = actChapters(save, data);
+  return Math.max(1, ...list.filter((id) => chapterUnlocked(data.chapterIndex[id], save, data)).map((id) => list.indexOf(id) + 1));
 }
 
 /**
@@ -143,8 +148,13 @@ export function highestChapter(save, data) {
 export function changeAct(node, data, save) {
   if (node?.typ !== 'tor' || !nodeVisible('skill', node, save, data)) return null;
   const mods = computeMods(data, save);
-  const refund = data.balance.akte.sternenkarteResetBeiAktwechsel ? resetStarmap(data, save) : { mp: 0 };
+  // Neuer Akt: Baum zurücksetzen, Mastery wird NICHT übernommen (nur der Bonus aus dem Schimmer-Baum)
+  save.starmap = {};
+  save.lastBought = null;
+  save.mastery = 0;
+  const refund = { mp: 0 };
   save.questProgress = {};
+  save.stats.aktBossKills = {}; // neuer Akt: wieder ab Kapitel 1, Packs über die Bosse neu freischalten
   save.act = Math.max(save.act, node.effekt.akt);
   save.stats.torGeoeffnet = 1;
   const bonus = Math.round(mods.aktStartMastery || 0);
@@ -156,7 +166,7 @@ export function changeAct(node, data, save) {
 export const tabUnlocked = (tab, save) => !['bestiarium', 'relikte'].includes(tab) || save.act >= 2;
 
 export function prestigeAvailable(ch, save, data) {
-  if (!ch.prestige || !(save.stats.bossKills[ch.id] > 0)) return [];
+  if (!ch.prestige || !actCleared(save, ch.id)) return [];
   const done = save.stats.prestige[ch.id] || 0;
   return data.balance.prestige.stufen.filter((s) => s.stufe <= done + 1).map((s) => s.stufe);
 }
@@ -492,8 +502,9 @@ export function applyRunResult(result, data, save, mods, rng = Math.random) {
     if (result.schatzBonus) { out.schatzBonus = openRelicPack(data, save, rng); if (!out.schatzBonus) out.reliktStaub = (out.reliktStaub || 0) + data.balance.belohnungen.reliktpackOhneRelikt.foilStaub; }
   }
   if (result.sieg) {
-    const first = !s.bossKills[result.kapitel];
+    const first = !actCleared(save, result.kapitel); // erster Sieg in diesem Akt
     s.bossKills[result.kapitel] = (s.bossKills[result.kapitel] || 0) + 1;
+    (s.aktBossKills ||= {})[result.kapitel] = (s.aktBossKills[result.kapitel] || 0) + 1;
     s.bosseBesiegt[result.boss] = (s.bosseBesiegt[result.boss] || 0) + 1;
     if (mods.prestige) { s.prestige[result.kapitel] = Math.max(s.prestige[result.kapitel] || 0, mods.prestige.stufe); s.prestigeGeschafft++; }
     if (mods.gesucht) { s.foilBossBesiegt++; const b = (save.bestiary[result.boss] ||= { normal: 0, foil: 0 }); b.foil++; }
@@ -503,8 +514,8 @@ export function applyRunResult(result, data, save, mods, rng = Math.random) {
       if (!out.relikt) out.reliktStaub = teile.reliktpack = data.balance.belohnungen.reliktpackOhneRelikt.foilStaub;
     }
     if (first && ch.art === 'kapitel') {
-      const act = data.actIndex[ch.akt];
-      const next = act.kapitel[act.kapitel.indexOf(ch.id) + 1];
+      const list = actChapters(save, data);
+      const next = list[list.indexOf(ch.id) + 1];
       if (next) out.kapitelFrei = data.chapterIndex[next];
       out.packsFrei = data.packs.filter((p) => p.freischaltung.typ === 'boss' && p.freischaltung.kapitel === ch.id);
     }
@@ -698,7 +709,7 @@ export function nodeVisible(kind, node, save, data) {
   if (kind === 'foil' && !foilTreeUnlocked(save)) return false;
   if (!nodeInAct(node, save)) return false;
   // Gebäude-, Pack- und Shop-Knoten erst nach dem ersten bzw. zweiten Boss (11.7)
-  if (node.abBoss && !(save.stats.bossKills[node.abBoss] > 0)) return false;
+  if (node.abBoss && !actCleared(save, node.abBoss)) return false;
   const card = nodeCard(node);
   if (card && !cardBranchOpen(card, save, data)) return false;
   return TREE[kind].level(save, node.id) > 0 || nodeReachable(kind, node, save);
@@ -715,10 +726,10 @@ export function nodePreviewable(kind, node, save, data) {
   return !card || cardBranchOpen(card, save, data);
 }
 
-/** Kosten der nächsten Stufe. Skill-Tree: ab Akt 2 mal balance.skilltree.aktKostenMul (neuer Baum, gleiche Startlogik). */
+/** Kosten der nächsten Stufe. Skill-Tree: Knoten eines späteren Akts (node.akt) kosten mal balance.skilltree.aktKostenMul; Akt-1-Knoten kosten in jedem Akt gleich viel. */
 export function nodeCost(kind, node, level, data, save = null) {
   const f = node.kostenFaktor ?? TREE[kind].faktor(data);
-  const aktMul = kind === 'skill' ? (data.balance.skilltree.aktKostenMul?.[save?.act ?? 1] ?? 1) : 1;
+  const aktMul = kind === 'skill' ? (data.balance.skilltree.aktKostenMul?.[node.akt ?? 1] ?? 1) : 1;
   return { amount: Math.round(node.basisKosten * Math.pow(f, level) * aktMul), waehrung: TREE[kind].wallet, muenzen: level === 0 ? node.muenzKosten || 0 : 0 };
 }
 

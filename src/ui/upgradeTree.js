@@ -7,6 +7,7 @@ import { $, escapeHtml, show, stage, confirmDialog, countTo } from './dom.js';
 import {
   treeMap, treeIndex, treeLevel, nodeVisible, nodePreviewable, nodeCost, nodeBlocker, buyNode, describeNodeEffect, computeMods,
   questProgress, questChapters, claimQuestNode, describeReward, changeAct, foilTreeUnlocked, prestigeAvailable, chapterUnlocked,
+  actCleared,
 } from '../core/meta.js';
 import { hash } from '../render/pixel.js';
 import { play } from '../audio.js';
@@ -262,7 +263,7 @@ export class UpgradeTree {
     const { data, save } = this;
     const act = data.acts.find((a) => a.tor?.knoten === node.id);
     const next = node.effekt.akt;
-    const text = act?.tor?.warnung ?? `Akt ${next} beginnen? Der Skill-Tree wird zurückgesetzt. Erhalten bleiben: Foil-Baum, Foil-Staub, Sammlung, Bestiarium, Relikte.`;
+    const text = act?.tor?.warnung ?? `Akt ${next} beginnen? Skill-Tree und Mastery werden zurückgesetzt. Erhalten bleiben: Foil-Baum, Schimmer, Sammlung, Bestiarium, Relikte.`;
     show('#tree-info', false);
     if (!(await confirmDialog(text, `Akt ${next} beginnen`, 'Noch nicht'))) return;
     const res = changeAct(node, data, save);
@@ -273,7 +274,7 @@ export class UpgradeTree {
     this.centerOn(this.data.starIndex[this.data.starmap.start]);
     this.updateCurrency(false);
     this.game.hub?.onActChanged();
-    const parts = [`${fmtNum(res.refund)} Mastery erstattet`];
+    const parts = ['neuer Skill-Tree, zurück zu Kapitel 1'];
     if (res.bonus) parts.push(`+${fmtNum(res.bonus)} Mastery (Schneller Neubeginn)`);
     showUnlocks([
       { title: `AKT ${res.act}!`, name: `${data.actIndex[res.act]?.name ?? ''} – ${parts.join(', ')}.`, img: this.game.bank.iconUrl('gate'), w: 180, h: 180 },
@@ -336,7 +337,7 @@ export class UpgradeTree {
     const branch = this.foil ? data.foiltree.aeste.find((a) => a.id === node.ast)?.name : data.branchIndex[node.ast]?.name;
     let html = `<h3 style="color:${col}">${escapeHtml(node.name)}</h3><div class="typ">${TYPE_NAME[node.typ] ?? ''}${branch ? ` · ${escapeHtml(branch)}` : ''}</div>`;
     if (st === 'locked') {
-      const boss = node.abBoss && !(save.stats.bossKills[node.abBoss] > 0);
+      const boss = node.abBoss && !actCleared(save, node.abBoss);
       const bossName = boss ? data.enemies.find((e) => e.id === data.chapterIndex[node.abBoss]?.boss)?.name : null;
       html += `<div>${escapeHtml(node.typ === 'quest' ? node.beschreibung : node.beschreibung)}</div>
         <div class="cost no">Gesperrt – ${boss ? `erst nach dem Sieg über ${escapeHtml(bossName ?? `den Boss von Kapitel ${node.abBoss}`)}` : 'zuerst den angrenzenden Knoten kaufen'}.</div>`;
@@ -359,7 +360,7 @@ export class UpgradeTree {
     } else if (node.typ === 'tor') {
       html += `<div>${escapeHtml(node.beschreibung)}</div>`;
       if (node.torBosse) {
-        const done = node.torBosse.filter((ch) => save.stats.bossKills?.[ch] > 0).length;
+        const done = node.torBosse.filter((ch) => actCleared(save, ch)).length;
         html += `<div><b>Tor-Zähler:</b> ${done}/${node.torBosse.length} Bosse besiegt</div>`;
       }
       html += `<div class="cost">Klicken, um Akt ${node.effekt.akt} zu beginnen</div>`;

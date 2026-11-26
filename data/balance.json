@@ -177,7 +177,7 @@
     },
     "masteryEliteKill": 5,
     "schatzpackOhneRelikt": {
-      "$kommentar": "Schatzpack, wenn alle Relikte gefunden sind: kein Schimmer (Schimmer gibt es nur für Shiny-Monster, -Karten und den ersten Sieg gegen Shiny-Bosse), sondern Mastery × Akt-Faktor.",
+      "$kommentar": "Schatzpack, wenn alle Relikte gefunden sind: kein Schimmer, sondern Mastery.",
       "foilStaub": 0,
       "shinyBonus": 0,
       "mastery": 300
@@ -247,7 +247,7 @@
     ]
   },
   "akte": {
-    "$kommentar": "Akt-Wechsel über den Tor-Knoten im Skill-Tree: der Skill-Tree wird zurückgesetzt (volle Rückerstattung), Quest-Fortschritt beginnt neu. Erhalten bleiben Foil-Baum, Foil-Staub, Sammlung, Bestiarium, Relikte.",
+    "$kommentar": "Akt-Wechsel über den Tor-Knoten: Der Skill-Tree wird zurückgesetzt und die Mastery verfällt (nur der Schimmer-Baum-Bonus „Schneller Neubeginn“ gibt Start-Mastery). Jeder Akt beginnt wieder bei Kapitel 1 mit gleich starken Monstern und hat ein Kapitel mehr; neue Upgrades kommen hinzu. Erhalten bleiben Foil-Baum, Schimmer, Sammlung, Bestiarium, Relikte.",
     "sternenkarteResetBeiAktwechsel": true
   },
   "prestige": {
@@ -288,11 +288,12 @@
   },
   "skilltree": {
     "kostenFaktorStandard": 1.45,
-    "$kommentar": "Kosten = basisKosten × kostenFaktor^Stufe × aktKostenMul[Akt]. Ab Akt 2 neuer Baum mit gleicher Startlogik, aber höheren Kosten.",
+    "$kommentar": "Kosten = basisKosten × kostenFaktor^Stufe × aktKostenMul[Akt des Knotens]. Akt-1-Knoten kosten in jedem Akt gleich viel; Akt-2-Knoten (Legenden usw.) ×10.",
     "aktKostenMul": {
       "1": 1,
       "2": 10,
-      "3": 25
+      "3": 25,
+      "4": 50
     }
   },
   "foilbaum": {
@@ -318,7 +319,7 @@
     }
   },
   "bestiarium": {
-    "$kommentar": "Ab Akt 2 gibt jede Monsterart im Bestiarium mehr Mastery (Bonus auf alle Run-Mastery), Shiny-Einträge zählen extra. Neue Bestiarium-Einträge geben masteryNeuesMonster × Akt-Kostenfaktor.",
+    "$kommentar": "Ab Akt 2 gibt jede Monsterart im Bestiarium mehr Mastery (Bonus auf alle Run-Mastery), Shiny-Einträge zählen extra.",
     "abAkt": 2,
     "masteryProEintrag": 0.03,
     "masteryProShinyEintrag": 0.05

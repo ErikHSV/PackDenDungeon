@@ -43,8 +43,8 @@ export class BattleController {
     this.presenting = [];
     this.bossIntro = 0;
     this.ending = false;
-    const fastFrom = this.game.data.chapters.find((c) => c.art === 'kapitel' && this.game.data.actIndex[c.akt].kapitel.indexOf(c.id) + 1 + (c.akt - 1) * 3 === (this.game.data.balance.run.zweifachAbKapitel ?? 2));
-    this.fastUnlocked = !fastFrom || chapterUnlocked(fastFrom, save, this.game.data);
+    const fastFrom = this.game.data.chapterIndex[this.game.data.actIndex[1].kapitel[(this.game.data.balance.run.zweifachAbKapitel ?? 2) - 1]];
+    this.fastUnlocked = !fastFrom || (save.stats.bossKills[this.game.data.actIndex[1].kapitel[0]] || 0) > 0 || chapterUnlocked(fastFrom, save, this.game.data); // 2× ab dem ersten Kapitel-2-Zugang, danach dauerhaft
     // Gewähltes Tempo bleibt über Runs erhalten (2× erst ab Kapitel 2)
     const sp = this.game.data.balance.run.geschwindigkeiten;
     this.speedIndex = Math.max(0, sp.indexOf(save.settings.tempo ?? 1));

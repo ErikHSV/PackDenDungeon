@@ -790,7 +790,7 @@ export class Run {
     if (this.rng() < (this.mods.schatzBonusRelikt || 0)) this.stats.schatzBonus = true; // „Beuteteilung“: zusätzliches Reliktpack nach dem Run
     if (!relic && B.foilStaub) this.gainShimmer(B.foilStaub, 'schatzpack', p.x, p.y - 20);
     if (!relic && B.mastery) {
-      const mp = Math.round(B.mastery * (this.B.skilltree.aktKostenMul?.[this.save.act ?? 1] ?? 1));
+      const mp = B.mastery;
       this.stats.bonusMastery += mp;
       fx(this, { type: 'text', x: p.x, y: p.y - 60, text: `+${mp} Mastery`, color: '#7cc4ff', size: 20, life: 1.6 });
     }

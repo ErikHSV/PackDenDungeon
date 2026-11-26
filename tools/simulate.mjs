@@ -8,7 +8,7 @@ import { loadData } from './load-data.mjs';
 import { Run } from '../src/core/run.js';
 import {
   bagItems, consumeBag, walletTotal, canReroll, reroll, rerollCost, computeMods, rollOffers, describeOffer, buyOffer, applyRunResult,
-  buyNode, nodeBlocker, nodeCost, nodeVisible, treeLevel, chapterUnlocked, claimQuestNode, changeAct, questProgress, levelOf,
+  buyNode, nodeBlocker, nodeCost, nodeVisible, treeLevel, chapterUnlocked, claimQuestNode, changeAct, questProgress, levelOf, actCleared, actChapters,
 } from '../src/core/meta.js';
 import { defaultSave, importSave } from '../src/save.js';
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -88,7 +88,7 @@ function spendTrees() {
 
 function pickChapter() {
   const list = data.chapters.filter((c) => c.art === 'kapitel' && chapterUnlocked(c, save, data));
-  return (list.find((c) => !save.stats.bossKills[c.id]) ?? list[list.length - 1]).id;
+  return (list.find((c) => !actCleared(save, c.id)) ?? list[list.length - 1]).id;
 }
 
 console.log(`Simulation: ${DAYS} Tage, Seed ${SEED}`);
@@ -109,15 +109,15 @@ for (day = 1; day <= DAYS; day++) {
   let ch = pickChapter();
   let gesucht = false;
   if (day % 4 === 0 && save.act >= 2) {
-    const done = data.chapters.filter((c) => c.art === 'kapitel' && save.stats.bossKills[c.id] > 0).map((c) => c.id);
-    const cand = done.find((id) => !(save.stats.gesuchtSiege?.[data.chapterIndex[id].boss] > 0) && done.includes(id + 1)) ?? (done.length >= 3 ? done[0] : null);
+    const done = actChapters(save, data).filter((id) => actCleared(save, id));
+    const cand = done.find((id) => !(save.stats.gesuchtSiege?.[data.chapterIndex[id].boss] > 0) && done.includes(id + 1)) ;
     if (cand) { ch = cand; gesucht = true; }
   }
   const mods = computeMods(data, save, { gesucht });
   const run = botRun(ch, mods, bag);
   const r = run.result;
   const info = applyRunResult(r, data, save, mods, rng);
-  if (r.sieg && !firstWin[ch]) firstWin[ch] = `Tag ${day}, ~${Math.round(minutes + r.zeit / 60 + HUB_MINUTES)} min`;
+  if (r.sieg && !gesucht && !firstWin[`${save.act}:${ch}`]) firstWin[`${save.act}:${ch}`] = `Tag ${day}, ~${Math.round(minutes + r.zeit / 60 + HUB_MINUTES)} min`;
   minutes += r.zeit / 60 + HUB_MINUTES;
   for (const t of info.schimmerTeile) dustBy[t.quelle] = (dustBy[t.quelle] || 0) + t.n;
   if (firstDust == null && save.stats.foilStaubGesamt > 0) firstDust = { day, min: Math.round(minutes), quellen: info.schimmerTeile.map((t) => t.quelle).join('+') };

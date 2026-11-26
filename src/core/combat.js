@@ -174,7 +174,7 @@ export function killEnemy(run, e, killer = null) {
   // Neue Monsterart fürs Bestiarium: Mastery (Sammlung)
   if (!e.isBoss && !run.seenMonsters?.has(e.id) && !((run.save.bestiary[e.id]?.normal || 0) + (run.save.bestiary[e.id]?.foil || 0) > 0)) {
     run.seenMonsters?.add(e.id);
-    const mp = Math.round((run.B.belohnungen.masteryNeuesMonster || 0) * (run.B.skilltree.aktKostenMul?.[run.save.act ?? 1] ?? 1)); // Akt 2+: Bestiarium-Einträge zählen mehr
+    const mp = run.B.belohnungen.masteryNeuesMonster || 0;
     if (mp) { run.stats.bonusMastery += mp; fx(run, { type: 'text', x: e.x, y: e.y - 50, text: `+${mp} Mastery · Neu im Bestiarium`, color: '#7cc4ff', size: 18, life: 1.6 }); }
   }
   const k = (run.stats.killsNachArt[e.id] ||= { normal: 0, foil: 0 });

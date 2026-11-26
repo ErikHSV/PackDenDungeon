@@ -8,7 +8,7 @@ import { renderCollection, renderBestiary, renderRelics } from './screens.js';
 import {
   chapterUnlocked, describeOffer, buyOffer, rollOffers, rerollCost, canReroll, reroll, resetPurchases, walletTotal, shopSlots,
   prestigeAvailable, modifiersAvailable, anyNodeAffordable, claimableQuests, autoClaimQuests, bagItems, tabUnlocked, foilTreeUnlocked, gesuchtSchimmer,
-  huntDef,
+  huntDef, actChapters, actCleared,
 } from '../core/meta.js';
 import { hash } from '../render/pixel.js';
 import { play } from '../audio.js';
@@ -151,14 +151,14 @@ export class Hub {
   /** Akt 1: keine Kapitelwahl – immer das erste noch nicht geschaffte Kapitel (sonst das letzte). */
   currentActChapter() {
     const { data, save } = this.game;
-    const ids = data.actIndex[save.act]?.kapitel ?? [];
-    return ids.find((id) => !(save.stats.bossKills[id] > 0)) ?? ids[ids.length - 1];
+    const ids = actChapters(save, data);
+    return ids.find((id) => !actCleared(save, id)) ?? ids[ids.length - 1];
   }
 
   /** Ab Akt 2 ist ein bereits geschafftes Kapitel automatisch der Schimmer-Boss (Gesucht). */
   isWanted(ch, sel) {
     const { save } = this.game;
-    return save.act >= 2 && !!ch?.gesucht && !(sel.prestige > 0) && save.stats.bossKills[ch.id] > 0;
+    return save.act >= 2 && !!ch?.gesucht && !(sel.prestige > 0) && actCleared(save, ch.id);
   }
 
   /** Auswahl gültig halten: in Akt 1 fest, ab Akt 2 frei (ungültig → erstes offenes Kapitel des Akts). */
@@ -174,8 +174,9 @@ export class Hub {
   chapterEntries() {
     const { data, save } = this.game;
     const out = [];
-    for (const act of data.acts) {
-      for (const id of [...(act.kapitel ?? []), ...(act.sonder ?? [])]) {
+    const act = data.actIndex[save.act] ?? data.acts[0];
+    {
+      for (const id of [...(act.kapitel ?? []), ...data.acts.filter((a) => a.id <= save.act).flatMap((a) => a.sonder ?? [])]) {
         const ch = data.chapterIndex[id];
         if (!ch || !chapterUnlocked(ch, save, data)) continue;
         out.push({ chapter: id, prestige: 0 });
@@ -202,8 +203,8 @@ export class Hub {
     const { data } = this.game;
     if (ch.art === 'reliktjagd') return `SONDERKAPITEL – AKT ${ch.akt}`;
     if (ch.art === 'riss') return `ELEMENTAR-RISS – AKT ${ch.akt}`;
-    const nr = data.acts.filter((a) => a.id < ch.akt).reduce((s, a) => s + (a.kapitel?.length || 0), 0) + data.actIndex[ch.akt].kapitel.indexOf(ch.id) + 1;
-    return `KAPITEL ${nr} – AKT ${ch.akt}`;
+    const nr = actChapters(this.game.save, data).indexOf(ch.id) + 1;
+    return `KAPITEL ${nr} – AKT ${this.game.save.act}`;
   }
 
   renderChapter() {
