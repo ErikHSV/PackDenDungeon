@@ -65,6 +65,53 @@ export function applyOnHit(run, e, list, hit, source) {
   for (const st of list || []) applyStatus(run, e, st, hit, source);
 }
 
+/**
+ * Helden-Fähigkeiten beim Treffer des Hauptziels (aus dem Skill-Tree per Patch freigeschaltet):
+ * spalten (Flächenschlag), betaeuben, frost (verlangsamen), markieren (verwundbar), bluten (Schaden über Zeit),
+ * kettenblitz, serie (Zähler für Folgetreffer auf dasselbe Ziel).
+ */
+export function unitOnHit(run, u, e, dmg) {
+  const F = u?.def?.faehigkeiten;
+  if (!F || !e) return;
+  if (F.serie) { if (u.serieZiel === e) u.serieN = Math.min((u.serieN || 0) + 1, F.serie.max ?? 4); else { u.serieZiel = e; u.serieN = 0; } }
+  if (e.dead && !F.spalten && !F.kettenblitz) return;
+  const typ = u.def.werte.schadensTyp;
+  const sp = F.spalten;
+  if (sp && run.rng() < (sp.chance ?? 1)) {
+    fx(run, { type: 'ring', x: e.x, y: e.y, r: sp.radius, color: u.def.farbe || '#ffffff', life: 0.25 });
+    for (const o of run.enemies) if (o !== e && !o.dead && !o.fliegt && dist(o, e) <= sp.radius) damageEnemy(run, o, dmg * sp.anteil, typ, { aoe: true, source: u, silent: true });
+  }
+  if (!e.dead) {
+    if (F.betaeuben && run.rng() < F.betaeuben.chance) applyStatus(run, e, { typ: 'betaeubung', dauer: F.betaeuben.dauer ?? 1 });
+    if (F.frost) applyStatus(run, e, { typ: 'verlangsamung', faktor: F.frost.faktor ?? 0.6, dauer: F.frost.dauer ?? 2, chance: F.frost.chance });
+    if (F.markieren) applyStatus(run, e, { typ: 'verwundbarkeit', anteil: F.markieren.anteil, dauer: F.markieren.dauer ?? 3 });
+    if (F.bluten) applyStatus(run, e, { typ: 'gift', schadenProSekunde: dmg * F.bluten.anteil, dauer: F.bluten.dauer ?? 3 });
+  }
+  const kb = F.kettenblitz;
+  if (kb && run.rng() < kb.chance) {
+    let cur = e; const hit = new Set([e]);
+    for (let i = 0; i < (kb.spruenge ?? 2); i++) {
+      const next = run.enemies.filter((o) => !o.dead && !hit.has(o)).sort((a, b) => dist(a, cur) - dist(b, cur))[0];
+      if (!next || dist(next, cur) > 200) break;
+      fx(run, { type: 'bolt', x1: cur.x, y1: cur.y - 10, x2: next.x, y2: next.y - 10, color: '#a6e3ff', life: 0.2 });
+      damageEnemy(run, next, dmg * kb.anteil, 'magic', { aoe: true, chain: true, source: u, silent: true });
+      hit.add(next); cur = next;
+    }
+  }
+}
+
+/** Schadensfaktor einer Einheit gegen ein bestimmtes Ziel: Hinrichtung (angeschlagene Gegner), Serie, Riesentöter (Elite/Boss). */
+function heroHitMul(u, e) {
+  const F = u.def.faehigkeiten;
+  if (!F) return 1;
+  let m = 1;
+  if (F.hinrichtung && e.hp / e.maxHp <= F.hinrichtung.schwelle) m *= F.hinrichtung.schadenMul;
+  if (F.serie && u.serieZiel === e) m *= 1 + (u.serieN || 0) * F.serie.bonus;
+  if (F.riesentoeter && (e.elite || e.isBoss)) m *= F.riesentoeter.schadenMul;
+  if (F.ersterSchlag && e.hp >= e.maxHp) m *= F.ersterSchlag.schadenMul;
+  return m;
+}
+
 // ---------------------------------------------------------------------------
 // Schaden an Gegnern
 // ---------------------------------------------------------------------------
@@ -90,6 +137,7 @@ export function damageEnemy(run, e, amount, type, opts = {}) {
     }
   }
   let d = amount;
+  if (opts.source?.kind === 'unit') d *= heroHitMul(opts.source, e);
   // Helden-Krit (Skill-Tree „Heldenglück“): doppelter Schaden
   const kritChance = opts.source?.kind === 'unit' ? run.mods.heldenKrit + (opts.source.def.werte.krit || 0) + (e.elite || e.isBoss ? opts.source.def.faehigkeiten?.eliteKrit || 0 : 0) : 0;
   if (kritChance > 0 && !opts.crit && run.rng() < kritChance) { d *= 2; opts = { ...opts, crit: true }; }
@@ -216,8 +264,18 @@ export function damageUnit(run, u, amount, attacker = null) {
     run.checkEvolution(u);
     return 0;
   }
+  const F = u.def.faehigkeiten || {};
+  // Ausweichen (z. B. Windläufer): Treffer verfehlt
+  if (F.ausweichen && attacker && run.rng() < F.ausweichen.chance) {
+    fx(run, { type: 'text', x: u.x, y: u.y - 70, text: 'Ausgewichen!', color: '#9fe8ff', size: 15 });
+    return 0;
+  }
+  if (F.panzer) amount *= 1 - F.panzer.reduktion; // weniger Schaden
+  if (F.letzteBastion && u.hp / u.maxHp <= F.letzteBastion.schwelle) amount *= 1 - F.letzteBastion.reduktion;
   u.hp -= amount;
   u.hitFlash = 0.1;
+  // Dornen: ein Teil des Schadens trifft den Angreifer
+  if (F.dornen && attacker && !attacker.dead && attacker.kind !== 'unit') damageEnemy(run, attacker, amount * F.dornen.anteil, null, { aoe: true, silent: true, source: u });
   if (u.hp <= 0) run.killUnit(u);
   return amount;
 }

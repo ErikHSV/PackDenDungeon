@@ -46,7 +46,7 @@ function applyOp(mods, ziel, op, wert, times = 1) {
 function applyNodeEffect(mods, node, lvl) {
   const e = node.effekt;
   if (e.ziel === 'flag') mods.flags[e.flag] = true;
-  else if (e.ziel === 'gebaeude') mods.gebaeude[e.gebaeude] = (mods.gebaeude[e.gebaeude] || 0) + lvl;
+  else if (e.ziel === 'gebaeude') mods.gebaeude[e.gebaeude] = (mods.gebaeude[e.gebaeude] || 0) + lvl * (e.stufen || 1); // gebündelter Ausbau: mehrere Stufen auf einmal
   else if (e.ziel === 'gebaeudeBonus') { const b = (mods.gebaeudeBonus[e.gebaeude] ||= {}); b[e.feld] = (b[e.feld] || 0) + e.wert * lvl; }
   else if (e.ziel === 'einheit') { const list = (mods.einheiten[e.karte] ||= []); for (let i = 0; i < lvl; i++) list.push(...e.patches); }
   else if (e.ziel === 'tome') { const t = (mods.tomes[e.tome] ||= { wirkungMul: 1, dauerMul: 1 }); t[`${e.art}Mul`] += e.betrag * lvl; }

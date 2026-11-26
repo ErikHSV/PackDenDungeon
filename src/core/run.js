@@ -423,6 +423,13 @@ export class Run {
       fx(this, { type: 'burst', x: u.x, y: u.y, r: kx.radius, color: '#c9a6ff', life: 0.4 });
       for (const e of this.enemies) if (!e.dead && dist(e, u) <= kx.radius) damageEnemy(this, e, dmg, 'magic', { aoe: true, source: u });
     }
+    // Letztes Aufbäumen: Held explodiert beim Tod
+    const tx = u.def.faehigkeiten?.todesExplosion;
+    if (tx && !expired) {
+      const dmg = u.def.werte.schaden * this.mods.heldenSchadenMul * tx.schadenMul;
+      fx(this, { type: 'burst', x: u.x, y: u.y, r: tx.radius, color: '#ff9a3a', life: 0.45 });
+      for (const e of this.enemies) if (!e.dead && dist(e, u) <= tx.radius) damageEnemy(this, e, dmg, 'physical', { aoe: true, source: u });
+    }
     const ts = u.def.faehigkeiten?.todSkelett;
     if (ts && !u.summoned && !expired && this.rng() < (ts.chance ?? 1)) this.spawnUnit('skelettkrieger', u.x, u.y, { life: ts.dauer ?? 12 });
     const s = u.def.beimTod?.beschwoeren;

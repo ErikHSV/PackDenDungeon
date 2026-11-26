@@ -1,7 +1,7 @@
 // Einheiten: KI (angreifen, abstand, bewachen, springen, folgen), Angriffe, Fähigkeiten, Geschosse, Zonen.
 // Neue Fähigkeiten: Eintrag in ABILITIES; neue Angriffsarten: Eintrag in ATTACKS.
 import { dist } from './util.js';
-import { damageEnemy, applyOnHit, applyStatus, fx } from './combat.js';
+import { damageEnemy, applyOnHit, applyStatus, fx, unitOnHit } from './combat.js';
 
 export const UNIT_R = 12; // Kollisionsradius einer Einheit (Weltpixel; Helden sind ca. 16–24 px hoch)
 
@@ -49,7 +49,14 @@ function nearestEnemy(run, u, from, maxDist) {
 
 export function unitDamage(run, u) {
   const giant = run.buffs.riesen.t > 0 ? run.buffs.riesen.schadenMul : 1;
-  return u.def.werte.schaden * run.mods.heldenSchadenMul * giant * (u.riese ? 1.3 : 1) * (u.foil ? run.foilBonus('schadenMul') : 1); // Shiny: +50 % Schaden
+  return u.def.werte.schaden * run.mods.heldenSchadenMul * giant * (u.riese ? 1.3 : 1) * (u.foil ? run.foilBonus('schadenMul') : 1) * auraMul(run, u); // Shiny: +50 % Schaden
+}
+
+/** Kampfaura eines Verbündeten in der Nähe (z. B. Bannerträger „Kriegsbanner“): +Schaden; stärkste Aura zählt. */
+function auraMul(run, u) {
+  let best = 0;
+  for (const o of run.auraHelden || []) if (o !== u && !o.dead && dist(o, u) <= o.def.faehigkeiten.aura.radius) best = Math.max(best, o.def.faehigkeiten.aura.schaden);
+  return 1 + best;
 }
 
 /** Reichweite inkl. Foil (+50 %) und Riesenwuchs. */
@@ -84,6 +91,7 @@ const ATTACKS = {
   nahkampf(run, u, t, dmg) {
     damageEnemy(run, t, dmg, u.def.werte.schadensTyp, { source: u, from: u });
     applyOnHit(run, t, u.def.angriff.beiTreffer, dmg, u);
+    unitOnHit(run, u, t, dmg);
     fx(run, { type: 'slash', x: t.x, y: t.y, color: '#ffffff', life: 0.15 });
     const sp = u.def.angriff.spiegelung;
     if (sp) for (const o of run.enemies) if (o !== t && canHit(u, o) && dist(o, t) <= sp.radius) damageEnemy(run, o, dmg * sp.anteil, u.def.werte.schadensTyp, { aoe: true, source: u });
@@ -103,6 +111,7 @@ const ATTACKS = {
       damageEnemy(run, e, dmg, u.def.werte.schadensTyp, { aoe: true, source: u });
       applyOnHit(run, e, a.beiTreffer, dmg, u);
     }
+    unitOnHit(run, u, t, dmg);
   },
   halbkreis(run, u, t, dmg) {
     const r = (u.def.angriff.radius ?? 70) * (u.foil ? run.foilBonus('flaecheMul') : 1);
@@ -111,6 +120,7 @@ const ATTACKS = {
       damageEnemy(run, e, dmg, u.def.werte.schadensTyp, { aoe: true, source: u });
       applyOnHit(run, e, u.def.angriff.beiTreffer, dmg, u);
     }
+    unitOnHit(run, u, t, dmg);
   },
   geschoss(run, u, t, dmg) {
     const a = u.def.angriff;
@@ -189,7 +199,20 @@ const ABILITIES = {
     u.x = p.x + 40; u.y = p.y;
     run.clampToArena(u, 0.95);
     fx(run, { type: 'ring', x: u.x, y: u.y, r: ab.radius, color: '#2EE6D6', life: 0.4 });
-    for (const e of run.enemies) if (dist(e, u) <= ab.radius) damageEnemy(run, e, unitDamage(run, u) * ab.schadenMul, 'magic', { aoe: true, source: u });
+    for (const e of run.enemies) if (dist(e, u) <= ab.radius) {
+      damageEnemy(run, e, unitDamage(run, u) * ab.schadenMul, 'magic', { aoe: true, source: u });
+      if (ab.betaeubung) applyStatus(run, e, { typ: 'betaeubung', dauer: ab.betaeubung });
+    }
+  },
+  /** Regeneration: heilt pro Sekunde einen Anteil des eigenen Lebens. */
+  regeneration(run, u, ab, dt) { u.hp = Math.min(u.maxHp, u.hp + u.maxHp * ab.anteil * dt); },
+  /** Heilaura: heilt in festen Abständen Verbündete im Umkreis. */
+  heilAura(run, u, ab, dt) {
+    if (!timer(u, 'heil', ab.intervall ?? 4, dt)) return;
+    u.timers.heil = ab.intervall ?? 4;
+    let any = false;
+    for (const o of run.units) if (!o.dead && dist(o, u) <= ab.radius && o.hp < o.maxHp) { o.hp = Math.min(o.maxHp, o.hp + o.maxHp * ab.anteil); any = true; }
+    if (any) fx(run, { type: 'ring', x: u.x, y: u.y, r: ab.radius, color: '#7CFFB0', life: 0.4 });
   },
   /** Grenzgänger: Riss im Boden (Schadenszone). */
   riss(run, u, ab, dt) {
@@ -197,7 +220,7 @@ const ABILITIES = {
     const p = densest(run, run.enemies.filter((e) => !e.dead && !e.fliegt), ab.radius);
     if (!p) { u.timers.riss = 0.3; return; }
     u.timers.riss = ab.intervall;
-    run.zones.push({ type: 'riss', x: p.x, y: p.y, r: ab.radius, t: ab.dauer, max: ab.dauer, dps: ab.schadenProSekunde, source: u });
+    run.zones.push({ type: 'riss', x: p.x, y: p.y, r: ab.radius, t: ab.dauer, max: ab.dauer, dps: ab.schadenProSekunde, source: u, slow: ab.verlangsamung });
   },
 };
 
@@ -207,6 +230,7 @@ const ABILITIES = {
 
 export function updateUnits(run, dt) {
   runRef = run;
+  run.auraHelden = run.units.filter((u) => !u.dead && u.def.faehigkeiten?.aura);
   const T = run.tower;
   for (const u of run.units) {
     if (u.dead) continue;
@@ -315,6 +339,7 @@ export function updateProjectiles(run, dt) {
     if (t && !t.dead) {
       damageEnemy(run, t, p.damage, p.type, { source: p.source, from: p.source ?? run.tower, cursor: p.isTower });
       applyOnHit(run, t, p.onHit, p.damage, p.source);
+      if (p.source?.kind === 'unit') unitOnHit(run, p.source, t, p.damage);
       p.hit.add(t);
     }
     if (p.explosion) {
@@ -351,6 +376,7 @@ export function updateZones(run, dt) {
       if (Math.hypot(e.x - z.x, (e.y - z.y) * 1.4) > z.r) continue;
       damageEnemy(run, e, z.dps * dt, z.type === 'gift' ? null : 'magic', { aoe: true, silent: true, source: z.source });
       if (z.knock && run.rng() < dt * 2) applyStatus(run, e, { typ: 'rueckstoss', distanz: z.knock }, 0, z);
+      if (z.slow) applyStatus(run, e, { typ: 'verlangsamung', faktor: 1 - z.slow, dauer: 0.5 });
     }
   }
   run.zones = run.zones.filter((z) => z.t > 0);

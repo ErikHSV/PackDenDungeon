@@ -1,12 +1,12 @@
 // Dauerhafter Spielstand (localStorage). Laufende Runs werden nicht gespeichert.
 
-import { REMOVED_V12 } from './refundV12.js';
+import { REMOVED_V12, REMOVED_V14 } from './refunds.js';
 
 const KEY = 'packdendungeon-save-v3';
 
 export function defaultSave(data) {
   return {
-    version: 13,
+    version: 14,
     // Genau drei Währungen (Abschnitt 10)
     coins: data?.balance.wirtschaft.startMuenzen ?? 3, // Münzen: nur für den Shop
     bonusCoins: 0,      // Bonus-Münzen aus Relikten und Effekten (werden zuerst ausgegeben)
@@ -74,6 +74,7 @@ function parseSave(data, raw) {
   if ((raw.version || 0) < 11) migrateV11(s, data);
   if ((raw.version || 0) < 12) migrateV12(s, data);
   if ((raw.version || 0) < 13) migrateV13(s, data);
+  if ((raw.version || 0) < 14) migrateV14(s, data);
   s.version = base.version; // Migrationen nur einmal ausführen
   return s;
 }
@@ -188,6 +189,14 @@ function migrateV13(s, data) {
   for (const [id, cost] of Object.entries(REMOVED_V13)) if (s.starmap?.[id]) { refund += Math.round(cost * aktMul); delete s.starmap[id]; }
   s.mastery = (s.mastery || 0) + refund;
   if (refund) s.migrationHinweis = [s.migrationHinweis, `Bonus-Einheit gilt jetzt je Pack: ${refund} Mastery erstattet.`].filter(Boolean).join(' ');
+}
+
+function migrateV14(s, data) {
+  const aktMul = data.balance.skilltree.aktKostenMul?.[s.act ?? 1] ?? 1;
+  let refund = 0;
+  for (const [id, cost] of Object.entries(REMOVED_V14)) if (s.starmap?.[id]) { refund += Math.round(cost * aktMul); delete s.starmap[id]; }
+  s.mastery = (s.mastery || 0) + refund;
+  if (refund) s.migrationHinweis = [s.migrationHinweis, `Skill-Tree neu: gleiche Upgrades gebündelt, Helden mit neuen Fähigkeiten und Quests – ${refund} Mastery erstattet.`].filter(Boolean).join(' ');
 }
 
 /**
