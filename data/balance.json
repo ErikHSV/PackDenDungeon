@@ -288,12 +288,12 @@
   },
   "skilltree": {
     "kostenFaktorStandard": 1.45,
-    "$kommentar": "Kosten = basisKosten × kostenFaktor^Stufe × aktKostenMul[Akt des Knotens]. Akt-1-Knoten kosten in jedem Akt gleich viel; Akt-2-Knoten (Legenden usw.) ×10.",
+    "$kommentar": "Kosten = basisKosten × kostenFaktor^Stufe × aktKostenMul. Alle Akte kosten gleich viel – ab Akt 2 kommen nur zusätzliche Upgrades dazu.",
     "aktKostenMul": {
       "1": 1,
-      "2": 10,
-      "3": 25,
-      "4": 50
+      "2": 1,
+      "3": 1,
+      "4": 1
     }
   },
   "foilbaum": {

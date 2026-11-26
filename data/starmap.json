@@ -413,7 +413,7 @@
         "anzahl": 1
       },
       "belohnung": {
-        "mastery": 20000,
+        "mastery": 5000,
         "tagesEinkommen": 3
       },
       "stamm": true,
@@ -480,7 +480,7 @@
         "anzahl": 1
       },
       "belohnung": {
-        "mastery": 60000,
+        "mastery": 10000,
         "tagesEinkommen": 3
       },
       "stamm": true,
@@ -546,7 +546,7 @@
         "anzahl": 1
       },
       "belohnung": {
-        "mastery": 150000,
+        "mastery": 20000,
         "reliktpack": 2
       },
       "stamm": true,
