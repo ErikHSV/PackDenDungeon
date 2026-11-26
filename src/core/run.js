@@ -4,7 +4,7 @@ import { drawCard, grenzgaengerChance, buildUnitDef } from './cards.js';
 import { newStatus, fx, damageEnemy, applyStatus, damageUnit, damageTower } from './combat.js';
 import { updateUnits, updateProjectiles, updateZones, UNIT_R } from './units.js';
 import { updateEnemies } from './enemies.js';
-import { masteryFor } from './meta.js';
+import { masteryFor, huntDef } from './meta.js';
 
 export const SIM_STEP = 1 / 60;
 
@@ -207,7 +207,7 @@ export class Run {
       const land = { x: p.x + Math.cos(a) * 60, y: p.y + Math.sin(a) * 34 };
       this.clampToArena(land, 0.95);
       const isNew = !((this.save.collection[card.id]?.normal || 0) + (this.save.collection[card.id]?.foil || 0) > 0) && !this.seenThisRun.has(card.id) && !this.cards.some((c) => c.id === card.id);
-      const entry = { ...card, riese: this.rng() < (p.extra?.riesenChance || 0), x: land.x, y: land.y, sx: p.x, sy: p.y - 30, tx: land.x, ty: land.y, t: -i * this.B.run.kartenDrehzeit, dur: 0.6, pack: def };
+      const entry = { ...card, riese: this.rng() < (p.extra?.riesenChance || 0) + (this.mods.riesenChance || 0), x: land.x, y: land.y, sx: p.x, sy: p.y - 30, tx: land.x, ty: land.y, t: -i * this.B.run.kartenDrehzeit, dur: 0.6, pack: def };
       if (isNew) { entry.x = p.x; entry.y = p.y - 30; this.cards.push(entry); } // neue Karte: aufdecken und präsentieren
       else this.materialize(entry); // bekannte Einheit: sofort aufs Feld
     }
@@ -302,7 +302,13 @@ export class Run {
     if (this.mods.erlaubteKI && !this.mods.erlaubteKI.includes(def.ki)) {
       this.coins += 3; fx(this, { type: 'text', x: c.tx, y: c.ty - 40, text: '+3 Bonus-Münzen', color: '#FFD24A', size: 18 }); return;
     }
-    this.spawnUnit(c.id, c.tx, c.ty, { foil: c.foil, riese: c.riese });
+    const nu = this.spawnUnit(c.id, c.tx, c.ty, { foil: c.foil, riese: c.riese });
+    // Verstärkung (z. B. Stalljunge „Heldenschar“): mit Chance kommt eine zweite Einheit derselben Art mit
+    const vs = nu?.def?.faehigkeiten?.verstaerkung;
+    if (vs && this.rng() < vs.chance) {
+      this.spawnUnit(c.id, c.tx + 30, c.ty + 12, { foil: false });
+      fx(this, { type: 'text', x: c.tx, y: c.ty - 70, text: 'Verstärkung!', color: '#7CFFB0', size: 16 });
+    }
   }
 
   // =====================================================================
@@ -379,6 +385,14 @@ export class Run {
 
   killUnit(u, expired = false) {
     if (u.dead) return;
+    // Skill-Tree „Phönixfeder“ (Akt 2): der erste gefallene Held eines Runs steht mit vollem Leben wieder auf
+    if (!expired && !u.summoned && this.mods.flags.phoenix && !this.phoenixUsed) {
+      this.phoenixUsed = true;
+      u.hp = u.maxHp;
+      fx(this, { type: 'pillar', x: u.x, y: u.y, life: 0.8 });
+      fx(this, { type: 'text', x: u.x, y: u.y - 90, text: 'Phönixfeder!', color: '#FF9A3A', size: 20 });
+      return;
+    }
     // Relikt "Zweite Chance": erster toter Held pro Run steht wieder auf
     if (!expired && !u.summoned) {
       for (const r of this.relics('heldGestorben')) {
@@ -425,7 +439,7 @@ export class Run {
     }
     // Letztes Aufbäumen: Held explodiert beim Tod
     const tx = u.def.faehigkeiten?.todesExplosion;
-    if (tx && !expired) {
+    if (tx) {
       const dmg = u.def.werte.schaden * this.mods.heldenSchadenMul * tx.schadenMul;
       fx(this, { type: 'burst', x: u.x, y: u.y, r: tx.radius, color: '#ff9a3a', life: 0.45 });
       for (const e of this.enemies) if (!e.dead && dist(e, u) <= tx.radius) damageEnemy(this, e, dmg, 'physical', { aoe: true, source: u });
@@ -660,7 +674,7 @@ export class Run {
         for (let i = 0; i < pe.n; i++) {
           const p = this.edgePoint(pe.ang + (i - (pe.n - 1) / 2) * 3, this.A.spawnRand);
           // Hauptmann führt, die übrigen sind Elite-Gardisten
-          const id = lead.fraktion && i > 0 ? (this.chapter.reliktJagd?.eskorte ?? this.chapter.gegner[0].id) : pe.id;
+          const id = lead.fraktion && i > 0 ? (this.huntDef?.eskorte ?? this.chapter.reliktJagd?.eskorte ?? this.chapter.gegner[0].id) : pe.id;
           this.spawnEnemy(id, { elite: true, x: p.x, y: p.y });
         }
         this.emit('eliteWave');
@@ -700,12 +714,15 @@ export class Run {
 
   /** Ist die Relikt-Jagd in diesem Run aktiv (Kapitel hat eine und sie wurde in diesem Akt noch nicht geschafft)? */
   huntAvailable() {
-    const rj = this.chapter.reliktJagd;
-    return !!rj && !this.save.stats.reliktJagden?.[`${this.save.act}:${this.chapter.id}`];
+    const rj = this.huntDef;
+    if (!rj) return false;
+    if (!this.save.stats.reliktJagden?.[`${this.save.act}:${this.chapter.id}`]) return true; // erste Jagd pro Kapitel und Akt: sicher
+    return this.rng() < (this.B.reliktJagd?.wiederholChance ?? 0) + (this.mods.reliktJagdChance || 0);
   }
 
   updateRelicHunt(dt) {
-    const rj = this.chapter.reliktJagd;
+    this.huntDef ??= huntDef(this.chapter, this.save, this.data);
+    const rj = this.huntDef;
     if (!rj || this.hunt?.done) return;
     if (!this.hunt) {
       if (!this.huntAvailable()) { this.hunt = { done: true }; return; }
@@ -724,6 +741,7 @@ export class Run {
       h.routeT = 3; // gestrichelter Pfeil am Boden
       const carrier = this.spawnEnemy(rj.traeger, { x: h.from.x, y: h.from.y, foil: this.rng() < this.B.wellen.foilMonster.chance + this.mods.foilMonsterChance });
       carrier.route = h.to;
+      carrier.speed *= this.mods.schatzTempoMul ?? 1; // Skill-Tree „Fährtenleser“
       h.carrier = carrier;
       const [lo, hi] = rj.eskorteAnzahl ?? [3, 5];
       const n = lo + Math.floor(this.rng() * (hi - lo + 1));
@@ -769,8 +787,14 @@ export class Run {
     const relic = free.length ? free[Math.floor(this.rng() * free.length)] : null;
     this.stats.schatzRelikt = relic?.id ?? null;
     this.stats.reliktJagd = true;
-    if (!relic) this.gainShimmer(B.foilStaub, 'schatzpack', p.x, p.y - 20);
-    if (p.shiny) this.gainShimmer(B.shinyBonus, 'shinySchatz', p.x, p.y - 20);
+    if (this.rng() < (this.mods.schatzBonusRelikt || 0)) this.stats.schatzBonus = true; // „Beuteteilung“: zusätzliches Reliktpack nach dem Run
+    if (!relic && B.foilStaub) this.gainShimmer(B.foilStaub, 'schatzpack', p.x, p.y - 20);
+    if (!relic && B.mastery) {
+      const mp = Math.round(B.mastery * (this.B.skilltree.aktKostenMul?.[this.save.act ?? 1] ?? 1));
+      this.stats.bonusMastery += mp;
+      fx(this, { type: 'text', x: p.x, y: p.y - 60, text: `+${mp} Mastery`, color: '#7cc4ff', size: 20, life: 1.6 });
+    }
+    if (p.shiny && B.shinyBonus) this.gainShimmer(B.shinyBonus, 'shinySchatz', p.x, p.y - 20);
     fx(this, { type: 'rays', x: p.x, y: p.y - 20, life: 1.2 });
     fx(this, { type: 'sparkles', x: p.x, y: p.y - 20, life: 1.2 });
     this.emit('treasureOpened', { relic });
@@ -1023,8 +1047,20 @@ export class Run {
         this.launchPack(crate ? b.def.kiste : b.def.pack, b, i * 0.25, b.extra);
       }
       if (times > 1) fx(this, { type: 'text', x: b.x, y: b.y - 80, text: 'Doppelt!', color: '#FFD24A', size: 18 });
+      if (this.mods.flags.nachbeben) this.shockwave(320, 1.2, 15); // Skill-Tree „Nachbeben“ (Akt 2)
       this.emit('sound', 'building');
     }
+  }
+
+  /** Schockwelle um den Turm: Schaden (skaliert mit dem Kapitel) und Betäubung. */
+  shockwave(radius, dauer, schaden) {
+    const T = this.tower;
+    fx(this, { type: 'ring', x: T.x, y: T.y, r: radius, color: '#7ac8ff', life: 0.5 });
+    for (const e of this.enemies) if (!e.dead && dist(e, T) <= radius) {
+      applyStatus(this, e, { typ: 'betaeubung', dauer });
+      damageEnemy(this, e, schaden * this.chapter.wellen.lebenMul, 'magic', { aoe: true, silent: true });
+    }
+    this.emit('shake', { power: 6 });
   }
 
   transformPack(b) {
@@ -1149,7 +1185,7 @@ export class Run {
     this.result = {
       sieg: victory, kapitel: this.chapter.id, boss: this.chapter.boss, zeit: this.time,
       kills: this.stats.kills, killWert: this.stats.killWert, bossAbschnitte: this.stats.bossAbschnitte,
-      reliktJagd: !!this.stats.reliktJagd, schatzRelikt: this.stats.schatzRelikt ?? null,
+      reliktJagd: !!this.stats.reliktJagd, schatzRelikt: this.stats.schatzRelikt ?? null, schatzBonus: !!this.stats.schatzBonus,
       muenzen: Math.max(0, this.coins), bonusMastery: this.stats.bonusMastery, foilStaub: this.stats.foilStaub, schimmer: this.stats.schimmer, ersteShinys: this.stats.ersteShinys,
       killsNachArt: this.stats.killsNachArt, killsEinheit: this.stats.killsEinheit, foilMonster: this.stats.foilMonster, elitewellen: this.stats.elitewellen,
       packsGeoeffnet: this.stats.packsGeoeffnet, gezogen: this.stats.gezogen, neueKarten: this.stats.neueKarten,

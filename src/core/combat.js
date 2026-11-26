@@ -174,7 +174,7 @@ export function killEnemy(run, e, killer = null) {
   // Neue Monsterart fürs Bestiarium: Mastery (Sammlung)
   if (!e.isBoss && !run.seenMonsters?.has(e.id) && !((run.save.bestiary[e.id]?.normal || 0) + (run.save.bestiary[e.id]?.foil || 0) > 0)) {
     run.seenMonsters?.add(e.id);
-    const mp = run.B.belohnungen.masteryNeuesMonster || 0;
+    const mp = Math.round((run.B.belohnungen.masteryNeuesMonster || 0) * (run.B.skilltree.aktKostenMul?.[run.save.act ?? 1] ?? 1)); // Akt 2+: Bestiarium-Einträge zählen mehr
     if (mp) { run.stats.bonusMastery += mp; fx(run, { type: 'text', x: e.x, y: e.y - 50, text: `+${mp} Mastery · Neu im Bestiarium`, color: '#7cc4ff', size: 18, life: 1.6 }); }
   }
   const k = (run.stats.killsNachArt[e.id] ||= { normal: 0, foil: 0 });
@@ -186,8 +186,10 @@ export function killEnemy(run, e, killer = null) {
     fx(run, { type: 'sparkles', x: e.x, y: e.y - 20, life: 1 });
     if (!e.isBoss) {
       const E = run.B.belohnungen.erstesShiny;
-      if (!(run.save.bestiary[e.id]?.foil > 0) && k.foil === 1) { run.stats.bonusMastery += E.masteryMonster; run.gainShimmer(E.foilStaubMonster, 'ersteShinyMonster', e.x, e.y - 20); }
-      else if (run.B.wellen.foilMonster.schimmerChance > 0 && run.rng() < run.B.wellen.foilMonster.schimmerChance) run.gainShimmer(1, 'shinyMonster', e.x, e.y - 20);
+      const vorher = run.save.bestiary[e.id]?.foil || 0;
+      if (vorher === 0 && k.foil === 1) { run.stats.bonusMastery += E.masteryMonster; run.gainShimmer(E.foilStaubMonster, 'ersteShinyMonster', e.x, e.y - 20); }
+      // Fünftes besiegtes Shiny derselben Art: noch einmal Schimmer, danach nichts mehr
+      else if (E.foilStaubMonsterFuenf && vorher + k.foil === (E.monsterFuenfAnzahl ?? 5)) run.gainShimmer(E.foilStaubMonsterFuenf, 'fuenfShinyMonster', e.x, e.y - 20);
     }
   }
   if (killer && run.mods.heldenHeilungProKill && !killer.dead) killer.hp = Math.min(killer.maxHp, killer.hp + killer.maxHp * run.mods.heldenHeilungProKill);

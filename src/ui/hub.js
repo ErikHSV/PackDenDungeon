@@ -8,6 +8,7 @@ import { renderCollection, renderBestiary, renderRelics } from './screens.js';
 import {
   chapterUnlocked, describeOffer, buyOffer, rollOffers, rerollCost, canReroll, reroll, resetPurchases, walletTotal, shopSlots,
   prestigeAvailable, modifiersAvailable, anyNodeAffordable, claimableQuests, autoClaimQuests, bagItems, tabUnlocked, foilTreeUnlocked, gesuchtSchimmer,
+  huntDef,
 } from '../core/meta.js';
 import { hash } from '../render/pixel.js';
 import { play } from '../audio.js';
@@ -225,15 +226,15 @@ export class Hub {
     $('#ch-name').title = ch.intro ?? '';
     const extra = [];
     if (sel.gesucht) {
-      const st = gesuchtSchimmer(ch, data, this.game.mods());
-      const first = !(save.stats.gesuchtSiege?.[ch.boss] > 0);
+      const st = gesuchtSchimmer(ch, data, this.game.mods(), save);
       const G = data.balance.gesucht;
-      extra.push(`<span class="chip on" title="Wiederholung eines geschafften Kapitels: Der Boss kommt als Schimmer-Boss zurück – stärker, mit Zusatzangriff. Jeder Sieg: +${st} Schimmer.${first ? ` Erster Sieg zusätzlich +${G.erstsiegSchimmer} Schimmer und ${G.erstsiegMastery} Mastery.` : ''}">SCHIMMER-BOSS ✦ +${st} <img src="${this.game.bank.iconUrl('crystal_regen')}" alt="">${first ? ` · 1. SIEG +${G.erstsiegSchimmer}` : ''}</span>`);
+      extra.push(`<span class="chip on" title="Wiederholung eines geschafften Kapitels: Der Boss kommt als Schimmer-Boss zurück – stärker, mit Zusatzangriff. ${st ? `Der erste Sieg gibt +${st} Schimmer und ${G.erstsiegMastery} Mastery.` : 'Schon besiegt – weitere Siege geben keinen Schimmer mehr.'}">SCHIMMER-BOSS ✦ ${st ? `+${st} <img src="${this.game.bank.iconUrl('crystal_regen')}" alt="">` : 'BESIEGT'}</span>`);
     }
     // Infotafel: Relikt-Jagd verfügbar bzw. erledigt (9.6.2)
-    if (ch.reliktJagd) {
+    if (huntDef(ch, save, data)) {
       const done = !!save.stats.reliktJagden?.[`${save.act}:${ch.id}`];
-      extra.push(`<span class="chip hunt${done ? ' done' : ''}" title="${done ? 'In diesem Akt bereits geschafft.' : 'Bei der Hälfte des Runs läuft ein Schatzträger quer über das Feld. Besiege ihn, bevor er entkommt!'}"><img src="${this.game.bank.iconUrl('truhe')}" alt=""> RELIKT-JAGD ${done ? 'ERLEDIGT' : 'VERFÜGBAR'}</span>`);
+      const pct = Math.round(((data.balance.reliktJagd?.wiederholChance ?? 0) + (this.game.mods().reliktJagdChance || 0)) * 100);
+      extra.push(`<span class="chip hunt${done ? ' done' : ''}" title="${done ? `In diesem Akt bereits geschafft – der Schatzträger kommt nur noch mit ${pct} % Chance.` : 'Bei der Hälfte des Runs marschiert die Eiserne Garde mit einem Schatzträger quer über das Feld. Besiege ihn, bevor er entkommt – er trägt ein Relikt!'}"><img src="${this.game.bank.iconUrl('truhe')}" alt=""> RELIKT-JAGD ${done ? `${pct} %` : 'SICHER'}</span>`);
     }
     const modsAvail = ch.art === 'kapitel' ? modifiersAvailable(data, save) : [];
     if (!modsAvail.some((m) => m.id === sel.modifier)) sel.modifier = null;

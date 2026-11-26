@@ -29,7 +29,7 @@ export function showResult(game, r, mods, opts) {
     </div>
     ${info.neueKarten.length ? `<div class="res-row"><b>Neue Karten:</b>${info.neueKarten.map((id) => `<img src="${bank.cardUrl(id)}" title="${escapeHtml(data.cardIndex[id].def.name)}">`).join('')}</div>` : ''}
     ${best ? `<div class="res-row"><b>Beste Einheit:</b><img src="${bank.unitUrl(best.id)}"> ${escapeHtml(best.name)}${best.foil ? ' ✦' : ''} – ${best.schaden} Schaden, ${best.kills} Kills</div>` : ''}
-    <div class="res-row">      ${info.schatzRelikt ? `<span style="color:#FFD24A">Relikt-Jagd: ${escapeHtml(info.schatzRelikt.name)} ist jetzt im Reiter RELIKTE.</span>` : ''}
+    <div class="res-row">      ${info.schatzRelikt ? `<span style="color:#FFD24A">Relikt-Jagd: ${escapeHtml(info.schatzRelikt.name)} ist jetzt im Reiter RELIKTE.</span>` : ''}${info.schatzBonus ? ` <span style="color:#FFD24A">Beuteteilung: ${escapeHtml(info.schatzBonus.name)}!</span>` : ''}
       ${r.ersteShinys?.length ? `<span class="rainbow-text">Erste Shinys: ${r.ersteShinys.map((id) => escapeHtml(data.cardIndex[id].def.name)).join(', ')}</span>` : ''}
       ${info.erfolge.map((a) => `<span style="color:#FFD24A">★ Erfolg: ${escapeHtml(a.name)}</span>`).join('')}</div>
     <div class="row">

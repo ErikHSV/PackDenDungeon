@@ -26,6 +26,8 @@ export const MOD_DEFAULTS = {
   // Turm und Gebäude
   turmLebenMul: 1, turmRegen: 0, turmSchuetze: 0, turmDornen: 0, gebaeudeIntervallMul: 1,
   // Tomes
+  // Akt 2: Relikt-Jagd, Bestiarium, Ruhm
+  reliktJagdChance: 0, schatzTempoMul: 1, schatzBonusRelikt: 0, bestiarMastery: 0, riesenChance: 0,
   tomeWirkungMul: 1, tomeDauerMul: 1, tomeDoppeltChance: 0, tomeZweimalChance: 0, tomesErlaubt: true,
   // Kapitel-Modifikatoren
   gegnerTempoMul: 1, gegnerLebenMul: 1, gegnerSchadenMul: 1, elitewelleIntervallMul: 1, bossZeitMul: 1, erlaubteKI: null,
@@ -88,6 +90,14 @@ export function computeMods(data, save, opts = {}) {
   if (m) { for (const ef of m.effekte) applyOp(mods, ef.ziel, ef.op, ef.wert); mods.modifierMastery = m.belohnung.masteryMul ?? 1; }
   if (opts.prestige) mods.prestige = data.balance.prestige.stufen.find((s) => s.stufe === opts.prestige) ?? null;
   mods.gesucht = !!opts.gesucht;
+  // Bestiarium (ab Akt 2): jede bekannte Monsterart erhöht die Run-Mastery
+  const BE = data.balance.bestiarium;
+  if (BE && (save.act ?? 1) >= BE.abAkt) {
+    for (const b of Object.values(save.bestiary || {})) {
+      if ((b.normal || 0) + (b.foil || 0) > 0) mods.bestiarMastery += BE.masteryProEintrag;
+      if ((b.foil || 0) > 0) mods.bestiarMastery += BE.masteryProShinyEintrag;
+    }
+  }
   return mods;
 }
 
@@ -102,6 +112,13 @@ export function packUnlocked(pack, save) {
   if (f.typ === 'knoten') return levelOf(save, f.knoten) > 0 && (!f.kapitel || (save.stats.bossKills[f.kapitel] || 0) > 0);
   if (f.typ === 'foilknoten') return foilLevelOf(save, f.knoten) > 0;
   return false;
+}
+
+/** Relikt-Jagd eines Kapitels: eigene Angabe oder (ab Akt 2) die Standard-Jagd der Eisernen Garde. */
+export function huntDef(ch, save, data) {
+  const R = data.balance.reliktJagd;
+  if (ch?.art !== 'kapitel' || (save.act ?? 1) < (R?.abAkt ?? 2)) return ch?.reliktJagd ?? null;
+  return ch.reliktJagd ?? R.standard;
 }
 
 export function chapterUnlocked(ch, save, data) {
@@ -408,18 +425,19 @@ export function masteryFor(result, data, mods) {
     + (result.packs || 0) * (B.masteryProPack || 0);
   const ch = data.chapterIndex[result.kapitel];
   const kapitelMul = ch?.masteryMul ?? ch?.wellen.muenzenMul ?? 1; // höhere Kapitel geben deutlich mehr Mastery
-  return Math.round(base * kapitelMul * mods.masteryMul * mods.modifierMastery * (mods.prestige?.belohnungMul ?? 1));
+  return Math.round(base * kapitelMul * mods.masteryMul * (1 + (mods.bestiarMastery || 0)) * mods.modifierMastery * (mods.prestige?.belohnungMul ?? 1));
 }
 
 export const SCHIMMER_QUELLEN = {
-  shinyMonster: 'Shiny-Monster', ersteShinyMonster: 'neues Shiny-Monster', neueShinyKarte: 'neue Shiny-Karte',
+  shinyMonster: 'Shiny-Monster', ersteShinyMonster: 'neues Shiny-Monster', fuenfShinyMonster: '5. Shiny derselben Art', neueShinyKarte: 'neue Shiny-Karte',
   doppelteShinyKarte: 'doppelte Shiny-Karte', gesucht: 'Shiny-Boss', gesuchtErst: 'erster Sieg gegen den Shiny-Boss',
   reliktpack: 'Reliktpack', erfolge: 'Erfolge', schatzpack: 'Schatzpack', shinySchatz: 'Shiny-Schatzträger',
 };
 
-/** Schimmer pro Sieg gegen den Shiny-Boss eines Kapitels (Kapitel 1: 1, Kapitel 4: 4 … wie im Original). */
-export function gesuchtSchimmer(ch, data, mods) {
-  return (ch?.gesuchtSchimmer ?? 1) + (mods?.gesuchtStaub || 0);
+/** Schimmer für einen Sieg gegen den Shiny-Boss eines Kapitels: nur beim ersten Sieg je Boss, danach 0. */
+export function gesuchtSchimmer(ch, data, mods, save = null) {
+  if (save && save.stats.gesuchtSiege?.[ch?.boss] > 0) return 0;
+  return (data.balance.gesucht.erstsiegSchimmer ?? 3) + (mods?.gesuchtStaub || 0);
 }
 
 /** Überträgt das Ergebnis in den Spielstand. Ein Run = ein Tag; danach beginnt der nächste Tag. */
@@ -435,10 +453,9 @@ export function applyRunResult(result, data, save, mods, rng = Math.random) {
   // Schimmer (10.1) mit Aufschlüsselung für den Ergebnis-Bildschirm
   const teile = { ...(result.schimmer || {}) };
   if (result.sieg && mods.gesucht) {
-    teile.gesucht = gesuchtSchimmer(data.chapterIndex[result.kapitel], data, mods);
     const first = !(s.gesuchtSiege?.[result.boss] > 0);
+    if (first) { out.mastery += G.erstsiegMastery; out.gesuchtErstsieg = G.erstsiegMastery; teile.gesuchtErst = gesuchtSchimmer(data.chapterIndex[result.kapitel], data, mods, save); }
     (s.gesuchtSiege ||= {})[result.boss] = (s.gesuchtSiege[result.boss] || 0) + 1;
-    if (first) { out.mastery += G.erstsiegMastery; out.gesuchtErstsieg = G.erstsiegMastery; teile.gesuchtErst = G.erstsiegSchimmer; }
   }
   save.mastery += out.mastery;
   out.bonusAusRun = Math.round(result.muenzen || 0); // Bonus-Münzen aus Fähigkeiten/Effekten im Run
@@ -471,6 +488,8 @@ export function applyRunResult(result, data, save, mods, rng = Math.random) {
     s.reliktJagdenGesamt = (s.reliktJagdenGesamt || 0) + 1;
     const r = result.schatzRelikt && data.relicIndex[result.schatzRelikt];
     if (r && !save.relics.owned.includes(r.id) && !save.relics.destroyed?.includes(r.id)) { giveRelic(r, data, save); out.schatzRelikt = r; }
+    // Skill-Tree „Beuteteilung“: zusätzlich ein Reliktpack
+    if (result.schatzBonus) { out.schatzBonus = openRelicPack(data, save, rng); if (!out.schatzBonus) out.reliktStaub = (out.reliktStaub || 0) + data.balance.belohnungen.reliktpackOhneRelikt.foilStaub; }
   }
   if (result.sieg) {
     const first = !s.bossKills[result.kapitel];
@@ -528,7 +547,7 @@ export function questChapters(node, data) {
   const a = node.aufgabe, f = a.filter || {};
   if (f.kapitel) return [f.kapitel];
   if (a.statistik === 'killsGegner') return data.chapters.filter((c) => c.art === 'kapitel' && (c.gegner.some((g) => g.id === f.gegner) || c.boss === f.gegner)).map((c) => c.id);
-  if (a.statistik === 'reliktJagden') return data.chapters.filter((c) => c.reliktJagd).map((c) => c.id);
+  if (a.statistik === 'reliktJagden') return null; // ab Akt 2 gibt es in jedem Kapitel Relikt-Jagden
   if (a.statistik === 'bossBesiegt' && f.boss) return data.chapters.filter((c) => c.art === 'kapitel' && c.boss === f.boss).map((c) => c.id);
   return null;
 }

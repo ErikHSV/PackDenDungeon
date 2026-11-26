@@ -10,7 +10,8 @@ import {
   bagItems, consumeBag, walletTotal, canReroll, reroll, rerollCost, computeMods, rollOffers, describeOffer, buyOffer, applyRunResult,
   buyNode, nodeBlocker, nodeCost, nodeVisible, treeLevel, chapterUnlocked, claimQuestNode, changeAct, questProgress, levelOf,
 } from '../src/core/meta.js';
-import { defaultSave } from '../src/save.js';
+import { defaultSave, importSave } from '../src/save.js';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { mulberry32 } from '../src/core/util.js';
 
 const args = process.argv.slice(2).filter((a) => !a.startsWith('--'));
@@ -23,7 +24,9 @@ const REACTION = Number(process.env.BOT_REACTION ?? 0.35);  // s zwischen Zielen
 
 const data = loadData();
 const rng = mulberry32(SEED);
-const save = defaultSave(data);
+// LOAD=<datei>: mit einem gespeicherten Spielstand starten (z. B. direkt nach dem Akt-Wechsel); SAVE_OUT=<datei>: Endstand speichern,
+// SAVE_ACT=<n>: Spielstand beim Erreichen von Akt n speichern (nach SAVE_OUT) und beenden.
+const save = process.env.LOAD ? importSave(data, readFileSync(process.env.LOAD, 'utf8')) : defaultSave(data);
 
 let day = 0;
 function botRun(chapterId, mods, bag) {
@@ -96,6 +99,7 @@ let minutes = 0, firstDust = null;
 const dustBy = {};
 const HUB_MINUTES = 0.75; // geschätzte Zeit im Hub pro Tag (Shop, Baum)
 for (day = 1; day <= DAYS; day++) {
+  if (process.env.SAVE_ACT && save.act >= Number(process.env.SAVE_ACT)) { writeFileSync(process.env.SAVE_OUT, JSON.stringify(save)); console.log(`Spielstand (Akt ${save.act}) gespeichert: ${process.env.SAVE_OUT}`); break; }
   const coinsBefore = walletTotal(save);
   shop();
   const bag = bagItems(data, save);
@@ -125,3 +129,4 @@ for (day = 1; day <= DAYS; day++) {
 }
 console.log(`Schimmer: erster an Tag ${firstDust?.day ?? '–'} (~${firstDust?.min ?? '–'} min, ${firstDust?.quellen ?? ''}), insgesamt ${save.stats.foilStaubGesamt} nach ${Math.round(minutes)} min`, JSON.stringify(dustBy));
 console.log('Erste Siege (Kapitel → Tag):', JSON.stringify(firstWin), '· Akt', save.act, '· Foil-Baum', JSON.stringify(save.foiltree));
+if (process.env.SAVE_OUT && !process.env.SAVE_ACT) writeFileSync(process.env.SAVE_OUT, JSON.stringify(save));

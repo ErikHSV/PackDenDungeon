@@ -270,7 +270,7 @@ export class BattleController {
         break;
       }
       case 'bossSegment': play('starUp'); break;
-      case 'huntWarning': play('horn'); this.renderer.huntWarn = { ...p.point, t: this.run.chapter.reliktJagd?.ankuendigung ?? 3 }; this.banner('RELIKT-JAGD!', 'gold'); break;
+      case 'huntWarning': play('horn'); this.renderer.huntWarn = { ...p.point, t: this.run.huntDef?.ankuendigung ?? 3 }; this.banner('RELIKT-JAGD!', 'gold'); break;
       case 'huntWon': play('unlock'); this.banner('Schatzträger besiegt! Öffne das Schatzpack!', 'gold'); break;
       case 'huntLost': play('error'); this.banner('Der Schatz ist entkommen …', 'danger'); break;
       case 'treasureOpened':

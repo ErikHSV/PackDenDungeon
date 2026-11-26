@@ -154,11 +154,13 @@
     "masteryProPack": 1,
     "masteryNeueKarte": 25,
     "erstesShiny": {
-      "$kommentar": "Wie im Original: Schimmer (Folium) gibt es für Foil-Bosse (Gesucht) und für das erste Shiny jeder Karte bzw. Monsterart. Dazu Mastery fürs Entdecken.",
+      "$kommentar": "Schimmer (Folium): erstes Shiny jeder Karte foilStaubKarte; erstes besiegtes Shiny jeder Monsterart foilStaubMonster (+1), beim monsterFuenfAnzahl-ten (5.) besiegten Shiny derselben Art noch einmal foilStaubMonsterFuenf (+3), danach nichts mehr. Dazu Mastery fürs Entdecken.",
       "foilStaubKarte": 3,
-      "foilStaubMonster": 2,
+      "foilStaubMonster": 1,
       "masteryKarte": 50,
-      "masteryMonster": 25
+      "masteryMonster": 25,
+      "foilStaubMonsterFuenf": 3,
+      "monsterFuenfAnzahl": 5
     },
     "reliktpackOhneRelikt": {
       "$kommentar": "Alle zufällig erhältlichen Relikte gefunden: das Pack gibt Foil-Staub.",
@@ -175,9 +177,10 @@
     },
     "masteryEliteKill": 5,
     "schatzpackOhneRelikt": {
-      "$kommentar": "Schatzpack, wenn alle zufälligen Relikte gefunden sind; Shiny-Schatzträger gibt zusätzlich shinyBonus.",
-      "foilStaub": 3,
-      "shinyBonus": 0
+      "$kommentar": "Schatzpack, wenn alle Relikte gefunden sind: kein Schimmer (Schimmer gibt es nur für Shiny-Monster, -Karten und den ersten Sieg gegen Shiny-Bosse), sondern Mastery × Akt-Faktor.",
+      "foilStaub": 0,
+      "shinyBonus": 0,
+      "mastery": 300
     },
     "masteryNeuesMonster": 10
   },
@@ -265,7 +268,7 @@
     ]
   },
   "gesucht": {
-    "$kommentar": "Geschafftes Kapitel gegen die Shiny-Version seines Bosses: stärker, mit Zusatzangriff. Schimmer pro Sieg steht im Kapitel (gesuchtSchimmer); der erste Sieg je Boss gibt zusätzlich erstsiegSchimmer und erstsiegMastery.",
+    "$kommentar": "Geschafftes Kapitel gegen die Shiny-Version seines Bosses: stärker, mit Zusatzangriff. Nur der erste Sieg je Boss gibt Schimmer (erstsiegSchimmer) und Mastery (erstsiegMastery); Wiederholungen geben keinen Schimmer mehr.",
     "bossLebenMul": 3,
     "bossSchadenMul": 1.75,
     "erstsiegMastery": 300,
@@ -277,7 +280,7 @@
       "schaden": 22,
       "text": "Prisma-Salve!"
     },
-    "erstsiegSchimmer": 8
+    "erstsiegSchimmer": 3
   },
   "debug": {
     "$kommentar": "Debug-Werkzeuge (nur mit ?debug in der URL).",
@@ -298,5 +301,26 @@
     "zinsenMax": 50000,
     "reliktReparaturKosten": 10
   },
-  "$kommentar_schimmer": "Schimmer ist bewusst knapp (10.1): 1–5 pro Ereignis, ein normaler Run ohne Shiny-Ereignis gibt 0."
+  "$kommentar_schimmer": "Schimmer ist bewusst knapp (10.1): 1–5 pro Ereignis, ein normaler Run ohne Shiny-Ereignis gibt 0.",
+  "reliktJagd": {
+    "$kommentar": "Relikt-Jagd der Eisernen Garde (Akt 2+): in jedem Kapitel. Der erste Schatzträger pro Kapitel und Akt kommt sicher, danach mit wiederholChance (+ Skill-Tree „Kopfgeld“). standard gilt für Kapitel ohne eigene reliktJagd-Angabe.",
+    "abAkt": 2,
+    "wiederholChance": 0.25,
+    "standard": {
+      "beiAnteil": 0.5,
+      "traeger": "schatztraeger",
+      "eskorte": "gardist",
+      "eskorteAnzahl": [
+        3,
+        5
+      ],
+      "ankuendigung": 3
+    }
+  },
+  "bestiarium": {
+    "$kommentar": "Ab Akt 2 gibt jede Monsterart im Bestiarium mehr Mastery (Bonus auf alle Run-Mastery), Shiny-Einträge zählen extra. Neue Bestiarium-Einträge geben masteryNeuesMonster × Akt-Kostenfaktor.",
+    "abAkt": 2,
+    "masteryProEintrag": 0.03,
+    "masteryProShinyEintrag": 0.05
+  }
 }
